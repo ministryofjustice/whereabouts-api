@@ -1,0 +1,9 @@
+branch-defaults:
+  master:
+    environment: prisonstaffhub-api-dev
+global:
+    application_name: prisonstaffhub-api
+    default_platform: Docker running on 64bit Amazon Linux
+    default_region: eu-west-2
+deploy:
+  artifact: Dockerrun.aws.json
