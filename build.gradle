@@ -1,0 +1,120 @@
+import java.text.SimpleDateFormat
+
+buildscript {
+    ext {
+        springBootVersion = '1.5.9.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+group 'uk.gov.justice.digital.hmpps'
+
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+
+
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+def applicationMainClass = 'uk.gov.justice.digital.hmpps.prisonstaffhub.PrisonStaffHubApplication'
+def dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+def dateOnlyFormat = new SimpleDateFormat("yyyy-MM-dd")
+def today = dateOnlyFormat.format(new Date())
+def applicationName = 'prisonstaffhub-api'
+version today
+
+jar {
+    baseName = applicationName
+    manifest {
+        attributes 'Implementation-Title': applicationName,
+                'Implementation-Version': System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
+    }
+}
+
+springBoot {
+    mainClass = applicationMainClass
+
+    buildInfo {
+        // Generate extra build info.
+        additionalProperties = [
+                by                   : System.properties['user.name'],
+                operatingSystem      : "${System.properties['os.name']} (${System.properties['os.version']})",
+                continuousIntegration: System.getenv('CI') ? true : false,
+                machine              : InetAddress.localHost.hostName,
+                time                 : dateFormat.format(new Date()),
+                name                 : applicationName,
+                version              : System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
+        ]
+    }
+    executable = true
+
+}
+
+/*lombok {
+    version = 1.18.0
+    sha256 = ""
+}*/
+
+configurations {
+    compile.exclude  module: "tomcat-jdbc"
+}
+
+dependencies {
+
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-devtools")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile("org.springframework.boot:spring-boot-starter-cache")
+
+    compile("org.hibernate:hibernate-java8")
+
+    compile("com.zaxxer:HikariCP:2.7.4")
+
+    compile("org.springframework.boot:spring-boot-starter-security")
+    compile("org.springframework.security.oauth:spring-security-oauth2")
+
+    compile("org.springframework.security:spring-security-jwt")
+    compile("io.jsonwebtoken:jjwt:0.9.0")
+
+    compile("io.springfox:springfox-swagger2:2.8.0")
+    compile("io.springfox:springfox-swagger-ui:2.8.0")
+    compile("net.sf.ehcache:ehcache:2.10.5")
+    compile("org.apache.commons:commons-lang3:3.7")
+    compile("org.apache.commons:commons-text:1.4")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.3")
+    compile("net.logstash.logback:logstash-logback-encoder:4.8")
+    compile("com.pauldijou:jwt-core_2.11:0.15.0")
+    compile("com.microsoft.azure:applicationinsights-core:2.1.1")
+    compile("com.microsoft.azure:applicationinsights-web:2.1.1")
+    compile("com.microsoft.azure:applicationinsights-logging-logback:2.1.1")
+
+    compile("org.flywaydb:flyway-core:5.1.4")
+    compile("org.hsqldb:hsqldb:2.4.0")
+    compile("org.postgresql:postgresql:42.2.1")
+    compile("org.projectlombok:lombok:1.18.0") //1.18 doesnt currently work with java10
+
+    //annotationProcessor('org.projectlombok:lombok:1.16.22')
+
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    testCompile("org.assertj:assertj-core:3.10.0")
+    testCompile 'org.codehaus.groovy:groovy-all:2.4.7'
+    testCompile("com.github.tomakehurst:wiremock:2.4.1")
+    testCompile 'org.spockframework:spock-spring:1.1-groovy-2.4'
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
+
+
+    //need gradle 4.9 for java 10.  Lombok doesn't currently work with this version - waiting for next release 1.18.2
+}
