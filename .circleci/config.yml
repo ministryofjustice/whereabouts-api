@@ -62,7 +62,7 @@ jobs:
 
             if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
               # publish to docker hub as the tag
-              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
               docker push mojdigitalstudio/prisonstaffhub-api:$TAG
               docker tag mojdigitalstudio/prisonstaffhub-api:$TAG mojdigitalstudio/prisonstaffhub-api:latest
               docker push mojdigitalstudio/prisonstaffhub-api:latest
