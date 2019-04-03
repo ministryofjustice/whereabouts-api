@@ -1,16 +1,18 @@
 spring:
   jpa:
-    show-sql: true
+    show-sql: false
     generate-ddl: false
     hibernate:
       ddl-auto: none
+
+  flyway:
+    enabled: true
 
   datasource:
     url: ${app.db.url}
     username: sa
     password:
     continueOnError: true
-    initialize: false
 
     hikari:
       pool-name: OffenderActivity-CP
@@ -24,7 +26,12 @@ spring:
 
 server:
   port: 8080
-  context-path: /
+  servlet:
+    context-path: /
+  use-forward-headers: true
+  tomcat:
+    remote-ip-header: x-forwarded-for
+    protocol_header: x-forwarded-proto
 
 logging:
   level:
@@ -32,11 +39,16 @@ logging:
     org.springframework.security: INFO
     uk.gov.justice.digital: DEBUG
 
+management:
+  endpoints:
+    web:
+      base-path: /
+
 elite2api:
   client:
     clientId: omicadmin
     clientSecret: clientsecret
-    accessTokenUri: ${elite2.uri.root}/oauth/token
+    accessTokenUri: ${auth.uri.root}/oauth/token
     tokenName: elite2_token
     authenticationScheme: header
     clientAuthenticationScheme: header
