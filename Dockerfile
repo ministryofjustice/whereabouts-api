@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpine
+FROM openjdk:11-slim
 MAINTAINER HMPPS Digital Studio <info@digital.justice.gov.uk>
 
 RUN apk update \
