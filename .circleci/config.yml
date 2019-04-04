@@ -43,6 +43,7 @@ jobs:
             jar xvf build/libs/prisonstaffhub-api-*.jar BOOT-INF/classes/META-INF/build-info.properties
             API_VERSION=$(grep 'build.version=' BOOT-INF/classes/META-INF/build-info.properties | awk -F= '{print $2}')
             rm BOOT-INF/classes/META-INF/build-info.properties
+            ls BOOT-INF/classes/META-INF
 
             # make up a good version name
             TAG=${API_VERSION}.${CIRCLE_BRANCH}
