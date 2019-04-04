@@ -41,7 +41,7 @@ jobs:
           name: Build container and publish to docker hub
           command: |
             jar xvf build/libs/prisonstaffhub-api-*.jar build/resources/main/META-INF/build-info.properties
-            API_VERSION=$(grep 'build.version= build/resources/main//META-INF/build-info.properties | awk -F= '{print $2}')
+            API_VERSION=$(grep 'build.version= build/resources/main/META-INF/build-info.properties | awk -F= '{print $2}')
             rm build/resources/main//META-INF/build-info.properties
 
             # make up a good version name
