@@ -43,7 +43,6 @@ jobs:
             jar xvf build/libs/prisonstaffhub-api-*.jar BOOT-INF/classes/META-INF/build-info.properties
             API_VERSION=$(grep 'build.version=' BOOT-INF/classes/META-INF/build-info.properties | awk -F= '{print $2}')
             rm BOOT-INF/classes/META-INF/build-info.properties
-            ls BOOT-INF/classes/META-INF
 
             # make up a good version name
             TAG=${API_VERSION}.${CIRCLE_BRANCH}
@@ -63,7 +62,7 @@ jobs:
 
             if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
               # publish to docker hub as the tag
-              docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
               docker push mojdigitalstudio/prisonstaffhub-api:$TAG
               docker tag mojdigitalstudio/prisonstaffhub-api:$TAG mojdigitalstudio/prisonstaffhub-api:latest
               docker push mojdigitalstudio/prisonstaffhub-api:latest
