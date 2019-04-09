@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.prisonstaffhub.integration.specs
 
+import com.github.tomakehurst.wiremock.client.WireMock
 import groovy.json.JsonSlurper
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -8,7 +9,9 @@ class HealthSpecification extends TestSpecification {
 
     def jsonSlurper = new JsonSlurper()
 
+
     def "Health page reports ok"() {
+        WireMock.reset()
 
         given:
         elite2api.stubHealthOKResponse()
@@ -20,9 +23,6 @@ class HealthSpecification extends TestSpecification {
         response.statusCode == HttpStatus.OK
         def details = jsonSlurper.parseText(response.body)
 
-        details.healthInfo.status == "UP"
-        details.elite2ApiHealth.status == "UP"
         details.status == "UP"
-        details.db.status == "UP"
     }
 }

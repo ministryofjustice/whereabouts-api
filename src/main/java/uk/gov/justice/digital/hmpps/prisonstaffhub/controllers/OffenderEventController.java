@@ -3,14 +3,13 @@ package uk.gov.justice.digital.hmpps.prisonstaffhub.controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.Validate;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.justice.digital.hmpps.prisonstaffhub.dto.EventDto;
 import uk.gov.justice.digital.hmpps.prisonstaffhub.dto.OffenderEventDto;
-import uk.gov.justice.digital.hmpps.prisonstaffhub.model.OffenderEvent;
 import uk.gov.justice.digital.hmpps.prisonstaffhub.services.OffenderEventService;
-import org.apache.commons.lang3.Validate;
 
 import javax.validation.Valid;
 import java.util.List;
