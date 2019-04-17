@@ -10,7 +10,7 @@ RUN mkdir /root/.postgresql \
 
 WORKDIR /app
 
-COPY build/libs/prisonstaffhub-api*.jar /app/app.jar
+COPY build/libs/whereabouts-api*.jar /app/app.jar
 COPY run.sh /app
 
 ENTRYPOINT ["/bin/sh", "/app/run.sh"]
