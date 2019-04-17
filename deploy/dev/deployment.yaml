@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: whereabouts-api
-          image: 754256621582.dkr.ecr.eu-west-2.amazonaws.com/omic/whereabouts-api:latest
+          image: 926803513772.dkr.ecr.eu-west-2.amazonaws.com/omic/whereabouts-api:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8084
