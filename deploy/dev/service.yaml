@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: whereabouts-api-svc
+  namespace: whereabouts-dev
+spec:
+  ports:
+    - protocol: TCP
+      port: 8084
+      targetPort: 8084
+  type: NodePort
+  selector:
+    app: whereabouts-api
