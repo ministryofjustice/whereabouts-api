@@ -25,7 +25,7 @@ spec:
           image: 926803513772.dkr.ecr.eu-west-2.amazonaws.com/omic/whereabouts-api:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8084
+            - containerPort: 8080
           resources:
             limits:
               cpu: 360m
@@ -36,14 +36,14 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: 8084
+              port: 8080
             initialDelaySeconds: 10
             periodSeconds: 20
             timeoutSeconds: 10
           readinessProbe:
             httpGet:
               path: /health
-              port: 8084
+              port: 8080
             periodSeconds: 20
             timeoutSeconds: 5
           env:
@@ -75,13 +75,13 @@ spec:
                 secretKeyRef:
                   name: whereabouts-api-rds-dev
                   key: database_name
-            - name: API_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: whereabouts-api-secrets
-                  key: api_client_id
-            - name: API_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: whereabouts-api-secrets
-                  key: api_client_secret
+#            - name: API_CLIENT_ID
+#              valueFrom:
+#                secretKeyRef:
+#                  name: ecr-repo-whereabouts-api
+#                  key: api_client_id
+#            - name: API_CLIENT_SECRET
+#              valueFrom:
+#                secretKeyRef:
+#                  name: ecr-repo-whereabouts-api
+#                  key: api_client_secret

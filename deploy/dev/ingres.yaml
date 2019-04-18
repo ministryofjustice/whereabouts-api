@@ -16,4 +16,4 @@ spec:
           - path: /
             backend:
               serviceName: whereabouts-api-svc
-              servicePort: 8084
+              servicePort: 8080
