@@ -10,7 +10,7 @@ spec:
     - hosts:
         - whereabouts-api.apps.cloud-platform-live-0.k8s.integration.dsd.io
   rules:
-    - host: whereabours-api.apps.cloud-platform-live-0.k8s.integration.dsd.io
+    - host: whereabouts-api.apps.cloud-platform-live-0.k8s.integration.dsd.io
       http:
         paths:
           - path: /
