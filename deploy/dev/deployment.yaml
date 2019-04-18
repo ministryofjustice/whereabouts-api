@@ -25,7 +25,7 @@ spec:
           image: 926803513772.dkr.ecr.eu-west-2.amazonaws.com/omic/whereabouts-api:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8080
+            - containerPort: 9090
           resources:
             limits:
               cpu: 360m
@@ -36,14 +36,14 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: 8080
+              port: 9090
             initialDelaySeconds: 10
             periodSeconds: 20
             timeoutSeconds: 10
           readinessProbe:
             httpGet:
               path: /health
-              port: 8080
+              port: 9090
             periodSeconds: 20
             timeoutSeconds: 5
           env:
