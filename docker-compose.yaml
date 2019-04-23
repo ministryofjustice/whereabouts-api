@@ -1,0 +1,30 @@
+version: "3"
+services:
+  api:
+#    image: 926803513772.dkr.ecr.eu-west-2.amazonaws.com/omic/whereabouts-api:latest
+    image: omic/whereabouts-api
+    ports:
+      - "9090:9090"
+    links:
+      - "db:database"
+    depends_on:
+      - db
+    environment:
+      - DB_SERVER=db:5432
+      - DB_PASS=password
+      - DB_USER=postgres
+      - DB_NAME=whereabouts
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - SPRING_PROFILES_ACTIVE=cloud-dev
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - DB_SERVER=db
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=whereabouts
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - SPRING_PROFILES_ACTIVE=cloud-dev
+
