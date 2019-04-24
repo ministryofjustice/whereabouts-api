@@ -75,10 +75,6 @@ dependencies {
     compile("org.springframework.security.oauth:spring-security-oauth2:2.3.4.RELEASE")
     compile("org.springframework.security:spring-security-jwt:1.0.9.RELEASE")
 
-    compile group: 'org.apache.camel', name: 'camel-spring-boot', version: '2.23.0'
-    compile group: 'org.apache.camel', name: 'camel-quartz2', version: '2.23.0'
-
-    compile("org.springframework.boot:spring-boot-starter-quartz:${springBootVersion}")
     compile("org.hibernate:hibernate-java8")
 
     compile("net.logstash.logback:logstash-logback-encoder:5.2")
@@ -127,5 +123,4 @@ dependencies {
     testCompile 'com.github.tomjankes:wiremock-groovy:0.2.0'
     testCompile 'org.spockframework:spock-spring:1.1-groovy-2.4'
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
-    testCompile group: 'org.apache.camel', name: 'camel-test-spring', version: '2.23.0'
 }

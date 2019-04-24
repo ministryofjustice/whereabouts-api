@@ -25,7 +25,7 @@ spring:
       WRITE_DATES_AS_TIMESTAMPS : false
 
 server:
-  port: 9090
+  port: 8080
   servlet:
     context-path: /
   use-forward-headers: true
@@ -44,12 +44,3 @@ management:
     web:
       base-path: /
 
-
-elite2api:
-  client:
-    clientId: omicadmin
-    clientSecret: clientsecret
-    accessTokenUri: ${auth.uri.root}/oauth/token
-    tokenName: elite2_token
-    authenticationScheme: header
-    clientAuthenticationScheme: header

@@ -1,22 +1,19 @@
 version: "3"
 services:
   api:
-#    image: 926803513772.dkr.ecr.eu-west-2.amazonaws.com/omic/whereabouts-api:latest
-    image: omic/whereabouts-api
+    build: .
     ports:
       - "9090:9090"
-    links:
-      - "db:database"
     depends_on:
       - db
     environment:
+      - SERVER_PORT=9090
       - DB_SERVER=db:5432
       - DB_PASS=password
       - DB_USER=postgres
       - DB_NAME=whereabouts
       - PGDATA=/var/lib/postgresql/data/pgdata
-      - SPRING_PROFILES_ACTIVE=cloud-dev
-      - ELITE2API_ENDPOINT_URL=http://localhost:8080
+      - SPRING_PROFILES_ACTIVE=postgres
   db:
     image: postgres:latest
     ports:
@@ -27,5 +24,4 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=whereabouts
       - PGDATA=/var/lib/postgresql/data/pgdata
-      - SPRING_PROFILES_ACTIVE=cloud-dev
 
