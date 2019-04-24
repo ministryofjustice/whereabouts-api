@@ -44,6 +44,7 @@ management:
     web:
       base-path: /
 
+
 elite2api:
   client:
     clientId: omicadmin

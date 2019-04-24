@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.prisonstaffhub.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 /** Adds version data to the /health endpoint. This is called by the UI to display API details */
 @Component
+@Slf4j
 public class HealthInfo implements HealthIndicator {
 
     @Autowired(required = false)
@@ -15,7 +17,9 @@ public class HealthInfo implements HealthIndicator {
 
     @Override
     public Health health() {
-        return Health.up().withDetail("version", getVersion()).build();
+        final var status = Health.up().withDetail("version", getVersion()).build();
+        log.info(status.toString());
+        return status;
     }
 
     private String getVersion(){

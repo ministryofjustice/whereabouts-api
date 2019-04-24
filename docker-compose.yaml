@@ -16,6 +16,7 @@ services:
       - DB_NAME=whereabouts
       - PGDATA=/var/lib/postgresql/data/pgdata
       - SPRING_PROFILES_ACTIVE=cloud-dev
+      - ELITE2API_ENDPOINT_URL=http://localhost:8080
   db:
     image: postgres:latest
     ports:
