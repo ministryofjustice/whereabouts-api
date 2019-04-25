@@ -129,7 +129,8 @@ jobs:
           command: |
             APP_VERSION=$(cat ./app_version.txt)
             kubectl set image -f ./deploy/dev/deployment.yaml whereabouts-api=${ECR_ENDPOINT}:${APP_VERSION} --local -o yaml \
-            | kubectl apply -f ./deploy/dev/service.yaml -f ./deploy/dev/ingres.yaml
+            | kubectl apply -f -
+            kubectl apply -f ./deploy/dev/service.yaml -f ./deploy/dev/ingres.yaml
 
 workflows:
   version: 2
