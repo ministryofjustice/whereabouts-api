@@ -103,12 +103,12 @@ jobs:
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
             docker pull mojdigitalstudio/whereabouts-api:$APP_VERSION
 
-            docker tag mojdigitalstudio/whereabouts-api:$APP_VERSION "${ECR_ENDPOINT}:${APP_VERSION}"
-            docker tag "${ECR_ENDPOINT}:${APP_VERSION}" "${ECR_ENDPOINT}:latest"
+            docker tag mojdigitalstudio/whereabouts-api:$APP_VERSION "${ECR_ENDPOINT}/omic/whereabouts-api:${APP_VERSION}"
+            docker tag "${ECR_ENDPOINT}/omic/whereabouts-api:${APP_VERSION}" "${ECR_ENDPOINT}/omic/whereabouts-api:latest"
             login="$(aws ecr get-login --region eu-west-2 --no-include-email)"
             ${login}
-            docker push "${ECR_ENDPOINT}:${APP_VERSION}"
-            docker push "${ECR_ENDPOINT}:latest"
+            docker push "${ECR_ENDPOINT}/omic/whereabouts-api:${APP_VERSION}"
+            docker push "${ECR_ENDPOINT}/omic/whereabouts-api:latest"
 
   deploy_dev:
     <<: *deploy_container_config
@@ -128,7 +128,7 @@ jobs:
           name: Deploy to dev
           command: |
             APP_VERSION=$(cat ./app_version.txt)
-            kubectl set image -f ./deploy/dev/deployment.yaml whereabouts-api=${ECR_ENDPOINT}:${APP_VERSION} --local -o yaml \
+            kubectl set image -f ./deploy/dev/deployment.yaml whereabouts-api=${ECR_ENDPOINT}/omic/whereabouts-api:${APP_VERSION} --local -o yaml \
             | kubectl apply -f -
             kubectl apply -f ./deploy/dev/service.yaml -f ./deploy/dev/ingres.yaml
 
