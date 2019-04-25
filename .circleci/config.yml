@@ -100,7 +100,7 @@ jobs:
           name: publish image to ecs
           command: |
             APP_VERSION=$(cat ./app_version.txt)
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
             docker pull mojdigitalstudio/whereabouts-api:$APP_VERSION
 
             docker tag mojdigitalstudio/whereabouts-api:$APP_VERSION "${ECR_ENDPOINT}/digcat/whereabouts-api:${APP_VERSION}"
