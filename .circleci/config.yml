@@ -80,13 +80,13 @@ jobs:
                --label "build.url=$CIRCLE_BUILD_URL" \
                --label "build.gitref=$CIRCLE_SHA1"
 
-#            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
-#              # publish to docker hub as the tag
-#             docker login -u $DOCKER_USER -p $DOCKER_PASS
-#             docker tag mojdigitalstudio/whereabouts-api:$APP_VERSION mojdigitalstudio/whereabouts-api:latest
-#             docker push mojdigitalstudio/whereabouts-api:$APP_VERSION
-#             docker push mojdigitalstudio/whereabouts-api:latest
-#            fi
+            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+              # publish to docker hub as the tag
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker tag mojdigitalstudio/whereabouts-api:$APP_VERSION mojdigitalstudio/whereabouts-api:latest
+             docker push mojdigitalstudio/whereabouts-api:$APP_VERSION
+             docker push mojdigitalstudio/whereabouts-api:latest
+            fi
 
   copy_image_to_ecs:
     <<: *defaults
