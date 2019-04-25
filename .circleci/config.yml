@@ -129,52 +129,7 @@ jobs:
           command: |
             APP_VERSION=$(cat ~/app/app_version.txt)
             kubectl set image -f ./deploy/dev/deployment.yaml whereabouts-api=${ECR_ENDPOINT}/omic/whereabouts-api:${APP_VERSION} --local -o yaml \
-            | kubectl apply -f -
-            kubectl apply -f ./deploy/dev/service.yaml
-
-  deploy_preprod:
-    <<: *deploy_container_config
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - attach_workspace:
-          at: ~/app
-      - run:
-          name: Kubectl deployment preprod setup
-          command: |
-            $(aws ecr get-login --region eu-west-1 --no-include-email)
-            setup-kube-auth
-            kubectl config use-context preprod
-      - deploy:
-          name: Deploy to dev
-          command: |
-            APP_VERSION=$(cat ~/app/app_version.txt)
-            kubectl set image -f ./deploy/preprod/deployment.yaml whereabouts-api=${ECR_ENDPOINT}/omic/whereabouts-api:${APP_VERSION} --local -o yaml \
-            | kubectl apply -f -
-            kubectl apply -f ./deploy/preprod/service.yaml
-
-  deploy_production:
-    <<: *deploy_container_config
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - attach_workspace:
-          at: ~/app
-      - run:
-          name: Kubectl deployment prod setup
-          command: |
-            $(aws ecr get-login --region eu-west-1 --no-include-email)
-            setup-kube-auth
-            kubectl config use-context production
-      - deploy:
-          name: Deploy to Production
-          command: |
-            APP_VERSION=$(cat ~/app/app_version.txt)
-            kubectl set image -f ./deploy/production/deployment.yaml whereabouts-api=${ECR_ENDPOINT}/omic/whereabouts-api:${APP_VERSION} --local -o yaml \
-            | kubectl apply -f -
-            kubectl apply -f ./deploy/production/service.yaml
+            | kubectl apply -f ./deploy/dev
 
 workflows:
   version: 2
@@ -196,29 +151,4 @@ workflows:
       - deploy_dev:
           requires:
             - copy_image_to_ecs
-      - deploy_preprod_approval:
-          type: approval
-          requires:
-            - deploy_dev
-          filters:
-            branches:
-              only: master
-      - deploy_preprod:
-          requires:
-            - deploy_preprod_approval
-          filters:
-            branches:
-              only: master
-      - deploy_production_approval:
-          type: approval
-          requires:
-            - deploy_preprod
-          filters:
-            branches:
-              only: master
-      - deploy_production:
-          requires:
-            - deploy_production_approval
-          filters:
-            branches:
-              only: master
+
