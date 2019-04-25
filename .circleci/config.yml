@@ -15,7 +15,7 @@ install_aws_cli: &install_aws_cli
     command: |
       sudo apt-get --assume-yes install python3-pip
       sudo pip3 install awscli
-      $(aws ecr get-login --region eu-west-1 --no-include-email)
+      $(aws ecr get-login --region eu-west-2 --no-include-email)
 
 version: 2
 jobs:
@@ -105,7 +105,7 @@ jobs:
 
             docker tag mojdigitalstudio/whereabouts-api:$APP_VERSION "${ECR_ENDPOINT}/omic/whereabouts-api:${APP_VERSION}"
             docker tag "${ECR_ENDPOINT}/omic/whereabouts-api:${APP_VERSION}" "${ECR_ENDPOINT}/omic/whereabouts-api:latest"
-            login="$(aws ecr get-login --region eu-west-1 --no-include-email)"
+            login="$(aws ecr get-login --region eu-west-2 --no-include-email)"
             ${login}
             docker push "${ECR_ENDPOINT}/omic/whereabouts-api:${APP_VERSION}"
             docker push "${ECR_ENDPOINT}/omic/whereabouts-api:latest"
@@ -121,7 +121,7 @@ jobs:
       - run:
           name: Kubectl deployment dev setup
           command: |
-            $(aws ecr get-login --region eu-west-1 --no-include-email)
+            $(aws ecr get-login --region eu-west-2 --no-include-email)
             setup-kube-auth
             kubectl config use-context dev
       - deploy:
