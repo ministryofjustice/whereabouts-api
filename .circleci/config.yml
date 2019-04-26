@@ -5,7 +5,7 @@ defaults: &defaults
 
 deploy_container_config: &deploy_container_config
   docker:
-    - image: ${CLOUD_PLATFORM_TOOLS} #https://github.com/ministryofjustice/cloud-platform-tools-image
+    - image: ${ECR_ENDPOINT}/cloud-platform/tools:circleci
       environment:
         GITHUB_TEAM_NAME_SLUG: whereabouts-api
 
