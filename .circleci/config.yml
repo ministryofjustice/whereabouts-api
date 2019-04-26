@@ -127,7 +127,7 @@ jobs:
       - deploy:
           name: Deploy to dev
           command: |
-            APP_VERSION=$(cat ./app_version.txt)
+            APP_VERSION=$(cat ~/app_version.txt)
             kubectl set image -f ./deploy/dev/deployment.yaml whereabouts-api=${APP_ECR_ENDPOINT}/omic/whereabouts-api:${APP_VERSION} --local -o yaml \
             | kubectl apply -f -
             kubectl apply -f ./deploy/dev/service.yaml -f ./deploy/dev/ingres.yaml
