@@ -5,7 +5,7 @@ defaults: &defaults
 
 deploy_container_config: &deploy_container_config
   docker:
-    - image: ${ECR_ENDPOINT}/cloud-platform/tools:circleci
+    - image: ${CLOUD_PLATFORM_TOOLS}
       environment:
         GITHUB_TEAM_NAME_SLUG: whereabouts-api
 
