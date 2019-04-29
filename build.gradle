@@ -24,7 +24,7 @@ repositories {
 project.sourceCompatibility = 11
 project.targetCompatibility = 11
 
-def applicationName = 'prisonstaffhub-api'
+def applicationName = 'whereabouts-api'
 def today = java.time.Instant.now()
 def todayDate = java.time.LocalDate.now()
 def formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")

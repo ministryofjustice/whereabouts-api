@@ -1,0 +1,91 @@
+package uk.gov.justice.digital.hmpps.whereabouts.utils;
+
+/**
+ * Helper to convert model objects to DTOs and vice versa.
+ */
+public final class ConversionHelper {
+    private ConversionHelper() {
+    }
+
+   /* public static Set<OffenderKeyworker> convertOffenderKeyworkerDto2Model(List<OffenderKeyworkerDto> dtos) {
+        Validate.notNull(dtos);
+
+        return dtos.stream().map(ConversionHelper::convertOffenderKeyworkerDto2Model).collect(Collectors.toSet());
+    }
+
+    public static OffenderKeyworker convertOffenderKeyworkerDto2Model(OffenderKeyworkerDto dto) {
+        Validate.notNull(dto);
+
+        return OffenderKeyworker.builder()
+                .offenderNo(dto.getOffenderNo())
+                .staffId(dto.getStaffId())
+                .prisonId(dto.getAgencyId())
+                .active(StringUtils.equals("Y", dto.getActive()))
+                .assignedDateTime(dto.getAssigned())
+                .expiryDateTime(dto.getExpired())
+                .userId(dto.getUserId())
+                .build();
+    }
+
+    public static List<OffenderKeyworkerDto> convertOffenderKeyworkerModel2Dto(List<OffenderKeyworker> models) {
+        Validate.notNull(models);
+        return models.stream().map(ConversionHelper::convertOffenderKeyworkerModel2Dto).collect(Collectors.toList());
+    }
+
+    private static OffenderKeyworkerDto convertOffenderKeyworkerModel2Dto(OffenderKeyworker model) {
+        Validate.notNull(model);
+
+        return OffenderKeyworkerDto.builder()
+                .offenderKeyworkerId(model.getOffenderKeyworkerId())
+                .offenderNo(model.getOffenderNo())
+                .staffId(model.getStaffId())
+                .agencyId(model.getPrisonId())
+                .active(model.isActive() ? "Y" : "N")
+                .assigned(model.getAssignedDateTime())
+                .expired(model.getExpiryDateTime())
+                .userId(model.getUserId())
+                .build();
+    }
+
+    public static OffenderKeyworker getOffenderKeyworker(KeyworkerAllocationDto newAllocation, String userId) {
+        return OffenderKeyworker.builder()
+                .offenderNo(newAllocation.getOffenderNo())
+                .staffId(newAllocation.getStaffId())
+                .prisonId(newAllocation.getPrisonId())
+                .allocationReason(newAllocation.getAllocationReason())
+                .active(true)
+                .assignedDateTime(LocalDateTime.now())
+                .allocationType(newAllocation.getAllocationType())
+                .userId(userId)
+                .build();
+    }
+
+    public static KeyworkerAllocationDetailsDto convertOffenderKeyworkerModel2KeyworkerAllocationDetailsDto(OffenderKeyworker model) {
+        Validate.notNull(model);
+
+        return KeyworkerAllocationDetailsDto.builder()
+                .offenderNo(model.getOffenderNo())
+                .staffId(model.getStaffId())
+                .agencyId(model.getPrisonId()) //TODO: remove
+                .prisonId(model.getPrisonId())
+                .assigned(model.getAssignedDateTime())
+                .allocationType(model.getAllocationType())
+                .build();
+    }
+
+    public static KeyworkerDto getKeyworkerDto(StaffLocationRoleDto dto) {
+        if (dto != null) {
+            return KeyworkerDto.builder()
+                    .firstName(dto.getFirstName())
+                    .lastName(dto.getLastName())
+                    .email(dto.getEmail())
+                    .staffId(dto.getStaffId())
+                    .thumbnailId(dto.getThumbnailId())
+                    .scheduleType(dto.getScheduleTypeDescription())
+                    .agencyDescription(dto.getAgencyDescription())
+                    .agencyId(dto.getAgencyId())
+                    .build();
+        }
+        return null;
+    }*/
+}

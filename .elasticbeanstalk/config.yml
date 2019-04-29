@@ -1,8 +1,8 @@
 branch-defaults:
   master:
-    environment: prisonstaffhub-api-dev
+    environment: whereabouts-api-dev
 global:
-    application_name: prisonstaffhub-api
+    application_name: whereabouts-api
     default_platform: Docker running on 64bit Amazon Linux
     default_region: eu-west-2
 deploy:
