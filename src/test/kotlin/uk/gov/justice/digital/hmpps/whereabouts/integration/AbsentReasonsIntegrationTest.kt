@@ -12,7 +12,7 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
     @Test
     fun `should return the correct absent reasons`() {
         val response: ResponseEntity<String > =
-                restTemplate?.exchange("/attendance/absence-reasons", HttpMethod.GET, createHeaderEntity("headers"))!!
+                restTemplate.exchange("/attendance/absence-reasons", HttpMethod.GET, createHeaderEntity("headers"))!!
 
         val result: Set<Map<*,*>> = gson.fromJson(response.body,  object: TypeToken<Set<Map<*,*>>>(){}.type)
 

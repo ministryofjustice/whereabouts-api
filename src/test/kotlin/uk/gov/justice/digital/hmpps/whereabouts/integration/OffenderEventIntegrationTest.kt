@@ -19,7 +19,7 @@ class OffenderEventIntegrationTest : IntegrationTest() {
     @Test
     fun `Offender Event record can be recorded`() {
         val response: ResponseEntity<String> =
-                restTemplate?.exchange("/whereabouts/offender-event", HttpMethod.POST,
+                restTemplate.exchange("/whereabouts/offender-event", HttpMethod.POST,
                         createHeaderEntity(getOffenderEvent(123L, EventType.APP.toString())))!!
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
@@ -27,9 +27,9 @@ class OffenderEventIntegrationTest : IntegrationTest() {
 
     @Test
     fun `Offender Event records can be retrieved for a list of events`() {
-        val response: ResponseEntity<String>? = restTemplate?.exchange("/whereabouts/offender-event", HttpMethod.POST, createHeaderEntity(getOffenderEvent(1L, "APP")))
-        val response1: ResponseEntity<String>? = restTemplate?.exchange("/whereabouts/offender-event", HttpMethod.POST, createHeaderEntity(getOffenderEvent(1L, "VISIT")))
-        val response2: ResponseEntity<String>? = restTemplate?.exchange("/whereabouts/offender-event", HttpMethod.POST, createHeaderEntity(getOffenderEvent(2L, "VISIT")))
+       restTemplate.exchange< ResponseEntity<String>>("/whereabouts/offender-event", HttpMethod.POST, createHeaderEntity(getOffenderEvent(1L, "APP")))
+        restTemplate.exchange< ResponseEntity<String>>("/whereabouts/offender-event", HttpMethod.POST, createHeaderEntity(getOffenderEvent(1L, "VISIT")))
+        restTemplate.exchange< ResponseEntity<String>>("/whereabouts/offender-event", HttpMethod.POST, createHeaderEntity(getOffenderEvent(2L, "VISIT")))
 
         val offenderEventResponse = restTemplate!!.exchange("/whereabouts/LEI/offender-event", HttpMethod.POST, createHeaderEntity(Lists.newArrayList(
                 EventDto(1L, "APP"),

@@ -19,11 +19,11 @@ import javax.validation.ConstraintViolationException
 open class AttendanceRepositoryTest {
 
     @Autowired
-    var attendanceRepository: AttendanceRepository? = null
+    lateinit var attendanceRepository: AttendanceRepository
 
     @Test
     fun `should insert attendance without error` () {
-        attendanceRepository?.save(Attendance.builder()
+        attendanceRepository.save(Attendance.builder()
                 .attended(true)
                 .paid(true)
                 .eventDate(LocalDate.now())
@@ -38,12 +38,12 @@ open class AttendanceRepositoryTest {
 
     @Test(expected = ConstraintViolationException::class)
     fun `should throw error on missing fields` () {
-            attendanceRepository?.save(Attendance.builder().build())
+            attendanceRepository.save(Attendance.builder().build())
     }
 
     @Test(expected = DataIntegrityViolationException::class)
     fun `should throw error when absent reason id is incorrect` () {
-            attendanceRepository?.save(Attendance.builder()
+            attendanceRepository.save(Attendance.builder()
                     .attended(true)
                     .paid(true)
                     .eventDate(LocalDate.now())

@@ -19,7 +19,7 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     @Test
     fun `Health page reports ok` () {
 
-        elite2MockServer!!.stubFor(
+        elite2MockServer.stubFor(
            WireMock.get(WireMock.urlPathEqualTo("/health"))
             .willReturn(WireMock.aResponse()
                     .withStatus(200)
@@ -28,7 +28,7 @@ class HealthCheckIntegrationTest : IntegrationTest() {
         )
 
         val response: ResponseEntity<String> =
-                restTemplate!!.exchange("/health", HttpMethod.GET, createHeaderEntity("headers"))
+                restTemplate.exchange("/health", HttpMethod.GET, createHeaderEntity("headers"))
 
         val body = gson.fromJson(response.body, Map::class.java)
 

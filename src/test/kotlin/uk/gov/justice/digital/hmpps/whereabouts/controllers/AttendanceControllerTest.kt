@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.controllers
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
@@ -21,12 +20,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
 import java.time.LocalDate
 
 open class AttendanceControllerTest {
-    var mvc: MockMvc? = null
-    var attendanceService: AttendanceService? = null
+    val mvc: MockMvc
+    val attendanceService: AttendanceService
     val gson: Gson = getGson()
 
-   @Before
-   fun before() {
+    init {
         attendanceService = mock<AttendanceService>(AttendanceService::class.java)
         mvc = standaloneSetup(OffenderAttendanceController(attendanceService))
                 .build()
@@ -44,7 +42,7 @@ open class AttendanceControllerTest {
                 "paid" to true
         )
 
-        mvc!!.perform(
+        mvc.perform(
                 post("/attendance")
                         .accept(MediaType.APPLICATION_JSON)
                         .content(Gson().toJson(attendance))
@@ -62,7 +60,7 @@ open class AttendanceControllerTest {
 
     @Test
     fun `return a bad request when the required fields are missing`() {
-        mvc!!.perform(
+        mvc.perform(
                 post("/attendance")
                         .accept(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(mapOf("prisonId" to "LEI")))
@@ -87,7 +85,7 @@ open class AttendanceControllerTest {
                 TimePeriod.AM))
                 .thenReturn(mutableSetOf(attendance))
 
-        val result = mvc!!.perform(
+        val result = mvc.perform(
                 get("/attendance/LEI/2?date=2019-10-10&period=AM").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andReturn()
