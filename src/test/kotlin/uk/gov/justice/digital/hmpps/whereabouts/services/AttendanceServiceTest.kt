@@ -7,12 +7,10 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 import org.mockito.runners.MockitoJUnitRunner
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsentReasonDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
-import uk.gov.justice.digital.hmpps.whereabouts.repository.AbsentReasonsRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 
@@ -21,9 +19,6 @@ import java.time.LocalDate
 class AttendanceServiceTest {
     @Mock
     var attendanceRepository: AttendanceRepository? = null
-
-    @Mock
-    var absentReasonsRepository: AbsentReasonsRepository? = null
 
     @Test
     fun `should find attendance given some criteria`() {
@@ -34,7 +29,7 @@ class AttendanceServiceTest {
                         Attendance.
                                 builder()
                                 .id(1)
-                                .absentReasonId(1)
+                                .absentReason(AbsentReason.Refused)
                                 .attended(true)
                                 .paid(false)
                                 .eventId(2)
@@ -46,7 +41,7 @@ class AttendanceServiceTest {
                                 .build()
                 ))
 
-        val service =  AttendanceService(attendanceRepository, absentReasonsRepository)
+        val service =  AttendanceService(attendanceRepository)
 
         val result = service.getAttendance("LEI" , 1, today, TimePeriod.AM)
 
@@ -54,7 +49,7 @@ class AttendanceServiceTest {
                 AttendanceDto
                         .builder()
                         .id(1)
-                        .absentReasonId(1)
+                        .absentReason(AbsentReason.Refused)
                         .attended(true)
                         .paid(false)
                         .eventId(2)
@@ -70,11 +65,11 @@ class AttendanceServiceTest {
     @Test
     fun `should create an attendance record`() {
         val today = LocalDate.now()
-        val service = AttendanceService(attendanceRepository, absentReasonsRepository)
+        val service = AttendanceService(attendanceRepository)
 
         service.updateOffenderAttendance(AttendanceDto
                 .builder()
-                .absentReasonId(1)
+                .absentReason(AbsentReason.Refused)
                 .attended(true)
                 .paid(false)
                 .eventId(2)
@@ -88,7 +83,7 @@ class AttendanceServiceTest {
 
         verify(attendanceRepository)?.save(Attendance.
                 builder()
-                .absentReasonId(1)
+                .absentReason(AbsentReason.Refused)
                 .attended(true)
                 .paid(false)
                 .eventId(2)
@@ -99,28 +94,5 @@ class AttendanceServiceTest {
                 .eventDate(today)
                 .build())
 
-    }
-
-    @Test
-    fun `should return absent reasons`() {
-        `when`(absentReasonsRepository?.findAll()).thenReturn(setOf(
-                AbsentReason
-                        .builder()
-                        .id(1)
-                        .pnomisCode("CODE1")
-                        .reason("Rest in cell")
-                        .paidReason(true)
-                        .build()
-        ))
-
-        val service = AttendanceService(attendanceRepository, absentReasonsRepository)
-        val result = service.getAbsentReasons()
-
-        assertThat(result).containsExactlyInAnyOrder(AbsentReasonDto.builder()
-                .id(1)
-                .reason("Rest in cell")
-                .paidReason(true)
-                .build()
-        )
     }
 }

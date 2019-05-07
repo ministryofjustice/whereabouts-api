@@ -6,14 +6,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsentReasonDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto;
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
@@ -49,7 +48,7 @@ public class OffenderAttendanceController {
     }
 
     @GetMapping("/absence-reasons")
-    public List<AbsentReasonDto> reasons() {
-        return this.attendanceService.getAbsentReasons();
+    public AbsentReason[] reasons() {
+        return AbsentReason.values();
     }
 }

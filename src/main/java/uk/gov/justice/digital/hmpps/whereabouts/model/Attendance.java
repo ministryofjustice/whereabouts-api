@@ -43,5 +43,7 @@ public class Attendance {
 
     private boolean paid;
     private boolean attended;
-    private int absentReasonId;
+
+    @Enumerated(EnumType.STRING)
+    private AbsentReason absentReason;
 }

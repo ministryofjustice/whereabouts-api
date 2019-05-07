@@ -11,7 +11,7 @@ CREATE TABLE OFFENDER_ATTENDANCE
   PRISON_ID                       VARCHAR(6)      NOT NULL,
   ATTENDED                        BOOLEAN,
   PAID                            BOOLEAN,
-  ABSENT_REASON_ID                INT REFERENCES ABSENT_REASONS(id)
+  ABSENT_REASON                   VARCHAR(30),
 );
 
 COMMENT ON TABLE OFFENDER_ATTENDANCE IS 'Records the attendance at an event for an offender';

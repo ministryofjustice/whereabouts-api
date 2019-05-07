@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -36,8 +37,7 @@ public class AttendanceDto {
     @NotNull
     private boolean attended;
 
-    @NotNull
-    private int absentReasonId;
+    private AbsentReason absentReason;
 
     @NotNull
     private boolean paid;

@@ -1,16 +1,12 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
 import org.springframework.stereotype.Service;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsentReasonDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
-import uk.gov.justice.digital.hmpps.whereabouts.repository.AbsentReasonsRepository;
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository;
 
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,11 +14,9 @@ import java.util.stream.Collectors;
 public class AttendanceService {
 
     private AttendanceRepository attendanceRepository;
-    private AbsentReasonsRepository absentReasonsRepository;
 
-    public AttendanceService(AttendanceRepository attendanceRepository, AbsentReasonsRepository absentReasonsRepository) {
+    public AttendanceService(AttendanceRepository attendanceRepository) {
         this.attendanceRepository = attendanceRepository;
-        this.absentReasonsRepository = absentReasonsRepository;
     }
 
     public void updateOffenderAttendance(AttendanceDto updatedAttendance) {
@@ -36,7 +30,7 @@ public class AttendanceService {
                     .paid(updatedAttendance.isPaid())
                     .attended(updatedAttendance.isAttended())
                     .prisonId(updatedAttendance.getPrisonId())
-                    .absentReasonId(updatedAttendance.getAbsentReasonId())
+                    .absentReason(updatedAttendance.getAbsentReason())
                     .build();
 
             attendanceRepository.save(attendance);
@@ -57,21 +51,9 @@ public class AttendanceService {
                         .paid(attendanceData.isPaid())
                         .attended(attendanceData.isAttended())
                         .prisonId(attendanceData.getPrisonId())
-                        .absentReasonId(attendanceData.getAbsentReasonId())
+                        .absentReason(attendanceData.getAbsentReason())
                         .eventLocationId(attendanceData.getEventLocationId())
                         .build())
                   .collect(Collectors.toSet());
-    }
-
-    public List<AbsentReasonDto> getAbsentReasons() {
-       return absentReasonsRepository.findAll()
-                .stream()
-                .map(reason -> AbsentReasonDto.builder()
-                        .id(reason.getId())
-                        .paidReason(reason.isPaidReason())
-                        .reason(reason.getReason())
-                        .build())
-                .sorted(Comparator.comparing(AbsentReasonDto::getReason))
-                .collect(Collectors.toList());
     }
 }
