@@ -11,7 +11,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @EnableResourceServer
 public class WhereaboutsApplication {
 
-    @Bean public ConversionService conversionService() {
+    @Bean
+    public ConversionService conversionService() {
         return new DefaultConversionService();
     }
 
