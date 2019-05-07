@@ -50,12 +50,6 @@ jar {
     }
 }
 
-test {
-    useJUnit()
-
-    maxHeapSize = '1G'
-}
-
 springBoot {
     buildInfo {
         properties {
