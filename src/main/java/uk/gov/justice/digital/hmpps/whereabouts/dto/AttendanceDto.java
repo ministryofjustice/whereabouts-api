@@ -23,6 +23,9 @@ public class AttendanceDto {
     private long bookingId;
 
     @NotNull
+    private String offenderNo;
+
+    @NotNull
     private long eventId;
 
     @NotNull

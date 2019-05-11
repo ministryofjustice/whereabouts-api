@@ -13,22 +13,28 @@ public enum AbsentReason {
             return "Session cancelled";
         }
     },
-    RestInCell{
+    RestInCell {
         @Override
         public String toString() {
             return "Rest in cell";
         }
     },
-    RestDay{
+    RestDay {
         @Override
         public String toString() {
             return "Rest day";
         }
     },
-    UnacceptableAbsence{
+    UnacceptableAbsence {
         @Override
         public String toString() {
             return "Unacceptable absence";
+        }
+    },
+    NotRequired {
+        @Override
+        public String toString() {
+            return "Not required";
         }
     },
     Refused,
