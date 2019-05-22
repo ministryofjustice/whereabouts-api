@@ -7,8 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
+import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Data
@@ -18,34 +18,15 @@ import java.time.LocalDate;
 @Builder(toBuilder = true)
 public class AttendanceDto {
     private long id;
-
-    @NotNull
     private long bookingId;
-
-    @NotNull
-    private String offenderNo;
-
-    @NotNull
     private long eventId;
-
-    @NotNull
     private long eventLocationId;
-
-    @NotNull
-    private String period;
-
-    @NotNull
+    private TimePeriod period;
     private String prisonId;
-
-    @NotNull
     private boolean attended;
-
     private AbsentReason absentReason;
-
-    @NotNull
     private boolean paid;
-
     @JsonFormat(pattern="yyyy-MM-dd")
-    @NotNull
     private LocalDate eventDate;
+    private String comments;
 }

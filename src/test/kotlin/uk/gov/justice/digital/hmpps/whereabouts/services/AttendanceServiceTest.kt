@@ -3,16 +3,20 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.eq
+import org.mockito.ArgumentMatchers.isA
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 import org.mockito.runners.MockitoJUnitRunner
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 
 @RunWith(MockitoJUnitRunner::class)
@@ -24,16 +28,15 @@ class AttendanceServiceTest {
     lateinit var nomisService: NomisService
 
     private val today: LocalDate = LocalDate.now()
-    private val testAttendanceDto: AttendanceDto =
-            AttendanceDto
+    private val testAttendanceDto: CreateAttendanceDto =
+            CreateAttendanceDto
             .builder()
-            .id(1)
             .attended(false)
             .paid(false)
             .absentReason(AbsentReason.Refused)
             .eventId(2)
             .eventLocationId(3)
-            .period(TimePeriod.AM.toString())
+            .period(TimePeriod.AM)
             .prisonId("LEI")
             .bookingId(100)
             .eventDate(today)
@@ -62,14 +65,28 @@ class AttendanceServiceTest {
 
         val result = service.getAttendance("LEI" , 1, today, TimePeriod.AM)
 
-        assertThat(result).containsAnyElementsOf(mutableListOf( testAttendanceDto ))
+        assertThat(result).containsAnyElementsOf(mutableListOf(
+                AttendanceDto
+                        .builder()
+                        .id(1)
+                        .absentReason(AbsentReason.Refused)
+                        .attended(false)
+                        .paid(false)
+                        .eventId(2)
+                        .eventLocationId(3)
+                        .period(TimePeriod.AM)
+                        .prisonId("LEI")
+                        .bookingId(100)
+                        .eventDate(today)
+                        .build()
+        ))
     }
 
     @Test
     fun `should create an attendance record`() {
         val service = AttendanceService(attendanceRepository, nomisService)
 
-        service.updateOffenderAttendance(testAttendanceDto)
+        service.createOffenderAttendance(testAttendanceDto)
 
         verify(attendanceRepository)?.save(Attendance.
                 builder()
@@ -90,7 +107,7 @@ class AttendanceServiceTest {
     fun `should record paid attendance` () {
         val service = AttendanceService(attendanceRepository, nomisService)
 
-        val paidAttendance = testAttendanceDto
+        val attendance = testAttendanceDto
                 .toBuilder()
                 .offenderNo("A1234546")
                 .attended(true)
@@ -98,10 +115,10 @@ class AttendanceServiceTest {
                 .absentReason(null)
                 .build()
 
-        service.updateOffenderAttendance(paidAttendance)
+        service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(paidAttendance.offenderNo,
-                paidAttendance.eventId,"ATT", "STANDARD")
+        verify(nomisService).updateAttendance(attendance.offenderNo,
+                attendance.eventId,"ATT", "STANDARD")
 
     }
 
@@ -110,7 +127,7 @@ class AttendanceServiceTest {
     fun `should record paid absence for 'acceptable absence'`() {
         val service = AttendanceService(attendanceRepository, nomisService)
 
-        val paidAttendance = testAttendanceDto
+        val attendance = testAttendanceDto
                 .toBuilder()
                 .offenderNo("A1234546")
                 .absentReason(AbsentReason.AcceptableAbsence)
@@ -118,17 +135,17 @@ class AttendanceServiceTest {
                 .paid(true)
                 .build()
 
-        service.updateOffenderAttendance(paidAttendance)
+        service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(paidAttendance.offenderNo,
-                paidAttendance.eventId,"ACCAB", "")
+        verify(nomisService).updateAttendance(attendance.offenderNo,
+                attendance.eventId,"ACCAB", null)
     }
 
     @Test
     fun `should record paid absence for 'not required'`() {
         val service = AttendanceService(attendanceRepository, nomisService)
 
-        val paidAttendance = testAttendanceDto
+        val attendance = testAttendanceDto
                 .toBuilder()
                 .offenderNo("A1234546")
                 .absentReason(AbsentReason.NotRequired)
@@ -136,17 +153,17 @@ class AttendanceServiceTest {
                 .paid(true)
                 .build()
 
-        service.updateOffenderAttendance(paidAttendance)
+        service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(paidAttendance.offenderNo,
-                paidAttendance.eventId,"NREQ", "")
+        verify(nomisService).updateAttendance(attendance.offenderNo,
+                attendance.eventId,"NREQ", null)
     }
 
     @Test
     fun `should record unpaid absence for 'session cancelled'`() {
         val service = AttendanceService(attendanceRepository, nomisService)
 
-        val paidAttendance = testAttendanceDto
+        val attendance = testAttendanceDto
                 .toBuilder()
                 .offenderNo("A1234546")
                 .absentReason(AbsentReason.SessionCancelled)
@@ -154,17 +171,17 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
-        service.updateOffenderAttendance(paidAttendance)
+        service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(paidAttendance.offenderNo,
-                paidAttendance.eventId,"CANC", "")
+        verify(nomisService).updateAttendance(attendance.offenderNo,
+                attendance.eventId,"CANC", null)
     }
 
     @Test
     fun `should record unpaid absence for 'rest in cell'`() {
         val service = AttendanceService(attendanceRepository, nomisService)
 
-        val paidAttendance = testAttendanceDto
+        val attendance = testAttendanceDto
                 .toBuilder()
                 .offenderNo("A1234546")
                 .absentReason(AbsentReason.RestInCell)
@@ -172,17 +189,17 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
-        service.updateOffenderAttendance(paidAttendance)
+        service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(paidAttendance.offenderNo,
-                paidAttendance.eventId,"REST", "")
+        verify(nomisService).updateAttendance(attendance.offenderNo,
+                attendance.eventId,"REST",  null)
     }
 
     @Test
     fun `should record unpaid absence for 'Sick'`() {
         val service = AttendanceService(attendanceRepository, nomisService)
 
-        val paidAttendance = testAttendanceDto
+        val attendance = testAttendanceDto
                 .toBuilder()
                 .offenderNo("A1234546")
                 .absentReason(AbsentReason.Sick)
@@ -190,17 +207,17 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
-        service.updateOffenderAttendance(paidAttendance)
+        service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(paidAttendance.offenderNo,
-                paidAttendance.eventId,"REST", "")
+        verify(nomisService).updateAttendance(attendance.offenderNo,
+                attendance.eventId,"REST", null)
     }
 
     @Test
     fun `should record unpaid absence for 'Rest day'`() {
         val service = AttendanceService(attendanceRepository, nomisService)
 
-        val paidAttendance = testAttendanceDto
+        val attendance = testAttendanceDto
                 .toBuilder()
                 .offenderNo("A1234546")
                 .absentReason(AbsentReason.RestDay)
@@ -208,17 +225,17 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
-        service.updateOffenderAttendance(paidAttendance)
+        service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(paidAttendance.offenderNo,
-                paidAttendance.eventId,"REST", "")
+        verify(nomisService).updateAttendance(attendance.offenderNo,
+                attendance.eventId,"REST", null)
     }
 
     @Test
     fun `should record unpaid absence as 'Refused'`() {
         val service = AttendanceService(attendanceRepository, nomisService)
 
-        val paidAttendance = testAttendanceDto
+        val attendance = testAttendanceDto
                 .toBuilder()
                 .offenderNo("A1234546")
                 .absentReason(AbsentReason.Refused)
@@ -226,16 +243,16 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
-        service.updateOffenderAttendance(paidAttendance)
+        service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(paidAttendance.offenderNo,
-                paidAttendance.eventId,"UNACAB", "")
+        verify(nomisService).updateAttendance(attendance.offenderNo,
+                attendance.eventId,"UNACAB", null)
     }
     @Test
     fun `should record unpaid absence for 'Unacceptable absence'`() {
         val service = AttendanceService(attendanceRepository, nomisService)
 
-        val paidAttendance = testAttendanceDto
+        val attendance = testAttendanceDto
                 .toBuilder()
                 .offenderNo("A1234546")
                 .absentReason(AbsentReason.UnacceptableAbsence)
@@ -243,10 +260,81 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
-        service.updateOffenderAttendance(paidAttendance)
+        service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(paidAttendance.offenderNo,
-                paidAttendance.eventId,"UNACAB", "")
+        verify(nomisService).updateAttendance(attendance.offenderNo,
+                attendance.eventId,"UNACAB", null)
+    }
+
+    @Test
+    fun `should create negative case note for 'Unacceptable absence'`() {
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        val attendance = testAttendanceDto
+                .toBuilder()
+                .absentReason(AbsentReason.UnacceptableAbsence)
+                .offenderNo("A12345")
+                .attended(false)
+                .paid(false)
+                .build()
+
+        service.createOffenderAttendance(attendance)
+
+        verify(nomisService)
+                .postCaseNote(
+                        eq(attendance.bookingId),
+                        eq("NEG"),
+                        eq("IEP_WARN"),
+                        eq("Refused to attend activity / education."),
+                        isA(LocalDateTime::class.java))
+    }
+
+
+    @Test
+    fun `should create negative case note for 'Refused'`() {
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        val attendance = testAttendanceDto
+                .toBuilder()
+                .absentReason(AbsentReason.Refused)
+                .offenderNo("A12345")
+                .attended(false)
+                .paid(false)
+                .build()
+
+        service.createOffenderAttendance(attendance)
+
+        verify(nomisService)
+                .postCaseNote(
+                        eq(attendance.bookingId),
+                        eq("NEG"),
+                        eq("IEP_WARN"),
+                        eq("Refused to attend activity / education."),
+                        isA(LocalDateTime::class.java))
+    }
+
+    @Test
+    fun `should create a negative case note using user supplied comment`() {
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        val attendance = testAttendanceDto
+                .toBuilder()
+                .absentReason(AbsentReason.Refused)
+                .offenderNo("A12345")
+                .attended(false)
+                .comments("test comment")
+                .paid(false)
+                .build()
+
+        service.createOffenderAttendance(attendance)
+
+        verify(nomisService)
+                .postCaseNote(
+                        eq(attendance.bookingId),
+                        eq("NEG"),
+                        eq("IEP_WARN"),
+                        eq("test comment"),
+                        isA(LocalDateTime::class.java))
     }
 
 }

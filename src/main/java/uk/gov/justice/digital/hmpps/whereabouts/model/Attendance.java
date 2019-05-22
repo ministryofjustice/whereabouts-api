@@ -46,4 +46,7 @@ public class Attendance {
 
     @Enumerated(EnumType.STRING)
     private AbsentReason absentReason;
+
+    @Length(max = 500)
+    private String comments;
 }

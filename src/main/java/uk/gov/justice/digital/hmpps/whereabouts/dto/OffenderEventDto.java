@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Builder(toBuilder = true)
 public class OffenderEventDto {
 
-    @NotNull  //TODO validation
+    @NotNull
     @Length(max = 10)
     private String offenderNo;
     @NotNull

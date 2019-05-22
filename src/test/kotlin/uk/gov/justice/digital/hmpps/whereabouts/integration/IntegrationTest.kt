@@ -12,11 +12,11 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 
 
-@RunWith(SpringRunner::class)
+@RunWith(SpringJUnit4ClassRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = ["classpath:test-application-override.properties"])
 @ContextConfiguration
@@ -47,5 +47,4 @@ abstract class IntegrationTest {
         headers.contentType = MediaType.APPLICATION_JSON
         return HttpEntity(entity, headers)
     }
-
 }

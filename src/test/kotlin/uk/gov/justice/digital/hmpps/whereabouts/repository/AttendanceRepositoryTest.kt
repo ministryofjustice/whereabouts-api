@@ -29,7 +29,7 @@ open class AttendanceRepositoryTest {
                 .eventDate(LocalDate.now())
                 .eventId(1)
                 .eventLocationId(1)
-                //.absentReason(AbsentReason.Refused)
+                .absentReason(AbsentReason.Refused)
                 .prisonId("LEI")
                 .period(TimePeriod.AM)
                 .build()

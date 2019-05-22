@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Service
@@ -16,7 +17,22 @@ public class NomisService {
     }
 
     public void updateAttendance(String offenderNo, long activityId, String eventOutcome, String performance) {
-        final var url = "/api/bookings/offenderNo/{offenderNo}/activities/{activityId}/attendance";
-        restTemplate.put(url, Map.of("eventOutcome", eventOutcome, "performance", performance), offenderNo, activityId);
+        final var url = "/bookings/offenderNo/{offenderNo}/activities/{activityId}/attendance";
+        if (performance != null)
+            restTemplate.put(url, Map.of("eventOutcome", eventOutcome, "performance", performance), offenderNo, activityId);
+        else
+            restTemplate.put(url, Map.of("eventOutcome", eventOutcome), offenderNo, activityId);
+    }
+
+    public void postCaseNote(long bookingId, String type, String subType, String text, LocalDateTime occurrence) {
+        final var url = "/bookings/{bookingId}/caseNotes";
+
+        restTemplate.postForEntity(url,
+                Map.of(
+                        "type", type,
+                        "subType", subType,
+                        "text", text,
+                        "occurrence", occurrence.toString()),
+                null, bookingId);
     }
 }
