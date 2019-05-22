@@ -157,5 +157,5 @@ workflows:
             - build_docker
       - deploy_dev:
           requires:
-            - copy_image_to_ecs
+            - copy_image_to_ecr
 
