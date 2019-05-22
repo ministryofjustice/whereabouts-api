@@ -6,16 +6,15 @@ defaults: &defaults
 deploy_container_config: &deploy_container_config
   docker:
     - image: ${CP_TOOLS_IMAGE}
-      environment:
-        GITHUB_TEAM_NAME_SLUG: whereabouts-api
 
 install_aws_cli: &install_aws_cli
   run:
     name: Set up aws
     command: |
+      sudo apt-get update
       sudo apt-get --assume-yes install python3-pip
       sudo pip3 install awscli
-      $(aws ecr get-login --region eu-west-2 --no-include-email)
+      $(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)
 
 version: 2
 jobs:
@@ -105,7 +104,7 @@ jobs:
 
             docker tag mojdigitalstudio/whereabouts-api:$APP_VERSION "${ECR_IMAGE_URI}:${APP_VERSION}"
             docker tag "${ECR_IMAGE_URI}:${APP_VERSION}" "${ECR_IMAGE_URI}:latest"
-            login="$(aws ecr get-login --region eu-west-2 --no-include-email)"
+            login="$(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)"
             ${login}
             docker push "${ECR_IMAGE_URI}:${APP_VERSION}"
             docker push "${ECR_IMAGE_URI}:latest"
