@@ -25,26 +25,26 @@ class NomisEventOutcomeMap {
         addUnPaidAbsenceMapping(AbsentReason.UnacceptableAbsence,  "UNACAB");
     }
 
-    private void addPaidAttendanceMapping(String eventOutcome, String performance) {
+    private void addPaidAttendanceMapping(final String eventOutcome, final String performance) {
         codeMap.put(getKey(null, true, true), new NomisCodes(eventOutcome, performance));
     }
 
-    private void addUnPaidAbsenceMapping(AbsentReason reason, String eventOutCome) {
+    private void addUnPaidAbsenceMapping(final AbsentReason reason, final String eventOutCome) {
         codeMap.put(getKey(reason, false, false), new NomisCodes(eventOutCome, null));
     }
 
-    private void addPaidAbsenceMapping(AbsentReason reason, String eventOutCome) {
+    private void addPaidAbsenceMapping(final AbsentReason reason, final String eventOutCome) {
         codeMap.put(getKey(reason, false, true), new NomisCodes(eventOutCome, null));
     }
 
 
-    private long getKey(AbsentReason reason, Boolean attended, Boolean paid) {
+    private long getKey(final AbsentReason reason, final Boolean attended, final Boolean paid) {
         return reason != null ?
                 reason.hashCode() + attended.hashCode() + paid.hashCode() :
                 "ATT_PAID_STANDARD".hashCode() + attended.hashCode() + paid.hashCode();
     }
 
-    public NomisCodes getEventOutCome(AbsentReason reason, Boolean attended, Boolean paid) {
+    public NomisCodes getEventOutCome(final AbsentReason reason, final Boolean attended, final Boolean paid) {
         final var mapping = codeMap.get(getKey(reason, attended, paid));
         if (mapping == null)
             throw new NullArgumentException(String.format("No mapping for (%s) attended = %s paid = %s",

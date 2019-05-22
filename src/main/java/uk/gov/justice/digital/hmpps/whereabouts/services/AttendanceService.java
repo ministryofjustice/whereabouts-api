@@ -28,7 +28,7 @@ public class AttendanceService {
     }
 
     @Transactional
-    public void createOffenderAttendance(CreateAttendanceDto updatedAttendance) {
+    public void createOffenderAttendance(final CreateAttendanceDto updatedAttendance) {
         attendanceRepository.save(Attendance
                 .builder()
                 .eventLocationId(updatedAttendance.getEventLocationId())
@@ -73,7 +73,7 @@ public class AttendanceService {
 
     }
 
-    public Set<AttendanceDto> getAttendance(String prisonId, Long eventLocationId, LocalDate date, TimePeriod period) {
+    public Set<AttendanceDto> getAttendance(final String prisonId, final Long eventLocationId, final LocalDate date, final TimePeriod period) {
         final var attendance = attendanceRepository
                 .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(prisonId, eventLocationId, date, period);
 

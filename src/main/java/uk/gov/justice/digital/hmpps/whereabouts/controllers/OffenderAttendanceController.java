@@ -29,7 +29,7 @@ public class OffenderAttendanceController {
 
     private AttendanceService attendanceService;
 
-    public OffenderAttendanceController(AttendanceService attendanceService) {
+    public OffenderAttendanceController(final AttendanceService attendanceService) {
         this.attendanceService = attendanceService;
     }
 
