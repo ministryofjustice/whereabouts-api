@@ -118,7 +118,7 @@ class AttendanceServiceTest {
         service.createOffenderAttendance(attendance)
 
         verify(nomisService).updateAttendance(attendance.offenderNo,
-                attendance.eventId,"ATT", "STANDARD")
+                attendance.eventId, EventOutcome("ATT", "STANDARD"))
 
     }
 
@@ -138,7 +138,7 @@ class AttendanceServiceTest {
         service.createOffenderAttendance(attendance)
 
         verify(nomisService).updateAttendance(attendance.offenderNo,
-                attendance.eventId,"ACCAB", null)
+                attendance.eventId, EventOutcome("ACCAB", null))
     }
 
     @Test
@@ -156,7 +156,7 @@ class AttendanceServiceTest {
         service.createOffenderAttendance(attendance)
 
         verify(nomisService).updateAttendance(attendance.offenderNo,
-                attendance.eventId,"NREQ", null)
+                attendance.eventId, EventOutcome("NREQ", null))
     }
 
     @Test
@@ -174,7 +174,7 @@ class AttendanceServiceTest {
         service.createOffenderAttendance(attendance)
 
         verify(nomisService).updateAttendance(attendance.offenderNo,
-                attendance.eventId,"CANC", null)
+                attendance.eventId, EventOutcome("CANC", null))
     }
 
     @Test
@@ -192,7 +192,7 @@ class AttendanceServiceTest {
         service.createOffenderAttendance(attendance)
 
         verify(nomisService).updateAttendance(attendance.offenderNo,
-                attendance.eventId,"REST",  null)
+                attendance.eventId, EventOutcome("REST", null))
     }
 
     @Test
@@ -210,7 +210,7 @@ class AttendanceServiceTest {
         service.createOffenderAttendance(attendance)
 
         verify(nomisService).updateAttendance(attendance.offenderNo,
-                attendance.eventId,"REST", null)
+                attendance.eventId, EventOutcome("REST", null))
     }
 
     @Test
@@ -228,7 +228,7 @@ class AttendanceServiceTest {
         service.createOffenderAttendance(attendance)
 
         verify(nomisService).updateAttendance(attendance.offenderNo,
-                attendance.eventId,"REST", null)
+                attendance.eventId, EventOutcome("REST", null))
     }
 
     @Test
@@ -246,7 +246,7 @@ class AttendanceServiceTest {
         service.createOffenderAttendance(attendance)
 
         verify(nomisService).updateAttendance(attendance.offenderNo,
-                attendance.eventId,"UNACAB", null)
+                attendance.eventId, EventOutcome("UNACAB", null))
     }
     @Test
     fun `should record unpaid absence for 'Unacceptable absence'`() {
@@ -263,7 +263,7 @@ class AttendanceServiceTest {
         service.createOffenderAttendance(attendance)
 
         verify(nomisService).updateAttendance(attendance.offenderNo,
-                attendance.eventId,"UNACAB", null)
+                attendance.eventId, EventOutcome("UNACAB", null))
     }
 
     @Test

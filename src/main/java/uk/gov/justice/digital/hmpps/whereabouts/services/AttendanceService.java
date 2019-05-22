@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsentReasonsDto;
@@ -18,9 +19,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class AttendanceService {
-    private AttendanceRepository attendanceRepository;
-    private NomisService nomisService;
-    private NomisEventOutcomeMap nomisEventOutcomeMap = new NomisEventOutcomeMap();
+    private final AttendanceRepository attendanceRepository;
+    private final NomisService nomisService;
+    private final static NomisEventOutcomeMapper nomisEventOutcomeMapper = new NomisEventOutcomeMapper();
 
     public AttendanceService(final AttendanceRepository attendanceRepository, final NomisService nomisService) {
         this.attendanceRepository = attendanceRepository;
@@ -43,23 +44,18 @@ public class AttendanceService {
                 .comments(updatedAttendance.getComments())
                 .build());
 
-        if (updatedAttendance.getAbsentReason() == AbsentReason.Refused ||
-                updatedAttendance.getAbsentReason() == AbsentReason.UnacceptableAbsence) {
-
-            final var comments = updatedAttendance.getComments() != null  ?
-                    updatedAttendance.getComments() :
-                    "Refused to attend activity / education.";
-
+        if (updatedAttendance.getAbsentReason() != null && AbsentReason.getIepTriggers().contains(updatedAttendance.getAbsentReason())) {
             nomisService.postCaseNote(
                     updatedAttendance.getBookingId(),
                     "NEG",//"Negative Behaviour"
                     "IEP_WARN", //"IEP Warning",
-                    comments,
+                    StringUtils.defaultIfEmpty(updatedAttendance.getComments(),
+                            "Refused to attend activity / education."),
                     LocalDateTime.now()
             );
         }
 
-        final var nomisCodes = nomisEventOutcomeMap.getEventOutCome(
+        final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
                 updatedAttendance.getAbsentReason(),
                 updatedAttendance.isAttended(),
                 updatedAttendance.isPaid());
@@ -67,10 +63,7 @@ public class AttendanceService {
         nomisService.updateAttendance(
                 updatedAttendance.getOffenderNo(),
                 updatedAttendance.getEventId(),
-                nomisCodes.getOutcome(),
-                nomisCodes.getPerformance()
-        );
-
+                eventOutcome);
     }
 
     public Set<AttendanceDto> getAttendance(final String prisonId, final Long eventLocationId, final LocalDate date, final TimePeriod period) {
@@ -96,19 +89,6 @@ public class AttendanceService {
     }
 
     public AbsentReasonsDto getAbsenceReasons() {
-        final var paidReasons = Set.of(
-                AbsentReason.AcceptableAbsence,
-                AbsentReason.NotRequired
-        );
-        final var unpaidReasons = Set.of(
-                AbsentReason.SessionCancelled,
-                AbsentReason.RestInCell,
-                AbsentReason.RestDay,
-                AbsentReason.UnacceptableAbsence,
-                AbsentReason.Refused,
-                AbsentReason.Sick
-        );
-
-        return new AbsentReasonsDto(paidReasons, unpaidReasons);
+        return new AbsentReasonsDto(AbsentReason.getPaidReasons(), AbsentReason.getUnpaidReasons());
     }
 }

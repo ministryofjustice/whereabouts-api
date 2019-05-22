@@ -16,12 +16,10 @@ public class NomisService {
         this.restTemplate = restTemplate;
     }
 
-    public void updateAttendance(String offenderNo, long activityId, String eventOutcome, String performance) {
+    public void updateAttendance(String offenderNo, long activityId, EventOutcome eventOutcome) {
         final var url = "/bookings/offenderNo/{offenderNo}/activities/{activityId}/attendance";
-        if (performance != null)
-            restTemplate.put(url, Map.of("eventOutcome", eventOutcome, "performance", performance), offenderNo, activityId);
-        else
-            restTemplate.put(url, Map.of("eventOutcome", eventOutcome), offenderNo, activityId);
+        restTemplate.put(url, eventOutcome, offenderNo, activityId);
+
     }
 
     public void postCaseNote(long bookingId, String type, String subType, String text, LocalDateTime occurrence) {

@@ -52,7 +52,6 @@ public class CreateAttendanceDto {
     private boolean attended;
 
     @ApiModelProperty(required = true)
-    @NotNull
     private boolean paid;
 
     private AbsentReason absentReason;
