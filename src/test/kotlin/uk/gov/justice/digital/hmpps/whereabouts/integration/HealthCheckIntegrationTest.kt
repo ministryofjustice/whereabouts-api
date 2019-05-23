@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
+import org.junit.ClassRule
 import org.junit.Test
 import org.springframework.boot.test.web.client.exchange
 import org.springframework.http.HttpMethod
@@ -11,11 +11,11 @@ import org.springframework.http.ResponseEntity
 
 
 class HealthCheckIntegrationTest : IntegrationTest() {
-
-    @Rule
-    @JvmField
-    final val elite2MockServer = WireMockRule(8999)
-
+    companion object {
+        @get:ClassRule
+        @JvmStatic
+        val elite2MockServer = WireMockRule(8999)
+    }
     @Test
     fun `Health page reports ok` () {
 
