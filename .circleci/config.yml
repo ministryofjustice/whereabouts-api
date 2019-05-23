@@ -1,20 +1,7 @@
 defaults: &defaults
   working_directory: ~/app
   docker:
-    - image: circleci/node:10.15.3-browsers
-
-deploy_container_config: &deploy_container_config
-  docker:
     - image: ${CP_TOOLS_IMAGE}
-
-install_aws_cli: &install_aws_cli
-  run:
-    name: Set up aws
-    command: |
-      sudo apt-get update
-      sudo apt-get --assume-yes install python3-pip
-      sudo pip3 install awscli
-      $(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)
 
 version: 2
 jobs:
@@ -94,7 +81,6 @@ jobs:
       - attach_workspace:
           at: ~/app
       - setup_remote_docker
-      - *install_aws_cli
       - run:
           name: publish image to ecs
           command: |
@@ -110,7 +96,7 @@ jobs:
             docker push "${ECR_IMAGE_URI}:latest"
 
   deploy_dev:
-    <<: *deploy_container_config
+    <<: *defaults
     steps:
       - checkout
       - setup_remote_docker:
