@@ -7,10 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -23,21 +23,20 @@ import java.time.LocalDate;
 public class CreateAttendanceDto {
 
     @ApiModelProperty(required = true)
-    @Min(1)
-    private long bookingId;
+    @NotNull
+    private Long bookingId;
 
     @ApiModelProperty(required = true)
     @NotEmpty
     private String offenderNo;
 
     @ApiModelProperty(required = true)
-    @Min(1)
-    private long eventId;
+    @NotNull
+    private Long eventId;
 
     @ApiModelProperty(required = true)
     @NotNull
-    @Min(1)
-    private long eventLocationId;
+    private Long eventLocationId;
 
     @ApiModelProperty(required = true)
     @NotNull
@@ -49,10 +48,11 @@ public class CreateAttendanceDto {
 
     @ApiModelProperty(required = true)
     @NotNull
-    private boolean attended;
+    private Boolean attended;
 
     @ApiModelProperty(required = true)
-    private boolean paid;
+    @NotNull
+    private Boolean paid;
 
     private AbsentReason absentReason;
 
@@ -61,5 +61,7 @@ public class CreateAttendanceDto {
     @NotNull
     private LocalDate eventDate;
 
+    @NotNull
+    @Length(max = 500)
     private String comments;
 }
