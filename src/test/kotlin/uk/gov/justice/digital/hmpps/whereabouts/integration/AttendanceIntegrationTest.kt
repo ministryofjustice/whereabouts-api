@@ -57,6 +57,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 .period(TimePeriod.AM)
                 .attended(true)
                 .paid(true)
+                .comments("test")
                 .build()
 
         val response: ResponseEntity<String> =
