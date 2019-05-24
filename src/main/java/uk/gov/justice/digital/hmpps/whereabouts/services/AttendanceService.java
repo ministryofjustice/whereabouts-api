@@ -37,8 +37,8 @@ public class AttendanceService {
                 .eventId(updatedAttendance.getEventId())
                 .offenderBookingId(updatedAttendance.getBookingId())
                 .period(updatedAttendance.getPeriod())
-                .paid(updatedAttendance.isPaid())
-                .attended(updatedAttendance.isAttended())
+                .paid(updatedAttendance.getPaid())
+                .attended(updatedAttendance.getAttended())
                 .prisonId(updatedAttendance.getPrisonId())
                 .absentReason(updatedAttendance.getAbsentReason())
                 .comments(updatedAttendance.getComments())
@@ -57,8 +57,8 @@ public class AttendanceService {
 
         final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
                 updatedAttendance.getAbsentReason(),
-                updatedAttendance.isAttended(),
-                updatedAttendance.isPaid());
+                updatedAttendance.getAttended(),
+                updatedAttendance.getPaid());
 
         nomisService.updateAttendance(
                 updatedAttendance.getOffenderNo(),
