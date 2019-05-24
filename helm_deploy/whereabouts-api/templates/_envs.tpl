@@ -16,9 +16,27 @@ env:
   - name: ELITE2API_ENDPOINT_URL
     value: "{{ .Values.env.ELITE2API_ENDPOINT_URL }}"
 
-  - name: DATABASE_URL
+  - name: DATABASE_USERNAME
     valueFrom:
       secretKeyRef:
         name: dps-rds-instance-output 
-        key: url
+        key: database_username
+
+  - name: DATABASE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: dps-rds-instance-output
+        key: database_password
+
+  - name: DATABASE_NAME
+    valueFrom:
+      secretKeyRef:
+        name: dps-rds-instance-output
+        key: database_name
+
+  - name: DATABASE_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: dps-rds-instance-output
+        key: rds_instance_endpoint
 {{- end -}}
