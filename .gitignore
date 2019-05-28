@@ -24,3 +24,6 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+
+*secrets*.yaml
+!secrets-example.yaml

@@ -113,11 +113,13 @@ jobs:
           name: Deploy to Dev
           command: |
             APP_VERSION=$(cat ../app/app_version.txt)
+            AWS_ACCESS_KEY_ID=${SM_AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${SM_AWS_SECRET_ACCESS_KEY} aws secretsmanager --region ${AWS_DEFAULT_REGION} get-secret-value --secret-id ${KUBE_ENV_DEV_NAMESPACE} | jq -r .SecretString | \
             helm upgrade whereabouts-api helm_deploy/whereabouts-api/. \
               --install --wait \
               --tiller-namespace=${KUBE_ENV_DEV_NAMESPACE} \
               --namespace=${KUBE_ENV_DEV_NAMESPACE} \
               --values ./helm_deploy/values-dev.yaml \
+              --values - \
               --set image.repository="${ECR_IMAGE_URI}" \
               --set image.tag="${APP_VERSION}"
 
