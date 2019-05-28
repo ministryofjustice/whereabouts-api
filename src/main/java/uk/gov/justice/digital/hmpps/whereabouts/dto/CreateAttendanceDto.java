@@ -61,7 +61,6 @@ public class CreateAttendanceDto {
     @NotNull
     private LocalDate eventDate;
 
-    @NotNull
     @Length(max = 500)
     private String comments;
 }
