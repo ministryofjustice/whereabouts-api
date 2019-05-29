@@ -17,6 +17,7 @@ commands:
               --user="circleci" \
               --namespace="${KUBE_ENV_NAMESPACE}"
             # confirm setup is ok
+            kubectl config use-context circleci
             kubectl -n "${KUBE_ENV_NAMESPACE}" get deployments
   copy_image_to_ecr:
     steps:
