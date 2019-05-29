@@ -26,7 +26,7 @@ commands:
       - run:
           name: publish image to ecs
           command: |
-            APP_VERSION=$(cat ../app/app_version.txt)
+            APP_VERSION=$(cat ~/app/app_version.txt)
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
             docker pull mojdigitalstudio/whereabouts-api:$APP_VERSION
 
@@ -48,7 +48,7 @@ commands:
       - deploy:
           name: Deploy to << parameters.env >>
           command: |
-            APP_VERSION=$(cat ../app/app_version.txt)
+            APP_VERSION=$(cat ~/app/app_version.txt)
             AWS_ACCESS_KEY_ID=${SM_AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${SM_AWS_SECRET_ACCESS_KEY} aws secretsmanager --region ${AWS_DEFAULT_REGION} get-secret-value --secret-id ${KUBE_ENV_NAMESPACE} | jq -r .SecretString | \
             helm upgrade whereabouts-api helm_deploy/whereabouts-api/. \
               --install --wait --timeout 600 \
@@ -108,8 +108,8 @@ jobs:
 
   build_docker:
     executor: deployer
+    working_directory: ~/app
     steps:
-      - checkout
       - attach_workspace:
           at: ~/app
       - setup_remote_docker:
@@ -117,7 +117,7 @@ jobs:
       - run:
           name: Build container and publish to docker hub
           command: |
-            APP_VERSION=$(cat ../app/app_version.txt)
+            APP_VERSION=$(cat ./app_version.txt)
             docker build --rm=false . \
                --tag "mojdigitalstudio/whereabouts-api:$APP_VERSION" \
                --label "maintainer=jamie.draper@digital.justice.gov.uk" \
