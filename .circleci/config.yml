@@ -1,14 +1,72 @@
-defaults: &defaults
-  working_directory: ~/app
-  docker:
-    - image: ${CP_TOOLS_IMAGE}
+version: 2.1
+commands:
+  kubectl_setup:
+    description: "configures kubectl"
+    steps:
+      - run:
+        name: Setup kubectl
+        command: |
+          echo -n "${KUBE_ENV_CACERT}" | base64 -d > cluster_ca.crt
+          kubectl config set-cluster circleci \
+            --certificate-authority="cluster_ca.crt" \
+            --server="https://api.${KUBE_ENV_NAME}"
+          kubectl config set-credentials circleci \
+            --token="${KUBE_ENV_DEV_TOKEN}"
+          kubectl config set-context circleci \
+            --cluster="${KUBE_ENV_NAME}" \
+            --user="circleci" \
+            --namespace="${KUBE_ENV_NAMESPACE}"
+  copy_image_to_ecr:
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/app
+      - setup_remote_docker
+      - run:
+          name: publish image to ecs
+          command: |
+            APP_VERSION=$(cat ./app_version.txt)
+            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+            docker pull mojdigitalstudio/whereabouts-api:$APP_VERSION
 
-version: 2
-jobs:
-  build:
-    <<: *defaults
+            docker tag mojdigitalstudio/whereabouts-api:$APP_VERSION "${ECR_IMAGE_URI}:${APP_VERSION}"
+            docker tag "${ECR_IMAGE_URI}:${APP_VERSION}" "${ECR_IMAGE_URI}:latest"
+            login="$(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)"
+            ${login}
+            docker push "${ECR_IMAGE_URI}:${APP_VERSION}"
+            docker push "${ECR_IMAGE_URI}:latest"
+  deploy_to_env:
+    parameters:
+      env:
+        type: string
+    steps:
+      - setup_remote_docker
+      - deploy:
+          name: Deploy to << parameters.env >>
+          command: |
+            APP_VERSION=$(cat ./app_version.txt)
+            AWS_ACCESS_KEY_ID=${SM_AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${SM_AWS_SECRET_ACCESS_KEY} aws secretsmanager --region ${AWS_DEFAULT_REGION} get-secret-value --secret-id ${KUBE_ENV_NAMESPACE} | jq -r .SecretString | \
+            helm upgrade whereabouts-api helm_deploy/whereabouts-api/. \
+              --install --wait --timeout 600 \
+              --tiller-namespace=${KUBE_ENV_NAMESPACE} \
+              --namespace=${KUBE_ENV_NAMESPACE} \
+              --values ./helm_deploy/values-<< parameters.env >>.yaml \
+              --values - \
+              --set image.repository="${ECR_IMAGE_URI}" \
+              --set image.tag="${APP_VERSION}"
+executors:
+  deployer:
+    docker:
+      - image: ${CP_TOOLS_IMAGE}
+    working_directory: ~/app  
+  builder:  
     docker:
       - image: circleci/openjdk:11-jdk-browsers
+    working_directory: ~/app
+
+jobs:
+  build:
+    executor: builder
     steps:
       - checkout
       - restore_cache:
@@ -46,7 +104,7 @@ jobs:
             - app_version.txt
 
   build_docker:
-    <<: *defaults
+    executor: deployer
     steps:
       - checkout
       - attach_workspace:
@@ -74,54 +132,13 @@ jobs:
              docker push mojdigitalstudio/whereabouts-api:latest
             fi
 
-  copy_image_to_ecr:
-    <<: *defaults
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/app
-      - setup_remote_docker
-      - run:
-          name: publish image to ecs
-          command: |
-            APP_VERSION=$(cat ./app_version.txt)
-            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-            docker pull mojdigitalstudio/whereabouts-api:$APP_VERSION
-
-            docker tag mojdigitalstudio/whereabouts-api:$APP_VERSION "${ECR_IMAGE_URI}:${APP_VERSION}"
-            docker tag "${ECR_IMAGE_URI}:${APP_VERSION}" "${ECR_IMAGE_URI}:latest"
-            login="$(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)"
-            ${login}
-            docker push "${ECR_IMAGE_URI}:${APP_VERSION}"
-            docker push "${ECR_IMAGE_URI}:latest"
-
   deploy_dev:
-    <<: *defaults
+    executor: deployer
     steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - attach_workspace:
-          at: ~/app
-      - run:
-          name: Kubectl deployment dev setup
-          command: |
-            $(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)
-            setup-kube-auth
-            kubectl config use-context dev
-      - deploy:
-          name: Deploy to Dev
-          command: |
-            APP_VERSION=$(cat ../app/app_version.txt)
-            AWS_ACCESS_KEY_ID=${SM_AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${SM_AWS_SECRET_ACCESS_KEY} aws secretsmanager --region ${AWS_DEFAULT_REGION} get-secret-value --secret-id ${KUBE_ENV_DEV_NAMESPACE} | jq -r .SecretString | \
-            helm upgrade whereabouts-api helm_deploy/whereabouts-api/. \
-              --install --wait --timeout 600 \
-              --tiller-namespace=${KUBE_ENV_DEV_NAMESPACE} \
-              --namespace=${KUBE_ENV_DEV_NAMESPACE} \
-              --values ./helm_deploy/values-dev.yaml \
-              --values - \
-              --set image.repository="${ECR_IMAGE_URI}" \
-              --set image.tag="${APP_VERSION}"
+      - kubectl_setup
+      - copy_image_to_ecr
+      - deploy_to_env
+          env: "dev"
 
 workflows:
   version: 2
@@ -134,13 +151,17 @@ workflows:
       - build_docker:
           requires:
             - build
-          filters:
-            branches:
-              only: master
-      - copy_image_to_ecr:
-          requires:
-            - build_docker
+#          filters:
+#            branches:
+#              only: master
       - deploy_dev:
           requires:
-            - copy_image_to_ecr
-
+            - build_docker
+      - request-preprod-approval:
+          type: approval
+          requires:
+            - deploy_dev
+      - deploy_preprod:
+          context: whereabouts-api-preprod
+          requires:
+            - request-preprod-approval
