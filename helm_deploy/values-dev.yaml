@@ -4,7 +4,7 @@
 replicaCount: 1
 
 image:
-  repository: 754256621582.dkr.ecr.eu-west-2.amazonaws.com/digital-prison-services/whereabouts-dev 
+  repository: 754256621582.dkr.ecr.eu-west-2.amazonaws.com/digital-prison-services/whereabouts-api-dev 
   tag: latest
   pullPolicy: Always
   port: 8080
