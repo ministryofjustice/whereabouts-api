@@ -6,9 +6,9 @@ commands:
       - run:
           name: Setup kubectl
           command: |
-            echo -n "${KUBE_ENV_CACERT}" | base64 -d > cluster_ca.crt
+            echo -n "${KUBE_ENV_CACERT}" | base64 -d > /tmp/cluster_ca.crt
             kubectl config set-cluster "${KUBE_ENV_NAME}" \
-              --certificate-authority="cluster_ca.crt" \
+              --certificate-authority="/tmp/cluster_ca.crt" \
               --server="https://api.${KUBE_ENV_NAME}"
             kubectl config set-credentials circleci \
               --token="${KUBE_ENV_DEV_TOKEN}"
