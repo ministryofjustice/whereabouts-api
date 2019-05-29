@@ -42,7 +42,6 @@ commands:
       env:
         type: string
     steps:
-      - setup_remote_docker
       - checkout
       - attach_workspace:
           at: ~/app
