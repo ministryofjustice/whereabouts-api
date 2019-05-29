@@ -51,7 +51,7 @@ commands:
             APP_VERSION=$(cat ~/app/app_version.txt)
             AWS_ACCESS_KEY_ID=${SM_AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${SM_AWS_SECRET_ACCESS_KEY} aws secretsmanager --region ${AWS_DEFAULT_REGION} get-secret-value --secret-id ${KUBE_ENV_NAMESPACE} | jq -r .SecretString | \
             helm upgrade whereabouts-api helm_deploy/whereabouts-api/. \
-              --install --wait --atomic --force --reset-values --timeout 360 \
+              --install --wait --force --reset-values --timeout 360 \
               --tiller-namespace=${KUBE_ENV_NAMESPACE} \
               --namespace=${KUBE_ENV_NAMESPACE} \
               --values ./helm_deploy/values-<< parameters.env >>.yaml \
