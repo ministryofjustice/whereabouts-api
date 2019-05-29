@@ -4,18 +4,18 @@ commands:
     description: "configures kubectl"
     steps:
       - run:
-        name: Setup kubectl
-        command: |
-          echo -n "${KUBE_ENV_CACERT}" | base64 -d > cluster_ca.crt
-          kubectl config set-cluster circleci \
-            --certificate-authority="cluster_ca.crt" \
-            --server="https://api.${KUBE_ENV_NAME}"
-          kubectl config set-credentials circleci \
-            --token="${KUBE_ENV_DEV_TOKEN}"
-          kubectl config set-context circleci \
-            --cluster="${KUBE_ENV_NAME}" \
-            --user="circleci" \
-            --namespace="${KUBE_ENV_NAMESPACE}"
+          name: Setup kubectl
+          command: |
+            echo -n "${KUBE_ENV_CACERT}" | base64 -d > cluster_ca.crt
+            kubectl config set-cluster circleci \
+              --certificate-authority="cluster_ca.crt" \
+              --server="https://api.${KUBE_ENV_NAME}"
+            kubectl config set-credentials circleci \
+              --token="${KUBE_ENV_DEV_TOKEN}"
+            kubectl config set-context circleci \
+              --cluster="${KUBE_ENV_NAME}" \
+              --user="circleci" \
+              --namespace="${KUBE_ENV_NAMESPACE}"
   copy_image_to_ecr:
     steps:
       - checkout
@@ -137,8 +137,15 @@ jobs:
     steps:
       - kubectl_setup
       - copy_image_to_ecr
-      - deploy_to_env
+      - deploy_to_env:
           env: "dev"
+  deploy_preprod:
+    executor: deployer
+    steps:
+      - kubectl_setup
+      - copy_image_to_ecr
+      - deploy_to_env:
+          env: "preprod"
 
 workflows:
   version: 2
