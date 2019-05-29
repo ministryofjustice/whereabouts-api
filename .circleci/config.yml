@@ -117,7 +117,7 @@ jobs:
       - run:
           name: Build container and publish to docker hub
           command: |
-            APP_VERSION=$(cat ./app_version.txt)
+            APP_VERSION=$(cat ./app/app_version.txt)
             docker build --rm=false . \
                --tag "mojdigitalstudio/whereabouts-api:$APP_VERSION" \
                --label "maintainer=jamie.draper@digital.justice.gov.uk" \
