@@ -87,9 +87,9 @@ jobs:
 
             # make up a good version name
             TAG=${APP_VERSION}.${CIRCLE_BRANCH}
-            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+            #if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
               TAG=${APP_VERSION}
-            fi
+            #fi
             echo $TAG > ./app_version.txt
 
       - save_cache:
