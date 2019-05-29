@@ -48,7 +48,9 @@ public class RequestLogFilter extends OncePerRequestFilter {
         try {
             LocalDateTime start = LocalDateTime.now();
             MDC.put(REQUEST_ID, mdcUtility.generateUUID());
-            log.debug("Request: {} {}", request.getMethod(), request.getRequestURI());
+            if (log.isDebugEnabled() && isLoggingAllowed()) {
+                log.debug("Request: {} {}", request.getMethod(), request.getRequestURI());
+            }
 
             filterChain.doFilter(request, response);
 
@@ -56,7 +58,9 @@ public class RequestLogFilter extends OncePerRequestFilter {
             MDC.put(REQUEST_DURATION, String.valueOf(duration));
             int status = response.getStatus();
             MDC.put(RESPONSE_STATUS, String.valueOf(status));
-            log.debug("Response: {} {} - Status {} - Start {}, Duration {} ms", request.getMethod(), request.getRequestURI(), status, start.format(formatter), duration);
+            if (log.isDebugEnabled() && isLoggingAllowed()) {
+                log.debug("Response: {} {} - Status {} - Start {}, Duration {} ms", request.getMethod(), request.getRequestURI(), status, start.format(formatter), duration);
+            }
         } finally {
             MDC.remove(REQUEST_DURATION);
             MDC.remove(RESPONSE_STATUS);
