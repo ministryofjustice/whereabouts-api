@@ -38,7 +38,6 @@ commands:
               --namespace=${KUBE_ENV_NAMESPACE} \
               --values ./helm_deploy/values-<< parameters.env >>.yaml \
               --values - \
-              --set image.repository="${ECR_IMAGE_URI}" \
               --set image.tag="${APP_VERSION}"
 executors:
   deployer:
