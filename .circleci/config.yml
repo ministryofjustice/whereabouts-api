@@ -86,9 +86,9 @@ jobs:
 
             # make up a good version name
             TAG=${APP_VERSION}.${CIRCLE_BRANCH}
-            #if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
               TAG=${APP_VERSION}
-            #fi
+            fi
             echo $TAG > ./app_version.txt
 
       - save_cache:
@@ -128,13 +128,13 @@ jobs:
                --label "build.url=$CIRCLE_BUILD_URL" \
                --label "build.gitref=$CIRCLE_SHA1"
 
-            #if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
               # publish to docker hub as the tag
              docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
              docker tag mojdigitalstudio/whereabouts-api:$APP_VERSION mojdigitalstudio/whereabouts-api:latest
              docker push mojdigitalstudio/whereabouts-api:$APP_VERSION
              docker push mojdigitalstudio/whereabouts-api:latest
-            #fi
+            fi
 
   deploy_dev:
     executor: deployer
@@ -169,9 +169,9 @@ workflows:
       - build_docker:
           requires:
             - build
-#          filters:
-#            branches:
-#              only: master
+          filters:
+            branches:
+              only: master
       - deploy_dev:
           requires:
             - build_docker
