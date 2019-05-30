@@ -19,24 +19,6 @@ commands:
             # confirm setup is ok
             kubectl config use-context circleci
             kubectl -n "${KUBE_ENV_NAMESPACE}" get deployments
-  copy_image_to_ecr:
-    steps:
-      - setup_remote_docker
-      - attach_workspace:
-          at: ~/app
-      - run:
-          name: publish image to ecs
-          command: |
-            APP_VERSION=$(cat ~/app/app_version.txt)
-            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-            docker pull mojdigitalstudio/whereabouts-api:$APP_VERSION
-
-            docker tag mojdigitalstudio/whereabouts-api:$APP_VERSION "${ECR_IMAGE_URI}:${APP_VERSION}"
-            docker tag "${ECR_IMAGE_URI}:${APP_VERSION}" "${ECR_IMAGE_URI}:latest"
-            login="$(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)"
-            ${login}
-            docker push "${ECR_IMAGE_URI}:${APP_VERSION}"
-            docker push "${ECR_IMAGE_URI}:latest"
   deploy_to_env:
     parameters:
       env:
@@ -140,21 +122,18 @@ jobs:
     executor: deployer
     steps:
       - kubectl_setup
-      - copy_image_to_ecr
       - deploy_to_env:
           env: "dev"
   deploy_preprod:
     executor: deployer
     steps:
       - kubectl_setup
-      - copy_image_to_ecr
       - deploy_to_env:
           env: "preprod"
   deploy_prod:
     executor: deployer
     steps:
       - kubectl_setup
-      - copy_image_to_ecr
       - deploy_to_env:
           env: "prod"
 
