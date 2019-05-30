@@ -4,7 +4,7 @@
 replicaCount: 1
 
 image:
-  repository: 754256621582.dkr.ecr.eu-west-2.amazonaws.com/digital-prison-services/whereabouts-api-dev 
+  repository: docker.io/mojdigitalstudio/whereabouts-api 
   tag: latest
   pullPolicy: Always
   port: 8080
