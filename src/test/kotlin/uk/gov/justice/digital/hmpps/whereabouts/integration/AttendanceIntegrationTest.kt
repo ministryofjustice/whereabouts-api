@@ -12,6 +12,7 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
@@ -89,7 +90,8 @@ class AttendanceIntegrationTest : IntegrationTest () {
         elite2MockServer.stubFor(
                 WireMock.post(urlPathEqualTo(createCaseNote))
                            .willReturn(WireMock.aResponse()
-                                   .withBody(gson.toJson(mapOf("caseNoteId" to 100)))
+                                   .withHeader("Content-Type", "application/json")
+                                   .withBody(gson.toJson(CaseNoteDto.builder().caseNoteId(100).build()))
                                    .withStatus(201))
         )
 
