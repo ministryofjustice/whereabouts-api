@@ -5,16 +5,23 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "OFFENDER_ATTENDANCE")
 @Data()
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @Builder
 public class Attendance {
     @Id()
@@ -49,4 +56,22 @@ public class Attendance {
 
     @Length(max = 500)
     private String comments;
+
+    private long caseNoteId;
+
+    @CreatedDate
+    @Column(name = "CREATE_DATETIME", nullable = false)
+    private LocalDateTime createDateTime;
+
+    @CreatedBy
+    @Column(name = "CREATE_USER_ID", nullable = false)
+    private String createUserId;
+
+    @LastModifiedDate
+    @Column(name = "MODIFY_DATETIME")
+    private LocalDateTime modifyDateTime;
+
+    @LastModifiedBy
+    @Column(name = "MODIFY_USER_ID")
+    private String modifyUserId;
 }

@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.services;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import net.logstash.logback.encoder.org.apache.commons.lang.NullArgumentException;
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 
 import java.util.HashMap;
@@ -17,48 +16,45 @@ class EventOutcome {
 }
 
 class NomisEventOutcomeMapper {
-    private static final HashMap<Long, EventOutcome> codeMap = new HashMap<>();
+    private static final HashMap<AbsentReason, EventOutcome> eventOutcomes = new HashMap<>();
 
     NomisEventOutcomeMapper() {
-        addPaidAttendanceMapping("ATT", "STANDARD");
+        eventOutcomes.put(AbsentReason.AcceptableAbsence, new EventOutcome("ACCAB", null));
+        eventOutcomes.put(AbsentReason.NotRequired, new EventOutcome("NREQ", null));
 
-        addPaidAbsenceMapping(AbsentReason.AcceptableAbsence,"ACCAB");
-        addPaidAbsenceMapping(AbsentReason.NotRequired,"NREQ");
+        eventOutcomes.put(AbsentReason.SessionCancelled, new EventOutcome("CANC", null));
+        eventOutcomes.put(AbsentReason.RestInCell, new EventOutcome("REST", null));
 
-        addUnPaidAbsenceMapping(AbsentReason.SessionCancelled, "CANC");
-        addUnPaidAbsenceMapping(AbsentReason.RestInCell,  "REST");
-        addUnPaidAbsenceMapping(AbsentReason.Sick, "REST");
-        addUnPaidAbsenceMapping(AbsentReason.RestDay, "REST");
+        eventOutcomes.put(AbsentReason.Sick, new EventOutcome("REST", null));
+        eventOutcomes.put(AbsentReason.RestDay, new EventOutcome("REST", null));
 
-        addUnPaidAbsenceMapping(AbsentReason.Refused,  "UNACAB");
-        addUnPaidAbsenceMapping(AbsentReason.UnacceptableAbsence,  "UNACAB");
+        eventOutcomes.put(AbsentReason.Refused, new EventOutcome("UNACAB", null));
+        eventOutcomes.put(AbsentReason.UnacceptableAbsence, new EventOutcome("UNACAB", null));
+
     }
 
-    private void addPaidAttendanceMapping(final String eventOutcome, final String performance) {
-        codeMap.put(getKey(null, true, true), new EventOutcome(eventOutcome, performance));
-    }
+    EventOutcome getEventOutcome(final AbsentReason reason, final boolean attended, final boolean paid) {
 
-    private void addUnPaidAbsenceMapping(final AbsentReason reason, final String eventOutCome) {
-        codeMap.put(getKey(reason, false, false), new EventOutcome(eventOutCome, null));
-    }
+        if (attended && reason != null) {
+            throw new IllegalArgumentException("An absent reason was supplied for a valid attendance");
+        }
 
-    private void addPaidAbsenceMapping(final AbsentReason reason, final String eventOutCome) {
-        codeMap.put(getKey(reason, false, true), new EventOutcome(eventOutCome, null));
-    }
+        if (!attended && reason == null) {
+            throw new IllegalArgumentException("An absent reason was not supplied");
+        }
 
+        if (attended && paid)
+            return new EventOutcome("ATT", "STANDARD");
 
-    private long getKey(final AbsentReason reason, final Boolean attended, final Boolean paid) {
-        return reason != null ?
-                reason.hashCode() + attended.hashCode() + paid.hashCode() :
-                "ATT_PAID_STANDARD".hashCode() + attended.hashCode() + paid.hashCode();
-    }
+        if (paid && !AbsentReason.getPaidReasons().contains(reason)) {
+            throw new IllegalArgumentException(String.format("%s is not a valid paid reason", reason));
+        }
 
-    public EventOutcome getEventOutcome(final AbsentReason reason, final boolean attended, final boolean paid) {
-        final var mapping = codeMap.get(getKey(reason, attended, paid));
-        if (mapping == null)
-            throw new NullArgumentException(String.format("No mapping for (%s) attended = %s paid = %s",
-                    reason, attended ? "Y" : "N", paid ? "Y" : "N"));
+        if (!paid && !AbsentReason.getUnpaidReasons().contains(reason)) {
+            throw new IllegalArgumentException(String.format("%s is not a valid unpaid reason", reason));
+        }
 
-        return mapping;
+        return eventOutcomes.get(reason);
+
     }
 }

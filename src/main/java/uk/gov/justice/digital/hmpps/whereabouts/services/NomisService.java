@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CaseNoteDto;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -22,15 +23,17 @@ public class NomisService {
 
     }
 
-    public void postCaseNote(long bookingId, String type, String subType, String text, LocalDateTime occurrence) {
+    public CaseNoteDto postCaseNote(long bookingId, String type, String subType, String text, LocalDateTime occurrence) {
         final var url = "/bookings/{bookingId}/caseNotes";
 
-        restTemplate.postForEntity(url,
+        final var response = restTemplate.postForEntity(url,
                 Map.of(
                         "type", type,
                         "subType", subType,
                         "text", text,
                         "occurrence", occurrence.toString()),
-                null, bookingId);
+                CaseNoteDto.class, bookingId);
+
+        return response.getBody();
     }
 }

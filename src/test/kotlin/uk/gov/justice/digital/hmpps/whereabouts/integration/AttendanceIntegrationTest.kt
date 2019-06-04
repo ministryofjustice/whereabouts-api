@@ -12,6 +12,7 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
@@ -89,7 +90,9 @@ class AttendanceIntegrationTest : IntegrationTest () {
         elite2MockServer.stubFor(
                 WireMock.post(urlPathEqualTo(createCaseNote))
                            .willReturn(WireMock.aResponse()
-                                .withStatus(200))
+                                   .withHeader("Content-Type", "application/json")
+                                   .withBody(gson.toJson(CaseNoteDto.builder().caseNoteId(100).build()))
+                                   .withStatus(201))
         )
 
         val attendance = CreateAttendanceDto
@@ -151,7 +154,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 .prisonId("LEI")
                 .eventLocationId(2)
                 .eventId(1)
-                .eventDate(LocalDate.of(2910, 10,10))
+                .eventDate(LocalDate.of(2019, 10, 10))
                 .comments("hello world")
                 .attended(false)
                 .paid(false)
@@ -165,28 +168,31 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         HttpMethod.GET,
                         createHeaderEntity(""),
                         AttendanceDtoReferenceType(),
-                        LocalDate.of(2910, 10,10),
+                        LocalDate.of(2019, 10, 10),
                         TimePeriod.AM)
 
         val result = response.body!!
 
         assertThat(response.statusCodeValue).isEqualTo(200)
-        assertThat(result).containsExactlyInAnyOrder(
-                AttendanceDto
-                     .builder()
-                        .id(attendanceId)
-                        .absentReason(AbsentReason.Refused)
-                        .period(TimePeriod.AM)
-                        .prisonId("LEI")
-                        .eventLocationId(2)
-                        .eventId(1)
-                        .eventDate(LocalDate.of(2910, 10,10))
-                        .comments("hello world")
-                        .attended(false)
-                        .paid(false)
-                        .bookingId(1)
-                        .build()
-        )
+
+        assertThat(result)
+                .usingElementComparatorIgnoringFields("createDateTime")
+                .containsExactlyInAnyOrder(
+                        AttendanceDto
+                                .builder()
+                                .id(attendanceId)
+                                .absentReason(AbsentReason.Refused)
+                                .period(TimePeriod.AM)
+                                .prisonId("LEI")
+                                .eventLocationId(2)
+                                .eventId(1)
+                                .eventDate(LocalDate.of(2019, 10, 10))
+                                .comments("hello world")
+                                .attended(false)
+                                .paid(false)
+                                .bookingId(1)
+                                .createUserId("user")
+                                .build())
 
     }
 

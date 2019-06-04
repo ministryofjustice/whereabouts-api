@@ -12,4 +12,5 @@ import java.util.Set;
 public interface AttendanceRepository extends CrudRepository<Attendance, Long> {
     Set<Attendance> findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(String prisonId, Long eventLocationId,
                                                                           LocalDate date, TimePeriod period);
+
 }
