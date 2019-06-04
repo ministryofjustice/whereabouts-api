@@ -87,6 +87,7 @@ public class AttendanceService {
                         .comments(attendanceData.getComments())
                         .createUserId(attendanceData.getCreateUserId())
                         .creationDateTime(attendanceData.getCreationDateTime())
+                        .caseNoteId(attendanceData.getCaseNoteId())
                         .build())
                   .collect(Collectors.toSet());
     }

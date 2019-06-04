@@ -34,4 +34,5 @@ public class AttendanceDto {
     private String createUserId;
     private LocalDateTime modifyDateTime;
     private String modifyUserId;
+    private long caseNoteId;
 }

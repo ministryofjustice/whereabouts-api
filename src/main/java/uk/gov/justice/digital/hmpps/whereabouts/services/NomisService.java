@@ -26,14 +26,14 @@ public class NomisService {
     public CaseNoteDto postCaseNote(long bookingId, String type, String subType, String text, LocalDateTime occurrence) {
         final var url = "/bookings/{bookingId}/caseNotes";
 
-        restTemplate.postForEntity(url,
+        final var response = restTemplate.postForEntity(url,
                 Map.of(
                         "type", type,
                         "subType", subType,
                         "text", text,
                         "occurrence", occurrence.toString()),
-                null, bookingId);
+                CaseNoteDto.class, bookingId);
 
-        return new CaseNoteDto();
+        return response.getBody();
     }
 }

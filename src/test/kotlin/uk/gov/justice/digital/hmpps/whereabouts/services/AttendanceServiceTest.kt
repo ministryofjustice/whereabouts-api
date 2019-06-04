@@ -73,6 +73,7 @@ class AttendanceServiceTest {
                                 .eventDate(today)
                                 .createUserId("user")
                                 .creationDateTime(now)
+                                .caseNoteId(1)
                                 .build()
                 ))
 
@@ -95,6 +96,7 @@ class AttendanceServiceTest {
                         .eventDate(today)
                         .createUserId("user")
                         .creationDateTime(now)
+                        .caseNoteId(1)
                         .build()
         ))
     }
