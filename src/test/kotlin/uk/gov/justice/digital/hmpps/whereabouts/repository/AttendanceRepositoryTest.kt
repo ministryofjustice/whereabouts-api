@@ -47,7 +47,7 @@ open class AttendanceRepositoryTest {
         TestTransaction.flagForCommit()
         TestTransaction.end()
 
-        val savedAttendance = attendanceRepository.findById(id)
+        val savedAttendance = attendanceRepository.findById(id).get()
 
         assertThat(savedAttendance.isAttended).isEqualTo(true)
         assertThat(savedAttendance.isPaid).isEqualTo(true)
@@ -59,7 +59,7 @@ open class AttendanceRepositoryTest {
         assertThat(savedAttendance.period).isEqualTo(TimePeriod.AM)
 
         assertThat(savedAttendance.createUserId).isEqualTo("user")
-        assertThat(savedAttendance.creationDateTime.toLocalDate()).isEqualTo(now)
+        assertThat(savedAttendance.createDateTime.toLocalDate()).isEqualTo(now)
 
     }
 

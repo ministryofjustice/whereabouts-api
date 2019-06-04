@@ -175,21 +175,24 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         assertThat(response.statusCodeValue).isEqualTo(200)
 
-        val attendance = result.firstOrNull()!!
-
-        assertThat(attendance.id).isEqualTo(attendanceId)
-        assertThat(attendance.absentReason).isEqualTo(AbsentReason.Refused)
-        assertThat(attendance.period).isEqualTo(TimePeriod.AM)
-        assertThat(attendance.prisonId).isEqualTo("LEI")
-        assertThat(attendance.eventLocationId).isEqualTo(2)
-        assertThat(attendance.eventId).isEqualTo(1)
-        assertThat(attendance.eventDate).isEqualTo(LocalDate.of(2019, 10, 10))
-        assertThat(attendance.comments).isEqualTo("hello world")
-        assertThat(attendance.isAttended).isFalse()
-        assertThat(attendance.isPaid).isFalse()
-        assertThat(attendance.bookingId).isEqualTo(1)
-        assertThat(attendance.createUserId).isEqualTo("user")
-        assertThat(attendance.creationDateTime.toLocalDate()).isEqualTo(LocalDate.now())
+        assertThat(result)
+                .usingElementComparatorIgnoringFields("createDateTime")
+                .containsExactlyInAnyOrder(
+                        AttendanceDto
+                                .builder()
+                                .id(attendanceId)
+                                .absentReason(AbsentReason.Refused)
+                                .period(TimePeriod.AM)
+                                .prisonId("LEI")
+                                .eventLocationId(2)
+                                .eventId(1)
+                                .eventDate(LocalDate.of(2019, 10, 10))
+                                .comments("hello world")
+                                .attended(false)
+                                .paid(false)
+                                .bookingId(1)
+                                .createUserId("user")
+                                .build())
 
     }
 

@@ -3,9 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.ArgumentMatchers.isA
+import org.mockito.ArgumentMatchers.*
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
@@ -72,7 +70,7 @@ class AttendanceServiceTest {
                                 .offenderBookingId(100)
                                 .eventDate(today)
                                 .createUserId("user")
-                                .creationDateTime(now)
+                                .createDateTime(now)
                                 .caseNoteId(1)
                                 .build()
                 ))
@@ -95,7 +93,7 @@ class AttendanceServiceTest {
                         .bookingId(100)
                         .eventDate(today)
                         .createUserId("user")
-                        .creationDateTime(now)
+                        .createDateTime(now)
                         .caseNoteId(1)
                         .build()
         ))
@@ -261,8 +259,8 @@ class AttendanceServiceTest {
     fun `should record unpaid absence as 'Refused'`() {
 
         `when`(nomisService.postCaseNote(
-                ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyString(), ArgumentMatchers.anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
+                anyLong(), anyString(), anyString(),
+                anyString(), anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -283,8 +281,8 @@ class AttendanceServiceTest {
     fun `should record unpaid absence for 'Unacceptable absence'`() {
 
         `when`(nomisService.postCaseNote(
-                ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyString(), ArgumentMatchers.anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
+                anyLong(), anyString(), anyString(),
+                anyString(), anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -307,8 +305,8 @@ class AttendanceServiceTest {
     fun `should create negative case note for 'Unacceptable absence'`() {
 
         `when`(nomisService.postCaseNote(
-                ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyString(), ArgumentMatchers.anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
+                anyLong(), anyString(), anyString(),
+                anyString(), anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -343,8 +341,8 @@ class AttendanceServiceTest {
                 .build()
 
         `when`(nomisService.postCaseNote(
-                ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyString(), ArgumentMatchers.anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
+                anyLong(), anyString(), anyString(),
+                anyString(), anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
@@ -372,7 +370,7 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
-        `when`(nomisService.postCaseNote(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyObject()))
+        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), anyObject()))
                 .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         service.createOffenderAttendance(attendance)
@@ -393,7 +391,7 @@ class AttendanceServiceTest {
         val caseNoteId = 1020L
         val agency = "LEI"
 
-        `when`(nomisService.postCaseNote(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyObject()))
+        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), anyObject()))
                 .thenReturn(CaseNoteDto.builder().caseNoteId(caseNoteId).build())
 
         val service = AttendanceService(attendanceRepository, nomisService)

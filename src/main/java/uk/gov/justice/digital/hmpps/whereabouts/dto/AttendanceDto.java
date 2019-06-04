@@ -30,7 +30,7 @@ public class AttendanceDto {
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate eventDate;
     private String comments;
-    private LocalDateTime creationDateTime;
+    private LocalDateTime createDateTime;
     private String createUserId;
     private LocalDateTime modifyDateTime;
     private String modifyUserId;

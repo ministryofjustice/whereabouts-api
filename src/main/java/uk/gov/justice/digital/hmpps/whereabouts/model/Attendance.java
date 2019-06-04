@@ -61,7 +61,7 @@ public class Attendance {
 
     @CreatedDate
     @Column(name = "CREATE_DATETIME", nullable = false)
-    private LocalDateTime creationDateTime;
+    private LocalDateTime createDateTime;
 
     @CreatedBy
     @Column(name = "CREATE_USER_ID", nullable = false)
