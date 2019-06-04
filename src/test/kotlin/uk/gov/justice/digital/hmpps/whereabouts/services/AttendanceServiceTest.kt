@@ -3,13 +3,17 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.ArgumentMatchers.isA
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 import org.mockito.runners.MockitoJUnitRunner
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
@@ -25,7 +29,11 @@ class AttendanceServiceTest {
     lateinit var attendanceRepository: AttendanceRepository
 
     @Mock
-    lateinit var nomisService: NomisService
+    private lateinit var nomisService: NomisService
+
+    init {
+        SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
+    }
 
     private val today: LocalDate = LocalDate.now()
     private val testAttendanceDto: CreateAttendanceDto =
@@ -40,11 +48,16 @@ class AttendanceServiceTest {
             .prisonId("LEI")
             .bookingId(100)
             .eventDate(today)
+                    .comments("hello")
             .build()
 
     @Test
     fun `should find attendance given some criteria`() {
-        `when`(attendanceRepository.findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, today, TimePeriod.AM))
+
+        val now = LocalDateTime.now()
+
+        `when`(attendanceRepository
+                .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, today, TimePeriod.AM))
                 .thenReturn(setOf(
                         Attendance.
                                 builder()
@@ -58,6 +71,8 @@ class AttendanceServiceTest {
                                 .prisonId("LEI")
                                 .offenderBookingId(100)
                                 .eventDate(today)
+                                .createUserId("user")
+                                .creationDateTime(now)
                                 .build()
                 ))
 
@@ -78,6 +93,8 @@ class AttendanceServiceTest {
                         .prisonId("LEI")
                         .bookingId(100)
                         .eventDate(today)
+                        .createUserId("user")
+                        .creationDateTime(now)
                         .build()
         ))
     }
@@ -86,19 +103,26 @@ class AttendanceServiceTest {
     fun `should create an attendance record`() {
         val service = AttendanceService(attendanceRepository, nomisService)
 
-        service.createOffenderAttendance(testAttendanceDto)
+        service.createOffenderAttendance(
+                testAttendanceDto
+                        .toBuilder()
+                        .paid(true)
+                        .attended(true)
+                        .absentReason(null)
+                        .build()
+        )
 
         verify(attendanceRepository)?.save(Attendance.
                 builder()
-                .absentReason(AbsentReason.Refused)
-                .attended(false)
-                .paid(false)
+                .attended(true)
+                .paid(true)
                 .eventId(2)
                 .eventLocationId(3)
                 .period(TimePeriod.AM)
                 .prisonId("LEI")
                 .offenderBookingId(100)
                 .eventDate(today)
+                .comments("hello")
                 .build())
 
     }
@@ -233,7 +257,10 @@ class AttendanceServiceTest {
 
     @Test
     fun `should record unpaid absence as 'Refused'`() {
-        val service = AttendanceService(attendanceRepository, nomisService)
+
+        `when`(nomisService.postCaseNote(
+                ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyString(), ArgumentMatchers.anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -243,6 +270,8 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
+        val service = AttendanceService(attendanceRepository, nomisService)
+
         service.createOffenderAttendance(attendance)
 
         verify(nomisService).updateAttendance(attendance.offenderNo,
@@ -250,7 +279,10 @@ class AttendanceServiceTest {
     }
     @Test
     fun `should record unpaid absence for 'Unacceptable absence'`() {
-        val service = AttendanceService(attendanceRepository, nomisService)
+
+        `when`(nomisService.postCaseNote(
+                ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyString(), ArgumentMatchers.anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -259,6 +291,9 @@ class AttendanceServiceTest {
                 .attended(false)
                 .paid(false)
                 .build()
+
+
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         service.createOffenderAttendance(attendance)
 
@@ -268,7 +303,10 @@ class AttendanceServiceTest {
 
     @Test
     fun `should create negative case note for 'Unacceptable absence'`() {
-        val service = AttendanceService(attendanceRepository, nomisService)
+
+        `when`(nomisService.postCaseNote(
+                ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyString(), ArgumentMatchers.anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -278,6 +316,8 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
+        val service = AttendanceService(attendanceRepository, nomisService)
+
         service.createOffenderAttendance(attendance)
 
         verify(nomisService)
@@ -285,15 +325,13 @@ class AttendanceServiceTest {
                         eq(attendance.bookingId),
                         eq("NEG"),
                         eq("IEP_WARN"),
-                        eq("Refused to attend activity / education."),
+                        eq("hello"),
                         isA(LocalDateTime::class.java))
     }
 
 
     @Test
     fun `should create negative case note for 'Refused'`() {
-        val service = AttendanceService(attendanceRepository, nomisService)
-
         val attendance = testAttendanceDto
                 .toBuilder()
                 .absentReason(AbsentReason.Refused)
@@ -302,6 +340,12 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
+        `when`(nomisService.postCaseNote(
+                ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyString(), ArgumentMatchers.anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
         service.createOffenderAttendance(attendance)
 
         verify(nomisService)
@@ -309,7 +353,7 @@ class AttendanceServiceTest {
                         eq(attendance.bookingId),
                         eq("NEG"),
                         eq("IEP_WARN"),
-                        eq("Refused to attend activity / education."),
+                        eq("hello"),
                         isA(LocalDateTime::class.java))
     }
 
@@ -326,6 +370,9 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
+        `when`(nomisService.postCaseNote(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyObject()))
+                .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
+
         service.createOffenderAttendance(attendance)
 
         verify(nomisService)
@@ -335,6 +382,49 @@ class AttendanceServiceTest {
                         eq("IEP_WARN"),
                         eq("test comment"),
                         isA(LocalDateTime::class.java))
+    }
+
+    @Test
+    fun `should save case note id returned from the postCaseNote api call`() {
+        val bookingId = 100L
+        val comments = "hello, world"
+        val caseNoteId = 1020L
+        val agency = "LEI"
+
+        `when`(nomisService.postCaseNote(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyObject()))
+                .thenReturn(CaseNoteDto.builder().caseNoteId(caseNoteId).build())
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        service.createOffenderAttendance(testAttendanceDto
+                .toBuilder()
+                .attended(false)
+                .paid(false)
+                .absentReason(AbsentReason.Refused)
+                .eventId(2)
+                .eventLocationId(3)
+                .period(TimePeriod.AM)
+                .prisonId(agency)
+                .bookingId(bookingId)
+                .eventDate(today)
+                .comments(comments)
+                .build())
+
+        verify(attendanceRepository).save(Attendance
+                .builder()
+                .attended(false)
+                .paid(false)
+                .absentReason(AbsentReason.Refused)
+                .eventId(2)
+                .eventLocationId(3)
+                .period(TimePeriod.AM)
+                .prisonId(agency)
+                .offenderBookingId(bookingId)
+                .caseNoteId(caseNoteId)
+                .eventDate(today)
+                .comments(comments)
+                .build())
+
     }
 
 }

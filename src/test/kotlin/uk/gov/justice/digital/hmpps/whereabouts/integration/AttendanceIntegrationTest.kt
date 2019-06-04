@@ -89,7 +89,8 @@ class AttendanceIntegrationTest : IntegrationTest () {
         elite2MockServer.stubFor(
                 WireMock.post(urlPathEqualTo(createCaseNote))
                            .willReturn(WireMock.aResponse()
-                                .withStatus(200))
+                                   .withBody(gson.toJson(mapOf("caseNoteId" to 100)))
+                                   .withStatus(201))
         )
 
         val attendance = CreateAttendanceDto
@@ -151,7 +152,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 .prisonId("LEI")
                 .eventLocationId(2)
                 .eventId(1)
-                .eventDate(LocalDate.of(2910, 10,10))
+                .eventDate(LocalDate.of(2019, 10, 10))
                 .comments("hello world")
                 .attended(false)
                 .paid(false)
@@ -165,28 +166,28 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         HttpMethod.GET,
                         createHeaderEntity(""),
                         AttendanceDtoReferenceType(),
-                        LocalDate.of(2910, 10,10),
+                        LocalDate.of(2019, 10, 10),
                         TimePeriod.AM)
 
         val result = response.body!!
 
         assertThat(response.statusCodeValue).isEqualTo(200)
-        assertThat(result).containsExactlyInAnyOrder(
-                AttendanceDto
-                     .builder()
-                        .id(attendanceId)
-                        .absentReason(AbsentReason.Refused)
-                        .period(TimePeriod.AM)
-                        .prisonId("LEI")
-                        .eventLocationId(2)
-                        .eventId(1)
-                        .eventDate(LocalDate.of(2910, 10,10))
-                        .comments("hello world")
-                        .attended(false)
-                        .paid(false)
-                        .bookingId(1)
-                        .build()
-        )
+
+        val attendance = result.firstOrNull()!!
+
+        assertThat(attendance.id).isEqualTo(attendanceId)
+        assertThat(attendance.absentReason).isEqualTo(AbsentReason.Refused)
+        assertThat(attendance.period).isEqualTo(TimePeriod.AM)
+        assertThat(attendance.prisonId).isEqualTo("LEI")
+        assertThat(attendance.eventLocationId).isEqualTo(2)
+        assertThat(attendance.eventId).isEqualTo(1)
+        assertThat(attendance.eventDate).isEqualTo(LocalDate.of(2019, 10, 10))
+        assertThat(attendance.comments).isEqualTo("hello world")
+        assertThat(attendance.isAttended).isFalse()
+        assertThat(attendance.isPaid).isFalse()
+        assertThat(attendance.bookingId).isEqualTo(1)
+        assertThat(attendance.createUserId).isEqualTo("user")
+        assertThat(attendance.creationDateTime.toLocalDate()).isEqualTo(LocalDate.now())
 
     }
 

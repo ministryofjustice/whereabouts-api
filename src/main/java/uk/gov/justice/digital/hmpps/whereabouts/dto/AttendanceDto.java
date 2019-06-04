@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -29,4 +30,8 @@ public class AttendanceDto {
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate eventDate;
     private String comments;
+    private LocalDateTime creationDateTime;
+    private String createUserId;
+    private LocalDateTime modifyDateTime;
+    private String modifyUserId;
 }

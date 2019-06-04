@@ -1,8 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsentReasonsDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto;
@@ -11,6 +9,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -30,7 +29,7 @@ public class AttendanceService {
 
     @Transactional
     public void createOffenderAttendance(final CreateAttendanceDto updatedAttendance) {
-        attendanceRepository.save(Attendance
+        var attendance = Attendance
                 .builder()
                 .eventLocationId(updatedAttendance.getEventLocationId())
                 .eventDate(updatedAttendance.getEventDate())
@@ -42,18 +41,20 @@ public class AttendanceService {
                 .prisonId(updatedAttendance.getPrisonId())
                 .absentReason(updatedAttendance.getAbsentReason())
                 .comments(updatedAttendance.getComments())
-                .build());
+                .build();
 
         if (updatedAttendance.getAbsentReason() != null && AbsentReason.getIepTriggers().contains(updatedAttendance.getAbsentReason())) {
-            nomisService.postCaseNote(
+            final var caseNote = nomisService.postCaseNote(
                     updatedAttendance.getBookingId(),
                     "NEG",//"Negative Behaviour"
                     "IEP_WARN", //"IEP Warning",
-                    StringUtils.defaultIfEmpty(updatedAttendance.getComments(),
-                            "Refused to attend activity / education."),
-                    LocalDateTime.now()
-            );
+                    updatedAttendance.getComments(),
+                    LocalDateTime.now());
+
+            attendance.setCaseNoteId(caseNote.getCaseNoteId());
         }
+
+        attendanceRepository.save(attendance);
 
         final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
                 updatedAttendance.getAbsentReason(),
@@ -84,6 +85,8 @@ public class AttendanceService {
                         .absentReason(attendanceData.getAbsentReason())
                         .eventLocationId(attendanceData.getEventLocationId())
                         .comments(attendanceData.getComments())
+                        .createUserId(attendanceData.getCreateUserId())
+                        .creationDateTime(attendanceData.getCreationDateTime())
                         .build())
                   .collect(Collectors.toSet());
     }

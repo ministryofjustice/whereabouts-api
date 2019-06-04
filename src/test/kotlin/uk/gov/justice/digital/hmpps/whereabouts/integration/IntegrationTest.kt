@@ -10,6 +10,8 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
@@ -33,6 +35,10 @@ abstract class IntegrationTest {
 
     @Value("\${adminToken}")
     private val adminToken: String? = null
+
+    init {
+        SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
+    }
 
     internal fun createHeaderEntityForAdminUser(entity: Any): HttpEntity<*> {
         val headers = HttpHeaders()
