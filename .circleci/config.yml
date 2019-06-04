@@ -1,8 +1,12 @@
 version: 2.1
 commands:
-  kubectl_setup:
-    description: "configures kubectl"
+  setup:
+    description: "Install tools and configure kubectl"
     steps:
+      - aws-cli/install
+      - kubernetes/install
+      - helm/install-helm-client:
+          version: v2.13.1
       - run:
           name: Setup kubectl
           command: |
@@ -24,7 +28,9 @@ commands:
       env:
         type: string
     steps:
-      - checkout
+      - setup
+      - checkout:
+          path: ~/git
       - attach_workspace:
           at: ~/app
       - deploy:
@@ -32,21 +38,27 @@ commands:
           command: |
             APP_VERSION=$(cat ~/app/app_version.txt)
             AWS_ACCESS_KEY_ID=${SM_AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${SM_AWS_SECRET_ACCESS_KEY} aws secretsmanager --region ${AWS_DEFAULT_REGION} get-secret-value --secret-id ${KUBE_ENV_NAMESPACE} | jq -r .SecretString | \
-            helm upgrade whereabouts-api helm_deploy/whereabouts-api/. \
+            helm upgrade whereabouts-api ~/git/helm_deploy/whereabouts-api/. \
               --install --wait --force --reset-values --timeout 360 \
               --tiller-namespace=${KUBE_ENV_NAMESPACE} \
               --namespace=${KUBE_ENV_NAMESPACE} \
-              --values ./helm_deploy/values-<< parameters.env >>.yaml \
+              --values ~/git/helm_deploy/values-<< parameters.env >>.yaml \
               --values - \
               --set image.tag="${APP_VERSION}"
 executors:
   deployer:
     docker:
-      - image: ${CP_TOOLS_IMAGE}
+      - image: circleci/python:3
+    working_directory: ~/app
   builder:  
     docker:
       - image: circleci/openjdk:11-jdk-browsers
     working_directory: ~/app
+
+orbs:
+  aws-cli: circleci/aws-cli@0.1.13
+  kubernetes: circleci/kubernetes@0.3.0
+  helm: circleci/helm@0.1.2
 
 jobs:
   build:
@@ -89,7 +101,6 @@ jobs:
 
   build_docker:
     executor: deployer
-    working_directory: ~/app
     steps:
       - checkout
       - attach_workspace:
@@ -120,19 +131,16 @@ jobs:
   deploy_dev:
     executor: deployer
     steps:
-      - kubectl_setup
       - deploy_to_env:
           env: "dev"
   deploy_preprod:
     executor: deployer
     steps:
-      - kubectl_setup
       - deploy_to_env:
           env: "preprod"
   deploy_prod:
     executor: deployer
     steps:
-      - kubectl_setup
       - deploy_to_env:
           env: "prod"
 
