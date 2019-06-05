@@ -11,7 +11,6 @@ import org.hibernate.validator.constraints.Length;
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
@@ -25,10 +24,6 @@ public class CreateAttendanceDto {
     @ApiModelProperty(required = true)
     @NotNull
     private Long bookingId;
-
-    @ApiModelProperty(required = true)
-    @NotEmpty
-    private String offenderNo;
 
     @ApiModelProperty(required = true)
     @NotNull

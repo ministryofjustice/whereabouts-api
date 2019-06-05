@@ -17,10 +17,9 @@ public class NomisService {
         this.restTemplate = restTemplate;
     }
 
-    public void updateAttendance(String offenderNo, long activityId, EventOutcome eventOutcome) {
-        final var url = "/bookings/offenderNo/{offenderNo}/activities/{activityId}/attendance";
-        restTemplate.put(url, eventOutcome, offenderNo, activityId);
-
+    public void updateAttendance(final Long bookingId, final long activityId, final EventOutcome eventOutcome) {
+        final var url = "/bookings/{bookingId}/activities/{activityId}/attendance";
+        restTemplate.put(url, eventOutcome, bookingId, activityId);
     }
 
     public CaseNoteDto postCaseNote(long bookingId, String type, String subType, String text, LocalDateTime occurrence) {

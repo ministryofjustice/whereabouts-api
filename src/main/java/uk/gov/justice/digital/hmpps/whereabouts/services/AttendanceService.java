@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsentReasonsDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto;
@@ -29,8 +30,8 @@ public class AttendanceService {
 
     @Transactional
     public void createOffenderAttendance(final CreateAttendanceDto updatedAttendance) {
-        var attendance = Attendance
-                .builder()
+
+        var attendance = Attendance.builder()
                 .eventLocationId(updatedAttendance.getEventLocationId())
                 .eventDate(updatedAttendance.getEventDate())
                 .eventId(updatedAttendance.getEventId())
@@ -43,17 +44,6 @@ public class AttendanceService {
                 .comments(updatedAttendance.getComments())
                 .build();
 
-        if (updatedAttendance.getAbsentReason() != null && AbsentReason.getIepTriggers().contains(updatedAttendance.getAbsentReason())) {
-            final var caseNote = nomisService.postCaseNote(
-                    updatedAttendance.getBookingId(),
-                    "NEG",//"Negative Behaviour"
-                    "IEP_WARN", //"IEP Warning",
-                    updatedAttendance.getComments(),
-                    LocalDateTime.now());
-
-            attendance.setCaseNoteId(caseNote.getCaseNoteId());
-        }
-
         attendanceRepository.save(attendance);
 
         final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
@@ -62,9 +52,26 @@ public class AttendanceService {
                 updatedAttendance.getPaid());
 
         nomisService.updateAttendance(
-                updatedAttendance.getOffenderNo(),
+                updatedAttendance.getBookingId(),
                 updatedAttendance.getEventId(),
                 eventOutcome);
+
+        attendance.setCaseNoteId(addCaseNoteIfRequired(updatedAttendance));
+    }
+
+    @Nullable
+    private Long addCaseNoteIfRequired(CreateAttendanceDto updatedAttendance) {
+        Long caseNoteId = null;
+        if (updatedAttendance.getAbsentReason() != null && AbsentReason.getIepTriggers().contains(updatedAttendance.getAbsentReason())) {
+            final var caseNote = nomisService.postCaseNote(
+                    updatedAttendance.getBookingId(),
+                    "NEG",//"Negative Behaviour"
+                    "IEP_WARN", //"IEP Warning",
+                    updatedAttendance.getComments(),
+                    LocalDateTime.now());
+            caseNoteId = caseNote.getCaseNoteId();
+        }
+        return caseNoteId;
     }
 
     public Set<AttendanceDto> getAttendance(final String prisonId, final Long eventLocationId, final LocalDate date, final TimePeriod period) {
@@ -79,8 +86,8 @@ public class AttendanceService {
                         .eventId(attendanceData.getEventId())
                         .bookingId(attendanceData.getOffenderBookingId())
                         .period(attendanceData.getPeriod())
-                        .paid(attendanceData.isPaid())
-                        .attended(attendanceData.isAttended())
+                        .paid(attendanceData.getPaid())
+                        .attended(attendanceData.getAttended())
                         .prisonId(attendanceData.getPrisonId())
                         .absentReason(attendanceData.getAbsentReason())
                         .eventLocationId(attendanceData.getEventLocationId())
