@@ -1,9 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
 import org.springframework.stereotype.Service;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsentReasonsDto;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.*;
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
@@ -18,9 +16,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class AttendanceService {
+    private final static NomisEventOutcomeMapper nomisEventOutcomeMapper = new NomisEventOutcomeMapper();
+
     private final AttendanceRepository attendanceRepository;
     private final NomisService nomisService;
-    private final static NomisEventOutcomeMapper nomisEventOutcomeMapper = new NomisEventOutcomeMapper();
 
     public AttendanceService(final AttendanceRepository attendanceRepository, final NomisService nomisService) {
         this.attendanceRepository = attendanceRepository;
@@ -28,44 +27,33 @@ public class AttendanceService {
     }
 
     @Transactional
-    public void createOffenderAttendance(final CreateAttendanceDto updatedAttendance) {
-        var attendance = Attendance
-                .builder()
-                .eventLocationId(updatedAttendance.getEventLocationId())
-                .eventDate(updatedAttendance.getEventDate())
-                .eventId(updatedAttendance.getEventId())
-                .offenderBookingId(updatedAttendance.getBookingId())
-                .period(updatedAttendance.getPeriod())
-                .paid(updatedAttendance.getPaid())
-                .attended(updatedAttendance.getAttended())
-                .prisonId(updatedAttendance.getPrisonId())
-                .absentReason(updatedAttendance.getAbsentReason())
-                .comments(updatedAttendance.getComments())
-                .build();
-
-        if (updatedAttendance.getAbsentReason() != null && AbsentReason.getIepTriggers().contains(updatedAttendance.getAbsentReason())) {
-            final var caseNote = nomisService.postCaseNote(
-                    updatedAttendance.getBookingId(),
-                    "NEG",//"Negative Behaviour"
-                    "IEP_WARN", //"IEP Warning",
-                    updatedAttendance.getComments(),
-                    LocalDateTime.now());
-
-            attendance.setCaseNoteId(caseNote.getCaseNoteId());
-        }
+    public void createAttendance(final CreateAttendanceDto attendanceDto) {
+        final var attendance = toAttendance(attendanceDto);
 
         attendanceRepository.save(attendance);
 
-        final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
-                updatedAttendance.getAbsentReason(),
-                updatedAttendance.getAttended(),
-                updatedAttendance.getPaid());
-
-        nomisService.updateAttendance(
-                updatedAttendance.getOffenderNo(),
-                updatedAttendance.getEventId(),
-                eventOutcome);
+        applyAttendanceWorkflow(attendanceDto.getOffenderNo(), attendance);
     }
+
+    @Transactional
+    public void updateAttendance(long id, UpdateAttendanceDto attendanceDto) throws AttendanceNotFound {
+
+        final var attendance = attendanceRepository.findById(id)
+                .orElseThrow(AttendanceNotFound::new);
+
+        attendance.setAttended(attendanceDto.getAttended());
+        attendance.setPaid(attendanceDto.getPaid());
+        attendance.setAbsentReason(attendanceDto.getAbsentReason());
+        attendance.setComments(attendanceDto.getComments());
+
+        final BasicBookingDetails basicBookingDetails = nomisService.getBasicBookingDetails(attendance.getOffenderBookingId());
+
+        attendanceRepository.save(attendance);
+
+        applyAttendanceWorkflow(basicBookingDetails.getOffenderNo(), attendance);
+    }
+
+
 
     public Set<AttendanceDto> getAttendance(final String prisonId, final Long eventLocationId, final LocalDate date, final TimePeriod period) {
         final var attendance = attendanceRepository
@@ -95,4 +83,41 @@ public class AttendanceService {
     public AbsentReasonsDto getAbsenceReasons() {
         return new AbsentReasonsDto(AbsentReason.getPaidReasons(), AbsentReason.getUnpaidReasons());
     }
+
+
+    private void applyAttendanceWorkflow(String offenderNo, Attendance attendance) {
+         final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
+                 attendance.getAbsentReason(),
+                 attendance.isAttended(),
+                 attendance.isPaid());
+
+         nomisService.putAttendance(offenderNo, attendance.getEventId(), eventOutcome);
+
+         if (attendance.getAbsentReason() != null && AbsentReason.getIepTriggers().contains(attendance.getAbsentReason())) {
+             final var caseNote = nomisService.postCaseNote(
+                     attendance.getOffenderBookingId(),
+                     "NEG",//"Negative Behaviour"
+                     "IEP_WARN", //"IEP Warning",
+                     attendance.getComments(),
+                     LocalDateTime.now());
+
+             attendance.setCaseNoteId(caseNote.getCaseNoteId());
+         }
+     }
+
+     private Attendance toAttendance(CreateAttendanceDto attendanceDto) {
+         return Attendance
+                 .builder()
+                 .eventLocationId(attendanceDto.getEventLocationId())
+                 .eventDate(attendanceDto.getEventDate())
+                 .eventId(attendanceDto.getEventId())
+                 .offenderBookingId(attendanceDto.getBookingId())
+                 .period(attendanceDto.getPeriod())
+                 .paid(attendanceDto.getPaid())
+                 .attended(attendanceDto.getAttended())
+                 .prisonId(attendanceDto.getPrisonId())
+                 .absentReason(attendanceDto.getAbsentReason())
+                 .comments(attendanceDto.getComments())
+                 .build();
+     }
 }

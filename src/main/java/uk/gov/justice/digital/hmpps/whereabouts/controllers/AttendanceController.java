@@ -6,11 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsentReasonsDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
+import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceNotFound;
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService;
 
 import javax.validation.Valid;
@@ -25,11 +28,11 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
         value="attendance",
         produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
-public class OffenderAttendanceController {
+public class AttendanceController {
 
     private AttendanceService attendanceService;
 
-    public OffenderAttendanceController(final AttendanceService attendanceService) {
+    public AttendanceController(final AttendanceService attendanceService) {
         this.attendanceService = attendanceService;
     }
 
@@ -40,7 +43,19 @@ public class OffenderAttendanceController {
             @RequestBody
             @Valid final CreateAttendanceDto attendance) {
 
-        this.attendanceService.createOffenderAttendance(attendance);
+        this.attendanceService.createAttendance(attendance);
+    }
+
+    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Object> putAttendance(@PathVariable("id") long id, @RequestBody @Valid final UpdateAttendanceDto attendance) {
+        try {
+            this.attendanceService.updateAttendance(id, attendance);
+        } catch (AttendanceNotFound e) {
+            return ResponseEntity.status(404).body(null);
+        }
+
+        return ResponseEntity.ok(null);
     }
 
     @GetMapping("/{prison}/{event-location}")

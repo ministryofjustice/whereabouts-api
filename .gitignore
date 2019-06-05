@@ -27,3 +27,4 @@
 
 *secrets*.yaml
 !secrets-example.yaml
+lib
