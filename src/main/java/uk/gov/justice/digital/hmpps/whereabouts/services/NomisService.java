@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.BasicBookingDetails;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CaseNoteDto;
 
 import java.time.LocalDateTime;
@@ -17,7 +18,7 @@ public class NomisService {
         this.restTemplate = restTemplate;
     }
 
-    public void updateAttendance(final Long bookingId, final long activityId, final EventOutcome eventOutcome) {
+    public void putAttendance(final Long bookingId, final long activityId, final EventOutcome eventOutcome) {
         final var url = "/bookings/{bookingId}/activities/{activityId}/attendance";
         restTemplate.put(url, eventOutcome, bookingId, activityId);
     }
@@ -25,7 +26,8 @@ public class NomisService {
     public CaseNoteDto postCaseNote(long bookingId, String type, String subType, String text, LocalDateTime occurrence) {
         final var url = "/bookings/{bookingId}/caseNotes";
 
-        final var response = restTemplate.postForEntity(url,
+        final var response = restTemplate.postForEntity(
+                url,
                 Map.of(
                         "type", type,
                         "subType", subType,
@@ -35,4 +37,17 @@ public class NomisService {
 
         return response.getBody();
     }
+
+    public BasicBookingDetails getBasicBookingDetails(long bookingId) {
+        final var url = "/bookings/{bookingId}?basicInfo=true";
+
+        final var response  = restTemplate.getForEntity(
+                url,
+                BasicBookingDetails.class,
+                bookingId);
+
+        return response.getBody();
+    }
+
 }
+

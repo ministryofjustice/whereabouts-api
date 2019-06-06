@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-@Builder
+@Builder(toBuilder = true)
 public class Attendance {
     @Id()
     @GeneratedValue(strategy= GenerationType.IDENTITY)
