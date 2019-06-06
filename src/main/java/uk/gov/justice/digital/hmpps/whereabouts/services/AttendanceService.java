@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository;
 
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,19 +25,21 @@ public class AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
     private final NomisService nomisService;
+    private final EntityManager em;
 
-    public AttendanceService(final AttendanceRepository attendanceRepository, final NomisService nomisService) {
+
+    public AttendanceService(final AttendanceRepository attendanceRepository, final NomisService nomisService, EntityManager em) {
         this.attendanceRepository = attendanceRepository;
         this.nomisService = nomisService;
+        this.em = em;
     }
 
     @Transactional
     public void createAttendance(final CreateAttendanceDto attendanceDto) {
-        final var attendance = toAttendance(attendanceDto);
 
-        attendanceRepository.save(
-                applyAttendanceWorkflow(attendance)
-        );
+        Attendance attendance = attendanceRepository.save(toAttendance(attendanceDto));
+        em.flush();
+        applyAttendanceWorkflow(attendance);
     }
 
     @Transactional
@@ -50,9 +53,7 @@ public class AttendanceService {
         attendance.setAbsentReason(attendanceDto.getAbsentReason());
         attendance.setComments(attendanceDto.getComments());
 
-        attendanceRepository.save(
-              applyAttendanceWorkflow(attendance)
-        );
+        applyAttendanceWorkflow(attendance);
     }
 
     public Set<AttendanceDto> getAttendance(final String prisonId, final Long eventLocationId, final LocalDate date, final TimePeriod period) {
@@ -85,7 +86,7 @@ public class AttendanceService {
     }
 
 
-    private Attendance applyAttendanceWorkflow(Attendance attendance) {
+    private void applyAttendanceWorkflow(Attendance attendance) {
         final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
                 attendance.getAbsentReason(),
                 attendance.getAttended(),
@@ -93,13 +94,11 @@ public class AttendanceService {
 
         nomisService.putAttendance(attendance.getOffenderBookingId(), attendance.getEventId(), eventOutcome);
 
-        return addCaseNoteIfRequired(attendance)
-                .map(caseNoteId -> attendance.toBuilder().caseNoteId(caseNoteId).build())
-                .orElseGet(() ->  attendance.toBuilder().build());
+        addCaseNoteIfRequired(attendance).ifPresent(attendance::setCaseNoteId);
     }
 
      private Optional<Long> addCaseNoteIfRequired(Attendance attendance) {
-        if (attendance.getAbsentReason() != null && AbsentReason.getIepTriggers().contains(attendance.getAbsentReason())) {
+        if (attendance.getCaseNoteId() == null && attendance.getAbsentReason() != null && AbsentReason.getIepTriggers().contains(attendance.getAbsentReason())) {
             final var caseNote = nomisService.postCaseNote(
                     attendance.getOffenderBookingId(),
                     "NEG",//"Negative Behaviour"
