@@ -37,9 +37,9 @@ class AttendanceIntegrationTest : IntegrationTest () {
     @Test
     fun `should make an elite api request to update an offenders attendance`() {
 
-        val offenderNo = "A2345"
+        val bookingId = 1
         val activityId = 2L
-        val updateAttendanceUrl = "/api/bookings/offenderNo/$offenderNo/activities/$activityId/attendance"
+        val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
 
         elite2MockServer.stubFor(
                 WireMock.put(urlPathEqualTo(updateAttendanceUrl))
@@ -49,7 +49,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         val attendance = CreateAttendanceDto
                 .builder()
-                .offenderNo(offenderNo)
                 .prisonId("LEI")
                 .bookingId(1)
                 .eventId(activityId)
@@ -75,11 +74,10 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
     @Test
     fun `should make an elite api request to create a IEP warning case note`() {
-        val offenderNo = "A2345"
         val activityId = 2L
         val bookingId = 1
         val comments = "Test comment"
-        val updateAttendanceUrl = "/api/bookings/offenderNo/$offenderNo/activities/$activityId/attendance"
+        val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
         val createCaseNote = "/api/bookings/$bookingId/caseNotes"
 
         elite2MockServer.stubFor(
@@ -97,7 +95,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         val attendance = CreateAttendanceDto
                 .builder()
-                .offenderNo(offenderNo)
                 .prisonId("LEI")
                 .bookingId(1)
                 .eventId(activityId)
@@ -131,10 +128,9 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
     @Test
     fun `receive a list of attendance for a prison, location, date and period`() {
-        val offenderNo = "A2345"
         val activityId = 2L
         val bookingId = 1
-        val updateAttendanceUrl = "/api/bookings/offenderNo/$offenderNo/activities/$activityId/attendance"
+        val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
         val createCaseNote = "/api/bookings/$bookingId/caseNotes"
 
         elite2MockServer.stubFor(
@@ -203,7 +199,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
             restTemplate.exchange("/attendance", HttpMethod.POST,
                   createHeaderEntity(CreateAttendanceDto
                     .builder()
-                    .offenderNo("A12345")
                     .prisonId("LEI")
                     .eventId(2)
                     .eventLocationId(2)
@@ -217,27 +212,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
     }
 
     @Test
-    fun `should return a bad request when the 'offenderNo' is missing`() {
-
-        val response: ResponseEntity<String> =
-                restTemplate.exchange("/attendance", HttpMethod.POST,
-                        createHeaderEntity(CreateAttendanceDto
-                                .builder()
-                                .bookingId(1)
-                                .prisonId("LEI")
-                                .eventId(2)
-                                .eventLocationId(2)
-                                .eventDate(LocalDate.of(2010, 10, 10))
-                                .period(TimePeriod.AM)
-                                .attended(true)
-                                .paid(true)
-                                .build()))
-
-        assertThat(response.statusCodeValue).isEqualTo(400)
-
-    }
-
-    @Test
     fun `should return a bad request when the 'prisonId' is missing`() {
 
         val response: ResponseEntity<String> =
@@ -245,7 +219,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         createHeaderEntity(CreateAttendanceDto
                                 .builder()
                                 .bookingId(1)
-                                .offenderNo("A12345")
                                 .eventId(2)
                                 .eventLocationId(2)
                                 .eventDate(LocalDate.of(2010, 10, 10))
@@ -266,7 +239,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         createHeaderEntity(CreateAttendanceDto
                                 .builder()
                                 .bookingId(1)
-                                .offenderNo("A12345")
                                 .prisonId("LEI")
                                 .eventLocationId(2)
                                 .eventDate(LocalDate.of(2010, 10, 10))
@@ -287,7 +259,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         createHeaderEntity(CreateAttendanceDto
                                 .builder()
                                 .bookingId(1)
-                                .offenderNo("A12345")
                                 .prisonId("LEI")
                                 .eventId(1)
                                 .eventDate(LocalDate.of(2010, 10, 10))
@@ -308,7 +279,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         createHeaderEntity(CreateAttendanceDto
                                 .builder()
                                 .bookingId(1)
-                                .offenderNo("A12345")
                                 .prisonId("LEI")
                                 .eventId(1)
                                 .eventLocationId(1)
@@ -329,7 +299,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         createHeaderEntity(CreateAttendanceDto
                                 .builder()
                                 .bookingId(1)
-                                .offenderNo("A12345")
                                 .prisonId("LEI")
                                 .eventId(1)
                                 .eventLocationId(1)

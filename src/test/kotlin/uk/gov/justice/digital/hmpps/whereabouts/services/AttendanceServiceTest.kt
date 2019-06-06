@@ -7,7 +7,7 @@ import org.mockito.ArgumentMatchers.*
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
-import org.mockito.runners.MockitoJUnitRunner
+import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
@@ -133,7 +133,7 @@ class AttendanceServiceTest {
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
+                .bookingId(323112)
                 .attended(true)
                 .paid(true)
                 .absentReason(null)
@@ -141,7 +141,7 @@ class AttendanceServiceTest {
 
         service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(attendance.offenderNo,
+        verify(nomisService).updateAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("ATT", "STANDARD"))
 
     }
@@ -153,7 +153,7 @@ class AttendanceServiceTest {
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
+                .bookingId(323112)
                 .absentReason(AbsentReason.AcceptableAbsence)
                 .attended(false)
                 .paid(true)
@@ -161,7 +161,7 @@ class AttendanceServiceTest {
 
         service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(attendance.offenderNo,
+        verify(nomisService).updateAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("ACCAB", null))
     }
 
@@ -171,7 +171,7 @@ class AttendanceServiceTest {
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
+                .bookingId(323112)
                 .absentReason(AbsentReason.NotRequired)
                 .attended(false)
                 .paid(true)
@@ -179,7 +179,7 @@ class AttendanceServiceTest {
 
         service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(attendance.offenderNo,
+        verify(nomisService).updateAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("NREQ", null))
     }
 
@@ -189,7 +189,7 @@ class AttendanceServiceTest {
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
+                .bookingId(323112)
                 .absentReason(AbsentReason.SessionCancelled)
                 .attended(false)
                 .paid(false)
@@ -197,7 +197,7 @@ class AttendanceServiceTest {
 
         service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(attendance.offenderNo,
+        verify(nomisService).updateAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("CANC", null))
     }
 
@@ -207,7 +207,6 @@ class AttendanceServiceTest {
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
                 .absentReason(AbsentReason.RestInCell)
                 .attended(false)
                 .paid(false)
@@ -215,7 +214,7 @@ class AttendanceServiceTest {
 
         service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(attendance.offenderNo,
+        verify(nomisService).updateAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("REST", null))
     }
 
@@ -225,7 +224,7 @@ class AttendanceServiceTest {
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
+                .bookingId(323112)
                 .absentReason(AbsentReason.Sick)
                 .attended(false)
                 .paid(false)
@@ -233,7 +232,7 @@ class AttendanceServiceTest {
 
         service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(attendance.offenderNo,
+        verify(nomisService).updateAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("REST", null))
     }
 
@@ -243,7 +242,7 @@ class AttendanceServiceTest {
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
+                .bookingId(323112)
                 .absentReason(AbsentReason.RestDay)
                 .attended(false)
                 .paid(false)
@@ -251,7 +250,7 @@ class AttendanceServiceTest {
 
         service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(attendance.offenderNo,
+        verify(nomisService).updateAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("REST", null))
     }
 
@@ -264,7 +263,7 @@ class AttendanceServiceTest {
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
+                .bookingId(323112)
                 .absentReason(AbsentReason.Refused)
                 .attended(false)
                 .paid(false)
@@ -274,7 +273,7 @@ class AttendanceServiceTest {
 
         service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(attendance.offenderNo,
+        verify(nomisService).updateAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("UNACAB", null))
     }
     @Test
@@ -286,7 +285,7 @@ class AttendanceServiceTest {
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
+                .bookingId(323112)
                 .absentReason(AbsentReason.UnacceptableAbsence)
                 .attended(false)
                 .paid(false)
@@ -297,7 +296,7 @@ class AttendanceServiceTest {
 
         service.createOffenderAttendance(attendance)
 
-        verify(nomisService).updateAttendance(attendance.offenderNo,
+        verify(nomisService).updateAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("UNACAB", null))
     }
 
@@ -311,7 +310,7 @@ class AttendanceServiceTest {
         val attendance = testAttendanceDto
                 .toBuilder()
                 .absentReason(AbsentReason.UnacceptableAbsence)
-                .offenderNo("A12345")
+                .bookingId(323112)
                 .attended(false)
                 .paid(false)
                 .build()
@@ -335,7 +334,7 @@ class AttendanceServiceTest {
         val attendance = testAttendanceDto
                 .toBuilder()
                 .absentReason(AbsentReason.Refused)
-                .offenderNo("A12345")
+                .bookingId(323112)
                 .attended(false)
                 .paid(false)
                 .build()
@@ -364,7 +363,7 @@ class AttendanceServiceTest {
         val attendance = testAttendanceDto
                 .toBuilder()
                 .absentReason(AbsentReason.Refused)
-                .offenderNo("A12345")
+                .bookingId(323112)
                 .attended(false)
                 .comments("test comment")
                 .paid(false)

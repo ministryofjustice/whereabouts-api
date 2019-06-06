@@ -30,6 +30,7 @@ open class AttendanceRepositoryTest {
     val attendance = Attendance.builder()
             .attended(true)
             .paid(true)
+            .offenderBookingId(121)
             .eventDate(LocalDate.now())
             .eventId(1)
             .eventLocationId(1)
@@ -49,8 +50,8 @@ open class AttendanceRepositoryTest {
 
         val savedAttendance = attendanceRepository.findById(id).get()
 
-        assertThat(savedAttendance.isAttended).isEqualTo(true)
-        assertThat(savedAttendance.isPaid).isEqualTo(true)
+        assertThat(savedAttendance.attended).isEqualTo(true)
+        assertThat(savedAttendance.paid).isEqualTo(true)
         assertThat(savedAttendance.eventDate).isEqualTo(now)
         assertThat(savedAttendance.eventId).isEqualTo(1)
         assertThat(savedAttendance.eventLocationId).isEqualTo(1)
