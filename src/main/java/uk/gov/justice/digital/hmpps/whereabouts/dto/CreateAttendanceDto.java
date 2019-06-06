@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-@ApiModel(description = "Attendance details")
+@ApiModel(description = "Attendance details to create")
 public class CreateAttendanceDto {
 
     @ApiModelProperty(required = true)

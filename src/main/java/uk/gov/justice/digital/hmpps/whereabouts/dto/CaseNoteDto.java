@@ -14,33 +14,19 @@ import java.util.List;
 @Builder(toBuilder = true)
 public class CaseNoteDto {
     private long caseNoteId;
-
     private long bookingId;
-
     private long staffId;
-
     private String type;
-
     private String typeDescription;
-
     private String subType;
-
     private String subTypeDescription;
-
     private String source;
-
     private LocalDateTime creationDateTime;
-
     private LocalDateTime occurrenceDateTime;
-
     private String authorName;
-
     private String text;
-
     private String originalNoteText;
-
     private String agencyId;
-
     private List<Amendment> amendments;
 }
 
