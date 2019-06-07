@@ -68,11 +68,11 @@ public class AttendanceService {
 
         var attendance = attendanceRepository.save(toAttendance(attendanceDto));
         entityManager.flush();
-        applyAttendanceWorkflow(attendance);
+        publishAttendanceAndIEPWarning(attendance);
     }
 
     @Transactional
-    public void updateAttendance(long id, UpdateAttendanceDto attendanceDto) throws AttendanceNotFound {
+    public void updateAttendance(final long id, final UpdateAttendanceDto attendanceDto) throws AttendanceNotFound {
 
         final var attendance = attendanceRepository.findById(id)
                 .orElseThrow(AttendanceNotFound::new);
@@ -82,13 +82,13 @@ public class AttendanceService {
         attendance.setAbsentReason(attendanceDto.getAbsentReason());
         attendance.setComments(attendanceDto.getComments());
 
-        applyAttendanceWorkflow(attendance);
+        publishAttendanceAndIEPWarning(attendance);
 
         attendanceRepository.save(attendance);
     }
 
 
-    private void applyAttendanceWorkflow(Attendance attendance) {
+    private void publishAttendanceAndIEPWarning(final Attendance attendance) {
         final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
                 attendance.getAbsentReason(),
                 attendance.getAttended(),
@@ -99,7 +99,7 @@ public class AttendanceService {
         addCaseNoteIfRequired(attendance).ifPresent(attendance::setCaseNoteId);
     }
 
-     private Optional<Long> addCaseNoteIfRequired(Attendance attendance) {
+     private Optional<Long> addCaseNoteIfRequired(final Attendance attendance) {
         if (attendance.getCaseNoteId() == null && attendance.getAbsentReason() != null && AbsentReason.getIepTriggers().contains(attendance.getAbsentReason())) {
             final var caseNote = nomisService.postCaseNote(
                     attendance.getOffenderBookingId(),
@@ -113,7 +113,7 @@ public class AttendanceService {
         return Optional.empty();
     }
 
-    private Attendance toAttendance(CreateAttendanceDto attendanceDto) {
+    private Attendance toAttendance(final CreateAttendanceDto attendanceDto) {
          return Attendance
                  .builder()
                  .eventLocationId(attendanceDto.getEventLocationId())
