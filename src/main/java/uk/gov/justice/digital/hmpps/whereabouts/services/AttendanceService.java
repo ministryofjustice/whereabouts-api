@@ -25,35 +25,13 @@ public class AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
     private final NomisService nomisService;
-    private final EntityManager em;
+    private final EntityManager entityManager;
 
 
-    public AttendanceService(final AttendanceRepository attendanceRepository, final NomisService nomisService, EntityManager em) {
+    public AttendanceService(final AttendanceRepository attendanceRepository, final NomisService nomisService, EntityManager entityManager) {
         this.attendanceRepository = attendanceRepository;
         this.nomisService = nomisService;
-        this.em = em;
-    }
-
-    @Transactional
-    public void createAttendance(final CreateAttendanceDto attendanceDto) {
-
-        Attendance attendance = attendanceRepository.save(toAttendance(attendanceDto));
-        em.flush();
-        applyAttendanceWorkflow(attendance);
-    }
-
-    @Transactional
-    public void updateAttendance(long id, UpdateAttendanceDto attendanceDto) throws AttendanceNotFound {
-
-        final var attendance = attendanceRepository.findById(id)
-                .orElseThrow(AttendanceNotFound::new);
-
-        attendance.setAttended(attendanceDto.getAttended());
-        attendance.setPaid(attendanceDto.getPaid());
-        attendance.setAbsentReason(attendanceDto.getAbsentReason());
-        attendance.setComments(attendanceDto.getComments());
-
-        applyAttendanceWorkflow(attendance);
+        this.entityManager = entityManager;
     }
 
     public Set<AttendanceDto> getAttendance(final String prisonId, final Long eventLocationId, final LocalDate date, final TimePeriod period) {
@@ -78,11 +56,35 @@ public class AttendanceService {
                         .createDateTime(attendanceData.getCreateDateTime())
                         .caseNoteId(attendanceData.getCaseNoteId())
                         .build())
-                  .collect(Collectors.toSet());
+                .collect(Collectors.toSet());
     }
 
     public AbsentReasonsDto getAbsenceReasons() {
         return new AbsentReasonsDto(AbsentReason.getPaidReasons(), AbsentReason.getUnpaidReasons());
+    }
+
+    @Transactional
+    public void createAttendance(final CreateAttendanceDto attendanceDto) {
+
+        var attendance = attendanceRepository.save(toAttendance(attendanceDto));
+        entityManager.flush();
+        applyAttendanceWorkflow(attendance);
+    }
+
+    @Transactional
+    public void updateAttendance(long id, UpdateAttendanceDto attendanceDto) throws AttendanceNotFound {
+
+        final var attendance = attendanceRepository.findById(id)
+                .orElseThrow(AttendanceNotFound::new);
+
+        attendance.setAttended(attendanceDto.getAttended());
+        attendance.setPaid(attendanceDto.getPaid());
+        attendance.setAbsentReason(attendanceDto.getAbsentReason());
+        attendance.setComments(attendanceDto.getComments());
+
+        applyAttendanceWorkflow(attendance);
+
+        attendanceRepository.save(attendance);
     }
 
 

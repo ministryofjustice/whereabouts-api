@@ -14,11 +14,13 @@ import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 
 class AttendanceDtoReferenceType : ParameterizedTypeReference<List<AttendanceDto>>()
@@ -309,5 +311,81 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         assertThat(response.statusCodeValue).isEqualTo(400)
 
+    }
+
+    @Test
+    fun `should update attendance`() {
+        elite2MockServer.stubFor(
+                WireMock.put(urlPathEqualTo("/api/bookings/1/activities/1/attendance"))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(200)))
+
+        val persistedAttendance = attendanceRepository.save(
+                Attendance.builder()
+                        .absentReason(AbsentReason.Refused)
+                        .offenderBookingId(1)
+                        .comments("Refused to turn up")
+                        .attended(false)
+                        .paid(false)
+                        .createDateTime(LocalDateTime.now())
+                        .eventDate(LocalDate.now())
+                        .eventId(1)
+                        .prisonId("LEI")
+                        .period(TimePeriod.AM)
+                        .eventLocationId(2)
+                        .build())
+
+        val response =
+                restTemplate.exchange(
+                        "/attendance/${persistedAttendance.id}",
+                        HttpMethod.PUT,
+                        createHeaderEntity(UpdateAttendanceDto.builder().attended(true).paid(true).build()),
+                        String::class.java,
+                        LocalDate.of(2019, 10, 10),
+                        TimePeriod.AM)
+
+        assertThat(response.statusCodeValue).isEqualTo(204)
+    }
+
+    @Test
+    fun `should return a 404 when attempting to update non existent attendance`() {
+        val response =
+                restTemplate.exchange(
+                        "/attendance/100",
+                        HttpMethod.PUT,
+                        createHeaderEntity(UpdateAttendanceDto.builder().attended(true).paid(true).build()),
+                        String::class.java,
+                        LocalDate.of(2019, 10, 10),
+                        TimePeriod.AM)
+
+        assertThat(response.statusCodeValue).isEqualTo(404)
+    }
+
+    @Test
+    fun `should return a 400 bad request when 'attended' is null`() {
+        val response =
+                restTemplate.exchange(
+                        "/attendance/100",
+                        HttpMethod.PUT,
+                        createHeaderEntity(UpdateAttendanceDto.builder().paid(true).build()),
+                        String::class.java,
+                        LocalDate.of(2019, 10, 10),
+                        TimePeriod.AM)
+
+        assertThat(response.statusCodeValue).isEqualTo(400)
+    }
+
+    @Test
+    fun `should return a 400 bad request when 'paid' is null`() {
+        val response =
+                restTemplate.exchange(
+                        "/attendance/100",
+                        HttpMethod.PUT,
+                        createHeaderEntity(UpdateAttendanceDto.builder().attended(true).build()),
+                        String::class.java,
+                        LocalDate.of(2019, 10, 10),
+                        TimePeriod.AM)
+
+        assertThat(response.statusCodeValue).isEqualTo(400)
     }
 }
