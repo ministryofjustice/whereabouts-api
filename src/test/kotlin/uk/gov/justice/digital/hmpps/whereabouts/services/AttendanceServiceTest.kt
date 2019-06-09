@@ -25,7 +25,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import javax.persistence.EntityManager
 
 @RunWith(MockitoJUnitRunner::class)
 class AttendanceServiceTest {
@@ -34,9 +33,6 @@ class AttendanceServiceTest {
 
     @Mock
     private lateinit var nomisService: NomisService
-
-    @Mock
-    private lateinit var entityManager: EntityManager
 
     private val today: LocalDate = LocalDate.now()
     private val testAttendanceDto: CreateAttendanceDto =
