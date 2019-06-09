@@ -89,7 +89,7 @@ class AttendanceServiceTest {
                                 .build()
                 ))
 
-        val service =  AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service =  AttendanceService(attendanceRepository, nomisService)
 
         val result = service.getAttendance("LEI" , 1, today, TimePeriod.AM)
 
@@ -116,7 +116,7 @@ class AttendanceServiceTest {
     @Test
     fun `should create an attendance record`() {
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         service.createAttendance(
                 testAttendanceDto
@@ -145,7 +145,7 @@ class AttendanceServiceTest {
     @Test
     fun `should record paid attendance` () {
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -165,7 +165,7 @@ class AttendanceServiceTest {
     @Test
     fun `should record paid absence for 'acceptable absence'`() {
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -183,7 +183,7 @@ class AttendanceServiceTest {
     @Test
     fun `should record paid absence for 'not required'`() {
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -201,7 +201,7 @@ class AttendanceServiceTest {
     @Test
     fun `should record unpaid absence for 'session cancelled'`() {
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -219,7 +219,7 @@ class AttendanceServiceTest {
     @Test
     fun `should record unpaid absence for 'rest in cell'`() {
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -237,7 +237,7 @@ class AttendanceServiceTest {
     @Test
     fun `should record unpaid absence for 'Sick'`() {
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -255,7 +255,7 @@ class AttendanceServiceTest {
     @Test
     fun `should record unpaid absence for 'Rest day'`() {
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -284,7 +284,7 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         service.createAttendance(attendance)
 
@@ -306,7 +306,7 @@ class AttendanceServiceTest {
                 .build()
 
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         service.createAttendance(attendance)
 
@@ -328,7 +328,7 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         service.createAttendance(attendance)
 
@@ -356,7 +356,7 @@ class AttendanceServiceTest {
                 anyLong(), anyString(), anyString(),
                 anyString(), anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         service.createAttendance(attendance)
 
@@ -372,7 +372,7 @@ class AttendanceServiceTest {
     @Test
     fun `should create a negative case note using user supplied comment`() {
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -402,7 +402,7 @@ class AttendanceServiceTest {
         `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), anyObject()))
                 .thenReturn(CaseNoteDto.builder().caseNoteId(1020L).build())
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         service.createAttendance(testAttendanceDto
                 .toBuilder()
@@ -452,7 +452,7 @@ class AttendanceServiceTest {
                         .period(TimePeriod.AM)
                         .build()))
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         service.updateAttendance(1, UpdateAttendanceDto
                 .builder()
@@ -500,7 +500,7 @@ class AttendanceServiceTest {
                         .period(TimePeriod.AM)
                         .build()))
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         service.updateAttendance(1, UpdateAttendanceDto
                 .builder()
@@ -531,7 +531,7 @@ class AttendanceServiceTest {
     fun `should throw an AttendanceNotFoundException`() {
        `when`(attendanceRepository.findById(1)).thenReturn(Optional.empty())
 
-        val service = AttendanceService(attendanceRepository, nomisService, entityManager)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
         assertThatThrownBy {
             service.updateAttendance(1, UpdateAttendanceDto.builder().build())

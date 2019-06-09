@@ -10,7 +10,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository;
 
-import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,13 +24,11 @@ public class AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
     private final NomisService nomisService;
-    private final EntityManager entityManager;
 
 
-    public AttendanceService(final AttendanceRepository attendanceRepository, final NomisService nomisService, EntityManager entityManager) {
+    public AttendanceService(final AttendanceRepository attendanceRepository, final NomisService nomisService) {
         this.attendanceRepository = attendanceRepository;
         this.nomisService = nomisService;
-        this.entityManager = entityManager;
     }
 
     public Set<AttendanceDto> getAttendance(final String prisonId, final Long eventLocationId, final LocalDate date, final TimePeriod period) {
@@ -67,7 +64,6 @@ public class AttendanceService {
     public void createAttendance(final CreateAttendanceDto attendanceDto) {
 
         var attendance = attendanceRepository.save(toAttendance(attendanceDto));
-        entityManager.flush();
         publishAttendanceAndIEPWarning(attendance);
     }
 
