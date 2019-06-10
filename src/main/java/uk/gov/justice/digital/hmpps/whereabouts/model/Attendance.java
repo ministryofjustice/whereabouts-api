@@ -22,20 +22,20 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-@Builder
+@Builder(toBuilder = true)
 public class Attendance {
     @Id()
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NotNull
-    private long offenderBookingId;
+    private Long offenderBookingId;
 
     @NotNull
-    private long eventId;
+    private Long eventId;
 
     @NotNull
-    private long eventLocationId;
+    private Long eventLocationId;
 
     @NotNull
     private LocalDate eventDate;
@@ -48,8 +48,8 @@ public class Attendance {
     @Length(max = 6)
     private String prisonId;
 
-    private boolean paid;
-    private boolean attended;
+    private Boolean paid;
+    private Boolean attended;
 
     @Enumerated(EnumType.STRING)
     private AbsentReason absentReason;
@@ -57,7 +57,7 @@ public class Attendance {
     @Length(max = 500)
     private String comments;
 
-    private long caseNoteId;
+    private Long caseNoteId;
 
     @CreatedDate
     @Column(name = "CREATE_DATETIME", nullable = false)

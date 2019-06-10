@@ -9,10 +9,15 @@ import org.mockito.ArgumentMatchers.*
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.doAnswer
+import org.mockito.Spy
 import org.mockito.runners.MockitoJUnitRunner
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import uk.gov.justice.digital.hmpps.whereabouts.dto.*
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CaseNoteDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -21,10 +26,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-
 @RunWith(MockitoJUnitRunner::class)
 class AttendanceServiceTest {
-    @Mock
+    @Spy
     lateinit var attendanceRepository: AttendanceRepository
 
     @Mock
@@ -47,6 +51,12 @@ class AttendanceServiceTest {
             .build()
     init {
         SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
+    }
+
+    @Before
+    fun before() {
+        // return the attendance entity on save
+        doAnswer { it.getArgument(0) as Attendance}.`when`(attendanceRepository).save(any())
     }
 
     @Test
@@ -101,7 +111,6 @@ class AttendanceServiceTest {
 
     @Test
     fun `should create an attendance record`() {
-        stubBookingDetails()
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
@@ -131,13 +140,11 @@ class AttendanceServiceTest {
 
     @Test
     fun `should record paid attendance` () {
-        stubBookingDetails()
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
                 .attended(true)
                 .paid(true)
                 .absentReason(null)
@@ -145,7 +152,7 @@ class AttendanceServiceTest {
 
         service.createAttendance(attendance)
 
-        verify(nomisService).putAttendance(attendance.offenderNo,
+        verify(nomisService).putAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("ATT", "STANDARD"))
 
     }
@@ -153,13 +160,11 @@ class AttendanceServiceTest {
 
     @Test
     fun `should record paid absence for 'acceptable absence'`() {
-        stubBookingDetails()
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
                 .absentReason(AbsentReason.AcceptableAbsence)
                 .attended(false)
                 .paid(true)
@@ -167,19 +172,17 @@ class AttendanceServiceTest {
 
         service.createAttendance(attendance)
 
-        verify(nomisService).putAttendance(attendance.offenderNo,
+        verify(nomisService).putAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("ACCAB", null))
     }
 
     @Test
     fun `should record paid absence for 'not required'`() {
-        stubBookingDetails()
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
                 .absentReason(AbsentReason.NotRequired)
                 .attended(false)
                 .paid(true)
@@ -187,19 +190,17 @@ class AttendanceServiceTest {
 
         service.createAttendance(attendance)
 
-        verify(nomisService).putAttendance(attendance.offenderNo,
+        verify(nomisService).putAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("NREQ", null))
     }
 
     @Test
     fun `should record unpaid absence for 'session cancelled'`() {
-        stubBookingDetails()
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
                 .absentReason(AbsentReason.SessionCancelled)
                 .attended(false)
                 .paid(false)
@@ -207,19 +208,17 @@ class AttendanceServiceTest {
 
         service.createAttendance(attendance)
 
-        verify(nomisService).putAttendance(attendance.offenderNo,
+        verify(nomisService).putAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("CANC", null))
     }
 
     @Test
     fun `should record unpaid absence for 'rest in cell'`() {
-        stubBookingDetails()
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
                 .absentReason(AbsentReason.RestInCell)
                 .attended(false)
                 .paid(false)
@@ -227,19 +226,17 @@ class AttendanceServiceTest {
 
         service.createAttendance(attendance)
 
-        verify(nomisService).putAttendance(attendance.offenderNo,
+        verify(nomisService).putAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("REST", null))
     }
 
     @Test
     fun `should record unpaid absence for 'Sick'`() {
-        stubBookingDetails()
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
                 .absentReason(AbsentReason.Sick)
                 .attended(false)
                 .paid(false)
@@ -247,19 +244,17 @@ class AttendanceServiceTest {
 
         service.createAttendance(attendance)
 
-        verify(nomisService).putAttendance(attendance.offenderNo,
+        verify(nomisService).putAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("REST", null))
     }
 
     @Test
     fun `should record unpaid absence for 'Rest day'`() {
-        stubBookingDetails()
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
                 .absentReason(AbsentReason.RestDay)
                 .attended(false)
                 .paid(false)
@@ -267,13 +262,12 @@ class AttendanceServiceTest {
 
         service.createAttendance(attendance)
 
-        verify(nomisService).putAttendance(attendance.offenderNo,
+        verify(nomisService).putAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("REST", null))
     }
 
     @Test
     fun `should record unpaid absence as 'Refused'`() {
-        stubBookingDetails()
 
         `when`(nomisService.postCaseNote(
                 anyLong(), anyString(), anyString(),
@@ -281,7 +275,6 @@ class AttendanceServiceTest {
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
                 .absentReason(AbsentReason.Refused)
                 .attended(false)
                 .paid(false)
@@ -291,12 +284,11 @@ class AttendanceServiceTest {
 
         service.createAttendance(attendance)
 
-        verify(nomisService).putAttendance(attendance.offenderNo,
+        verify(nomisService).putAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("UNACAB", null))
     }
     @Test
     fun `should record unpaid absence for 'Unacceptable absence'`() {
-        stubBookingDetails()
 
         `when`(nomisService.postCaseNote(
                 anyLong(), anyString(), anyString(),
@@ -304,7 +296,6 @@ class AttendanceServiceTest {
 
         val attendance = testAttendanceDto
                 .toBuilder()
-                .offenderNo("A1234546")
                 .absentReason(AbsentReason.UnacceptableAbsence)
                 .attended(false)
                 .paid(false)
@@ -315,13 +306,12 @@ class AttendanceServiceTest {
 
         service.createAttendance(attendance)
 
-        verify(nomisService).putAttendance(attendance.offenderNo,
+        verify(nomisService).putAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("UNACAB", null))
     }
 
     @Test
     fun `should create negative case note for 'Unacceptable absence'`() {
-        stubBookingDetails()
 
         `when`(nomisService.postCaseNote(
                 anyLong(), anyString(), anyString(),
@@ -330,7 +320,6 @@ class AttendanceServiceTest {
         val attendance = testAttendanceDto
                 .toBuilder()
                 .absentReason(AbsentReason.UnacceptableAbsence)
-                .offenderNo("A12345")
                 .attended(false)
                 .paid(false)
                 .build()
@@ -351,12 +340,10 @@ class AttendanceServiceTest {
 
     @Test
     fun `should create negative case note for 'Refused'`() {
-        stubBookingDetails()
 
         val attendance = testAttendanceDto
                 .toBuilder()
                 .absentReason(AbsentReason.Refused)
-                .offenderNo("A12345")
                 .attended(false)
                 .paid(false)
                 .build()
@@ -380,14 +367,12 @@ class AttendanceServiceTest {
 
     @Test
     fun `should create a negative case note using user supplied comment`() {
-         stubBookingDetails()
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
         val attendance = testAttendanceDto
                 .toBuilder()
                 .absentReason(AbsentReason.Refused)
-                .offenderNo("A1234546")
                 .attended(false)
                 .comments("test comment")
                 .paid(false)
@@ -409,7 +394,6 @@ class AttendanceServiceTest {
 
     @Test
     fun `should save case note id returned from the postCaseNote api call`() {
-        stubBookingDetails()
 
         `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), anyObject()))
                 .thenReturn(CaseNoteDto.builder().caseNoteId(1020L).build())
@@ -449,12 +433,6 @@ class AttendanceServiceTest {
 
     @Test
     fun `should update select fields only` () {
-
-        `when`(nomisService.getBasicBookingDetails(1)).thenReturn(
-                BasicBookingDetails()
-                        .toBuilder()
-                        .offenderNo("A12345")
-                        .build())
 
         `when`(attendanceRepository.findById(1)).thenReturn(
                 Optional.of(Attendance
@@ -500,7 +478,6 @@ class AttendanceServiceTest {
 
     @Test
     fun `should go from unpaid none attendance to paid attendance, updating `() {
-        stubBookingDetails()
 
         `when`(attendanceRepository.findById(1)).thenReturn(
                 Optional.of(Attendance
@@ -555,12 +532,6 @@ class AttendanceServiceTest {
         assertThatThrownBy {
             service.updateAttendance(1, UpdateAttendanceDto.builder().build())
         }.isExactlyInstanceOf(AttendanceNotFound::class.java)
-    }
-
-
-    fun stubBookingDetails() {
-        `when`(nomisService.getBasicBookingDetails(anyLong()))
-                .thenReturn(BasicBookingDetails().toBuilder().offenderNo("A1234546").build())
     }
 
 }

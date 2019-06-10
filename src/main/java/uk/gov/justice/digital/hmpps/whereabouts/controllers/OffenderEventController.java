@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventDto;
@@ -12,6 +11,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderEventDto;
 import uk.gov.justice.digital.hmpps.whereabouts.services.OffenderEventService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Api(tags = {"whereabouts"})

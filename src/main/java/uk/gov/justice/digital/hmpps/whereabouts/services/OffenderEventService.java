@@ -32,9 +32,7 @@ public class OffenderEventService {
     public void createOffenderEvent(OffenderEventDto dto) {
         List<OffenderEvent> offenderEvent = repository.findByPrisonIdAndOffenderNoAndEventIdAndEventType(dto.getPrisonId(), dto.getOffenderNo(), dto.getEventId(), EventType.valueOf(dto.getEventType()));
 
-        if (!offenderEvent.isEmpty()) {
-
-        } else {
+        if (offenderEvent.isEmpty()) {
             // create a new event record
             repository.save(OffenderEvent.builder()
                     .prisonId(dto.getPrisonId())
@@ -59,9 +57,10 @@ public class OffenderEventService {
         http://stevenyue.com/blogs/build-sql-queries-with-temporary-table-vs-where-in/
          */
 
-        final List<OffenderEvent> eventEntities = eventList.stream().map(eventIdentifier -> {
-            return repository.findByPrisonIdAndEventIdAndEventType(prisonId, eventIdentifier.getEventId(), EventType.valueOf(eventIdentifier.getEventType()));
-        }).flatMap(List::stream).collect(Collectors.toList());
+        final List<OffenderEvent> eventEntities = eventList.stream()
+                .map(eventIdentifier -> repository.findByPrisonIdAndEventIdAndEventType(prisonId, eventIdentifier.getEventId(), EventType.valueOf(eventIdentifier.getEventType())))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
 
         return eventEntities.stream().map(this::convertToDto).collect(Collectors.toList());
     }

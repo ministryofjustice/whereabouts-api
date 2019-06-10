@@ -1,4 +1,4 @@
-# prisonstaffhub-api
+# whereabouts-api
 
 
 ### To build:
@@ -10,7 +10,7 @@
 #### Running against local postgres docker:
 Run the postgres docker image:
 ```bash
-docker run --name=keyworker-postgres -e POSTGRES_PASSWORD=password -p5432:5432 -d postgres
+docker run --name=whereabouts-api-postgres -e POSTGRES_PASSWORD=password -p5432:5432 -d postgres
 ```
 Run spring boot with the the postgres spring profile
 
