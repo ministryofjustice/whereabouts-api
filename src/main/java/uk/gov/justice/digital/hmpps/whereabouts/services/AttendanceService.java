@@ -37,22 +37,7 @@ public class AttendanceService {
 
         return attendance
                 .stream()
-                .map(attendanceData -> AttendanceDto.builder()
-                        .id(attendanceData.getId())
-                        .eventDate(attendanceData.getEventDate())
-                        .eventId(attendanceData.getEventId())
-                        .bookingId(attendanceData.getOffenderBookingId())
-                        .period(attendanceData.getPeriod())
-                        .paid(attendanceData.getPaid())
-                        .attended(attendanceData.getAttended())
-                        .prisonId(attendanceData.getPrisonId())
-                        .absentReason(attendanceData.getAbsentReason())
-                        .eventLocationId(attendanceData.getEventLocationId())
-                        .comments(attendanceData.getComments())
-                        .createUserId(attendanceData.getCreateUserId())
-                        .createDateTime(attendanceData.getCreateDateTime())
-                        .caseNoteId(attendanceData.getCaseNoteId())
-                        .build())
+                .map(this::toAttendanceDto)
                 .collect(Collectors.toSet());
     }
 
@@ -61,10 +46,12 @@ public class AttendanceService {
     }
 
     @Transactional
-    public void createAttendance(final CreateAttendanceDto attendanceDto) {
+    public AttendanceDto createAttendance(final CreateAttendanceDto attendanceDto) {
 
         var attendance = attendanceRepository.save(toAttendance(attendanceDto));
         publishAttendanceAndIEPWarning(attendance);
+
+        return toAttendanceDto(attendance);
     }
 
     @Transactional
@@ -123,5 +110,24 @@ public class AttendanceService {
                  .absentReason(attendanceDto.getAbsentReason())
                  .comments(attendanceDto.getComments())
                  .build();
+     }
+
+     private AttendanceDto toAttendanceDto(Attendance attendanceData) {
+        return AttendanceDto.builder()
+                .id(attendanceData.getId())
+                .eventDate(attendanceData.getEventDate())
+                .eventId(attendanceData.getEventId())
+                .bookingId(attendanceData.getOffenderBookingId())
+                .period(attendanceData.getPeriod())
+                .paid(attendanceData.getPaid())
+                .attended(attendanceData.getAttended())
+                .prisonId(attendanceData.getPrisonId())
+                .absentReason(attendanceData.getAbsentReason())
+                .eventLocationId(attendanceData.getEventLocationId())
+                .comments(attendanceData.getComments())
+                .createUserId(attendanceData.getCreateUserId())
+                .createDateTime(attendanceData.getCreateDateTime())
+                .caseNoteId(attendanceData.getCaseNoteId())
+                .build();
      }
 }

@@ -41,12 +41,12 @@ public class AttendanceController {
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "Create new attendance",
             notes = "Stores new attendance record, posts attendance details back up to PNOMIS. IEP warnings are triggered when certain absence reasons are used.")
-    public void postAttendance(
+    public AttendanceDto postAttendance(
             @ApiParam(value = "Attendance details", required = true)
             @RequestBody
             @Valid final CreateAttendanceDto attendance) {
 
-        attendanceService.createAttendance(attendance);
+        return attendanceService.createAttendance(attendance);
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
