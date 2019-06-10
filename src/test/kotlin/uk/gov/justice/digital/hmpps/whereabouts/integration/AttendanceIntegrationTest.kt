@@ -388,4 +388,38 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         assertThat(response.statusCodeValue).isEqualTo(400)
     }
+
+    @Test
+    fun `should return the attendance dto on creation` () {
+        val bookingId = 1
+        val activityId = 2L
+        val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
+
+        elite2MockServer.stubFor(
+                WireMock.put(urlPathEqualTo(updateAttendanceUrl))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(200))
+        )
+
+        val attendance = CreateAttendanceDto
+                .builder()
+                .prisonId("LEI")
+                .bookingId(1)
+                .eventId(activityId)
+                .eventLocationId(2)
+                .eventDate(LocalDate.of(2010, 10, 10))
+                .period(TimePeriod.AM)
+                .attended(true)
+                .paid(true)
+                .build()
+
+        val response: ResponseEntity<AttendanceDto> =
+                restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendance))
+
+        val savedAttendance = response.body!!
+
+        assertThat(savedAttendance.id).isGreaterThan(0)
+        assertThat(savedAttendance.createUserId).isEqualTo("ITAG_USER")
+        assertThat(response.statusCodeValue).isEqualTo(201)
+    }
 }

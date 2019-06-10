@@ -8,8 +8,8 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
 import org.mockito.Mockito.doAnswer
+import org.mockito.Mockito.verify
 import org.mockito.Spy
 import org.mockito.runners.MockitoJUnitRunner
 import org.springframework.security.authentication.TestingAuthenticationToken
@@ -269,9 +269,7 @@ class AttendanceServiceTest {
     @Test
     fun `should record unpaid absence as 'Refused'`() {
 
-        `when`(nomisService.postCaseNote(
-                anyLong(), anyString(), anyString(),
-                anyString(), anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
+        stubCaseNote(100L)
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -290,9 +288,7 @@ class AttendanceServiceTest {
     @Test
     fun `should record unpaid absence for 'Unacceptable absence'`() {
 
-        `when`(nomisService.postCaseNote(
-                anyLong(), anyString(), anyString(),
-                anyString(), anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
+        stubCaseNote(100L)
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -313,9 +309,7 @@ class AttendanceServiceTest {
     @Test
     fun `should create negative case note for 'Unacceptable absence'`() {
 
-        `when`(nomisService.postCaseNote(
-                anyLong(), anyString(), anyString(),
-                anyString(), anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
+        stubCaseNote(100L)
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -348,9 +342,7 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
-        `when`(nomisService.postCaseNote(
-                anyLong(), anyString(), anyString(),
-                anyString(), anyObject())).thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
+        stubCaseNote(100L)
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
@@ -378,7 +370,7 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
-        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), anyObject()))
+        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
                 .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         service.createAttendance(attendance)
@@ -395,8 +387,7 @@ class AttendanceServiceTest {
     @Test
     fun `should save case note id returned from the postCaseNote api call`() {
 
-        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), anyObject()))
-                .thenReturn(CaseNoteDto.builder().caseNoteId(1020L).build())
+        stubCaseNote(1020L)
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
@@ -532,6 +523,49 @@ class AttendanceServiceTest {
         assertThatThrownBy {
             service.updateAttendance(1, UpdateAttendanceDto.builder().build())
         }.isExactlyInstanceOf(AttendanceNotFound::class.java)
+    }
+
+    @Test
+    fun `should return attendance dto on creation` () {
+
+        stubCaseNote(100L)
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+        val created = service.createAttendance(CreateAttendanceDto
+                .builder()
+                .absentReason(AbsentReason.Refused)
+                .attended(false)
+                .paid(false)
+                .bookingId(1)
+                .comments("test comments")
+                .eventId(1)
+                .eventLocationId(2)
+                .period(TimePeriod.AM)
+                .prisonId("LEI")
+                .eventDate(LocalDate.now())
+                .build())
+
+        assertThat(created).isEqualTo(AttendanceDto
+                .builder()
+                .attended(false)
+                .paid(false)
+                .comments(null)
+                .caseNoteId(100L)
+                .absentReason(AbsentReason.Refused)
+                .eventId(1)
+                .eventLocationId(2)
+                .eventDate(LocalDate.now())
+                .prisonId("LEI")
+                .bookingId(1)
+                .period(TimePeriod.AM)
+                .eventDate(LocalDate.now())
+                .comments("test comments")
+                .build())
+    }
+
+    private fun stubCaseNote(caseNotId: Long) {
+        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+                .thenReturn(CaseNoteDto.builder().caseNoteId(caseNotId).build())
     }
 
 }
