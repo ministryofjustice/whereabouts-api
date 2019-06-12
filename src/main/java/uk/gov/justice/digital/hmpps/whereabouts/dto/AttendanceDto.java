@@ -18,15 +18,15 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder(toBuilder = true)
 public class AttendanceDto {
-    private long id;
-    private long bookingId;
-    private long eventId;
-    private long eventLocationId;
+    private Long id;
+    private Long bookingId;
+    private Long eventId;
+    private Long eventLocationId;
     private TimePeriod period;
     private String prisonId;
-    private boolean attended;
+    private Boolean attended;
     private AbsentReason absentReason;
-    private boolean paid;
+    private Boolean paid;
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate eventDate;
     private String comments;
@@ -34,5 +34,5 @@ public class AttendanceDto {
     private String createUserId;
     private LocalDateTime modifyDateTime;
     private String modifyUserId;
-    private long caseNoteId;
+    private Long caseNoteId;
 }

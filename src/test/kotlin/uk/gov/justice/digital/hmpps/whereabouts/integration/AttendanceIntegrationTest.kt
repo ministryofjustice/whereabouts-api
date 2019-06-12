@@ -14,11 +14,13 @@ import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 
 class AttendanceDtoReferenceType : ParameterizedTypeReference<List<AttendanceDto>>()
@@ -37,9 +39,9 @@ class AttendanceIntegrationTest : IntegrationTest () {
     @Test
     fun `should make an elite api request to update an offenders attendance`() {
 
-        val offenderNo = "A2345"
+        val bookingId = 1
         val activityId = 2L
-        val updateAttendanceUrl = "/api/bookings/offenderNo/$offenderNo/activities/$activityId/attendance"
+        val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
 
         elite2MockServer.stubFor(
                 WireMock.put(urlPathEqualTo(updateAttendanceUrl))
@@ -49,7 +51,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         val attendance = CreateAttendanceDto
                 .builder()
-                .offenderNo(offenderNo)
                 .prisonId("LEI")
                 .bookingId(1)
                 .eventId(activityId)
@@ -75,11 +76,10 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
     @Test
     fun `should make an elite api request to create a IEP warning case note`() {
-        val offenderNo = "A2345"
         val activityId = 2L
         val bookingId = 1
         val comments = "Test comment"
-        val updateAttendanceUrl = "/api/bookings/offenderNo/$offenderNo/activities/$activityId/attendance"
+        val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
         val createCaseNote = "/api/bookings/$bookingId/caseNotes"
 
         elite2MockServer.stubFor(
@@ -97,7 +97,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         val attendance = CreateAttendanceDto
                 .builder()
-                .offenderNo(offenderNo)
                 .prisonId("LEI")
                 .bookingId(1)
                 .eventId(activityId)
@@ -131,10 +130,9 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
     @Test
     fun `receive a list of attendance for a prison, location, date and period`() {
-        val offenderNo = "A2345"
         val activityId = 2L
         val bookingId = 1
-        val updateAttendanceUrl = "/api/bookings/offenderNo/$offenderNo/activities/$activityId/attendance"
+        val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
         val createCaseNote = "/api/bookings/$bookingId/caseNotes"
 
         elite2MockServer.stubFor(
@@ -203,7 +201,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
             restTemplate.exchange("/attendance", HttpMethod.POST,
                   createHeaderEntity(CreateAttendanceDto
                     .builder()
-                    .offenderNo("A12345")
                     .prisonId("LEI")
                     .eventId(2)
                     .eventLocationId(2)
@@ -217,27 +214,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
     }
 
     @Test
-    fun `should return a bad request when the 'offenderNo' is missing`() {
-
-        val response: ResponseEntity<String> =
-                restTemplate.exchange("/attendance", HttpMethod.POST,
-                        createHeaderEntity(CreateAttendanceDto
-                                .builder()
-                                .bookingId(1)
-                                .prisonId("LEI")
-                                .eventId(2)
-                                .eventLocationId(2)
-                                .eventDate(LocalDate.of(2010, 10, 10))
-                                .period(TimePeriod.AM)
-                                .attended(true)
-                                .paid(true)
-                                .build()))
-
-        assertThat(response.statusCodeValue).isEqualTo(400)
-
-    }
-
-    @Test
     fun `should return a bad request when the 'prisonId' is missing`() {
 
         val response: ResponseEntity<String> =
@@ -245,7 +221,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         createHeaderEntity(CreateAttendanceDto
                                 .builder()
                                 .bookingId(1)
-                                .offenderNo("A12345")
                                 .eventId(2)
                                 .eventLocationId(2)
                                 .eventDate(LocalDate.of(2010, 10, 10))
@@ -266,7 +241,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         createHeaderEntity(CreateAttendanceDto
                                 .builder()
                                 .bookingId(1)
-                                .offenderNo("A12345")
                                 .prisonId("LEI")
                                 .eventLocationId(2)
                                 .eventDate(LocalDate.of(2010, 10, 10))
@@ -287,7 +261,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         createHeaderEntity(CreateAttendanceDto
                                 .builder()
                                 .bookingId(1)
-                                .offenderNo("A12345")
                                 .prisonId("LEI")
                                 .eventId(1)
                                 .eventDate(LocalDate.of(2010, 10, 10))
@@ -308,7 +281,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         createHeaderEntity(CreateAttendanceDto
                                 .builder()
                                 .bookingId(1)
-                                .offenderNo("A12345")
                                 .prisonId("LEI")
                                 .eventId(1)
                                 .eventLocationId(1)
@@ -329,7 +301,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         createHeaderEntity(CreateAttendanceDto
                                 .builder()
                                 .bookingId(1)
-                                .offenderNo("A12345")
                                 .prisonId("LEI")
                                 .eventId(1)
                                 .eventLocationId(1)
@@ -340,5 +311,115 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         assertThat(response.statusCodeValue).isEqualTo(400)
 
+    }
+
+    @Test
+    fun `should update attendance`() {
+        elite2MockServer.stubFor(
+                WireMock.put(urlPathEqualTo("/api/bookings/1/activities/1/attendance"))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(200)))
+
+        val persistedAttendance = attendanceRepository.save(
+                Attendance.builder()
+                        .absentReason(AbsentReason.Refused)
+                        .offenderBookingId(1)
+                        .comments("Refused to turn up")
+                        .attended(false)
+                        .paid(false)
+                        .createDateTime(LocalDateTime.now())
+                        .eventDate(LocalDate.now())
+                        .eventId(1)
+                        .prisonId("LEI")
+                        .period(TimePeriod.AM)
+                        .eventLocationId(2)
+                        .build())
+
+        val response =
+                restTemplate.exchange(
+                        "/attendance/${persistedAttendance.id}",
+                        HttpMethod.PUT,
+                        createHeaderEntity(UpdateAttendanceDto.builder().attended(true).paid(true).build()),
+                        String::class.java,
+                        LocalDate.of(2019, 10, 10),
+                        TimePeriod.AM)
+
+        assertThat(response.statusCodeValue).isEqualTo(204)
+    }
+
+    @Test
+    fun `should return a 404 when attempting to update non existent attendance`() {
+        val response =
+                restTemplate.exchange(
+                        "/attendance/100",
+                        HttpMethod.PUT,
+                        createHeaderEntity(UpdateAttendanceDto.builder().attended(true).paid(true).build()),
+                        String::class.java,
+                        LocalDate.of(2019, 10, 10),
+                        TimePeriod.AM)
+
+        assertThat(response.statusCodeValue).isEqualTo(404)
+    }
+
+    @Test
+    fun `should return a 400 bad request when 'attended' is null`() {
+        val response =
+                restTemplate.exchange(
+                        "/attendance/100",
+                        HttpMethod.PUT,
+                        createHeaderEntity(UpdateAttendanceDto.builder().paid(true).build()),
+                        String::class.java,
+                        LocalDate.of(2019, 10, 10),
+                        TimePeriod.AM)
+
+        assertThat(response.statusCodeValue).isEqualTo(400)
+    }
+
+    @Test
+    fun `should return a 400 bad request when 'paid' is null`() {
+        val response =
+                restTemplate.exchange(
+                        "/attendance/100",
+                        HttpMethod.PUT,
+                        createHeaderEntity(UpdateAttendanceDto.builder().attended(true).build()),
+                        String::class.java,
+                        LocalDate.of(2019, 10, 10),
+                        TimePeriod.AM)
+
+        assertThat(response.statusCodeValue).isEqualTo(400)
+    }
+
+    @Test
+    fun `should return the attendance dto on creation` () {
+        val bookingId = 1
+        val activityId = 2L
+        val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
+
+        elite2MockServer.stubFor(
+                WireMock.put(urlPathEqualTo(updateAttendanceUrl))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(200))
+        )
+
+        val attendance = CreateAttendanceDto
+                .builder()
+                .prisonId("LEI")
+                .bookingId(1)
+                .eventId(activityId)
+                .eventLocationId(2)
+                .eventDate(LocalDate.of(2010, 10, 10))
+                .period(TimePeriod.AM)
+                .attended(true)
+                .paid(true)
+                .build()
+
+        val response: ResponseEntity<AttendanceDto> =
+                restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendance))
+
+        val savedAttendance = response.body!!
+
+        assertThat(savedAttendance.id).isGreaterThan(0)
+        assertThat(savedAttendance.createUserId).isEqualTo("ITAG_USER")
+        assertThat(response.statusCodeValue).isEqualTo(201)
     }
 }

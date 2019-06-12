@@ -17,16 +17,18 @@ import javax.validation.constraints.NotNull;
 @Builder(toBuilder = true)
 @ApiModel(description = "Attendance update details")
 public class UpdateAttendanceDto {
-    @ApiModelProperty(required = true)
+    @ApiModelProperty(required = true, value = "Flag to indicate the offender attended the event", example = "true")
     @NotNull
     private Boolean attended;
 
-    @ApiModelProperty(required = true)
+    @ApiModelProperty(required = true, value = "Flag to indicate the offender should be paid", example = "true")
     @NotNull
     private Boolean paid;
 
+    @ApiModelProperty(value = "Reason the offender did not attendance the event", example = "Refused")
     private AbsentReason absentReason;
 
     @Length(max = 500)
+    @ApiModelProperty( value = "Comments about non attendance. This also gets used for the IEP warning text ")
     private String comments;
 }
