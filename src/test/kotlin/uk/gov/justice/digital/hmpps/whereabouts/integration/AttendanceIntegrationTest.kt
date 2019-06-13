@@ -393,10 +393,9 @@ class AttendanceIntegrationTest : IntegrationTest () {
     fun `should return the attendance dto on creation` () {
         val bookingId = 1
         val activityId = 2L
-        val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
 
         elite2MockServer.stubFor(
-                WireMock.put(urlPathEqualTo(updateAttendanceUrl))
+                WireMock.put(urlPathEqualTo("/api/bookings/$bookingId/activities/$activityId/attendance"))
                         .willReturn(WireMock.aResponse()
                                 .withStatus(200))
         )
@@ -421,5 +420,64 @@ class AttendanceIntegrationTest : IntegrationTest () {
         assertThat(savedAttendance.id).isGreaterThan(0)
         assertThat(savedAttendance.createUserId).isEqualTo("ITAG_USER")
         assertThat(response.statusCodeValue).isEqualTo(201)
+    }
+
+    @Test
+    fun `should make a case note amendment request`() {
+        val bookingId = 1
+        val activityId = 1L
+        val caseNoteId = 3L
+
+        elite2MockServer.stubFor(
+                WireMock.put(urlPathEqualTo("/api/bookings/$bookingId/activities/$activityId/attendance"))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(200))
+        )
+
+        elite2MockServer.stubFor(
+                WireMock.put(urlPathEqualTo("/api/bookings/$bookingId/caseNotes/$caseNoteId"))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(200))
+        )
+
+
+        val savedAttendance = attendanceRepository.save(
+                Attendance.builder()
+                        .offenderBookingId(1)
+                        .paid(false)
+                        .attended(false)
+                        .absentReason(AbsentReason.Refused)
+                        .comments("Refused")
+                        .caseNoteId(caseNoteId)
+                        .eventDate(LocalDate.now())
+                        .eventId(activityId)
+                        .eventLocationId(1)
+                        .prisonId("LEI")
+                        .period(TimePeriod.AM)
+                        .createDateTime(LocalDateTime.now())
+                        .createUserId("user")
+                        .build())
+
+        val attendance = CreateAttendanceDto
+                .builder()
+                .prisonId("LEI")
+                .bookingId(1)
+                .eventId(activityId)
+                .eventLocationId(1)
+                .eventDate(LocalDate.of(2010, 10, 10))
+                .period(TimePeriod.AM)
+                .attended(true)
+                .paid(true)
+                .build()
+
+        val response: ResponseEntity<AttendanceDto> =
+                restTemplate.exchange("/attendance/${savedAttendance.id}", HttpMethod.PUT, createHeaderEntity(attendance))
+
+        assertThat(response.statusCodeValue).isEqualTo(204)
+
+        verify(putRequestedFor(urlEqualTo("/api/bookings/$bookingId/caseNotes/$caseNoteId"))
+                .withRequestBody(matchingJsonPath("$[?(@.text == 'IEP rescinded: attended')]"))
+
+        )
     }
 }
