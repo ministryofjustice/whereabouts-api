@@ -72,10 +72,13 @@ public class AttendanceService {
         final var shouldRevokePreviousIEPWarning = attendance.getCaseNoteId() != null && !shouldTriggerIEPWarning;
 
         if (shouldRevokePreviousIEPWarning) {
+            final var rescindedReason = "IEP rescinded: " + (newAttendanceDetails.getAttended() ?
+                    "attended" : newAttendanceDetails.getAbsentReason().toString());
+
             nomisService.putCaseNoteAmendment(
                     attendance.getOffenderBookingId(),
                     attendance.getCaseNoteId(),
-                    getIepRescindedReason(newAttendanceDetails)
+                    rescindedReason
             );
         } else {
             postIEPWarningIfRequired(
@@ -154,11 +157,4 @@ public class AttendanceService {
                 .caseNoteId(attendanceData.getCaseNoteId())
                 .build();
      }
-
-    private String getIepRescindedReason(final UpdateAttendanceDto newAttendance) {
-        if (newAttendance.getAttended())
-            return "IEP rescinded: attended";
-
-        return "IEP rescinded: " + newAttendance.getAbsentReason().toString();
-    }
 }
