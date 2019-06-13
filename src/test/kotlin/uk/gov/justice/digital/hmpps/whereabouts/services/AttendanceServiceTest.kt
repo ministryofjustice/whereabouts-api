@@ -1,15 +1,13 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.*
+import org.mockito.ArgumentMatchers
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.doAnswer
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import org.mockito.Spy
 import org.mockito.runners.MockitoJUnitRunner
 import org.springframework.security.authentication.TestingAuthenticationToken
@@ -37,18 +35,19 @@ class AttendanceServiceTest {
     private val today: LocalDate = LocalDate.now()
     private val testAttendanceDto: CreateAttendanceDto =
             CreateAttendanceDto
-            .builder()
-            .attended(false)
-            .paid(false)
-            .absentReason(AbsentReason.Refused)
-            .eventId(2)
-            .eventLocationId(3)
-            .period(TimePeriod.AM)
-            .prisonId("LEI")
-            .bookingId(100)
-            .eventDate(today)
-            .comments("hello")
-            .build()
+                    .builder()
+                    .attended(false)
+                    .paid(false)
+                    .absentReason(AbsentReason.Refused)
+                    .eventId(2)
+                    .eventLocationId(3)
+                    .period(TimePeriod.AM)
+                    .prisonId("LEI")
+                    .bookingId(100)
+                    .eventDate(today)
+                    .comments("hello")
+                    .build()
+
     init {
         SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
     }
@@ -56,7 +55,7 @@ class AttendanceServiceTest {
     @Before
     fun before() {
         // return the attendance entity on save
-        doAnswer { it.getArgument(0) as Attendance}.`when`(attendanceRepository).save(any())
+        doAnswer { it.getArgument(0) as Attendance }.`when`(attendanceRepository).save(any())
     }
 
     @Test
@@ -67,8 +66,7 @@ class AttendanceServiceTest {
         `when`(attendanceRepository
                 .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, today, TimePeriod.AM))
                 .thenReturn(setOf(
-                        Attendance.
-                                builder()
+                        Attendance.builder()
                                 .id(1)
                                 .absentReason(AbsentReason.Refused)
                                 .attended(false)
@@ -85,9 +83,9 @@ class AttendanceServiceTest {
                                 .build()
                 ))
 
-        val service =  AttendanceService(attendanceRepository, nomisService)
+        val service = AttendanceService(attendanceRepository, nomisService)
 
-        val result = service.getAttendance("LEI" , 1, today, TimePeriod.AM)
+        val result = service.getAttendance("LEI", 1, today, TimePeriod.AM)
 
         assertThat(result).containsAnyElementsOf(mutableListOf(
                 AttendanceDto
@@ -274,8 +272,7 @@ class AttendanceServiceTest {
                         .build()
         )
 
-        verify(attendanceRepository)?.save(Attendance.
-                builder()
+        verify(attendanceRepository)?.save(Attendance.builder()
                 .attended(true)
                 .paid(true)
                 .eventId(2)
@@ -290,7 +287,7 @@ class AttendanceServiceTest {
     }
 
     @Test
-    fun `should record paid attendance` () {
+    fun `should record paid attendance`() {
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
@@ -420,7 +417,8 @@ class AttendanceServiceTest {
     @Test
     fun `should record unpaid absence as 'Refused'`() {
 
-        stubCaseNote(100L)
+        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+                .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -436,10 +434,12 @@ class AttendanceServiceTest {
         verify(nomisService).putAttendance(attendance.bookingId,
                 attendance.eventId, EventOutcome("UNACAB", null))
     }
+
     @Test
     fun `should record unpaid absence for 'Unacceptable absence'`() {
 
-        stubCaseNote(100L)
+        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+                .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -460,7 +460,8 @@ class AttendanceServiceTest {
     @Test
     fun `should create negative case note for 'Unacceptable absence'`() {
 
-        stubCaseNote(100L)
+        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+                .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         val attendance = testAttendanceDto
                 .toBuilder()
@@ -493,7 +494,8 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build()
 
-        stubCaseNote(100L)
+        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+                .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
@@ -538,7 +540,8 @@ class AttendanceServiceTest {
     @Test
     fun `should save case note id returned from the postCaseNote api call`() {
 
-        stubCaseNote(1020L)
+        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+                .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
@@ -566,7 +569,7 @@ class AttendanceServiceTest {
                 .period(TimePeriod.AM)
                 .prisonId("LEI")
                 .offenderBookingId(100L)
-                .caseNoteId(1020L)
+                .caseNoteId(100L)
                 .eventDate(today)
                 .comments("hello, world")
                 .build())
@@ -574,7 +577,18 @@ class AttendanceServiceTest {
     }
 
     @Test
-    fun `should update select fields only` () {
+    fun `should throw an AttendanceNotFoundException`() {
+        `when`(attendanceRepository.findById(1)).thenReturn(Optional.empty())
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        Assertions.assertThatThrownBy {
+            service.updateAttendance(1, UpdateAttendanceDto.builder().build())
+        }.isExactlyInstanceOf(AttendanceNotFound::class.java)
+    }
+
+    @Test
+    fun `should update select fields only`() {
 
         `when`(attendanceRepository.findById(1)).thenReturn(
                 Optional.of(Attendance
@@ -603,23 +617,23 @@ class AttendanceServiceTest {
 
         verify(attendanceRepository).save(
                 Attendance
-                .builder()
-                .id(1)
-                .attended(false)
-                .paid(false)
-                .comments("Session cancelled due to riot")
-                .absentReason(AbsentReason.SessionCancelled)
-                .eventId(1)
-                .eventLocationId(2)
-                .eventDate(LocalDate.now())
-                .prisonId("LEI")
-                .offenderBookingId(1)
-                .period(TimePeriod.AM)
-                .build())
+                        .builder()
+                        .id(1)
+                        .attended(false)
+                        .paid(false)
+                        .comments("Session cancelled due to riot")
+                        .absentReason(AbsentReason.SessionCancelled)
+                        .eventId(1)
+                        .eventLocationId(2)
+                        .eventDate(LocalDate.now())
+                        .prisonId("LEI")
+                        .offenderBookingId(1)
+                        .period(TimePeriod.AM)
+                        .build())
     }
 
     @Test
-    fun `should go from unpaid none attendance to paid attendance, updating `() {
+    fun `should go from unpaid none attendance to paid attendance `() {
 
         `when`(attendanceRepository.findById(1)).thenReturn(
                 Optional.of(Attendance
@@ -649,31 +663,20 @@ class AttendanceServiceTest {
 
         verify(attendanceRepository).save(
                 Attendance
-                .builder()
-                .id(1)
-                .attended(true)
-                .paid(true)
-                .comments(null)
-                .caseNoteId(100)
-                .absentReason(null)
-                .eventId(1)
-                .eventLocationId(2)
-                .eventDate(LocalDate.now())
-                .prisonId("LEI")
-                .offenderBookingId(1)
-                .period(TimePeriod.AM)
-                .build())
-    }
-
-    @Test
-    fun `should throw an AttendanceNotFoundException`() {
-       `when`(attendanceRepository.findById(1)).thenReturn(Optional.empty())
-
-        val service = AttendanceService(attendanceRepository, nomisService)
-
-        assertThatThrownBy {
-            service.updateAttendance(1, UpdateAttendanceDto.builder().build())
-        }.isExactlyInstanceOf(AttendanceNotFound::class.java)
+                        .builder()
+                        .id(1)
+                        .attended(true)
+                        .paid(true)
+                        .comments(null)
+                        .caseNoteId(100)
+                        .absentReason(null)
+                        .eventId(1)
+                        .eventLocationId(2)
+                        .eventDate(LocalDate.now())
+                        .prisonId("LEI")
+                        .offenderBookingId(1)
+                        .period(TimePeriod.AM)
+                        .build())
     }
 
     @Test
@@ -696,15 +699,16 @@ class AttendanceServiceTest {
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
-        assertThatThrownBy {
+        Assertions.assertThatThrownBy {
             service.updateAttendance(1, UpdateAttendanceDto.builder().paid(false).attended(false).build())
         }.isExactlyInstanceOf(AttendanceLocked::class.java)
     }
 
     @Test
-    fun `should return attendance dto on creation` () {
+    fun `should return attendance dto on creation`() {
 
-        stubCaseNote(100L)
+        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+                .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
         val service = AttendanceService(attendanceRepository, nomisService)
         val created = service.createAttendance(CreateAttendanceDto
@@ -740,9 +744,176 @@ class AttendanceServiceTest {
                 .build())
     }
 
-    private fun stubCaseNote(caseNotId: Long) {
-        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
-                .thenReturn(CaseNoteDto.builder().caseNoteId(caseNotId).build())
+
+    @Test
+    fun `should post case note amendment going from unpaid absent refused to paid attendance`() {
+
+        `when`(attendanceRepository.findById(1))
+                .thenReturn(Optional.of(
+                        Attendance.builder()
+                                .offenderBookingId(1)
+                                .eventLocationId(1)
+                                .eventId(1)
+                                .comments("Refused to turn up")
+                                .paid(false)
+                                .attended(false)
+                                .absentReason(AbsentReason.Refused)
+                                .eventDate(today)
+                                .caseNoteId(1)
+                                .build()))
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        service.updateAttendance(1, UpdateAttendanceDto.builder().attended(true).paid(true).build())
+
+        verify(nomisService)
+                .putCaseNoteAmendment(1, 1, "IEP rescinded: attended")
     }
 
+    @Test
+    fun `should not post a case note amendment going from paid attendance to unpaid absent refused`() {
+
+        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+                .thenReturn(CaseNoteDto.builder().caseNoteId(1).build())
+
+        `when`(attendanceRepository.findById(1))
+                .thenReturn(Optional.of(Attendance.builder()
+                        .offenderBookingId(1)
+                        .eventLocationId(1)
+                        .eventId(1)
+                        .paid(true)
+                        .attended(true)
+                        .eventDate(today)
+                        .build()))
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        service.updateAttendance(1, UpdateAttendanceDto.builder()
+                .attended(false)
+                .paid(false)
+                .absentReason(AbsentReason.Refused)
+                .comments("Refused!")
+                .build())
+
+        verify(nomisService, never()).putCaseNoteAmendment(ArgumentMatchers.anyLong(), anyLong(), ArgumentMatchers.anyString())
+        verify(nomisService).postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
+    }
+
+    @Test
+    fun `should not raise case note or amendment IEP warnings`() {
+
+        `when`(attendanceRepository.findById(1))
+                .thenReturn(Optional.of(Attendance.builder()
+                        .offenderBookingId(1)
+                        .eventLocationId(1)
+                        .eventId(1)
+                        .eventDate(today)
+                        .paid(true)
+                        .attended(true)
+                        .build()))
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        service.updateAttendance(1, UpdateAttendanceDto.builder()
+                .attended(false)
+                .absentReason(AbsentReason.NotRequired)
+                .paid(true)
+                .build())
+
+        verify(nomisService, never()).putCaseNoteAmendment(anyLong(), anyLong(), anyString())
+        verify(nomisService, never()).postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
+    }
+
+    @Test
+    fun `should not raise case note or amendment IEP warnings going from unpaid to unpaid`() {
+
+        `when`(attendanceRepository.findById(1))
+                .thenReturn(Optional.of(Attendance.builder()
+                        .offenderBookingId(1)
+                        .eventLocationId(1)
+                        .eventId(1)
+                        .eventDate(today)
+                        .absentReason(AbsentReason.AcceptableAbsence)
+                        .paid(false)
+                        .attended(false)
+                        .build()))
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        service.updateAttendance(1, UpdateAttendanceDto.builder()
+                .attended(false)
+                .absentReason(AbsentReason.NotRequired)
+                .paid(true)
+                .build())
+
+        verify(nomisService, never()).putCaseNoteAmendment(anyLong(), anyLong(), anyString())
+        verify(nomisService, never()).postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
+    }
+
+    @Test
+    fun `should not trigger an IEP warning if one was previously triggered`() {
+
+        val attendanceEntity = Attendance.builder()
+                .offenderBookingId(1)
+                .eventLocationId(1)
+                .eventId(1)
+                .eventDate(today)
+                .paid(false)
+                .attended(false)
+                .caseNoteId(1)
+                .comments("do not overwrite")
+                .absentReason(AbsentReason.Refused)
+                .build()
+
+        `when`(attendanceRepository.findById(1)).thenReturn(Optional.of(attendanceEntity.toBuilder().build()))
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        service.updateAttendance(1, UpdateAttendanceDto.builder()
+                .attended(false)
+                .absentReason(AbsentReason.Refused)
+                .comments("Never turned up")
+                .paid(false)
+                .build())
+
+        verify(nomisService, never()).putCaseNoteAmendment(anyLong(), anyLong(), anyString())
+        verify(nomisService, never()).postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
+        verify(attendanceRepository).save(attendanceEntity.toBuilder().comments("Never turned up").build())
+    }
+
+    @Test
+    fun `should remove previous comment when no longer required`() {
+
+        val attendanceEntity = Attendance.builder()
+                .offenderBookingId(1)
+                .eventLocationId(1)
+                .eventId(1)
+                .eventDate(today)
+                .paid(false)
+                .attended(false)
+                .caseNoteId(1)
+                .comments("Refused")
+                .absentReason(AbsentReason.Refused)
+                .build()
+
+        `when`(attendanceRepository.findById(1)).thenReturn(Optional.of(attendanceEntity.toBuilder().build()))
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        service.updateAttendance(1, UpdateAttendanceDto.builder()
+                .attended(true)
+                .paid(true)
+                .build())
+
+        verify(nomisService).putCaseNoteAmendment(anyLong(), anyLong(), anyString())
+        verify(nomisService, never()).postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
+        verify(attendanceRepository).save(attendanceEntity
+                .toBuilder()
+                .comments(null)
+                .absentReason(null)
+                .attended(true)
+                .paid(true)
+                .build()
+        )
+    }
 }

@@ -51,50 +51,76 @@ public class AttendanceService {
     public AttendanceDto createAttendance(final CreateAttendanceDto attendanceDto) {
 
         var attendance = attendanceRepository.save(toAttendance(attendanceDto));
-        publishAttendanceAndIEPWarning(attendance);
+
+        postNomisAttendance(attendance);
+        postIEPWarningIfRequired(
+                attendance.getOffenderBookingId(),
+                attendance.getCaseNoteId(),
+                attendance.getAbsentReason(),
+                attendance.getComments()
+        ).ifPresent(attendance::setCaseNoteId);
 
         return toAttendanceDto(attendance);
     }
 
     @Transactional
-    public void updateAttendance(final long id, final UpdateAttendanceDto attendanceDto) throws AttendanceNotFound, AttendanceLocked {
-
-        final var attendance = attendanceRepository.findById(id)
-                .orElseThrow(AttendanceNotFound::new);
+    public void updateAttendance(final long id, final UpdateAttendanceDto newAttendanceDetails) throws AttendanceNotFound, AttendanceLocked {
+        final var attendance = attendanceRepository.findById(id).orElseThrow(AttendanceNotFound::new);
 
         if (isAttendanceLocked(attendance.getPaid(), attendance.getEventDate())) {
             throw new AttendanceLocked();
         }
 
-        attendance.setAttended(attendanceDto.getAttended());
-        attendance.setPaid(attendanceDto.getPaid());
-        attendance.setAbsentReason(attendanceDto.getAbsentReason());
-        attendance.setComments(attendanceDto.getComments());
+        final var shouldTriggerIEPWarning =
+                newAttendanceDetails.getAbsentReason() != null &&
+                        AbsentReason.getIepTriggers().contains(newAttendanceDetails.getAbsentReason());
 
-        publishAttendanceAndIEPWarning(attendance);
+        final var shouldRevokePreviousIEPWarning = attendance.getCaseNoteId() != null && !shouldTriggerIEPWarning;
+
+        if (shouldRevokePreviousIEPWarning) {
+            final var rescindedReason = "IEP rescinded: " + (newAttendanceDetails.getAttended() ?
+                    "attended" : newAttendanceDetails.getAbsentReason().toString());
+            nomisService.putCaseNoteAmendment(
+                    attendance.getOffenderBookingId(),
+                    attendance.getCaseNoteId(),
+                    rescindedReason
+            );
+        } else {
+            postIEPWarningIfRequired(
+                    attendance.getOffenderBookingId(),
+                    attendance.getCaseNoteId(),
+                    newAttendanceDetails.getAbsentReason(),
+                    newAttendanceDetails.getComments()
+            ).ifPresent(attendance::setCaseNoteId);
+        }
+
+        attendance.setComments(newAttendanceDetails.getComments());
+        attendance.setAttended(newAttendanceDetails.getAttended());
+        attendance.setPaid(newAttendanceDetails.getPaid());
+        attendance.setAbsentReason(newAttendanceDetails.getAbsentReason());
 
         attendanceRepository.save(attendance);
+
+        postNomisAttendance(attendance);
     }
 
 
-    private void publishAttendanceAndIEPWarning(final Attendance attendance) {
+    private void postNomisAttendance(final Attendance attendance) {
         final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
                 attendance.getAbsentReason(),
                 attendance.getAttended(),
                 attendance.getPaid());
 
         nomisService.putAttendance(attendance.getOffenderBookingId(), attendance.getEventId(), eventOutcome);
-
-        addCaseNoteIfRequired(attendance).ifPresent(attendance::setCaseNoteId);
     }
 
-     private Optional<Long> addCaseNoteIfRequired(final Attendance attendance) {
-        if (attendance.getCaseNoteId() == null && attendance.getAbsentReason() != null && AbsentReason.getIepTriggers().contains(attendance.getAbsentReason())) {
+    private Optional<Long> postIEPWarningIfRequired(final Long bookingId, final Long caseNoteId, final AbsentReason reason, final String text) {
+        if (caseNoteId == null && reason != null && AbsentReason.getIepTriggers().contains(reason)) {
             final var caseNote = nomisService.postCaseNote(
-                    attendance.getOffenderBookingId(),
+                    bookingId,
                     "NEG",//"Negative Behaviour"
                     "IEP_WARN", //"IEP Warning",
-                    attendance.getComments(),
+                    text,
                     LocalDateTime.now());
              return Optional.of(caseNote.getCaseNoteId());
         }
