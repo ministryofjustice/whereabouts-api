@@ -35,4 +35,5 @@ public class AttendanceDto {
     private LocalDateTime modifyDateTime;
     private String modifyUserId;
     private Long caseNoteId;
+    private Boolean locked;
 }

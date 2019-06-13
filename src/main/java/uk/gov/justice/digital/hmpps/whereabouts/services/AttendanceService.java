@@ -17,6 +17,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 
 @Service
 public class AttendanceService {
@@ -55,10 +57,14 @@ public class AttendanceService {
     }
 
     @Transactional
-    public void updateAttendance(final long id, final UpdateAttendanceDto attendanceDto) throws AttendanceNotFound {
+    public void updateAttendance(final long id, final UpdateAttendanceDto attendanceDto) throws AttendanceNotFound, AttendanceLocked {
 
         final var attendance = attendanceRepository.findById(id)
                 .orElseThrow(AttendanceNotFound::new);
+
+        if (isAttendanceLocked(attendance.getPaid(), attendance.getEventDate())) {
+            throw new AttendanceLocked();
+        }
 
         attendance.setAttended(attendanceDto.getAttended());
         attendance.setPaid(attendanceDto.getPaid());
@@ -96,6 +102,12 @@ public class AttendanceService {
         return Optional.empty();
     }
 
+    private Boolean isAttendanceLocked(final Boolean paid, final LocalDate eventDate) {
+        final var dateDifference = DAYS.between(eventDate, LocalDate.now());
+
+        return (paid) ? dateDifference >= 1 : dateDifference >= 7;
+    }
+
     private Attendance toAttendance(final CreateAttendanceDto attendanceDto) {
          return Attendance
                  .builder()
@@ -128,6 +140,7 @@ public class AttendanceService {
                 .createUserId(attendanceData.getCreateUserId())
                 .createDateTime(attendanceData.getCreateDateTime())
                 .caseNoteId(attendanceData.getCaseNoteId())
+                .locked(isAttendanceLocked(attendanceData.getPaid(), attendanceData.getEventDate()))
                 .build();
      }
 }
