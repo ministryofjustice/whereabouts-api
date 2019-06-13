@@ -103,6 +103,157 @@ class AttendanceServiceTest {
                         .createUserId("user")
                         .createDateTime(now)
                         .caseNoteId(1)
+                        .locked(false)
+                        .build()
+        ))
+    }
+
+    @Test
+    fun `should return locked true when attendance unpaid 7 days ago`() {
+        val sevenDaysAgoTime = LocalDateTime.now().minusDays(7)
+
+        `when`(attendanceRepository
+                .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, sevenDaysAgoTime.toLocalDate(), TimePeriod.AM))
+                .thenReturn(setOf(
+                        Attendance.
+                                builder()
+                                .id(1)
+                                .absentReason(AbsentReason.Refused)
+                                .attended(false)
+                                .paid(false)
+                                .eventId(2)
+                                .eventLocationId(3)
+                                .period(TimePeriod.AM)
+                                .prisonId("LEI")
+                                .offenderBookingId(100)
+                                .eventDate(sevenDaysAgoTime.toLocalDate())
+                                .createUserId("user")
+                                .createDateTime(sevenDaysAgoTime)
+                                .caseNoteId(1)
+                                .build()
+                ))
+
+        val service =  AttendanceService(attendanceRepository, nomisService)
+
+        val result = service.getAttendance("LEI" , 1, sevenDaysAgoTime.toLocalDate(), TimePeriod.AM)
+
+        assertThat(result).containsAnyElementsOf(mutableListOf(
+                AttendanceDto
+                        .builder()
+                        .id(1)
+                        .absentReason(AbsentReason.Refused)
+                        .attended(false)
+                        .paid(false)
+                        .eventId(2)
+                        .eventLocationId(3)
+                        .period(TimePeriod.AM)
+                        .prisonId("LEI")
+                        .bookingId(100)
+                        .eventDate(sevenDaysAgoTime.toLocalDate())
+                        .createUserId("user")
+                        .createDateTime(sevenDaysAgoTime)
+                        .caseNoteId(1)
+                        .locked(true)
+                        .build()
+        ))
+    }
+
+    @Test
+    fun `should return locked false when attendance unpaid under 7 days ago`() {
+        val sixDaysAgoTime = LocalDateTime.now().minusDays(6)
+
+        `when`(attendanceRepository
+                .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, sixDaysAgoTime.toLocalDate(), TimePeriod.AM))
+                .thenReturn(setOf(
+                        Attendance.
+                                builder()
+                                .id(1)
+                                .absentReason(AbsentReason.Refused)
+                                .attended(false)
+                                .paid(false)
+                                .eventId(2)
+                                .eventLocationId(3)
+                                .period(TimePeriod.AM)
+                                .prisonId("LEI")
+                                .offenderBookingId(100)
+                                .eventDate(sixDaysAgoTime.toLocalDate())
+                                .createUserId("user")
+                                .createDateTime(sixDaysAgoTime)
+                                .caseNoteId(1)
+                                .build()
+                ))
+
+        val service =  AttendanceService(attendanceRepository, nomisService)
+
+        val result = service.getAttendance("LEI" , 1, sixDaysAgoTime.toLocalDate(), TimePeriod.AM)
+
+        assertThat(result).containsAnyElementsOf(mutableListOf(
+                AttendanceDto
+                        .builder()
+                        .id(1)
+                        .absentReason(AbsentReason.Refused)
+                        .attended(false)
+                        .paid(false)
+                        .eventId(2)
+                        .eventLocationId(3)
+                        .period(TimePeriod.AM)
+                        .prisonId("LEI")
+                        .bookingId(100)
+                        .eventDate(sixDaysAgoTime.toLocalDate())
+                        .createUserId("user")
+                        .createDateTime(sixDaysAgoTime)
+                        .caseNoteId(1)
+                        .locked(false)
+                        .build()
+        ))
+    }
+
+    @Test
+    fun `should return locked true when attendance paid yesterday`() {
+        val yesterdayTime = LocalDateTime.now().minusDays(1)
+
+        `when`(attendanceRepository
+                .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, yesterdayTime.toLocalDate(), TimePeriod.AM))
+                .thenReturn(setOf(
+                        Attendance.
+                                builder()
+                                .id(1)
+                                .absentReason(AbsentReason.Refused)
+                                .attended(false)
+                                .paid(true)
+                                .eventId(2)
+                                .eventLocationId(3)
+                                .period(TimePeriod.AM)
+                                .prisonId("LEI")
+                                .offenderBookingId(100)
+                                .eventDate(yesterdayTime.toLocalDate())
+                                .createUserId("user")
+                                .createDateTime(yesterdayTime)
+                                .caseNoteId(1)
+                                .build()
+                ))
+
+        val service =  AttendanceService(attendanceRepository, nomisService)
+
+        val result = service.getAttendance("LEI" , 1, yesterdayTime.toLocalDate(), TimePeriod.AM)
+
+        assertThat(result).containsAnyElementsOf(mutableListOf(
+                AttendanceDto
+                        .builder()
+                        .id(1)
+                        .absentReason(AbsentReason.Refused)
+                        .attended(false)
+                        .paid(true)
+                        .eventId(2)
+                        .eventLocationId(3)
+                        .period(TimePeriod.AM)
+                        .prisonId("LEI")
+                        .bookingId(100)
+                        .eventDate(yesterdayTime.toLocalDate())
+                        .createUserId("user")
+                        .createDateTime(yesterdayTime)
+                        .caseNoteId(1)
+                        .locked(true)
                         .build()
         ))
     }
@@ -529,6 +680,31 @@ class AttendanceServiceTest {
     }
 
     @Test
+    fun `should throw an AttendanceLocked`() {
+        val yesterday = LocalDate.now().minusDays(1)
+
+        `when`(attendanceRepository.findById(1)).thenReturn(
+                Optional.of(Attendance
+                        .builder()
+                        .id(1)
+                        .attended(true)
+                        .paid(true)
+                        .eventId(1)
+                        .eventLocationId(2)
+                        .eventDate(yesterday)
+                        .prisonId("LEI")
+                        .offenderBookingId(1)
+                        .period(TimePeriod.AM)
+                        .build()))
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        Assertions.assertThatThrownBy {
+            service.updateAttendance(1, UpdateAttendanceDto.builder().paid(false).attended(false).build())
+        }.isExactlyInstanceOf(AttendanceLocked::class.java)
+    }
+
+    @Test
     fun `should return attendance dto on creation`() {
 
         `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
@@ -564,6 +740,7 @@ class AttendanceServiceTest {
                 .period(TimePeriod.AM)
                 .eventDate(LocalDate.now())
                 .comments("test comments")
+                .locked(false)
                 .build())
     }
 
@@ -581,6 +758,7 @@ class AttendanceServiceTest {
                                 .paid(false)
                                 .attended(false)
                                 .absentReason(AbsentReason.Refused)
+                                .eventDate(today)
                                 .caseNoteId(1)
                                 .build()))
 
@@ -605,6 +783,7 @@ class AttendanceServiceTest {
                         .eventId(1)
                         .paid(true)
                         .attended(true)
+                        .eventDate(today)
                         .build()))
 
         val service = AttendanceService(attendanceRepository, nomisService)
@@ -628,6 +807,7 @@ class AttendanceServiceTest {
                         .offenderBookingId(1)
                         .eventLocationId(1)
                         .eventId(1)
+                        .eventDate(today)
                         .paid(true)
                         .attended(true)
                         .build()))
@@ -652,6 +832,7 @@ class AttendanceServiceTest {
                         .offenderBookingId(1)
                         .eventLocationId(1)
                         .eventId(1)
+                        .eventDate(today)
                         .absentReason(AbsentReason.AcceptableAbsence)
                         .paid(false)
                         .attended(false)
@@ -676,6 +857,7 @@ class AttendanceServiceTest {
                 .offenderBookingId(1)
                 .eventLocationId(1)
                 .eventId(1)
+                .eventDate(today)
                 .paid(false)
                 .attended(false)
                 .caseNoteId(1)
@@ -706,6 +888,7 @@ class AttendanceServiceTest {
                 .offenderBookingId(1)
                 .eventLocationId(1)
                 .eventId(1)
+                .eventDate(today)
                 .paid(false)
                 .attended(false)
                 .caseNoteId(1)

@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
+import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceLocked;
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceNotFound;
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService;
 
@@ -57,6 +58,8 @@ public class AttendanceController {
             attendanceService.updateAttendance(id, attendance);
         } catch (AttendanceNotFound e) {
             return ResponseEntity.notFound().build();
+        } catch (AttendanceLocked e) {
+            return ResponseEntity.badRequest().build();
         }
 
         return ResponseEntity.noContent().build();
