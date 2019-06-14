@@ -167,6 +167,8 @@ public class AttendanceService {
                 .createDateTime(attendanceData.getCreateDateTime())
                 .caseNoteId(attendanceData.getCaseNoteId())
                 .locked(isAttendanceLocked(attendanceData.getPaid(), attendanceData.getEventDate()))
+                .modifyDateTime(attendanceData.getModifyDateTime())
+                .modifyUserId(attendanceData.getModifyUserId())
                 .build();
      }
 }

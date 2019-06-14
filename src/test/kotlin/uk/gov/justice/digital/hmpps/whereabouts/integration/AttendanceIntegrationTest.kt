@@ -148,7 +148,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
         val attendanceId = attendanceRepository.save(Attendance
                 .builder()
                 .absentReason(AbsentReason.Refused)
-                .period(TimePeriod.AM)
+                .period(TimePeriod.PM)
                 .prisonId("LEI")
                 .eventLocationId(2)
                 .eventId(1)
@@ -167,20 +167,20 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         createHeaderEntity(""),
                         AttendanceDtoReferenceType(),
                         LocalDate.of(2019, 10, 10),
-                        TimePeriod.AM)
+                        TimePeriod.PM)
 
         val result = response.body!!
 
         assertThat(response.statusCodeValue).isEqualTo(200)
 
         assertThat(result)
-                .usingElementComparatorIgnoringFields("createDateTime")
+                .usingElementComparatorIgnoringFields("createDateTime", "modifyDateTime")
                 .containsExactlyInAnyOrder(
                         AttendanceDto
                                 .builder()
                                 .id(attendanceId)
                                 .absentReason(AbsentReason.Refused)
-                                .period(TimePeriod.AM)
+                                .period(TimePeriod.PM)
                                 .prisonId("LEI")
                                 .eventLocationId(2)
                                 .eventId(1)
@@ -190,6 +190,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                                 .paid(false)
                                 .bookingId(1)
                                 .createUserId("user")
+                                .modifyUserId("user")
                                 .locked(false)
                                 .build())
 
@@ -553,5 +554,54 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 .withRequestBody(matchingJsonPath("$[?(@.text == 'IEP rescinded: attended')]"))
 
         )
+    }
+
+    @Test
+    fun `should return modified by and modified on`() {
+
+        val bookingId = 1
+        val activityId = 1L
+
+        elite2MockServer.stubFor(
+                WireMock.put(urlPathEqualTo("/api/bookings/$bookingId/activities/$activityId/attendance"))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(200))
+        )
+
+
+        attendanceRepository.save(
+                Attendance.builder()
+                        .offenderBookingId(1)
+                        .paid(false)
+                        .attended(false)
+                        .absentReason(AbsentReason.Refused)
+                        .comments("Refused")
+                        .eventDate(LocalDate.of(2019, 10, 10))
+                        .eventId(1)
+                        .eventLocationId(2)
+                        .prisonId("LEI")
+                        .period(TimePeriod.AM)
+                        .createDateTime(LocalDateTime.now())
+                        .createUserId("user")
+                        .build())
+
+        val response =
+                restTemplate.exchange(
+                        "/attendance/LEI/2?date={0}&period={1}",
+                        HttpMethod.GET,
+                        createHeaderEntity(""),
+                        AttendanceDtoReferenceType(),
+                        LocalDate.of(2019, 10, 10),
+                        TimePeriod.AM)
+
+
+        val savedAttendance = response?.body!!.first()
+
+        assertThat(savedAttendance.id).isGreaterThan(0)
+        assertThat(savedAttendance.modifyUserId).isEqualTo("user")
+        assertThat(savedAttendance.modifyDateTime).isNotNull()
+        assertThat(response.statusCodeValue).isEqualTo(200)
+
+
     }
 }
