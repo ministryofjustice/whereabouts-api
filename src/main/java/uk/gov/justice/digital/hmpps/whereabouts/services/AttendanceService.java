@@ -96,10 +96,10 @@ public class AttendanceService {
         final var shouldRevokePreviousIEPWarning = attendance.getCaseNoteId() != null && !shouldTriggerIEPWarning;
 
         if (shouldRevokePreviousIEPWarning) {
-            final var rescindedReason = "IEP rescinded: " + (
-                    newAttendanceDetails.getAttended() ? "attended" :
-                            capitalize(lowerCase(join(splitByCharacterTypeCamelCase(newAttendanceDetails.getAbsentReason().toString()), ' ')))
-            );
+            final var formattedAbsentReason = newAttendanceDetails.getAttended() ?
+                    capitalize(lowerCase(join(splitByCharacterTypeCamelCase(newAttendanceDetails.getAbsentReason().toString()), ' '))) : null;
+
+            final var rescindedReason = "IEP rescinded: " + (newAttendanceDetails.getAttended() ? "attended" : formattedAbsentReason);
 
             log.info("{} raised for {}", rescindedReason, attendance.toBuilder().comments(null));
 
