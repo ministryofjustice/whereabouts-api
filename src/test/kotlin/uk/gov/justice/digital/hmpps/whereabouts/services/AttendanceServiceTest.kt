@@ -573,7 +573,6 @@ class AttendanceServiceTest {
                 .eventDate(today)
                 .comments("hello, world")
                 .build())
-
     }
 
     @Test
@@ -797,6 +796,32 @@ class AttendanceServiceTest {
 
         verify(nomisService, never()).putCaseNoteAmendment(ArgumentMatchers.anyLong(), anyLong(), ArgumentMatchers.anyString())
         verify(nomisService).postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
+    }
+
+    @Test
+    fun `should sentence case absent reasons`() {
+        `when`(attendanceRepository.findById(1))
+                .thenReturn(Optional.of(Attendance.builder()
+                        .offenderBookingId(1)
+                        .eventLocationId(1)
+                        .eventId(1)
+                        .paid(false)
+                        .attended(false)
+                        .caseNoteId(1)
+                        .absentReason(AbsentReason.Refused)
+                        .eventDate(today)
+                        .build()))
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        service.updateAttendance(1, UpdateAttendanceDto.builder()
+                .attended(false)
+                .paid(true)
+                .absentReason(AbsentReason.NotRequired)
+                .comments("not required to work today")
+                .build())
+
+        verify(nomisService).putCaseNoteAmendment(1, 1, "IEP rescinded: Not required")
     }
 
     @Test

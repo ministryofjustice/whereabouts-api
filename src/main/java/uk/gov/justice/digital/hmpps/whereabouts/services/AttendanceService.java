@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsentReasonsDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto;
@@ -18,9 +19,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
-
+import static org.apache.commons.lang3.StringUtils.*;
 
 @Service
+@Slf4j
 public class AttendanceService {
     private final static NomisEventOutcomeMapper nomisEventOutcomeMapper = new NomisEventOutcomeMapper();
 
@@ -60,6 +62,8 @@ public class AttendanceService {
                 attendance.getComments()
         ).ifPresent(attendance::setCaseNoteId);
 
+        log.info("attendance created {}", attendance.toBuilder().comments(null));
+
         return toAttendanceDto(attendance);
     }
 
@@ -68,31 +72,11 @@ public class AttendanceService {
         final var attendance = attendanceRepository.findById(id).orElseThrow(AttendanceNotFound::new);
 
         if (isAttendanceLocked(attendance.getPaid(), attendance.getEventDate())) {
+            log.info("Update attempted on locked attendance, attendance id {}", id);
             throw new AttendanceLocked();
         }
 
-        final var shouldTriggerIEPWarning =
-                newAttendanceDetails.getAbsentReason() != null &&
-                        AbsentReason.getIepTriggers().contains(newAttendanceDetails.getAbsentReason());
-
-        final var shouldRevokePreviousIEPWarning = attendance.getCaseNoteId() != null && !shouldTriggerIEPWarning;
-
-        if (shouldRevokePreviousIEPWarning) {
-            final var rescindedReason = "IEP rescinded: " + (newAttendanceDetails.getAttended() ?
-                    "attended" : newAttendanceDetails.getAbsentReason().toString());
-            nomisService.putCaseNoteAmendment(
-                    attendance.getOffenderBookingId(),
-                    attendance.getCaseNoteId(),
-                    rescindedReason
-            );
-        } else {
-            postIEPWarningIfRequired(
-                    attendance.getOffenderBookingId(),
-                    attendance.getCaseNoteId(),
-                    newAttendanceDetails.getAbsentReason(),
-                    newAttendanceDetails.getComments()
-            ).ifPresent(attendance::setCaseNoteId);
-        }
+        handleIEPWarningScenarios(attendance, newAttendanceDetails).ifPresent(attendance::setCaseNoteId);
 
         attendance.setComments(newAttendanceDetails.getComments());
         attendance.setAttended(newAttendanceDetails.getAttended());
@@ -104,6 +88,37 @@ public class AttendanceService {
         postNomisAttendance(attendance);
     }
 
+    private Optional<Long> handleIEPWarningScenarios(final Attendance attendance, final UpdateAttendanceDto newAttendanceDetails) {
+        final var shouldTriggerIEPWarning =
+                newAttendanceDetails.getAbsentReason() != null &&
+                        AbsentReason.getIepTriggers().contains(newAttendanceDetails.getAbsentReason());
+
+        final var shouldRevokePreviousIEPWarning = attendance.getCaseNoteId() != null && !shouldTriggerIEPWarning;
+
+        if (shouldRevokePreviousIEPWarning) {
+            final var rescindedReason = "IEP rescinded: " + (
+                    newAttendanceDetails.getAttended() ? "attended" :
+                            capitalize(lowerCase(join(splitByCharacterTypeCamelCase(newAttendanceDetails.getAbsentReason().toString()), ' ')))
+            );
+
+            log.info("{} raised for {}", rescindedReason, attendance.toBuilder().comments(null));
+
+            nomisService.putCaseNoteAmendment(
+                    attendance.getOffenderBookingId(),
+                    attendance.getCaseNoteId(),
+                    rescindedReason);
+
+            return Optional.empty();
+        } else {
+            return postIEPWarningIfRequired(
+                    attendance.getOffenderBookingId(),
+                    attendance.getCaseNoteId(),
+                    newAttendanceDetails.getAbsentReason(),
+                    newAttendanceDetails.getComments()
+            );
+        }
+    }
+
 
     private void postNomisAttendance(final Attendance attendance) {
         final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
@@ -111,11 +126,15 @@ public class AttendanceService {
                 attendance.getAttended(),
                 attendance.getPaid());
 
+        log.info("Updating attendance on NOMIS {} {}", attendance.toBuilder().comments(null).build(), eventOutcome);
+
         nomisService.putAttendance(attendance.getOffenderBookingId(), attendance.getEventId(), eventOutcome);
     }
 
     private Optional<Long> postIEPWarningIfRequired(final Long bookingId, final Long caseNoteId, final AbsentReason reason, final String text) {
         if (caseNoteId == null && reason != null && AbsentReason.getIepTriggers().contains(reason)) {
+            log.info("IEP Warning created for bookingId {}", bookingId);
+
             final var caseNote = nomisService.postCaseNote(
                     bookingId,
                     "NEG",//"Negative Behaviour"
