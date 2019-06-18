@@ -5,15 +5,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse;
 
 import javax.persistence.EntityNotFoundException;
 
-
-@org.springframework.web.bind.annotation.RestControllerAdvice(
-        basePackageClasses = OffenderEventController.class
+@RestControllerAdvice(
+        basePackageClasses = {OffenderEventController.class, AttendanceController.class}
 )
 @Slf4j
 public class ControllerAdvice {
