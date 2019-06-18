@@ -96,7 +96,7 @@ public class AttendanceService {
         final var shouldRevokePreviousIEPWarning = attendance.getCaseNoteId() != null && !shouldTriggerIEPWarning;
 
         if (shouldRevokePreviousIEPWarning) {
-            final var formattedAbsentReason = newAttendanceDetails.getAttended() ?
+            final var formattedAbsentReason = newAttendanceDetails.getAbsentReason() != null ?
                     capitalize(lowerCase(join(splitByCharacterTypeCamelCase(newAttendanceDetails.getAbsentReason().toString()), ' '))) : null;
 
             final var rescindedReason = "IEP rescinded: " + (newAttendanceDetails.getAttended() ? "attended" : formattedAbsentReason);
