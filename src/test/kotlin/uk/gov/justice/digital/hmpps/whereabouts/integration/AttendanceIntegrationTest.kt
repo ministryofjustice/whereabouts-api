@@ -116,14 +116,15 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         verify(putRequestedFor(urlEqualTo(updateAttendanceUrl)).withRequestBody(
                 equalToJson(gson.toJson(mapOf(
-                        "eventOutcome" to "UNACAB"
+                        "eventOutcome" to "UNACAB",
+                        "outcomeComment" to "Test comment"
                 )))
         ))
 
         verify(postRequestedFor(urlEqualTo(createCaseNote))
                 .withRequestBody(matchingJsonPath("$[?(@.type == 'NEG')]"))
                 .withRequestBody(matchingJsonPath("$[?(@.subType == 'IEP_WARN')]"))
-                .withRequestBody(matchingJsonPath("$[?(@.text == '$comments')]"))
+                .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused - $comments')]"))
                 .withRequestBody(matchingJsonPath("$.occurrence"))
         )
     }

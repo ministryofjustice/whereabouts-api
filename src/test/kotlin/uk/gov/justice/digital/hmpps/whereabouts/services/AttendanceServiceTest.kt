@@ -301,7 +301,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("ATT", "STANDARD"))
+                attendance.eventId, EventOutcome("ATT", "STANDARD", attendance.comments))
 
     }
 
@@ -321,7 +321,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("ACCAB", null))
+                attendance.eventId, EventOutcome("ACCAB", null, "hello"))
     }
 
     @Test
@@ -339,7 +339,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("NREQ", null))
+                attendance.eventId, EventOutcome("NREQ", null, "hello"))
     }
 
     @Test
@@ -357,7 +357,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("CANC", null))
+                attendance.eventId, EventOutcome("CANC", null, "hello"))
     }
 
     @Test
@@ -375,7 +375,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("REST", null))
+                attendance.eventId, EventOutcome("REST", null, "hello"))
     }
 
     @Test
@@ -393,7 +393,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("REST", null))
+                attendance.eventId, EventOutcome("REST", null, "hello"))
     }
 
     @Test
@@ -411,7 +411,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("REST", null))
+                attendance.eventId, EventOutcome("REST", null, "hello"))
     }
 
     @Test
@@ -432,7 +432,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("UNACAB", null))
+                attendance.eventId, EventOutcome("UNACAB", null, "hello"))
     }
 
     @Test
@@ -454,7 +454,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("UNACAB", null))
+                attendance.eventId, EventOutcome("UNACAB", null, "hello"))
     }
 
     @Test
@@ -506,7 +506,7 @@ class AttendanceServiceTest {
                         eq(attendance.bookingId),
                         eq("NEG"),
                         eq("IEP_WARN"),
-                        eq("hello"),
+                        eq("Refused - hello"),
                         isA(LocalDateTime::class.java))
     }
 

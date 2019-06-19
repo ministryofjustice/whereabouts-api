@@ -15,7 +15,7 @@ class NomisEventOutcomeMapperTest {
             val reason = it
 
             assertThatThrownBy {
-                eventOutcomeMapper.getEventOutcome(reason, false, true)
+                eventOutcomeMapper.getEventOutcome(reason, false, true, null)
             }.hasMessage(String.format("%s is not a valid paid reason", reason))
         }
     }
@@ -29,7 +29,7 @@ class NomisEventOutcomeMapperTest {
             val reason = it
 
             assertThatThrownBy {
-                eventOutcomeMapper.getEventOutcome(reason, false, false)
+                eventOutcomeMapper.getEventOutcome(reason, false, false, null)
             }.hasMessage(String.format("%s is not a valid unpaid reason", reason))
         }
     }
@@ -37,14 +37,14 @@ class NomisEventOutcomeMapperTest {
     @Test
     fun `should throw an exception when an absent reason is supplied for a a valid attendance`() {
         assertThatThrownBy {
-            eventOutcomeMapper.getEventOutcome(AbsentReason.SessionCancelled, true, true)
+            eventOutcomeMapper.getEventOutcome(AbsentReason.SessionCancelled, true, true, null)
         }.hasMessage("An absent reason was supplied for a valid attendance")
     }
 
     @Test
     fun `should make absent reason required when attendance is not set`() {
         assertThatThrownBy {
-            eventOutcomeMapper.getEventOutcome(null, false, true)
+            eventOutcomeMapper.getEventOutcome(null, false, true, null)
         }.hasMessage("An absent reason was not supplied")
     }
 }

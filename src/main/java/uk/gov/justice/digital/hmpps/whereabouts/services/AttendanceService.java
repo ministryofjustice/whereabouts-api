@@ -124,7 +124,8 @@ public class AttendanceService {
         final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
                 attendance.getAbsentReason(),
                 attendance.getAttended(),
-                attendance.getPaid());
+                attendance.getPaid(),
+                attendance.getComments());
 
         log.info("Updating attendance on NOMIS {} {}", attendance.toBuilder().comments(null).build(), eventOutcome);
 
