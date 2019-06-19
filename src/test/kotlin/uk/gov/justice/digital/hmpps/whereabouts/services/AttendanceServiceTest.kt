@@ -479,7 +479,7 @@ class AttendanceServiceTest {
                         eq(attendance.bookingId),
                         eq("NEG"),
                         eq("IEP_WARN"),
-                        eq("hello"),
+                        eq("UnacceptableAbsence - hello"),
                         isA(LocalDateTime::class.java))
     }
 
@@ -533,7 +533,7 @@ class AttendanceServiceTest {
                         eq(attendance.bookingId),
                         eq("NEG"),
                         eq("IEP_WARN"),
-                        eq("test comment"),
+                        eq("Refused - test comment"),
                         isA(LocalDateTime::class.java))
     }
 
