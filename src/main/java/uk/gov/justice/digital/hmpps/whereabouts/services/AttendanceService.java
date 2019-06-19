@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository;
+import uk.gov.justice.digital.hmpps.whereabouts.utils.AbsentReasonFormatter;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
@@ -97,7 +98,7 @@ public class AttendanceService {
 
         if (shouldRevokePreviousIEPWarning) {
             final var formattedAbsentReason = newAttendanceDetails.getAbsentReason() != null ?
-                    capitalize(lowerCase(join(splitByCharacterTypeCamelCase(newAttendanceDetails.getAbsentReason().toString()), ' '))) : null;
+                    AbsentReasonFormatter.titlecase(newAttendanceDetails.getAbsentReason().toString()) : null;
 
             final var rescindedReason = "IEP rescinded: " + (newAttendanceDetails.getAttended() ? "attended" : formattedAbsentReason);
 
@@ -136,7 +137,7 @@ public class AttendanceService {
         if (caseNoteId == null && reason != null && AbsentReason.getIepTriggers().contains(reason)) {
             log.info("IEP Warning created for bookingId {}", bookingId);
 
-            final var modifiedTextWithReason = reason + " - " + text;
+            final var modifiedTextWithReason = AbsentReasonFormatter.titlecase(reason.toString()) + " - " + text;
             final var caseNote = nomisService.postCaseNote(
                     bookingId,
                     "NEG",//"Negative Behaviour"
