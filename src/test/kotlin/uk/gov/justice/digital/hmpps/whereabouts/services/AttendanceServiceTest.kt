@@ -20,7 +20,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
-import uk.gov.justice.digital.hmpps.whereabouts.utils.AbsentReasonFormatter
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
