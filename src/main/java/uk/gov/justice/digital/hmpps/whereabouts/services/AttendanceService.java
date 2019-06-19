@@ -124,7 +124,8 @@ public class AttendanceService {
         final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
                 attendance.getAbsentReason(),
                 attendance.getAttended(),
-                attendance.getPaid());
+                attendance.getPaid(),
+                attendance.getComments());
 
         log.info("Updating attendance on NOMIS {} {}", attendance.toBuilder().comments(null).build(), eventOutcome);
 
@@ -135,11 +136,12 @@ public class AttendanceService {
         if (caseNoteId == null && reason != null && AbsentReason.getIepTriggers().contains(reason)) {
             log.info("IEP Warning created for bookingId {}", bookingId);
 
+            final var modifiedTextWithReason = reason + " - " + text;
             final var caseNote = nomisService.postCaseNote(
                     bookingId,
                     "NEG",//"Negative Behaviour"
                     "IEP_WARN", //"IEP Warning",
-                    text,
+                    modifiedTextWithReason,
                     LocalDateTime.now());
              return Optional.of(caseNote.getCaseNoteId());
         }

@@ -10,4 +10,5 @@ import lombok.Data;
 class EventOutcome {
     private final String eventOutcome;
     private final String performance;
+    private String outcomeComment;
 }
