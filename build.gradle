@@ -78,7 +78,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok:1.18.8'
 
-    runtime 'com.h2database:h2:1.4.199'
+    runtime 'org.hsqldb:hsqldb:2.4.1'
     runtime 'org.flywaydb:flyway-core:5.2.4'
     runtime 'org.postgresql:postgresql:42.2.6'
 
