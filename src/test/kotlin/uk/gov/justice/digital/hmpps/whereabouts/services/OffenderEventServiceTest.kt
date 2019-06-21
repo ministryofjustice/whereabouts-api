@@ -1,14 +1,13 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 
-import com.google.common.collect.Lists
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
-import org.mockito.runners.MockitoJUnitRunner
+import org.mockito.junit.MockitoJUnitRunner
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderEventDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.EventType
@@ -21,7 +20,6 @@ import java.util.*
 @RunWith(MockitoJUnitRunner::class)
 class OffenderEventServiceTest {
 
-
     @Mock
     private val repository: OffenderEventRepository? = null
 
@@ -33,20 +31,12 @@ class OffenderEventServiceTest {
     }
 
     @Test
-    fun createOffenderEvent() {
-    }
-
-    @Test
     fun getOffenderEventsByEvent() {
-        val oeList = ArrayList<OffenderEvent>()
         val eventApp1 = getTestOffenderEvent(1L, 123L, EventType.APP)
-        oeList.add(eventApp1)
         val eventApp2 = getTestOffenderEvent(2L, 123L, EventType.APP)
-        oeList.add(eventApp2)
         val eventApp3 = getTestOffenderEvent(3L, 123L, EventType.APP)
-        oeList.add(eventApp1)
         val eventApp4 = getTestOffenderEvent(4L, 123L, EventType.APP)
-        oeList.add(eventApp2)
+        val oeList = listOf(eventApp1, eventApp2, eventApp1, eventApp2)
 
         `when`(repository!!.findByPrisonIdAndEventIdAndEventType("LEI", 123L, EventType.APP)).thenReturn(oeList)
 
@@ -58,7 +48,7 @@ class OffenderEventServiceTest {
     @Test
     fun getOffenderEventsByEventNoData() {
 
-        `when`(repository!!.findByPrisonIdAndEventIdAndEventType("LEI", 123L, EventType.APP)).thenReturn(Lists.newArrayList())
+        `when`(repository!!.findByPrisonIdAndEventIdAndEventType("LEI", 123L, EventType.APP)).thenReturn(emptyList())
 
         val resultList = offenderEventService!!.getOffenderEventsByEvent("LEI", 123L, EventType.APP.name)
 
@@ -83,7 +73,7 @@ class OffenderEventServiceTest {
         `when`(repository.findByPrisonIdAndEventIdAndEventType("LEI", 333L, EventType.VISIT)).thenReturn(oeList2)
 
         val resultList = offenderEventService!!.getOffenderEventsByEventList("LEI",
-                Lists.newArrayList(EventDto(123L, EventType.APP.name), EventDto(333L, EventType.VISIT.name)))
+                listOf(EventDto(123L, EventType.APP.name), EventDto(333L, EventType.VISIT.name)))
 
         assertThat(resultList).containsExactly(convertToDto(eventApp1), convertToDto(eventApp2), convertToDto(eventVisit1), convertToDto(eventVisit2))
     }
@@ -91,13 +81,13 @@ class OffenderEventServiceTest {
     @Test
     fun getOffenderEventsByEventListNoData() {
 
-        `when`(repository!!.findByPrisonIdAndEventIdAndEventType("LEI", 123L, EventType.APP)).thenReturn(Lists.newArrayList())
-        `when`(repository.findByPrisonIdAndEventIdAndEventType("LEI", 333L, EventType.VISIT)).thenReturn(Lists.newArrayList())
+        `when`(repository!!.findByPrisonIdAndEventIdAndEventType("LEI", 123L, EventType.APP)).thenReturn(emptyList())
+        `when`(repository.findByPrisonIdAndEventIdAndEventType("LEI", 333L, EventType.VISIT)).thenReturn(emptyList())
 
         val resultList = offenderEventService!!.getOffenderEventsByEventList("LEI",
-                Lists.newArrayList(EventDto(123L, EventType.APP.name), EventDto(333L, EventType.VISIT.name)))
+                listOf(EventDto(123L, EventType.APP.name), EventDto(333L, EventType.VISIT.name)))
 
-        assertThat(resultList).hasSize(0)
+        assertThat(resultList).isEmpty()
     }
 
     private fun getTestOffenderEvent(id: Long?, eventId: Long?, type: EventType): OffenderEvent {
@@ -114,8 +104,8 @@ class OffenderEventServiceTest {
         return event
     }
 
-    private fun convertToDto(oe: OffenderEvent): OffenderEventDto {
-        return OffenderEventDto.builder()
+    private fun convertToDto(oe: OffenderEvent): OffenderEventDto =
+            OffenderEventDto.builder()
                 .eventId(oe.eventId)
                 .eventType(oe.eventType.name)
                 .eventDate(oe.eventDate)
@@ -124,5 +114,4 @@ class OffenderEventServiceTest {
                 .currentLocation(oe.currentLocation)
                 .period(oe.period.name)
                 .build()
-    }
 }

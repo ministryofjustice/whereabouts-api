@@ -11,9 +11,7 @@ spring:
     enabled: true
 
   datasource:
-    url: ${app.db.url}
-    username: sa
-    password:
+    url: 'jdbc:hsqldb:mem:whereabouts-api-db;sql.syntax_pgs=true;shutdown=false'
     continueOnError: true
 
     hikari:
@@ -24,7 +22,11 @@ spring:
   jackson:
     date-format: "yyyy-MM-dd HH:mm:ss"
     serialization:
-      WRITE_DATES_AS_TIMESTAMPS : false
+      WRITE_DATES_AS_TIMESTAMPS: false
+
+  h2:
+    console:
+      enabled: true
 
 server:
   port: 8080
@@ -55,3 +57,7 @@ management:
     info:
       cache:
         time-to-live: 2000ms
+
+graceful:
+  shutdown:
+    enabled: false

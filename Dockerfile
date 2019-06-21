@@ -18,10 +18,8 @@ RUN mkdir /home/appuser/.postgresql \
 
 WORKDIR /app
 
-COPY build/libs/whereabouts-api*.jar /app/app.jar
-COPY run.sh /app
-
-RUN chown -R appuser:appgroup /app
+COPY --chown=appuser:appgroup build/libs/whereabouts-api*.jar /app/app.jar
+COPY --chown=appuser:appgroup run.sh /app
 
 USER 2000
 
