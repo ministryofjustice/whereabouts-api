@@ -53,20 +53,20 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     @Override
     public void configure(final HttpSecurity http) throws Exception {
 
-        http
-        .sessionManagement()
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        http.headers().frameOptions().sameOrigin().and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-        // Can't have CSRF protection as requires session
-        .and().csrf().disable()
-        .authorizeRequests()
-        .antMatchers("/webjars/**", "/favicon.ico", "/csrf",
-                "/health", "/info", "/ping",
-                "/v2/api-docs",
-                "/swagger-ui.html", "/swagger-resources", "/swagger-resources/configuration/ui",
-                "/swagger-resources/configuration/security").permitAll()
-        .anyRequest()
-        .authenticated();
+                // Can't have CSRF protection as requires session
+                .and().csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/webjars/**", "/favicon.ico", "/csrf",
+                        "/health", "/info", "/ping", "/h2-console/**",
+                        "/v2/api-docs",
+                        "/swagger-ui.html", "/swagger-resources", "/swagger-resources/configuration/ui",
+                        "/swagger-resources/configuration/security").permitAll()
+                .anyRequest()
+                .authenticated();
     }
 
     @Override
@@ -98,8 +98,8 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     public Docket api() {
 
         final var apiInfo = new ApiInfo(
-                "Prison staff hub API Documentation",
-                "API for accessing the Prison staff hub services.",
+                "Whereabouts API Documentation",
+                "API for accessing the Whereabouts services.",
                 getVersion(), "", contactInfo(), "", "",
                 Collections.emptyList());
 
@@ -121,7 +121,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     /**
      * @return health data. Note this is unsecured so no sensitive data allowed!
      */
-    private String getVersion(){
+    private String getVersion() {
         return buildProperties == null ? "version not available" : buildProperties.getVersion();
     }
 
