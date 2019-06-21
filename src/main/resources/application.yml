@@ -11,8 +11,8 @@ spring:
     enabled: true
 
   datasource:
-    url: 'jdbc:hsqldb:mem:whereabouts-api-db;sql.syntax_pgs=true;shutdown=false'
-    continueOnError: true
+    url: 'jdbc:h2:mem:whereabouts-api-db;MODE=PostgreSQL'
+    continue-on-error: true
 
     hikari:
       pool-name: OffenderActivity-CP
