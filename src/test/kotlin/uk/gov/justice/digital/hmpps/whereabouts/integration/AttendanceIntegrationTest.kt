@@ -31,6 +31,10 @@ class AttendanceIntegrationTest : IntegrationTest () {
         @get:ClassRule
         @JvmStatic
         val elite2MockServer = WireMockRule(8999)
+
+        @get:ClassRule
+        @JvmStatic
+        val oauthMockServer = WireMockRule(8090)
     }
 
     @Autowired
@@ -513,6 +517,12 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 WireMock.put(urlPathEqualTo("/api/bookings/$bookingId/caseNotes/$caseNoteId"))
                         .willReturn(WireMock.aResponse()
                                 .withStatus(200))
+        )
+
+        oauthMockServer.stubFor(
+                WireMock.post(urlEqualTo("/auth/oauth/token?grant_type=client_credentials&username=ITAG_USER"))
+                        .willReturn(WireMock.aResponse()
+                           .withBody(gson.toJson(mapOf("access_token" to "ABCDE"))))
         )
 
 

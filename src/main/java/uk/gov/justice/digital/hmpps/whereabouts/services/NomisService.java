@@ -11,9 +11,9 @@ import java.util.Map;
 @Service
 public class NomisService {
 
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-    public NomisService(@Qualifier("elite2ApiRestTemplate") RestTemplate restTemplate) {
+    public NomisService(@Qualifier("elite2ApiRestTemplate") final RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
