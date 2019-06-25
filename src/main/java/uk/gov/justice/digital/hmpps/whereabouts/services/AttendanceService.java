@@ -96,9 +96,12 @@ public class AttendanceService {
 
         final var shouldRevokePreviousIEPWarning = attendance.getCaseNoteId() != null && !shouldTriggerIEPWarning;
 
+        final var shouldReinstatePreviousIEPWarning = attendance.getCaseNoteId() != null && shouldTriggerIEPWarning;
+
+        final var formattedAbsentReason = newAttendanceDetails.getAbsentReason() != null ?
+                AbsentReasonFormatter.titlecase(newAttendanceDetails.getAbsentReason().toString()) : null;
+
         if (shouldRevokePreviousIEPWarning) {
-            final var formattedAbsentReason = newAttendanceDetails.getAbsentReason() != null ?
-                    AbsentReasonFormatter.titlecase(newAttendanceDetails.getAbsentReason().toString()) : null;
 
             final var rescindedReason = "IEP rescinded: " + (newAttendanceDetails.getAttended() ? "attended" : formattedAbsentReason);
 
@@ -110,7 +113,20 @@ public class AttendanceService {
                     rescindedReason);
 
             return Optional.empty();
-        } else {
+        } else if (shouldReinstatePreviousIEPWarning) {
+
+            final var reinstatedReason = "IEP reinstated: " + formattedAbsentReason;
+
+            log.info("{} raised for {}", reinstatedReason, attendance.toBuilder().comments(null));
+
+            nomisService.putCaseNoteAmendment(
+                    attendance.getOffenderBookingId(),
+                    attendance.getCaseNoteId(),
+                    reinstatedReason);
+
+            return Optional.empty();
+        }
+        else {
             return postIEPWarningIfRequired(
                     attendance.getOffenderBookingId(),
                     attendance.getCaseNoteId(),
@@ -118,6 +134,7 @@ public class AttendanceService {
                     newAttendanceDetails.getComments()
             );
         }
+
     }
 
 

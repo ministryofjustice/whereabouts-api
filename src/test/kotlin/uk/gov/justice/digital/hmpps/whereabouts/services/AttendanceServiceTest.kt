@@ -770,6 +770,34 @@ class AttendanceServiceTest {
     }
 
     @Test
+    fun `should post IEP reinstated case note amendment if going from unpaid (IEP warning) to paid attendance (IEP rescinded) to unpaid absent unacceptable`() {
+
+        `when`(attendanceRepository.findById(1))
+                .thenReturn(Optional.of(
+                        Attendance.builder()
+                                .offenderBookingId(1)
+                                .eventLocationId(1)
+                                .eventId(1)
+                                .paid(true)
+                                .attended(true)
+                                .eventDate(today)
+                                .caseNoteId(1)
+                                .build()))
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        service.updateAttendance(1, UpdateAttendanceDto.builder()
+                .attended(false)
+                .paid(false)
+                .absentReason(AbsentReason.UnacceptableAbsence)
+                .comments("Unacceptable absence - No show.")
+                .build())
+
+        verify(nomisService)
+                .putCaseNoteAmendment(1, 1, "IEP reinstated: Unacceptable absence")
+    }
+
+    @Test
     fun `should not post a case note amendment going from paid attendance to unpaid absent refused`() {
 
         `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
@@ -901,7 +929,7 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build())
 
-        verify(nomisService, never()).putCaseNoteAmendment(anyLong(), anyLong(), anyString())
+        verify(nomisService).putCaseNoteAmendment(anyLong(), anyLong(), anyString())
         verify(nomisService, never()).postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
         verify(attendanceRepository).save(attendanceEntity.toBuilder().comments("Never turned up").build())
     }
