@@ -770,7 +770,7 @@ class AttendanceServiceTest {
     }
 
     @Test
-    fun `should post case note amendment going from paid attendance to unpaid absent refused`() {
+    fun `should post IEP reinstated case note amendment if going from unpaid (IEP warning) to paid attendance (IEP rescinded) to unpaid absent unacceptable`() {
 
         `when`(attendanceRepository.findById(1))
                 .thenReturn(Optional.of(
