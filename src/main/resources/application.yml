@@ -11,10 +11,8 @@ spring:
     enabled: true
 
   datasource:
-    url: ${app.db.url}
-    username: sa
-    password:
-    continueOnError: true
+    url: 'jdbc:h2:mem:whereabouts-api-db;MODE=PostgreSQL'
+    continue-on-error: true
 
     hikari:
       pool-name: OffenderActivity-CP
@@ -24,7 +22,11 @@ spring:
   jackson:
     date-format: "yyyy-MM-dd HH:mm:ss"
     serialization:
-      WRITE_DATES_AS_TIMESTAMPS : false
+      WRITE_DATES_AS_TIMESTAMPS: false
+
+  h2:
+    console:
+      enabled: true
 
 server:
   port: 8080
@@ -55,3 +57,7 @@ management:
     info:
       cache:
         time-to-live: 2000ms
+
+graceful:
+  shutdown:
+    enabled: false

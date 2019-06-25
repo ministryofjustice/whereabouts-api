@@ -7,13 +7,18 @@ import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Component;
 
-/** Adds version data to the /health endpoint. This is called by the UI to display API details */
+/**
+ * Adds version data to the /health endpoint. This is called by the UI to display API details
+ */
 @Component
 @Slf4j
 public class HealthInfo implements HealthIndicator {
 
-    @Autowired(required = false)
-    private BuildProperties buildProperties;
+    private final BuildProperties buildProperties;
+
+    public HealthInfo(@Autowired(required = false) final BuildProperties buildProperties) {
+        this.buildProperties = buildProperties;
+    }
 
     @Override
     public Health health() {
@@ -22,7 +27,7 @@ public class HealthInfo implements HealthIndicator {
         return status;
     }
 
-    private String getVersion(){
+    private String getVersion() {
         return buildProperties == null ? "version not available" : buildProperties.getVersion();
     }
 

@@ -16,16 +16,16 @@ class HealthCheckIntegrationTest : IntegrationTest() {
         @JvmStatic
         val elite2MockServer = WireMockRule(8999)
     }
+
     @Test
     fun `Health page reports ok` () {
 
         elite2MockServer.stubFor(
-           WireMock.get(WireMock.urlPathEqualTo("/health"))
+                WireMock.get(WireMock.urlPathEqualTo("/ping"))
             .willReturn(WireMock.aResponse()
                     .withStatus(200)
-                    .withBody(gson.toJson(mapOf("status" to "UP"))
+                    .withBody("pong")
                     ))
-        )
 
         val response: ResponseEntity<String> =
                 restTemplate.exchange("/health", HttpMethod.GET, createHeaderEntity("headers"))

@@ -9,7 +9,7 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.Spy
-import org.mockito.runners.MockitoJUnitRunner
+import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
@@ -301,7 +301,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("ATT", "STANDARD"))
+                attendance.eventId, EventOutcome("ATT", "STANDARD", attendance.comments))
 
     }
 
@@ -321,7 +321,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("ACCAB", null))
+                attendance.eventId, EventOutcome("ACCAB", null, "hello"))
     }
 
     @Test
@@ -339,7 +339,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("NREQ", null))
+                attendance.eventId, EventOutcome("NREQ", null, "hello"))
     }
 
     @Test
@@ -357,7 +357,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("CANC", null))
+                attendance.eventId, EventOutcome("CANC", null, "hello"))
     }
 
     @Test
@@ -375,7 +375,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("REST", null))
+                attendance.eventId, EventOutcome("REST", null, "hello"))
     }
 
     @Test
@@ -393,7 +393,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("REST", null))
+                attendance.eventId, EventOutcome("REST", null, "hello"))
     }
 
     @Test
@@ -411,7 +411,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("REST", null))
+                attendance.eventId, EventOutcome("REST", null, "hello"))
     }
 
     @Test
@@ -432,7 +432,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("UNACAB", null))
+                attendance.eventId, EventOutcome("UNACAB", null, "hello"))
     }
 
     @Test
@@ -454,7 +454,7 @@ class AttendanceServiceTest {
         service.createAttendance(attendance)
 
         verify(nomisService).putAttendance(attendance.bookingId,
-                attendance.eventId, EventOutcome("UNACAB", null))
+                attendance.eventId, EventOutcome("UNACAB", null, "hello"))
     }
 
     @Test
@@ -479,7 +479,7 @@ class AttendanceServiceTest {
                         eq(attendance.bookingId),
                         eq("NEG"),
                         eq("IEP_WARN"),
-                        eq("hello"),
+                        eq("Unacceptable absence - hello"),
                         isA(LocalDateTime::class.java))
     }
 
@@ -506,7 +506,7 @@ class AttendanceServiceTest {
                         eq(attendance.bookingId),
                         eq("NEG"),
                         eq("IEP_WARN"),
-                        eq("hello"),
+                        eq("Refused - hello"),
                         isA(LocalDateTime::class.java))
     }
 
@@ -533,7 +533,7 @@ class AttendanceServiceTest {
                         eq(attendance.bookingId),
                         eq("NEG"),
                         eq("IEP_WARN"),
-                        eq("test comment"),
+                        eq("Refused - test comment"),
                         isA(LocalDateTime::class.java))
     }
 
@@ -770,6 +770,34 @@ class AttendanceServiceTest {
     }
 
     @Test
+    fun `should post IEP reinstated case note amendment if going from unpaid (IEP warning) to paid attendance (IEP rescinded) to unpaid absent unacceptable`() {
+
+        `when`(attendanceRepository.findById(1))
+                .thenReturn(Optional.of(
+                        Attendance.builder()
+                                .offenderBookingId(1)
+                                .eventLocationId(1)
+                                .eventId(1)
+                                .paid(true)
+                                .attended(true)
+                                .eventDate(today)
+                                .caseNoteId(1)
+                                .build()))
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        service.updateAttendance(1, UpdateAttendanceDto.builder()
+                .attended(false)
+                .paid(false)
+                .absentReason(AbsentReason.UnacceptableAbsence)
+                .comments("Unacceptable absence - No show.")
+                .build())
+
+        verify(nomisService)
+                .putCaseNoteAmendment(1, 1, "IEP reinstated: Unacceptable absence")
+    }
+
+    @Test
     fun `should not post a case note amendment going from paid attendance to unpaid absent refused`() {
 
         `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
@@ -901,7 +929,7 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build())
 
-        verify(nomisService, never()).putCaseNoteAmendment(anyLong(), anyLong(), anyString())
+        verify(nomisService).putCaseNoteAmendment(anyLong(), anyLong(), anyString())
         verify(nomisService, never()).postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
         verify(attendanceRepository).save(attendanceEntity.toBuilder().comments("Never turned up").build())
     }
