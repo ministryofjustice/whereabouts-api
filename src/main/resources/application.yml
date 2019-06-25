@@ -58,6 +58,15 @@ management:
       cache:
         time-to-live: 2000ms
 
+elite2api:
+  client:
+    clientId: ${whereabouts.api.client.id}
+    clientSecret: ${whereabouts.api.client.secret}
+    accessTokenUri: ${nomis.auth.url}
+    tokenName: elite2_token
+    authenticationScheme: header
+    clientAuthenticationScheme: header
+
 graceful:
   shutdown:
     enabled: false
