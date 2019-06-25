@@ -2,6 +2,8 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.http.HttpHeader
+import com.github.tomakehurst.wiremock.http.HttpHeaders
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.ClassRule
@@ -21,7 +23,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
-
 
 class AttendanceDtoReferenceType : ParameterizedTypeReference<List<AttendanceDto>>()
 
@@ -521,9 +522,10 @@ class AttendanceIntegrationTest : IntegrationTest () {
         )
 
         oauthMockServer.stubFor(
-                WireMock.post(urlEqualTo("/auth/oauth/token?grant_type=client_credentials&username=ITAG_USER"))
+                WireMock.post(urlEqualTo("/auth/oauth/token"))
                         .willReturn(WireMock.aResponse()
-                           .withBody(gson.toJson(mapOf("access_token" to "ABCDE"))))
+                                .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+                                .withBody(gson.toJson(mapOf("access_token" to "ABCDE"))))
         )
 
 
