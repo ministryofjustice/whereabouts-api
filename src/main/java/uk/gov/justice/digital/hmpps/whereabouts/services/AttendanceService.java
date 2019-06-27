@@ -105,7 +105,7 @@ public class AttendanceService {
 
         final var shouldRevokePreviousIEPWarning = attendance.getCaseNoteId() != null && !shouldTriggerIEPWarning;
 
-        final var shouldReinstatePreviousIEPWarning = attendance.getCaseNoteId() != null && !alreadyTriggeredIEPWarning && shouldTriggerIEPWarning;
+        final var shouldReinstatePreviousIEPWarning = attendance.getCaseNoteId() != null && shouldTriggerIEPWarning;
 
         if (shouldRevokePreviousIEPWarning) {
 
