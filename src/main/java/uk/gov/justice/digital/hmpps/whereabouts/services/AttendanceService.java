@@ -90,16 +90,22 @@ public class AttendanceService {
     }
 
     private Optional<Long> handleIEPWarningScenarios(final Attendance attendance, final UpdateAttendanceDto newAttendanceDetails) {
+        final var alreadyTriggeredIEPWarning =
+                attendance.getAbsentReason() != null &&
+                        AbsentReason.getIepTriggers().contains(attendance.getAbsentReason());
+
         final var shouldTriggerIEPWarning =
                 newAttendanceDetails.getAbsentReason() != null &&
                         AbsentReason.getIepTriggers().contains(newAttendanceDetails.getAbsentReason());
 
-        final var shouldRevokePreviousIEPWarning = attendance.getCaseNoteId() != null && !shouldTriggerIEPWarning;
-
-        final var shouldReinstatePreviousIEPWarning = attendance.getCaseNoteId() != null && shouldTriggerIEPWarning;
+        if (alreadyTriggeredIEPWarning && shouldTriggerIEPWarning) return Optional.empty();
 
         final var formattedAbsentReason = newAttendanceDetails.getAbsentReason() != null ?
                 AbsentReasonFormatter.titlecase(newAttendanceDetails.getAbsentReason().toString()) : null;
+
+        final var shouldRevokePreviousIEPWarning = attendance.getCaseNoteId() != null && !shouldTriggerIEPWarning;
+
+        final var shouldReinstatePreviousIEPWarning = attendance.getCaseNoteId() != null && shouldTriggerIEPWarning;
 
         if (shouldRevokePreviousIEPWarning) {
 

@@ -929,7 +929,7 @@ class AttendanceServiceTest {
                 .paid(false)
                 .build())
 
-        verify(nomisService).putCaseNoteAmendment(anyLong(), anyLong(), anyString())
+        verify(nomisService, never()).putCaseNoteAmendment(anyLong(), anyLong(), anyString())
         verify(nomisService, never()).postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
         verify(attendanceRepository).save(attendanceEntity.toBuilder().comments("Never turned up").build())
     }
