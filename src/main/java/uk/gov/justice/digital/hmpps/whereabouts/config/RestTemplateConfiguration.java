@@ -65,46 +65,46 @@ public class RestTemplateConfiguration {
                 new JwtAuthInterceptor());
     }
 
-    @Bean
-    public OAuth2RestTemplate elite2SystemRestTemplate(GatewayAwareAccessTokenProvider accessTokenProvider) {
-
-        OAuth2RestTemplate elite2SystemRestTemplate = new OAuth2RestTemplate(elite2apiDetails, oauth2ClientContext);
-        List<ClientHttpRequestInterceptor> systemInterceptors = elite2SystemRestTemplate.getInterceptors();
-        systemInterceptors.add(new W3cTracingInterceptor());
-
-        elite2SystemRestTemplate.setAccessTokenProvider(accessTokenProvider);
-
-        RootUriTemplateHandler.addTo(elite2SystemRestTemplate, this.apiRootUri);
-        return elite2SystemRestTemplate;
-    }
-
-    /**
-     * This subclass is necessary to make OAuth2AccessTokenSupport.getRestTemplate() public
-     */
-    @Component("accessTokenProvider")
-    public class GatewayAwareAccessTokenProvider extends ClientCredentialsAccessTokenProvider {
-
-        public GatewayAwareAccessTokenProvider(final AuthenticationFacade authenticationFacade) {
-            this.setTokenRequestEnhancer(new TokenRequestEnhancer(authenticationFacade));
-        }
-
-        @Override
-        public RestOperations getRestTemplate() {
-            return super.getRestTemplate();
-        }
-    }
-
-    public class TokenRequestEnhancer implements RequestEnhancer {
-
-        private final AuthenticationFacade authenticationFacade;
-
-        TokenRequestEnhancer(AuthenticationFacade authenticationFacade) {
-            this.authenticationFacade = authenticationFacade;
-        }
-
-        @Override
-        public void enhance(AccessTokenRequest request, OAuth2ProtectedResourceDetails resource, MultiValueMap<String, String> form, HttpHeaders headers) {
-            form.set("username", authenticationFacade.getCurrentUsername());
-        }
-    }
+//    @Bean
+//    public OAuth2RestTemplate elite2SystemRestTemplate(GatewayAwareAccessTokenProvider accessTokenProvider) {
+//
+//        OAuth2RestTemplate elite2SystemRestTemplate = new OAuth2RestTemplate(elite2apiDetails, oauth2ClientContext);
+//        List<ClientHttpRequestInterceptor> systemInterceptors = elite2SystemRestTemplate.getInterceptors();
+//        systemInterceptors.add(new W3cTracingInterceptor());
+//
+//        elite2SystemRestTemplate.setAccessTokenProvider(accessTokenProvider);
+//
+//        RootUriTemplateHandler.addTo(elite2SystemRestTemplate, this.apiRootUri);
+//        return elite2SystemRestTemplate;
+//    }
+//
+//    /**
+//     * This subclass is necessary to make OAuth2AccessTokenSupport.getRestTemplate() public
+//     */
+//    @Component("accessTokenProvider")
+//    public class GatewayAwareAccessTokenProvider extends ClientCredentialsAccessTokenProvider {
+//
+//        public GatewayAwareAccessTokenProvider(final AuthenticationFacade authenticationFacade) {
+//            this.setTokenRequestEnhancer(new TokenRequestEnhancer(authenticationFacade));
+//        }
+//
+//        @Override
+//        public RestOperations getRestTemplate() {
+//            return super.getRestTemplate();
+//        }
+//    }
+//
+//    public class TokenRequestEnhancer implements RequestEnhancer {
+//
+//        private final AuthenticationFacade authenticationFacade;
+//
+//        TokenRequestEnhancer(AuthenticationFacade authenticationFacade) {
+//            this.authenticationFacade = authenticationFacade;
+//        }
+//
+//        @Override
+//        public void enhance(AccessTokenRequest request, OAuth2ProtectedResourceDetails resource, MultiValueMap<String, String> form, HttpHeaders headers) {
+//            form.set("username", authenticationFacade.getCurrentUsername());
+//        }
+//    }
 }
