@@ -33,18 +33,8 @@ abstract class IntegrationTest {
     @Value("\${token}")
     private val token: String? = null
 
-    @Value("\${adminToken}")
-    private val adminToken: String? = null
-
     init {
         SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
-    }
-
-    internal fun createHeaderEntityForAdminUser(entity: Any): HttpEntity<*> {
-        val headers = HttpHeaders()
-        headers.add("Authorization", "bearer $adminToken")
-        headers.contentType = MediaType.APPLICATION_JSON
-        return HttpEntity(entity, headers)
     }
 
     internal fun createHeaderEntity(entity: Any): HttpEntity<*> {

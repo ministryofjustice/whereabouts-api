@@ -27,6 +27,6 @@ public class CaseNoteDto {
     private String text;
     private String originalNoteText;
     private String agencyId;
-    private List<Amendment> amendments;
+    private List<AmendmentDto> amendments;
 }
 

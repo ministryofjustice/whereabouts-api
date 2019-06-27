@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CaseNoteDto;
@@ -11,9 +11,9 @@ import java.util.Map;
 @Service
 public class NomisService {
 
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-    public NomisService(@Qualifier("elite2ApiRestTemplate") RestTemplate restTemplate) {
+    public NomisService(final OAuth2RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 

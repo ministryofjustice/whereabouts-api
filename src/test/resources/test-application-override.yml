@@ -1,0 +1,8 @@
+elite2api:
+  client:
+    clientId: ${whereabouts.api.client.id}
+    clientSecret: ${whereabouts.api.client.secret}
+    accessTokenUri: ${nomis.auth.url}
+    tokenName: elite2_token
+    authenticationScheme: header
+    clientAuthenticationScheme: header

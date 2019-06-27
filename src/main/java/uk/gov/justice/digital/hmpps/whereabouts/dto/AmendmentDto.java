@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class Amendment {
+public class AmendmentDto {
     private LocalDateTime creationDateTime;
     private String authorName;
     private String additionalNotesText;

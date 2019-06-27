@@ -1,4 +1,4 @@
-{{/* vim: set filetype=mustache: */}}
+    {{/* vim: set filetype=mustache: */}}
 {{/*
 Environment variables for web and worker containers
 */}}
@@ -13,8 +13,8 @@ env:
   - name: JAVA_OPTS
     value: "{{ .Values.env.JAVA_OPTS }}"
 
-  - name: JWT_PUBLIC_KEY 
-    value: "{{ .Values.env.JWT_PUBLIC_KEY }}" 
+  - name: JWT_PUBLIC_KEY
+    value: "{{ .Values.env.JWT_PUBLIC_KEY }}"
 
   - name: ELITE2API_ENDPOINT_URL
     value: "{{ .Values.env.ELITE2API_ENDPOINT_URL }}"
@@ -22,13 +22,19 @@ env:
   - name: APPINSIGHTS_INSTRUMENTATIONKEY
     valueFrom:
       secretKeyRef:
-        name: {{ template "app.name" . }} 
+        name: {{ template "app.name" . }}
         key: APPINSIGHTS_INSTRUMENTATIONKEY
+
+  - name: OAUTH_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "app.name" . }}
+        key: OAUTH_CLIENT_SECRET
 
   - name: DATABASE_USERNAME
     valueFrom:
       secretKeyRef:
-        name: dps-rds-instance-output 
+        name: dps-rds-instance-output
         key: database_username
 
   - name: DATABASE_PASSWORD
