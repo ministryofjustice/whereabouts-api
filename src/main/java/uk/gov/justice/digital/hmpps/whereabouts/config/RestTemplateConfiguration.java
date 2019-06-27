@@ -66,17 +66,15 @@ public class RestTemplateConfiguration {
     }
 
     @Bean
-    public OAuth2RestTemplate elite2SystemRestTemplate(final GatewayAwareAccessTokenProvider accessTokenProvider) {
+    public OAuth2RestTemplate elite2SystemRestTemplate(GatewayAwareAccessTokenProvider accessTokenProvider) {
 
-        final var elite2SystemRestTemplate = new OAuth2RestTemplate(elite2apiDetails, oauth2ClientContext);
-        final var systemInterceptors = elite2SystemRestTemplate.getInterceptors();
-
+        OAuth2RestTemplate elite2SystemRestTemplate = new OAuth2RestTemplate(elite2apiDetails, oauth2ClientContext);
+        List<ClientHttpRequestInterceptor> systemInterceptors = elite2SystemRestTemplate.getInterceptors();
         systemInterceptors.add(new W3cTracingInterceptor());
 
         elite2SystemRestTemplate.setAccessTokenProvider(accessTokenProvider);
 
         RootUriTemplateHandler.addTo(elite2SystemRestTemplate, this.apiRootUri);
-
         return elite2SystemRestTemplate;
     }
 
