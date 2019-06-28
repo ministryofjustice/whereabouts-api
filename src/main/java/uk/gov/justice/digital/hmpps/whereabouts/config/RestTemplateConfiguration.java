@@ -33,6 +33,9 @@ public class RestTemplateConfiguration {
     @Value("${elite2.api.uri.root}")
     private String apiRootUri;
 
+    @Value("${oauth.root.uri}")
+    private String oauthRootUri;
+
     private final OAuth2ClientContext oauth2ClientContext;
     private final ClientCredentialsResourceDetails elite2apiDetails;
 
@@ -50,6 +53,11 @@ public class RestTemplateConfiguration {
     @Bean(name = "elite2ApiHealthRestTemplate")
     public RestTemplate elite2ApiHealthRestTemplate(final RestTemplateBuilder restTemplateBuilder) {
         return getRestTemplate(restTemplateBuilder, elite2UriRoot);
+    }
+
+    @Bean(name = "oauthApiRestTemplate")
+    public RestTemplate oauthRestTemplate(final RestTemplateBuilder restTemplateBuilder) {
+        return getRestTemplate(restTemplateBuilder, oauthRootUri);
     }
 
     private RestTemplate getRestTemplate(final RestTemplateBuilder restTemplateBuilder, final String uri) {

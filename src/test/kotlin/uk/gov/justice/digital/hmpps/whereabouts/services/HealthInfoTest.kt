@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.springframework.boot.info.BuildProperties
+import uk.gov.justice.digital.hmpps.whereabouts.services.health.HealthInfo
 import java.util.*
 
 class HealthInfoTest {

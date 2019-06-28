@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services;
+package uk.gov.justice.digital.hmpps.whereabouts.config;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import org.apache.commons.lang3.StringUtils;

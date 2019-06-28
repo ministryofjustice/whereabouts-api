@@ -15,6 +15,10 @@ class HealthCheckIntegrationTest : IntegrationTest() {
         @get:ClassRule
         @JvmStatic
         val elite2MockServer = WireMockRule(8999)
+
+        @get:ClassRule
+        @JvmStatic
+        val oauthMockServer = WireMockRule(8090)
     }
 
     @Test
@@ -22,10 +26,17 @@ class HealthCheckIntegrationTest : IntegrationTest() {
 
         elite2MockServer.stubFor(
                 WireMock.get(WireMock.urlPathEqualTo("/ping"))
-            .willReturn(WireMock.aResponse()
-                    .withStatus(200)
-                    .withBody("pong")
-                    ))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(200)
+                                .withBody("pong"))
+        )
+
+        oauthMockServer.stubFor(
+                WireMock.get(WireMock.urlPathEqualTo("/auth/ping"))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(200)
+                                .withBody("pong"))
+        )
 
         val response: ResponseEntity<String> =
                 restTemplate.exchange("/health", HttpMethod.GET, createHeaderEntity("headers"))
