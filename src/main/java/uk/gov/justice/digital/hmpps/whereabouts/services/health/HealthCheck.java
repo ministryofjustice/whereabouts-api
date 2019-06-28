@@ -1,21 +1,17 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services;
+package uk.gov.justice.digital.hmpps.whereabouts.services.health;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-@Component
-public class Elite2ApiHealth implements HealthIndicator {
 
+public abstract class HealthCheck implements HealthIndicator {
     private final RestTemplate restTemplate;
 
-    @Autowired
-    public Elite2ApiHealth(@Qualifier("elite2ApiHealthRestTemplate") final RestTemplate restTemplate) {
+    protected HealthCheck(final RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 

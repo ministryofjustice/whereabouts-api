@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services;
+package uk.gov.justice.digital.hmpps.whereabouts.services.health;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
