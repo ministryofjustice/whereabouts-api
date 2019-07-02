@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.client.token.AccessTokenRequest;
 import org.springframework.security.oauth2.client.token.RequestEnhancer;
 import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsAccessTokenProvider;
 import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
-import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
@@ -45,11 +44,6 @@ public class RestTemplateConfiguration {
         this.elite2apiDetails = elite2apiDetails;
     }
 
-    @Bean(name = "elite2ApiRestTemplate")
-    public RestTemplate elite2ApiRestTemplate(final RestTemplateBuilder restTemplateBuilder) {
-        return getRestTemplate(restTemplateBuilder, apiRootUri);
-    }
-
     @Bean(name = "elite2ApiHealthRestTemplate")
     public RestTemplate elite2ApiHealthRestTemplate(final RestTemplateBuilder restTemplateBuilder) {
         return getRestTemplate(restTemplateBuilder, elite2UriRoot);
@@ -74,24 +68,21 @@ public class RestTemplateConfiguration {
     }
 
     @Bean
-    public OAuth2RestTemplate elite2SystemRestTemplate(final GatewayAwareAccessTokenProvider accessTokenProvider) {
+    public OAuth2RestTemplate elite2SystemRestTemplate(final AuthenticationFacade authenticationFacade) {
 
         final var elite2SystemRestTemplate = new OAuth2RestTemplate(elite2apiDetails, oauth2ClientContext);
         final var systemInterceptors = elite2SystemRestTemplate.getInterceptors();
 
         systemInterceptors.add(new W3cTracingInterceptor());
 
-        elite2SystemRestTemplate.setAccessTokenProvider(accessTokenProvider);
+        elite2SystemRestTemplate.setAccessTokenProvider(new GatewayAwareAccessTokenProvider(authenticationFacade));
 
         RootUriTemplateHandler.addTo(elite2SystemRestTemplate, this.apiRootUri);
 
         return elite2SystemRestTemplate;
     }
 
-    /**
-     * This subclass is necessary to make OAuth2AccessTokenSupport.getRestTemplate() public
-     */
-    @Component("accessTokenProvider")
+
     public class GatewayAwareAccessTokenProvider extends ClientCredentialsAccessTokenProvider {
 
         public GatewayAwareAccessTokenProvider(final AuthenticationFacade authenticationFacade) {

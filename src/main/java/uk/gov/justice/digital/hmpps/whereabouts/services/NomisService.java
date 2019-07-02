@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.services;
 
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CaseNoteDto;
 
 import java.time.LocalDateTime;
@@ -11,7 +10,7 @@ import java.util.Map;
 @Service
 public class NomisService {
 
-    private final RestTemplate restTemplate;
+    private final OAuth2RestTemplate restTemplate;
 
     public NomisService(final OAuth2RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
