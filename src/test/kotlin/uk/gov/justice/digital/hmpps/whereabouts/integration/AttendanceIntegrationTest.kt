@@ -10,7 +10,6 @@ import org.junit.ClassRule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.exchange
-import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
@@ -23,8 +22,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
-
-class AttendanceDtoReferenceType : ParameterizedTypeReference<List<AttendanceDto>>()
 
 class AttendanceIntegrationTest : IntegrationTest () {
 
@@ -171,7 +168,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         "/attendance/LEI/2?date={0}&period={1}",
                         HttpMethod.GET,
                         createHeaderEntity(""),
-                        AttendanceDtoReferenceType(),
+                        ListOfAttendanceDtoReferenceType(),
                         LocalDate.of(2019, 10, 10),
                         TimePeriod.PM)
 
@@ -603,7 +600,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         "/attendance/LEI/2?date={0}&period={1}",
                         HttpMethod.GET,
                         createHeaderEntity(""),
-                        AttendanceDtoReferenceType(),
+                        ListOfAttendanceDtoReferenceType(),
                         LocalDate.of(2019, 10, 10),
                         TimePeriod.AM)
 

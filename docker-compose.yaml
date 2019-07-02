@@ -1,27 +1,25 @@
 version: "3"
 services:
-  api:
-    build: .
+  oauth:
+    image: mojdigitalstudio/nomis-oauth2-server:latest
+    container_name: oauth
     ports:
-      - "9090:9090"
-    depends_on:
-      - db
+      - "9090:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/health"]
     environment:
-      - SERVER_PORT=9090
-      - DB_SERVER=db:5432
-      - DB_PASS=password
-      - DB_USER=postgres
-      - DB_NAME=whereabouts
-      - PGDATA=/var/lib/postgresql/data/pgdata
-      - SPRING_PROFILES_ACTIVE=postgres
-  db:
-    image: postgres:latest
-    ports:
-      - "5432:5432"
-    environment:
-      - DB_SERVER=db
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=whereabouts
-      - PGDATA=/var/lib/postgresql/data/pgdata
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev
 
+  elite2:
+    image: mojdigitalstudio/elite2-api:latest
+    container_name: elite2
+    depends_on:
+      - oauth
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=nomis-hsqldb

@@ -26,13 +26,13 @@ import java.util.List;
 @Configuration
 public class RestTemplateConfiguration {
 
-    @Value("${elite2.uri.root}")
+    @Value("${elite2api.endpoint.url}")
     private String elite2UriRoot;
 
-    @Value("${elite2.api.uri.root}")
+    @Value("${elite2api.endpoint.url.api}")
     private String apiRootUri;
 
-    @Value("${oauth.root.uri}")
+    @Value("${oauth.endpoint.url}")
     private String oauthRootUri;
 
     private final OAuth2ClientContext oauth2ClientContext;
