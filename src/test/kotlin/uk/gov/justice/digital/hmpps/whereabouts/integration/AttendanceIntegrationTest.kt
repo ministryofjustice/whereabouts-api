@@ -614,4 +614,49 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
 
     }
+
+    @Test
+    fun `should request a new auth token for each new incoming request`() {
+        val bookingId = 1
+        val activityId = 1L
+
+        elite2MockServer.stubFor(
+                WireMock.put(urlPathEqualTo("/api/bookings/$bookingId/activities/$activityId/attendance"))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(200))
+        )
+
+        oauthMockServer.stubFor(
+                WireMock.post(urlEqualTo("/auth/oauth/token"))
+                        .willReturn(WireMock.aResponse()
+                                .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+                                .withBody(gson.toJson(mapOf("access_token" to "ABCDE"))))
+        )
+
+        postAttendance()
+        postAttendance()
+
+        oauthMockServer.verify(2, postRequestedFor(urlEqualTo("/auth/oauth/token")))
+    }
+
+
+    private fun postAttendance() {
+        val attendanceDto =
+                CreateAttendanceDto
+                        .builder()
+                        .prisonId("LEI")
+                        .attended(true)
+                        .paid(true)
+                        .bookingId(1)
+                        .eventId(1)
+                        .eventLocationId(1)
+                        .period(TimePeriod.AM)
+                        .eventDate(LocalDate.now())
+                        .build()
+
+        val response: ResponseEntity<String> =
+                restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendanceDto))
+
+        assertThat(response.statusCodeValue).isEqualTo(201)
+    }
 }
