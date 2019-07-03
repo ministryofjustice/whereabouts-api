@@ -10,7 +10,6 @@ import org.junit.ClassRule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.exchange
-import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
@@ -23,8 +22,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
-
-class AttendanceDtoReferenceType : ParameterizedTypeReference<List<AttendanceDto>>()
 
 class AttendanceIntegrationTest : IntegrationTest () {
 
@@ -171,7 +168,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         "/attendance/LEI/2?date={0}&period={1}",
                         HttpMethod.GET,
                         createHeaderEntity(""),
-                        AttendanceDtoReferenceType(),
+                        ListOfAttendanceDtoReferenceType(),
                         LocalDate.of(2019, 10, 10),
                         TimePeriod.PM)
 
@@ -603,7 +600,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         "/attendance/LEI/2?date={0}&period={1}",
                         HttpMethod.GET,
                         createHeaderEntity(""),
-                        AttendanceDtoReferenceType(),
+                        ListOfAttendanceDtoReferenceType(),
                         LocalDate.of(2019, 10, 10),
                         TimePeriod.AM)
 
@@ -616,5 +613,50 @@ class AttendanceIntegrationTest : IntegrationTest () {
         assertThat(response.statusCodeValue).isEqualTo(200)
 
 
+    }
+
+    @Test
+    fun `should request a new auth token for each new incoming request`() {
+        val bookingId = 1
+        val activityId = 1L
+
+        elite2MockServer.stubFor(
+                WireMock.put(urlPathEqualTo("/api/bookings/$bookingId/activities/$activityId/attendance"))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(200))
+        )
+
+        oauthMockServer.stubFor(
+                WireMock.post(urlEqualTo("/auth/oauth/token"))
+                        .willReturn(WireMock.aResponse()
+                                .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+                                .withBody(gson.toJson(mapOf("access_token" to "ABCDE"))))
+        )
+
+        postAttendance()
+        postAttendance()
+
+        oauthMockServer.verify(2, postRequestedFor(urlEqualTo("/auth/oauth/token")))
+    }
+
+
+    private fun postAttendance() {
+        val attendanceDto =
+                CreateAttendanceDto
+                        .builder()
+                        .prisonId("LEI")
+                        .attended(true)
+                        .paid(true)
+                        .bookingId(1)
+                        .eventId(1)
+                        .eventLocationId(1)
+                        .period(TimePeriod.AM)
+                        .eventDate(LocalDate.now())
+                        .build()
+
+        val response: ResponseEntity<String> =
+                restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendanceDto))
+
+        assertThat(response.statusCodeValue).isEqualTo(201)
     }
 }

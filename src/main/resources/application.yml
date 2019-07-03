@@ -29,7 +29,7 @@ spring:
       enabled: true
 
 server:
-  port: 8080
+  port: 8082
   servlet:
     context-path: /
   use-forward-headers: true
@@ -60,8 +60,8 @@ management:
 
 elite2api:
   client:
-    clientId: ${whereabouts.api.client.id}
-    clientSecret: ${whereabouts.api.client.secret}
+    clientId: ${oauth.client.id}
+    clientSecret: ${oauth.client.secret}
     accessTokenUri: ${ouath.token.url}
     tokenName: elite2_token
     authenticationScheme: header

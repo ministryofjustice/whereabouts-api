@@ -7,12 +7,16 @@
 ./gradlew build
 ```
 
-#### Running against local postgres docker:
-Run the postgres docker image:
+#### To run:
+This service requires oauth and elite2 to wok. Bootstrap these services by running. 
 ```bash
-docker run --name=whereabouts-api-postgres -e POSTGRES_PASSWORD=password -p5432:5432 -d postgres
+docker-compose up
 ```
-Run spring boot with the the postgres spring profile
+Then run:
+```bash
+./gradlew bootRun
+```
+ 
 
 #### Health
 
