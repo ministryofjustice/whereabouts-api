@@ -32,7 +32,7 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 @Slf4j
 public class AttendanceController {
 
-    private AttendanceService attendanceService;
+    private final AttendanceService attendanceService;
 
     public AttendanceController(final AttendanceService attendanceService) {
         this.attendanceService = attendanceService;
