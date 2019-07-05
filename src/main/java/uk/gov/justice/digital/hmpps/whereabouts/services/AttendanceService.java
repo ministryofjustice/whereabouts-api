@@ -47,7 +47,11 @@ public class AttendanceService {
     }
 
     public AbsentReasonsDto getAbsenceReasons() {
-        return new AbsentReasonsDto(AbsentReason.getPaidReasons(), AbsentReason.getUnpaidReasons());
+        return new AbsentReasonsDto(
+                AbsentReason.getPaidReasons(),
+                AbsentReason.getUnpaidReasons(),
+                AbsentReason.getIepTriggers()
+        );
     }
 
     @Transactional

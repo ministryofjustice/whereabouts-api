@@ -37,8 +37,12 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
                 AbsentReason.Refused,
                 AbsentReason.Sick
         )
+        val triggersIEPWarnings = setOf(
+                AbsentReason.Refused,
+                AbsentReason.UnacceptableAbsence
+        )
 
-        val expected = AbsentReasonsDto(paidReasons, unpaidReasons)
+        val expected = AbsentReasonsDto(paidReasons, unpaidReasons, triggersIEPWarnings)
 
         assertThat(result).isEqualTo(expected)
     }
