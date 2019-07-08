@@ -25,12 +25,12 @@ open class AttendanceRepositoryTest {
     @Autowired
     lateinit var attendanceRepository: AttendanceRepository
 
-    val now = LocalDate.now()
+    private val now = LocalDate.now()
 
-    val attendance = Attendance.builder()
+    private val attendance = Attendance.builder()
             .attended(true)
             .paid(true)
-            .offenderBookingId(121)
+            .bookingId(121)
             .eventDate(LocalDate.now())
             .eventId(1)
             .eventLocationId(1)

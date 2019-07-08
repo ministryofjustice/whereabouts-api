@@ -29,7 +29,7 @@ public class Attendance {
     private Long id;
 
     @NotNull
-    private Long offenderBookingId;
+    private Long bookingId;
 
     @NotNull
     private Long eventId;

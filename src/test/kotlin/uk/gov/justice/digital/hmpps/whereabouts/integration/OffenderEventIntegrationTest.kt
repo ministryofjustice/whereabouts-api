@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.google.gson.reflect.TypeToken
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.springframework.boot.test.web.client.exchange
 import org.springframework.http.HttpMethod
@@ -12,6 +13,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderEventDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.EventType
 import java.time.LocalDate
 
+@Ignore
 class OffenderEventIntegrationTest : IntegrationTest() {
 
     @Test
@@ -41,7 +43,7 @@ class OffenderEventIntegrationTest : IntegrationTest() {
         assertThat(offenderEventResponse.statusCode).isEqualTo(HttpStatus.OK)
     }
 
-    fun getOffenderEvent(eventId: Long, eventType: String): OffenderEventDto =
+    private fun getOffenderEvent(eventId: Long, eventType: String): OffenderEventDto =
             OffenderEventDto.builder()
                 .currentLocation(java.lang.Boolean.TRUE)
                 .offenderNo("123")

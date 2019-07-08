@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.apache.commons.lang3.StringUtils.*;
 
 @Service
 @Slf4j
@@ -36,9 +35,19 @@ public class AttendanceService {
         this.nomisService = nomisService;
     }
 
-    public Set<AttendanceDto> getAttendance(final String prisonId, final Long eventLocationId, final LocalDate date, final TimePeriod period) {
+    public Set<AttendanceDto> getAttendanceForEventLocation(final String prisonId, final Long eventLocationId, final LocalDate date, final TimePeriod period) {
         final var attendance = attendanceRepository
                 .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(prisonId, eventLocationId, date, period);
+
+        return attendance
+                .stream()
+                .map(this::toAttendanceDto)
+                .collect(Collectors.toSet());
+    }
+
+    public Set<AttendanceDto> getAttendanceForBookings(final String prisonId, final Set<Long> bookings, final LocalDate date, final TimePeriod period) {
+        final var attendance = attendanceRepository
+                .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookings, date, period);
 
         return attendance
                 .stream()
@@ -61,7 +70,7 @@ public class AttendanceService {
 
         postNomisAttendance(attendance);
         postIEPWarningIfRequired(
-                attendance.getOffenderBookingId(),
+                attendance.getBookingId(),
                 attendance.getCaseNoteId(),
                 attendance.getAbsentReason(),
                 attendance.getComments()
@@ -118,7 +127,7 @@ public class AttendanceService {
             log.info("{} raised for {}", rescindedReason, attendance.toBuilder().comments(null));
 
             nomisService.putCaseNoteAmendment(
-                    attendance.getOffenderBookingId(),
+                    attendance.getBookingId(),
                     attendance.getCaseNoteId(),
                     rescindedReason);
 
@@ -130,7 +139,7 @@ public class AttendanceService {
             log.info("{} raised for {}", reinstatedReason, attendance.toBuilder().comments(null));
 
             nomisService.putCaseNoteAmendment(
-                    attendance.getOffenderBookingId(),
+                    attendance.getBookingId(),
                     attendance.getCaseNoteId(),
                     reinstatedReason);
 
@@ -138,7 +147,7 @@ public class AttendanceService {
         }
         else {
             return postIEPWarningIfRequired(
-                    attendance.getOffenderBookingId(),
+                    attendance.getBookingId(),
                     attendance.getCaseNoteId(),
                     newAttendanceDetails.getAbsentReason(),
                     newAttendanceDetails.getComments()
@@ -157,7 +166,7 @@ public class AttendanceService {
 
         log.info("Updating attendance on NOMIS {} {}", attendance.toBuilder().comments(null).build(), eventOutcome);
 
-        nomisService.putAttendance(attendance.getOffenderBookingId(), attendance.getEventId(), eventOutcome);
+        nomisService.putAttendance(attendance.getBookingId(), attendance.getEventId(), eventOutcome);
     }
 
     private Optional<Long> postIEPWarningIfRequired(final Long bookingId, final Long caseNoteId, final AbsentReason reason, final String text) {
@@ -189,7 +198,7 @@ public class AttendanceService {
                  .eventLocationId(attendanceDto.getEventLocationId())
                  .eventDate(attendanceDto.getEventDate())
                  .eventId(attendanceDto.getEventId())
-                 .offenderBookingId(attendanceDto.getBookingId())
+                 .bookingId(attendanceDto.getBookingId())
                  .period(attendanceDto.getPeriod())
                  .paid(attendanceDto.getPaid())
                  .attended(attendanceDto.getAttended())
@@ -204,7 +213,7 @@ public class AttendanceService {
                 .id(attendanceData.getId())
                 .eventDate(attendanceData.getEventDate())
                 .eventId(attendanceData.getEventId())
-                .bookingId(attendanceData.getOffenderBookingId())
+                .bookingId(attendanceData.getBookingId())
                 .period(attendanceData.getPeriod())
                 .paid(attendanceData.getPaid())
                 .attended(attendanceData.getAttended())
