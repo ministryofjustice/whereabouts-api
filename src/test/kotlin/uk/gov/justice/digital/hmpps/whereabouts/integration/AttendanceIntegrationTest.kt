@@ -148,6 +148,8 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         .willReturn(WireMock.aResponse()
                                 .withStatus(200)))
 
+        attendanceRepository.deleteAll()
+
         val attendanceId = attendanceRepository.save(Attendance
                 .builder()
                 .absentReason(AbsentReason.Refused)
