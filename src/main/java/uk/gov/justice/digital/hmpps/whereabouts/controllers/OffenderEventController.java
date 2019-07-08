@@ -4,8 +4,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderEventDto;
 import uk.gov.justice.digital.hmpps.whereabouts.services.OffenderEventService;
@@ -16,10 +18,7 @@ import java.util.List;
 
 @Api(tags = {"whereabouts"})
 
-@RestController
-@RequestMapping(
-        value="whereabouts",
-        produces = MediaType.APPLICATION_JSON_VALUE)
+@Deprecated
 @Slf4j
 public class OffenderEventController {
 

@@ -159,7 +159,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 .comments("hello world")
                 .attended(false)
                 .paid(false)
-                .offenderBookingId(1)
+                .bookingId(1)
                 .build()
         ).id
 
@@ -328,7 +328,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
         val persistedAttendance = attendanceRepository.save(
                 Attendance.builder()
                         .absentReason(AbsentReason.Refused)
-                        .offenderBookingId(1)
+                        .bookingId(1)
                         .comments("Refused to turn up")
                         .attended(false)
                         .paid(false)
@@ -440,7 +440,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
         val persistedAttendance = attendanceRepository.save(
                 Attendance.builder()
                         .absentReason(AbsentReason.Refused)
-                        .offenderBookingId(1)
+                        .bookingId(1)
                         .comments("Refused to turn up")
                         .attended(false)
                         .paid(true)
@@ -476,7 +476,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
         val persistedAttendance = attendanceRepository.save(
                 Attendance.builder()
                         .absentReason(AbsentReason.Refused)
-                        .offenderBookingId(1)
+                        .bookingId(1)
                         .comments("Refused to turn up")
                         .attended(false)
                         .paid(false)
@@ -528,7 +528,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         val savedAttendance = attendanceRepository.save(
                 Attendance.builder()
-                        .offenderBookingId(1)
+                        .bookingId(1)
                         .paid(false)
                         .attended(false)
                         .absentReason(AbsentReason.Refused)
@@ -581,7 +581,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         attendanceRepository.save(
                 Attendance.builder()
-                        .offenderBookingId(1)
+                        .bookingId(1)
                         .paid(false)
                         .attended(false)
                         .absentReason(AbsentReason.Refused)
@@ -658,5 +658,58 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendanceDto))
 
         assertThat(response.statusCodeValue).isEqualTo(201)
+    }
+
+    @Test
+    fun `should return attendance information for set of bookings ids`() {
+        val activityId = 2L
+        val bookingId = 1
+
+        elite2MockServer.stubFor(
+                WireMock.put(( "/api/bookings/$bookingId/activities/$activityId/attendance"))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(200)))
+
+        attendanceRepository.deleteAll()
+
+        attendanceRepository.save(Attendance
+                .builder()
+                .absentReason(AbsentReason.Refused)
+                .period(TimePeriod.PM)
+                .prisonId("LEI")
+                .eventLocationId(2)
+                .eventId(1)
+                .eventDate(LocalDate.of(2019, 10, 10))
+                .comments("hello world")
+                .attended(true)
+                .paid(true)
+                .bookingId(1)
+                .build())
+
+       attendanceRepository.save(Attendance
+                .builder()
+                .absentReason(AbsentReason.Refused)
+                .period(TimePeriod.PM)
+                .prisonId("LEI")
+                .eventLocationId(2)
+                .eventId(1)
+                .eventDate(LocalDate.of(2019, 10, 10))
+                .comments("hello world")
+                .attended(true)
+                .paid(true)
+                .bookingId(2)
+                .build())
+
+        val response =
+                restTemplate.exchange(
+                        "/attendance/LEI?date={0}&period={1}&bookings=${1}&bookings=${2}",
+                        HttpMethod.GET,
+                        createHeaderEntity(""),
+                        ListOfAttendanceDtoReferenceType(),
+                        LocalDate.of(2019, 10, 10),
+                        TimePeriod.PM)
+
+        assertThat(response.statusCodeValue).isEqualTo(200)
+        assertThat(response.body).extracting("bookingId").contains(1L,2L)
     }
 }
