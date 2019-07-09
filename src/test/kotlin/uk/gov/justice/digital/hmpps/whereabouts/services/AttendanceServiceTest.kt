@@ -13,7 +13,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CaseNoteDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason

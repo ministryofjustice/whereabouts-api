@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services;
 
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CaseNoteDto;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto;
 
 import java.time.LocalDateTime;
 import java.util.Map;
