@@ -1,10 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import com.github.tomakehurst.wiremock.http.HttpHeader
-import com.github.tomakehurst.wiremock.http.HttpHeaders
-import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.ClassRule
 import org.junit.Test
@@ -13,9 +9,10 @@ import org.springframework.boot.test.web.client.exchange
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.Elite2MockServer
+import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -28,11 +25,11 @@ class AttendanceIntegrationTest : IntegrationTest () {
     companion object {
         @get:ClassRule
         @JvmStatic
-        val elite2MockServer = WireMockRule(8999)
+        val elite2MockServer = Elite2MockServer()
 
         @get:ClassRule
         @JvmStatic
-        val oauthMockServer = WireMockRule(8090)
+        val oauthMockServer = OAuthMockServer()
     }
 
     @Autowired
@@ -45,11 +42,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
         val activityId = 2L
         val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
 
-        elite2MockServer.stubFor(
-                WireMock.put(urlPathEqualTo(updateAttendanceUrl))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200))
-        )
+        elite2MockServer.stubUpdateAttendance()
 
         val attendance = CreateAttendanceDto
                 .builder()
@@ -69,7 +62,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
         assertThat(response.statusCodeValue).isEqualTo(201)
 
 
-        verify(putRequestedFor(urlEqualTo(updateAttendanceUrl))
+        elite2MockServer.verify(putRequestedFor(urlEqualTo(updateAttendanceUrl))
                 .withRequestBody(equalToJson(gson.toJson(mapOf(
                         "eventOutcome" to "ATT",
                         "performance" to "STANDARD"
@@ -84,18 +77,8 @@ class AttendanceIntegrationTest : IntegrationTest () {
         val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
         val createCaseNote = "/api/bookings/$bookingId/caseNotes"
 
-        elite2MockServer.stubFor(
-                WireMock.put(urlPathEqualTo(updateAttendanceUrl))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200)))
-
-        elite2MockServer.stubFor(
-                WireMock.post(urlPathEqualTo(createCaseNote))
-                           .willReturn(WireMock.aResponse()
-                                   .withHeader("Content-Type", "application/json")
-                                   .withBody(gson.toJson(CaseNoteDto.builder().caseNoteId(100).build()))
-                                   .withStatus(201))
-        )
+        elite2MockServer.stubUpdateAttendance()
+        elite2MockServer.stubCreateCaseNote()
 
         val attendance = CreateAttendanceDto
                 .builder()
@@ -116,14 +99,14 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         assertThat(response.statusCodeValue).isEqualTo(201)
 
-        verify(putRequestedFor(urlEqualTo(updateAttendanceUrl)).withRequestBody(
+        elite2MockServer.verify(putRequestedFor(urlEqualTo(updateAttendanceUrl)).withRequestBody(
                 equalToJson(gson.toJson(mapOf(
                         "eventOutcome" to "UNACAB",
                         "outcomeComment" to "Test comment"
                 )))
         ))
 
-        verify(postRequestedFor(urlEqualTo(createCaseNote))
+       elite2MockServer.verify(postRequestedFor(urlEqualTo(createCaseNote))
                 .withRequestBody(matchingJsonPath("$[?(@.type == 'NEG')]"))
                 .withRequestBody(matchingJsonPath("$[?(@.subType == 'IEP_WARN')]"))
                 .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused - $comments')]"))
@@ -133,20 +116,8 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
     @Test
     fun `receive a list of attendance for a prison, location, date and period`() {
-        val activityId = 2L
-        val bookingId = 1
-        val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
-        val createCaseNote = "/api/bookings/$bookingId/caseNotes"
-
-        elite2MockServer.stubFor(
-                WireMock.put((updateAttendanceUrl))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200)))
-
-        elite2MockServer.stubFor(
-                WireMock.post(urlPathEqualTo(createCaseNote))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200)))
+        elite2MockServer.stubUpdateAttendance()
+        elite2MockServer.stubCreateCaseNote()
 
         attendanceRepository.deleteAll()
 
@@ -322,10 +293,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
     @Test
     fun `should update attendance`() {
-        elite2MockServer.stubFor(
-                WireMock.put(urlPathEqualTo("/api/bookings/1/activities/1/attendance"))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200)))
+        elite2MockServer.stubUpdateAttendance()
 
         val persistedAttendance = attendanceRepository.save(
                 Attendance.builder()
@@ -336,7 +304,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         .paid(false)
                         .createDateTime(LocalDateTime.now())
                         .eventDate(LocalDate.now())
-                        .eventId(1)
+                        .eventId(2)
                         .prisonId("LEI")
                         .period(TimePeriod.AM)
                         .eventLocationId(2)
@@ -398,14 +366,9 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
     @Test
     fun `should return the attendance dto on creation` () {
-        val bookingId = 1
         val activityId = 2L
 
-        elite2MockServer.stubFor(
-                WireMock.put(urlPathEqualTo("/api/bookings/$bookingId/activities/$activityId/attendance"))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200))
-        )
+        elite2MockServer.stubUpdateAttendance()
 
         val attendance = CreateAttendanceDto
                 .builder()
@@ -434,10 +397,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
     fun `should return a 400 bad request when 'locked' is true for paid`() {
         val yesterdayDateTime = LocalDateTime.now().minusDays(1)
 
-        elite2MockServer.stubFor(
-                WireMock.put(urlPathEqualTo("/api/bookings/1/activities/1/attendance"))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200)))
+        elite2MockServer.stubUpdateAttendance()
 
         val persistedAttendance = attendanceRepository.save(
                 Attendance.builder()
@@ -470,10 +430,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
     fun `should return a 400 bad request when 'locked' is true for unpaid`() {
         val sevenDaysAgoDateTime = LocalDateTime.now().minusDays(7)
 
-        elite2MockServer.stubFor(
-                WireMock.put(urlPathEqualTo("/api/bookings/1/activities/1/attendance"))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200)))
+        elite2MockServer.stubUpdateAttendance()
 
         val persistedAttendance = attendanceRepository.save(
                 Attendance.builder()
@@ -505,28 +462,13 @@ class AttendanceIntegrationTest : IntegrationTest () {
     @Test
     fun `should make a case note amendment request`() {
         val bookingId = 1
-        val activityId = 1L
+        val activityId = 2L
         val caseNoteId = 3L
 
-        elite2MockServer.stubFor(
-                WireMock.put(urlPathEqualTo("/api/bookings/$bookingId/activities/$activityId/attendance"))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200))
-        )
+        elite2MockServer.stubUpdateAttendance()
+        elite2MockServer.stubCaseNoteAmendment()
 
-        elite2MockServer.stubFor(
-                WireMock.put(urlPathEqualTo("/api/bookings/$bookingId/caseNotes/$caseNoteId"))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200))
-        )
-
-        oauthMockServer.stubFor(
-                WireMock.post(urlEqualTo("/auth/oauth/token"))
-                        .willReturn(WireMock.aResponse()
-                                .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-                                .withBody(gson.toJson(mapOf("access_token" to "ABCDE"))))
-        )
-
+        oauthMockServer.stubGrantToken()
 
         val savedAttendance = attendanceRepository.save(
                 Attendance.builder()
@@ -562,7 +504,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         assertThat(response.statusCodeValue).isEqualTo(204)
 
-        verify(putRequestedFor(urlEqualTo("/api/bookings/$bookingId/caseNotes/$caseNoteId"))
+        elite2MockServer.verify(putRequestedFor(urlEqualTo("/api/bookings/$bookingId/caseNotes/$caseNoteId"))
                 .withRequestBody(matchingJsonPath("$[?(@.text == 'IEP rescinded: attended')]"))
 
         )
@@ -570,16 +512,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
     @Test
     fun `should return modified by and modified on`() {
-
-        val bookingId = 1
-        val activityId = 1L
-
-        elite2MockServer.stubFor(
-                WireMock.put(urlPathEqualTo("/api/bookings/$bookingId/activities/$activityId/attendance"))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200))
-        )
-
+        elite2MockServer.stubUpdateAttendance()
 
         attendanceRepository.save(
                 Attendance.builder()
@@ -613,34 +546,19 @@ class AttendanceIntegrationTest : IntegrationTest () {
         assertThat(savedAttendance.modifyUserId).isEqualTo("user")
         assertThat(savedAttendance.modifyDateTime).isNotNull()
         assertThat(response.statusCodeValue).isEqualTo(200)
-
-
     }
 
     @Test
     fun `should request a new auth token for each new incoming request`() {
-        val bookingId = 1
-        val activityId = 1L
-
-        elite2MockServer.stubFor(
-                WireMock.put(urlPathEqualTo("/api/bookings/$bookingId/activities/$activityId/attendance"))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200))
-        )
-
-        oauthMockServer.stubFor(
-                WireMock.post(urlEqualTo("/auth/oauth/token"))
-                        .willReturn(WireMock.aResponse()
-                                .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-                                .withBody(gson.toJson(mapOf("access_token" to "ABCDE"))))
-        )
+        elite2MockServer.stubUpdateAttendance()
+        elite2MockServer.stubUpdateAttendance()
+        oauthMockServer.stubGrantToken()
 
         postAttendance()
         postAttendance()
 
         oauthMockServer.verify(2, postRequestedFor(urlEqualTo("/auth/oauth/token")))
     }
-
 
     private fun postAttendance() {
         val attendanceDto =
@@ -650,7 +568,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         .attended(true)
                         .paid(true)
                         .bookingId(1)
-                        .eventId(1)
+                        .eventId(2)
                         .eventLocationId(1)
                         .period(TimePeriod.AM)
                         .eventDate(LocalDate.now())
@@ -664,13 +582,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
     @Test
     fun `should return attendance information for set of bookings ids`() {
-        val activityId = 2L
-        val bookingId = 1
-
-        elite2MockServer.stubFor(
-                WireMock.put(( "/api/bookings/$bookingId/activities/$activityId/attendance"))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200)))
+        elite2MockServer.stubUpdateAttendance()
 
         attendanceRepository.deleteAll()
 

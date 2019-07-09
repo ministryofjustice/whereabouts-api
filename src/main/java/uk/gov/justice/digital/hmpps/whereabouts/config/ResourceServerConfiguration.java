@@ -32,7 +32,7 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-import uk.gov.justice.digital.hmpps.whereabouts.controllers.OffenderEventController;
+import uk.gov.justice.digital.hmpps.whereabouts.controllers.AttendanceController;
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade;
 
 import java.time.LocalDateTime;
@@ -109,7 +109,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage(OffenderEventController.class.getPackage().getName()))
+                .apis(RequestHandlerSelectors.basePackage(AttendanceController.class.getPackage().getName()))
                 .paths(PathSelectors.any())
                 .build();
 
