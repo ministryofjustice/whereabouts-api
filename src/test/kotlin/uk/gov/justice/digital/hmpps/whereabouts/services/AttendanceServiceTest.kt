@@ -537,6 +537,26 @@ class AttendanceServiceTest {
                         isA(LocalDateTime::class.java))
     }
 
+
+    @Test
+    fun `should record paid absence for 'Approved course'`() {
+        val attendance = testAttendanceDto
+                .toBuilder()
+                .absentReason(AbsentReason.ApprovedCourse)
+                .attended(false)
+                .paid(true)
+                .build()
+
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        service.createAttendance(attendance)
+
+        verify(nomisService).putAttendance(attendance.bookingId,
+                attendance.eventId, EventOutcome("ACCAB", null, "hello"))
+    }
+
+
     @Test
     fun `should save case note id returned from the postCaseNote api call`() {
 
