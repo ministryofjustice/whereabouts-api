@@ -540,9 +540,6 @@ class AttendanceServiceTest {
 
     @Test
     fun `should record paid absence for 'Approved course'`() {
-        `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
-                .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-
         val attendance = testAttendanceDto
                 .toBuilder()
                 .absentReason(AbsentReason.ApprovedCourse)
