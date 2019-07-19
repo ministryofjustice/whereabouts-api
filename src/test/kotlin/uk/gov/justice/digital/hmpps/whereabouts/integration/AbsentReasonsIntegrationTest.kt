@@ -26,6 +26,7 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
         val result: AbsentReasonsDto = gson.fromJson(response.body, object : TypeToken<AbsentReasonsDto>() {}.type)
 
         val paidReasons = setOf(
+                AbsentReason.ApprovedCourse,
                 AbsentReason.AcceptableAbsence,
                 AbsentReason.NotRequired
         )

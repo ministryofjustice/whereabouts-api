@@ -8,15 +8,19 @@ class NomisEventOutcomeMapper {
     private static final HashMap<AbsentReason, EventOutcome> eventOutcomes = new HashMap<>();
 
     NomisEventOutcomeMapper() {
+        //paid absences
         eventOutcomes.put(AbsentReason.AcceptableAbsence, new EventOutcome("ACCAB", null, null));
         eventOutcomes.put(AbsentReason.NotRequired, new EventOutcome("NREQ", null, null));
+        eventOutcomes.put(AbsentReason.ApprovedCourse, new EventOutcome("ACCAB", null, null));
 
+        // unpaid absences
         eventOutcomes.put(AbsentReason.SessionCancelled, new EventOutcome("CANC", null, null));
         eventOutcomes.put(AbsentReason.RestInCell, new EventOutcome("REST", null, null));
 
         eventOutcomes.put(AbsentReason.Sick, new EventOutcome("REST", null, null));
         eventOutcomes.put(AbsentReason.RestDay, new EventOutcome("REST", null, null));
 
+        //unpaid absences that trigger automatic iep warnings
         eventOutcomes.put(AbsentReason.Refused, new EventOutcome("UNACAB", null, null));
         eventOutcomes.put(AbsentReason.UnacceptableAbsence, new EventOutcome("UNACAB", null, null));
 

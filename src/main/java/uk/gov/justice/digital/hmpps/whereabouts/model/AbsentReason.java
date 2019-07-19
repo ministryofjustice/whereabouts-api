@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.model;
 import java.util.Set;
 
 public enum AbsentReason {
+    ApprovedCourse,
     AcceptableAbsence,
     SessionCancelled,
     RestInCell,
@@ -14,6 +15,7 @@ public enum AbsentReason {
 
     public static Set<AbsentReason> getPaidReasons() {
         return Set.of(
+                AbsentReason.ApprovedCourse,
                 AbsentReason.AcceptableAbsence,
                 AbsentReason.NotRequired
         );
