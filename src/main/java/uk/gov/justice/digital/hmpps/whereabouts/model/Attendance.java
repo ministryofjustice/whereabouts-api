@@ -54,7 +54,7 @@ public class Attendance {
     @Enumerated(EnumType.STRING)
     private AbsentReason absentReason;
 
-    @Length(max = 500)
+    @Length(max = 240)
     private String comments;
 
     private Long caseNoteId;

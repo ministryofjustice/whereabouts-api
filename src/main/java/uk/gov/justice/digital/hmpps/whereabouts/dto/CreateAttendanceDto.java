@@ -56,7 +56,7 @@ public class CreateAttendanceDto {
     @NotNull
     private LocalDate eventDate;
 
-    @Length(max = 500)
+    @Length(max = 240)
     @ApiModelProperty( value = "Comments about non attendance. This also gets used for the IEP warning text ")
     private String comments;
 }

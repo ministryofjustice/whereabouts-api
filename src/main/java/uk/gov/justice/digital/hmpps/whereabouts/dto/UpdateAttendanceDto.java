@@ -28,7 +28,7 @@ public class UpdateAttendanceDto {
     @ApiModelProperty(value = "Reason the offender did not attendance the event", example = "Refused")
     private AbsentReason absentReason;
 
-    @Length(max = 500)
+    @Length(max = 240)
     @ApiModelProperty( value = "Comments about non attendance. This also gets used for the IEP warning text ")
     private String comments;
 }
