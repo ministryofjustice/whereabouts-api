@@ -1042,7 +1042,7 @@ class AttendanceServiceTest {
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
-        val result = service.getAbsence("LEI", today, TimePeriod.AM)
+        val result = service.getAbsences("LEI", today, TimePeriod.AM)
 
         assertThat(result).containsAnyElementsOf(mutableListOf(
                 AttendanceDto
