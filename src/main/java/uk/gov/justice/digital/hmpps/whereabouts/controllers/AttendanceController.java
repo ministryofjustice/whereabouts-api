@@ -78,6 +78,18 @@ public class AttendanceController {
 
     }
 
+    @GetMapping("/{prison}/absences")
+    @ApiOperation(value = "Returns set of attendance details for attendances with an absent reason",
+            response = AttendanceDto.class,
+            notes = "Request absences details")
+    public Set<AttendanceDto> getAbsences(@ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") String prisonId,
+                                        @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+                                        @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") TimePeriod period) {
+
+        return attendanceService.getAbsences(prisonId, date, period);
+
+    }
+
     @GetMapping("/{prison}")
     @ApiOperation(value = "Returns set of attendance details for set of booking ids",
             response = AttendanceDto.class,

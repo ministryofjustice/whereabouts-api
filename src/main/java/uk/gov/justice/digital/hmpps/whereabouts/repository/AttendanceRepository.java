@@ -16,4 +16,6 @@ public interface AttendanceRepository extends CrudRepository<Attendance, Long> {
     Set<Attendance> findByPrisonIdAndBookingIdInAndEventDateAndPeriod(String prisonId, Set<Long> bookingIds, LocalDate date,
                                                                       TimePeriod period);
 
+    Set<Attendance> findByPrisonIdAndEventDateAndPeriodAndAbsentReasonNotNull(String prisonId, LocalDate date, TimePeriod period);
+
 }

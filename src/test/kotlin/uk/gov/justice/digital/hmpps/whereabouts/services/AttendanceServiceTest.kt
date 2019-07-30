@@ -1000,4 +1000,68 @@ class AttendanceServiceTest {
         verify(attendanceRepository).findByPrisonIdAndBookingIdInAndEventDateAndPeriod("LEI", setOf(1,2),
                 today, TimePeriod.AM)
     }
+
+    @Test
+    fun `should find attendance with absent reason given some criteria`() {
+
+        val now = LocalDateTime.now()
+
+        `when`(attendanceRepository
+                .findByPrisonIdAndEventDateAndPeriodAndAbsentReasonNotNull("LEI",  today, TimePeriod.AM))
+                .thenReturn(setOf(
+                        Attendance.builder()
+                                .id(1)
+                                .absentReason(AbsentReason.Refused)
+                                .attended(false)
+                                .paid(false)
+                                .eventId(2)
+                                .eventLocationId(3)
+                                .period(TimePeriod.AM)
+                                .prisonId("LEI")
+                                .bookingId(100)
+                                .eventDate(today)
+                                .createUserId("user")
+                                .createDateTime(now)
+                                .caseNoteId(1)
+                                .build(),
+                        Attendance.builder()
+                                .id(1)
+                                .attended(false)
+                                .paid(false)
+                                .eventId(2)
+                                .eventLocationId(3)
+                                .period(TimePeriod.AM)
+                                .prisonId("LEI")
+                                .bookingId(100)
+                                .eventDate(today)
+                                .createUserId("user")
+                                .createDateTime(now)
+                                .caseNoteId(1)
+                                .build()
+                ))
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        val result = service.getAbsence("LEI", today, TimePeriod.AM)
+
+        assertThat(result).containsAnyElementsOf(mutableListOf(
+                AttendanceDto
+                        .builder()
+                        .id(1)
+                        .absentReason(AbsentReason.Refused)
+                        .attended(false)
+                        .paid(false)
+                        .eventId(2)
+                        .eventLocationId(3)
+                        .period(TimePeriod.AM)
+                        .prisonId("LEI")
+                        .bookingId(100)
+                        .eventDate(today)
+                        .createUserId("user")
+                        .createDateTime(now)
+                        .caseNoteId(1)
+                        .locked(false)
+                        .build()
+        ))
+    }
 }
