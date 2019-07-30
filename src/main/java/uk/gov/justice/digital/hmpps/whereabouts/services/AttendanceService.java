@@ -45,6 +45,16 @@ public class AttendanceService {
                 .collect(Collectors.toSet());
     }
 
+    public Set<AttendanceDto> getAbsences(final String prisonId, final LocalDate date, final TimePeriod period) {
+        final var attendance = attendanceRepository
+                .findByPrisonIdAndEventDateAndPeriodAndAbsentReasonNotNull(prisonId, date, period);
+
+        return attendance
+                .stream()
+                .map(this::toAttendanceDto)
+                .collect(Collectors.toSet());
+    }
+
     public Set<AttendanceDto> getAttendanceForBookings(final String prisonId, final Set<Long> bookings, final LocalDate date, final TimePeriod period) {
         final var attendance = attendanceRepository
                 .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookings, date, period);
