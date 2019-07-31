@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services;
 
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto;
 
 import java.time.LocalDateTime;
@@ -24,17 +25,17 @@ public class NomisService {
     }
 
 
-    public void putAttendanceForMultipleBookings(final Set<Long> bookings, final long activityId, final EventOutcome eventOutcome) {
-        final var url = "/bookings/activities/{activityId}/attendance";
+    public void putAttendanceForMultipleBookings(final Set<BookingActivity> bookingActivities, final EventOutcome eventOutcome) {
+        final var url = "/bookings/activities/attendance";
 
         final var body =  Map.of(
-                "bookingIds", bookings,
+                "bookingActivities", bookingActivities,
                 "eventOutcome", eventOutcome.getEventOutcome(),
                 "performance", eventOutcome.getPerformance(),
                 "outcomeComment", eventOutcome.getOutcomeComment()
         );
 
-        restTemplate.put(url, body, activityId);
+        restTemplate.put(url, body);
     }
 
     public CaseNoteDto postCaseNote(final long bookingId, final String type, final String subType, final String text, final LocalDateTime occurrence) {

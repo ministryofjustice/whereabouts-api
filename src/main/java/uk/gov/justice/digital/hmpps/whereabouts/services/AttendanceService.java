@@ -113,21 +113,22 @@ public class AttendanceService {
     public Set<AttendanceDto> attendAll(AttendAllDto attendAll) {
         final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(null, true, true, "");
 
-        nomisService.putAttendanceForMultipleBookings(attendAll.getBookingIds(), attendAll.getEventId(), eventOutcome);
+        nomisService.putAttendanceForMultipleBookings(attendAll.getBookingActivities(), eventOutcome);
 
-        final var attendances = attendAll
-                .getBookingIds()
-                .stream()
-                .map(bookingId -> Attendance.builder()
-                        .attended(true)
-                        .paid(true)
-                        .bookingId(bookingId)
-                        .eventDate(attendAll.getEventDate())
-                        .eventLocationId(attendAll.getEventLocationId())
-                        .eventId(attendAll.getEventId())
-                        .period(attendAll.getPeriod())
-                        .prisonId(attendAll.getPrisonId())
-                        .build())
+
+        final var attendances =
+                attendAll.getBookingActivities()
+                        .stream()
+                        .map(bookingActivity -> Attendance.builder()
+                                .attended(true)
+                                .paid(true)
+                                .bookingId(bookingActivity.getBookingId())
+                                .eventId(bookingActivity.getActivityId())
+                                .eventDate(attendAll.getEventDate())
+                                .eventLocationId(attendAll.getEventLocationId())
+                                .period(attendAll.getPeriod())
+                                .prisonId(attendAll.getPrisonId())
+                                .build())
                 .collect(Collectors.toSet());
 
         attendanceRepository.saveAll(attendances);

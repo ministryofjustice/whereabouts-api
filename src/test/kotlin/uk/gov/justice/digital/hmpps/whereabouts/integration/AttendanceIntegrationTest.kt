@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.exchange
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendAllDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.*
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.Elite2MockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
@@ -20,6 +17,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.stream.Collectors
 
 class AttendanceIntegrationTest : IntegrationTest () {
 
@@ -637,14 +635,18 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         attendanceRepository.deleteAll()
 
+        val bookingActivities = bookingIds
+                .stream()
+                .map { BookingActivity.builder().activityId(2L).bookingId(it).build() }
+                .collect(Collectors.toSet())
+
         val attendAll = AttendAllDto
                 .builder()
-                .bookingIds(bookingIds)
                 .eventDate(LocalDate.of(2019, 10, 10))
                 .eventLocationId(1L)
-                .eventId(2L)
                 .prisonId("LEI")
                 .period(TimePeriod.AM)
+                .bookingActivities(bookingActivities)
                 .build()
 
         val response =
@@ -658,12 +660,12 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         assertThat(response.statusCodeValue).isEqualTo(201)
 
-        elite2MockServer.verify(putRequestedFor(urlEqualTo("/api/bookings/activities/2/attendance"))
+        elite2MockServer.verify(putRequestedFor(urlEqualTo("/api/bookings/activities/attendance"))
                 .withRequestBody(equalToJson(gson.toJson(mapOf(
                         "eventOutcome" to "ATT",
                         "performance" to "STANDARD",
                         "outcomeComment" to "",
-                        "bookingIds" to bookingIds
+                        "bookingActivities" to bookingActivities
                 )))))
     }
 }
