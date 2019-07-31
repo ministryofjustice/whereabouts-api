@@ -19,7 +19,7 @@ import java.util.Set;
 @Builder(toBuilder = true)
 @ApiModel(description = "Attend all parameters")
 public class AttendAllDto {
-    @ApiModelProperty(required = true, value = "Set of active booking and activity ids", example = "1")
+    @ApiModelProperty(required = true, value = "Set of active booking and activity ids")
     @NotNull
     private Set<BookingActivity> bookingActivities;
 
