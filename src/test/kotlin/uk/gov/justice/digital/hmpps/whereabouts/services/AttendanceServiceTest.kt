@@ -12,10 +12,7 @@ import org.mockito.Spy
 import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendAllDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.*
 import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
@@ -24,6 +21,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import java.util.stream.Collectors
 
 @RunWith(MockitoJUnitRunner::class)
 class AttendanceServiceTest {
@@ -1072,15 +1070,19 @@ class AttendanceServiceTest {
         val service = AttendanceService(attendanceRepository, nomisService)
         val bookingIds = setOf(1L, 2L)
 
+        val bookingActivities = bookingIds
+                .stream()
+                .map { BookingActivity.builder().activityId(1L).bookingId(it).build() }
+                .collect(Collectors.toSet())
+
         val savedAttendanceDetails = service.attendAll(
                 AttendAllDto
                         .builder()
-                        .bookingIds(bookingIds)
                         .eventDate(LocalDate.now().minusDays(1))
-                        .eventId(1L)
                         .eventLocationId(2L)
                         .prisonId("LEI")
                         .period(TimePeriod.AM)
+                        .bookingActivities(bookingActivities)
                         .build())
 
         assertThat(savedAttendanceDetails).containsExactlyInAnyOrder(
@@ -1110,7 +1112,7 @@ class AttendanceServiceTest {
                         .build())
 
         verify(attendanceRepository).saveAll(anySet())
-        verify(nomisService).putAttendanceForMultipleBookings(bookingIds, 1L,
+        verify(nomisService).putAttendanceForMultipleBookings(bookingActivities,
                 EventOutcome("ATT", "STANDARD", ""))
     }
 

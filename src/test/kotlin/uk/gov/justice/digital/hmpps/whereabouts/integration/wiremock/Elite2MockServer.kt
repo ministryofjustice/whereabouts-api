@@ -18,8 +18,8 @@ class Elite2MockServer : WireMockRule(8999) {
         )
     }
 
-    fun stubUpdateAttendanceForBookingIds(activityId: Long = 2L) {
-        val updateAttendanceUrl = "/api/bookings/activities/$activityId/attendance"
+    fun stubUpdateAttendanceForBookingIds() {
+        val updateAttendanceUrl = "/api/bookings/activities/attendance"
 
         this.stubFor(
                 WireMock.put(WireMock.urlPathEqualTo(updateAttendanceUrl))
