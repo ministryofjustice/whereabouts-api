@@ -2,10 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsentReasonsDto;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.*;
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
@@ -112,6 +109,35 @@ public class AttendanceService {
         postNomisAttendance(attendance);
     }
 
+    @Transactional
+    public Set<AttendanceDto> attendAll(AttendAllDto attendAll) {
+        final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(null, true, true, "");
+
+        nomisService.putAttendanceForMultipleBookings(attendAll.getBookingIds(), attendAll.getEventId(), eventOutcome);
+
+        final var attendances = attendAll
+                .getBookingIds()
+                .stream()
+                .map(bookingId -> Attendance.builder()
+                        .attended(true)
+                        .paid(true)
+                        .bookingId(bookingId)
+                        .eventDate(attendAll.getEventDate())
+                        .eventLocationId(attendAll.getEventLocationId())
+                        .eventId(attendAll.getEventId())
+                        .period(attendAll.getPeriod())
+                        .prisonId(attendAll.getPrisonId())
+                        .build())
+                .collect(Collectors.toSet());
+
+        attendanceRepository.saveAll(attendances);
+
+        return attendances
+                .stream()
+                .map(this::toAttendanceDto)
+                .collect(Collectors.toSet());
+    }
+
     private Optional<Long> handleIEPWarningScenarios(final Attendance attendance, final UpdateAttendanceDto newAttendanceDetails) {
         final var alreadyTriggeredIEPWarning =
                 attendance.getAbsentReason() != null &&
@@ -181,7 +207,7 @@ public class AttendanceService {
 
     private Optional<Long> postIEPWarningIfRequired(final Long bookingId, final Long caseNoteId, final AbsentReason reason, final String text) {
         if (caseNoteId == null && reason != null && AbsentReason.getIepTriggers().contains(reason)) {
-            log.info("IEP Warning created for bookingId {}", bookingId);
+            log.info("IEP Warning created for bookingIds {}", bookingId);
 
             final var modifiedTextWithReason = AbsentReasonFormatter.titlecase(reason.toString()) + " - " + text;
             final var caseNote = nomisService.postCaseNote(

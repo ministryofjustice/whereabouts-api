@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.exchange
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendAllDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
@@ -552,6 +553,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
     fun `should request a new auth token for each new incoming request`() {
         elite2MockServer.stubUpdateAttendance()
         elite2MockServer.stubUpdateAttendance()
+        oauthMockServer.resetAll()
         oauthMockServer.stubGrantToken()
 
         postAttendance()
@@ -583,7 +585,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
     @Test
     fun `should return attendance information for set of bookings ids`() {
         elite2MockServer.stubUpdateAttendance()
-
         attendanceRepository.deleteAll()
 
         attendanceRepository.save(Attendance
@@ -625,5 +626,44 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         assertThat(response.statusCodeValue).isEqualTo(200)
         assertThat(response.body).extracting("bookingId").contains(1L,2L)
+    }
+
+    @Test
+    fun `should attend all supplied in bookings`() {
+        val bookingIds = setOf(1L, 2L)
+
+        oauthMockServer.stubGrantToken()
+        elite2MockServer.stubUpdateAttendanceForBookingIds()
+
+        attendanceRepository.deleteAll()
+
+        val attendAll = AttendAllDto
+                .builder()
+                .bookingIds(bookingIds)
+                .eventDate(LocalDate.of(2019, 10, 10))
+                .eventLocationId(1L)
+                .eventId(2L)
+                .prisonId("LEI")
+                .period(TimePeriod.AM)
+                .build()
+
+        val response =
+                restTemplate.exchange(
+                        "/attendance/attend-all",
+                        HttpMethod.POST,
+                        createHeaderEntity(attendAll),
+                        String::class.java,
+                        LocalDate.of(2019, 10, 10),
+                        TimePeriod.PM)
+
+        assertThat(response.statusCodeValue).isEqualTo(201)
+
+        elite2MockServer.verify(putRequestedFor(urlEqualTo("/api/bookings/activities/2/attendance"))
+                .withRequestBody(equalToJson(gson.toJson(mapOf(
+                        "eventOutcome" to "ATT",
+                        "performance" to "STANDARD",
+                        "outcomeComment" to "",
+                        "bookingIds" to bookingIds
+                )))))
     }
 }
