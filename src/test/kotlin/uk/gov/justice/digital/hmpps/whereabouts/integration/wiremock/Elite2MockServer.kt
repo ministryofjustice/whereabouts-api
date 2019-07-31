@@ -18,6 +18,16 @@ class Elite2MockServer : WireMockRule(8999) {
         )
     }
 
+    fun stubUpdateAttendanceForBookingIds(activityId: Long = 2L) {
+        val updateAttendanceUrl = "/api/bookings/activities/$activityId/attendance"
+
+        this.stubFor(
+                WireMock.put(WireMock.urlPathEqualTo(updateAttendanceUrl))
+                        .willReturn(WireMock.aResponse()
+                                .withStatus(200))
+        )
+    }
+
     fun stubCreateCaseNote(bookingId: Long = 1L, caseNoteId: Long = 100L) {
         val createCaseNote = "/api/bookings/$bookingId/caseNotes"
         this.stubFor(

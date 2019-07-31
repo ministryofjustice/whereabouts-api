@@ -12,10 +12,11 @@ import org.mockito.Spy
 import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendAllDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -994,8 +995,9 @@ class AttendanceServiceTest {
     fun `should load attendance details for a set of booking ids`() {
         val service = AttendanceService(attendanceRepository, nomisService)
         val today = LocalDate.now()
+        val bookingIds = setOf(1L, 2L)
 
-        service.getAttendanceForBookings("LEI", setOf(1,2), today, TimePeriod.AM)
+        service.getAttendanceForBookings("LEI", bookingIds, today, TimePeriod.AM)
 
         verify(attendanceRepository).findByPrisonIdAndBookingIdInAndEventDateAndPeriod("LEI", setOf(1,2),
                 today, TimePeriod.AM)
@@ -1064,4 +1066,52 @@ class AttendanceServiceTest {
                         .build()
         ))
     }
+
+    @Test
+    fun `should create an attendance record locally and via elite for multiple bookings`() {
+        val service = AttendanceService(attendanceRepository, nomisService)
+        val bookingIds = setOf(1L, 2L)
+
+        val savedAttendanceDetails = service.attendAll(
+                AttendAllDto
+                        .builder()
+                        .bookingIds(bookingIds)
+                        .eventDate(LocalDate.now().minusDays(1))
+                        .eventId(1L)
+                        .eventLocationId(2L)
+                        .prisonId("LEI")
+                        .period(TimePeriod.AM)
+                        .build())
+
+        assertThat(savedAttendanceDetails).containsExactlyInAnyOrder(
+                AttendanceDto
+                        .builder()
+                        .bookingId(1L)
+                        .eventDate(LocalDate.now().minusDays(1))
+                        .eventId(1L)
+                        .eventLocationId(2L)
+                        .prisonId("LEI")
+                        .period(TimePeriod.AM)
+                        .locked(true)
+                        .attended(true)
+                        .paid(true)
+                        .build(),
+                AttendanceDto
+                        .builder()
+                        .bookingId(2L)
+                        .eventDate(LocalDate.now().minusDays(1))
+                        .eventId(1L)
+                        .eventLocationId(2L)
+                        .prisonId("LEI")
+                        .period(TimePeriod.AM)
+                        .locked(true)
+                        .paid(true)
+                        .attended(true)
+                        .build())
+
+        verify(attendanceRepository).saveAll(anySet())
+        verify(nomisService).putAttendanceForMultipleBookings(bookingIds, 1L,
+                EventOutcome("ATT", "STANDARD", ""))
+    }
+
 }

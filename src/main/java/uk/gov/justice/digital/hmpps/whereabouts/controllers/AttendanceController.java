@@ -9,10 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsentReasonsDto;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.*;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceLocked;
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceNotFound;
@@ -48,6 +45,18 @@ public class AttendanceController {
             @Valid final CreateAttendanceDto attendance) {
 
         return attendanceService.createAttendance(attendance);
+    }
+
+    @PostMapping(value = "/attend-all", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation(value = "Attend all",
+            notes = "Stores new attendance records as paid attended, posts attendance details back up to PNOMIS for multiple booking ids")
+    public Set<AttendanceDto> attendAll(
+            @ApiParam(value = "Attend all parameters", required = true)
+            @RequestBody
+            @Valid final AttendAllDto attendAll) {
+
+        return attendanceService.attendAll(attendAll);
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
