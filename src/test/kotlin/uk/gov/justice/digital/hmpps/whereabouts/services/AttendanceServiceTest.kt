@@ -698,8 +698,10 @@ class AttendanceServiceTest {
     }
 
     @Test
-    fun `should throw an AttendanceLocked`() {
+    fun `should throw an AttendanceLocked when modified date is yesterday`() {
         val yesterday = LocalDate.now().minusDays(1)
+        val today = LocalDate.now()
+        val lastWeek = LocalDate.now().minusWeeks(1)
 
         `when`(attendanceRepository.findById(1)).thenReturn(
                 Optional.of(Attendance
@@ -709,7 +711,9 @@ class AttendanceServiceTest {
                         .paid(true)
                         .eventId(1)
                         .eventLocationId(2)
-                        .eventDate(yesterday)
+                        .eventDate(today)
+                        .modifyDateTime(yesterday.atTime(10, 10))
+                        .createDateTime(lastWeek.atTime(10,10))
                         .prisonId("LEI")
                         .bookingId(1)
                         .period(TimePeriod.AM)
@@ -720,6 +724,59 @@ class AttendanceServiceTest {
         Assertions.assertThatThrownBy {
             service.updateAttendance(1, UpdateAttendanceDto.builder().paid(false).attended(false).build())
         }.isExactlyInstanceOf(AttendanceLocked::class.java)
+    }
+
+    @Test
+    fun `should throw an AttendanceLocked when created date is yesterday`() {
+        val yesterday = LocalDate.now().minusDays(1)
+        val today = LocalDate.now()
+
+        `when`(attendanceRepository.findById(1)).thenReturn(
+                Optional.of(Attendance
+                        .builder()
+                        .id(1)
+                        .attended(true)
+                        .paid(true)
+                        .eventId(1)
+                        .eventLocationId(2)
+                        .eventDate(today)
+                        .createDateTime(yesterday.atTime(10,10))
+                        .prisonId("LEI")
+                        .bookingId(1)
+                        .period(TimePeriod.AM)
+                        .build()))
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        Assertions.assertThatThrownBy {
+            service.updateAttendance(1, UpdateAttendanceDto.builder().paid(false).attended(false).build())
+        }.isExactlyInstanceOf(AttendanceLocked::class.java)
+    }
+
+    @Test
+    fun `should not throw an AttendanceLocked`() {
+        val yesterday = LocalDate.now().minusDays(1)
+        val today = LocalDate.now()
+
+        `when`(attendanceRepository.findById(1)).thenReturn(
+                Optional.of(Attendance
+                        .builder()
+                        .id(1)
+                        .attended(true)
+                        .paid(true)
+                        .eventId(1)
+                        .eventLocationId(2)
+                        .eventDate(yesterday)
+                        .createDateTime(today.atTime(10,10))
+                        .prisonId("LEI")
+                        .bookingId(1)
+                        .period(TimePeriod.AM)
+                        .build()))
+
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        service.updateAttendance(1,
+                UpdateAttendanceDto.builder().paid(true).attended(false).absentReason(AbsentReason.ApprovedCourse).build())
     }
 
     @Test
@@ -1094,7 +1151,7 @@ class AttendanceServiceTest {
                         .eventLocationId(2L)
                         .prisonId("LEI")
                         .period(TimePeriod.AM)
-                        .locked(true)
+                        .locked(false)
                         .attended(true)
                         .paid(true)
                         .build(),
@@ -1106,7 +1163,7 @@ class AttendanceServiceTest {
                         .eventLocationId(2L)
                         .prisonId("LEI")
                         .period(TimePeriod.AM)
-                        .locked(true)
+                        .locked(false)
                         .paid(true)
                         .attended(true)
                         .build())
