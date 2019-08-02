@@ -227,14 +227,13 @@ public class AttendanceService {
         if (attendance.getCreateDateTime() == null)
             return false;
 
-        final Boolean paid = attendance.getPaid();
-        final LocalDate lastModifiedDate = attendance.getModifyDateTime() == null ?
+        final LocalDate dateOfChange = attendance.getModifyDateTime() == null ?
                 attendance.getCreateDateTime().toLocalDate() :
                 attendance.getModifyDateTime().toLocalDate();
 
-        final var dateDifference = DAYS.between(lastModifiedDate, LocalDate.now());
+        final var dateDifference = DAYS.between(dateOfChange, LocalDate.now());
 
-        return (paid) ? dateDifference >= 1 : dateDifference >= 7;
+        return (attendance.getPaid()) ? dateDifference >= 1 : dateDifference >= 7;
     }
 
     private Attendance toAttendance(final CreateAttendanceDto attendanceDto) {
