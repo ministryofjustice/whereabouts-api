@@ -388,74 +388,8 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         assertThat(savedAttendance.id).isGreaterThan(0)
         assertThat(savedAttendance.createUserId).isEqualTo("ITAG_USER")
-        assertThat(savedAttendance.locked).isEqualTo(true)
+        assertThat(savedAttendance.locked).isEqualTo(false)
         assertThat(response.statusCodeValue).isEqualTo(201)
-    }
-
-    @Test
-    fun `should return a 400 bad request when 'locked' is true for paid`() {
-        val yesterdayDateTime = LocalDateTime.now().minusDays(1)
-
-        elite2MockServer.stubUpdateAttendance()
-
-        val persistedAttendance = attendanceRepository.save(
-                Attendance.builder()
-                        .absentReason(AbsentReason.Refused)
-                        .bookingId(1)
-                        .comments("Refused to turn up")
-                        .attended(false)
-                        .paid(true)
-                        .createDateTime(yesterdayDateTime)
-                        .eventDate(yesterdayDateTime.toLocalDate())
-                        .eventId(1)
-                        .prisonId("LEI")
-                        .period(TimePeriod.AM)
-                        .eventLocationId(2)
-                        .build())
-
-        val response =
-                restTemplate.exchange(
-                        "/attendance/${persistedAttendance.id}",
-                        HttpMethod.PUT,
-                        createHeaderEntity(UpdateAttendanceDto.builder().attended(true).paid(true).build()),
-                        String::class.java,
-                        LocalDate.of(2019, 10, 10),
-                        TimePeriod.AM)
-
-        assertThat(response.statusCodeValue).isEqualTo(400)
-    }
-
-    @Test
-    fun `should return a 400 bad request when 'locked' is true for unpaid`() {
-        val sevenDaysAgoDateTime = LocalDateTime.now().minusDays(7)
-
-        elite2MockServer.stubUpdateAttendance()
-
-        val persistedAttendance = attendanceRepository.save(
-                Attendance.builder()
-                        .absentReason(AbsentReason.Refused)
-                        .bookingId(1)
-                        .comments("Refused to turn up")
-                        .attended(false)
-                        .paid(false)
-                        .createDateTime(sevenDaysAgoDateTime)
-                        .eventDate(sevenDaysAgoDateTime.toLocalDate())
-                        .eventId(1)
-                        .prisonId("LEI")
-                        .period(TimePeriod.AM)
-                        .eventLocationId(2)
-                        .build())
-
-        val response =
-                restTemplate.exchange(
-                        "/attendance/${persistedAttendance.id}",
-                        HttpMethod.PUT,
-                        createHeaderEntity(UpdateAttendanceDto.builder().attended(true).paid(true).build()),
-                        String::class.java,
-                        LocalDate.of(2019, 10, 10),
-                        TimePeriod.AM)
-
-        assertThat(response.statusCodeValue).isEqualTo(400)
     }
 
     @Test

@@ -92,7 +92,7 @@ public class AttendanceService {
     public void updateAttendance(final long id, final UpdateAttendanceDto newAttendanceDetails) throws AttendanceNotFound, AttendanceLocked {
         final var attendance = attendanceRepository.findById(id).orElseThrow(AttendanceNotFound::new);
 
-        if (isAttendanceLocked(attendance.getPaid(), attendance.getEventDate())) {
+        if (isAttendanceLocked(attendance)) {
             log.info("Update attempted on locked attendance, attendance id {}", id);
             throw new AttendanceLocked();
         }
@@ -223,10 +223,17 @@ public class AttendanceService {
         return Optional.empty();
     }
 
-    private Boolean isAttendanceLocked(final Boolean paid, final LocalDate eventDate) {
-        final var dateDifference = DAYS.between(eventDate, LocalDate.now());
+    private Boolean isAttendanceLocked(final Attendance attendance) {
+        if (attendance.getCreateDateTime() == null)
+            return false;
 
-        return (paid) ? dateDifference >= 1 : dateDifference >= 7;
+        final LocalDate dateOfChange = attendance.getModifyDateTime() == null ?
+                attendance.getCreateDateTime().toLocalDate() :
+                attendance.getModifyDateTime().toLocalDate();
+
+        final var dateDifference = DAYS.between(dateOfChange, LocalDate.now());
+
+        return (attendance.getPaid()) ? dateDifference >= 1 : dateDifference >= 7;
     }
 
     private Attendance toAttendance(final CreateAttendanceDto attendanceDto) {
@@ -261,7 +268,7 @@ public class AttendanceService {
                 .createUserId(attendanceData.getCreateUserId())
                 .createDateTime(attendanceData.getCreateDateTime())
                 .caseNoteId(attendanceData.getCaseNoteId())
-                .locked(isAttendanceLocked(attendanceData.getPaid(), attendanceData.getEventDate()))
+                .locked(isAttendanceLocked(attendanceData))
                 .modifyDateTime(attendanceData.getModifyDateTime())
                 .modifyUserId(attendanceData.getModifyUserId())
                 .build();
