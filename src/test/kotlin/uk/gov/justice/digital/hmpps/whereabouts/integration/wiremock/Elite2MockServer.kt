@@ -4,6 +4,8 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto
+import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
+import java.time.LocalDate
 
 class Elite2MockServer : WireMockRule(8999) {
     private val gson = getGson()
@@ -46,6 +48,20 @@ class Elite2MockServer : WireMockRule(8999) {
                         .willReturn(WireMock.aResponse()
                                 .withHeader("Content-Type", "application/json")
                                 .withStatus(201))
+        )
+    }
+
+    fun stubGetScheduledActivities(prisonId: String = "MDI", date: LocalDate = LocalDate.now(), period: TimePeriod = TimePeriod.AM) {
+        this.stubFor(
+                WireMock.get(
+                        WireMock.urlEqualTo("/api/bookings/schedules/$prisonId/activities?date=$date&period=$period"))
+                                .willReturn(WireMock.aResponse()
+                                        .withHeader("Content-Type", "application/json")
+                                        .withBody(gson.toJson(listOf(
+                                                mapOf("bookingId" to 1L),
+                                                mapOf("bookingId" to 2L)))
+                                        )
+                                        .withStatus(200))
         )
     }
 }

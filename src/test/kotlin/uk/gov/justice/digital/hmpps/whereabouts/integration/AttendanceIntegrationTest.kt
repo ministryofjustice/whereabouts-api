@@ -588,9 +588,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         "/attendance/attend-all",
                         HttpMethod.POST,
                         createHeaderEntity(attendAll),
-                        String::class.java,
-                        LocalDate.of(2019, 10, 10),
-                        TimePeriod.PM)
+                        String::class.java)
 
         assertThat(response.statusCodeValue).isEqualTo(201)
 
@@ -601,5 +599,44 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         "outcomeComment" to "",
                         "bookingActivities" to bookingActivities
                 )))))
+    }
+
+    @Test
+    fun `should return attendance information for offenders that have scheduled activity`() {
+        oauthMockServer.stubGrantToken()
+        elite2MockServer.stubGetScheduledActivities()
+
+        val prisonId = "MDI"
+        val date = LocalDate.now()
+        val period = TimePeriod.AM
+
+        attendanceRepository.save(
+                Attendance
+                    .builder()
+                    .absentReason(AbsentReason.Refused)
+                    .attended(false)
+                    .paid(false)
+                    .eventId(2)
+                    .eventLocationId(3)
+                    .period(TimePeriod.AM)
+                    .prisonId("MDI")
+                    .bookingId(1L)
+                    .eventDate(date)
+                    .createUserId("user")
+                    .caseNoteId(1)
+                    .build())
+
+
+        val response = restTemplate.exchange(
+                "/attendance/$prisonId/attendance-for-scheduled-activities?date=$date&period=$period",
+                HttpMethod.GET,
+                createHeaderEntity(""),
+                ListOfAttendanceDtoReferenceType())
+
+        assertThat(response.statusCodeValue).isEqualTo(200)
+        assertThat(response.body.size).isEqualTo(1)
+
+        elite2MockServer.verify(getRequestedFor(urlEqualTo("/api/bookings/schedules/$prisonId/activities?date=$date&period=$period")))
+
     }
 }
