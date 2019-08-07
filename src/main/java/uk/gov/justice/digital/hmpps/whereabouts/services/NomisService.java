@@ -6,14 +6,15 @@ import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.PrisonerScheduleDto;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class NomisService {
@@ -65,14 +66,22 @@ public class NomisService {
         restTemplate.put(url, Map.of("text", text), bookingId, caseNoteId);
     }
 
-    public List<PrisonerScheduleDto> getScheduleActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
+    public Set<Long> getScheduleActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
         final var url = "/bookings/schedules/{prisonId}/activities?date={date}&period={period}";
 
-        final var responseType = new ParameterizedTypeReference<List<PrisonerScheduleDto>>() {};
-
+        final var responseType = new ParameterizedTypeReference<List<Map>>() {};
         final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, prisonId, date, period);
+        final var body = response.getBody();
 
-        return response.getBody();
+        if (body == null)
+            return Collections.emptySet();
+
+        return body
+                .stream()
+                .filter(entry -> entry.containsKey("bookingId"))
+                .map(entry -> Long.valueOf(entry.get("bookingId").toString()))
+                .collect(Collectors.toSet());
+
     }
 }
 

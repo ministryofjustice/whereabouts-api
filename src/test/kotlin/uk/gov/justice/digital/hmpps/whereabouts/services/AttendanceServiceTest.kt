@@ -14,7 +14,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*
 import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.PrisonerScheduleDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -1195,16 +1194,7 @@ class AttendanceServiceTest {
         val date = LocalDate.now()
         val period = TimePeriod.AM
 
-        `when`(nomisService.getScheduleActivities(prisonId, date, period)).thenReturn(mutableListOf(
-                PrisonerScheduleDto
-                        .builder()
-                        .bookingId(1L)
-                        .build(),
-                PrisonerScheduleDto
-                        .builder()
-                        .bookingId(2L)
-                        .build()
-        ))
+        `when`(nomisService.getScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
 
         service.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
         verify(attendanceRepository).findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, setOf(1L, 2L), date, period)
@@ -1218,16 +1208,7 @@ class AttendanceServiceTest {
         val date = LocalDate.now()
         val period = TimePeriod.AM
 
-        `when`(nomisService.getScheduleActivities(prisonId, date, period)).thenReturn(mutableListOf(
-                PrisonerScheduleDto
-                        .builder()
-                        .bookingId(1L)
-                        .build(),
-                PrisonerScheduleDto
-                        .builder()
-                        .bookingId(2L)
-                        .build()
-        ))
+        `when`(nomisService.getScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
 
         `when`(attendanceRepository
                 .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, setOf(1L, 2L), date, period))

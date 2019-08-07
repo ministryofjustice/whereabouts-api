@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.services;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.PrisonerScheduleDto;
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
@@ -276,11 +275,7 @@ public class AttendanceService {
      }
 
     public Set<AttendanceDto> getAttendanceForOffendersThatHaveScheduledActivity(final String prisonId, final LocalDate date, final TimePeriod period) {
-        final var scheduledActivities = nomisService.getScheduleActivities(prisonId, date, period);
-        final var bookingIds = scheduledActivities
-                .stream()
-                .map(PrisonerScheduleDto::getBookingId)
-                .collect(Collectors.toSet());
+        final var bookingIds = nomisService.getScheduleActivities(prisonId, date, period);
 
         final var attendances = attendanceRepository.
                 findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookingIds, date, period);
