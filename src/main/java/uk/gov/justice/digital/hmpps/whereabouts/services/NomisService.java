@@ -67,7 +67,7 @@ public class NomisService {
     }
 
     public Set<Long> getBookingIdsForScheduleActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
-        final var url = "/bookings/schedules/{prisonId}/activities?date={date}&period={period}";
+        final var url = "/schedules/{prisonId}/activities?date={date}&timeSlot={period}";
 
         final var responseType = new ParameterizedTypeReference<List<Map>>() {};
         final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, prisonId, date, period);

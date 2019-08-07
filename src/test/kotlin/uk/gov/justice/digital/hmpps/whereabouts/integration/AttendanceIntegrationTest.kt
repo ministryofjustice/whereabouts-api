@@ -636,7 +636,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
         assertThat(response.statusCodeValue).isEqualTo(200)
         assertThat(response.body.size).isEqualTo(1)
 
-        elite2MockServer.verify(getRequestedFor(urlEqualTo("/api/bookings/schedules/$prisonId/activities?date=$date&period=$period")))
+        elite2MockServer.verify(getRequestedFor(urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period")))
 
     }
 }
