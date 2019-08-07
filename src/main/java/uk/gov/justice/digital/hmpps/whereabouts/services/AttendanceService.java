@@ -273,4 +273,13 @@ public class AttendanceService {
                 .modifyUserId(attendanceData.getModifyUserId())
                 .build();
      }
+
+    public Set<AttendanceDto> getAttendanceForOffendersThatHaveScheduledActivity(final String prisonId, final LocalDate date, final TimePeriod period) {
+        final var bookingIds = nomisService.getBookingIdsForScheduleActivities(prisonId, date, period);
+
+        final var attendances = attendanceRepository.
+                findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookingIds, date, period);
+
+        return attendances.stream().map(this::toAttendanceDto).collect(Collectors.toSet());
+    }
 }

@@ -1173,4 +1173,110 @@ class AttendanceServiceTest {
                 EventOutcome("ATT", "STANDARD", ""))
     }
 
+    @Test
+    fun `should request all scheduled activity for date and period`() {
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        val agencyId = "LEI"
+        val date = LocalDate.now()
+        val period = TimePeriod.AM
+
+        service.getAttendanceForOffendersThatHaveScheduledActivity(agencyId, date, period)
+
+        verify(nomisService).getBookingIdsForScheduleActivities(agencyId, date, period)
+    }
+
+    @Test
+    fun `should fetch attendance records for selected booking ids`() {
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        val prisonId = "LEI"
+        val date = LocalDate.now()
+        val period = TimePeriod.AM
+
+        `when`(nomisService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
+
+        service.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
+        verify(attendanceRepository).findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, setOf(1L, 2L), date, period)
+    }
+
+    @Test
+    fun `should return all attendance records for offenders that have scheduled activities` () {
+        val service = AttendanceService(attendanceRepository, nomisService)
+
+        val prisonId = "LEI"
+        val date = LocalDate.now()
+        val period = TimePeriod.AM
+
+        `when`(nomisService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
+
+        `when`(attendanceRepository
+                .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, setOf(1L, 2L), date, period))
+                .thenReturn(setOf(
+                        Attendance.builder()
+                                .id(1)
+                                .absentReason(AbsentReason.Refused)
+                                .attended(false)
+                                .paid(false)
+                                .eventId(2)
+                                .eventLocationId(3)
+                                .period(TimePeriod.AM)
+                                .prisonId("MDI")
+                                .bookingId(1L)
+                                .eventDate(today)
+                                .createUserId("user")
+                                .caseNoteId(1)
+                                .build(),
+                        Attendance.builder()
+                                .id(2)
+                                .attended(true)
+                                .paid(true)
+                                .eventId(2)
+                                .eventLocationId(3)
+                                .period(TimePeriod.AM)
+                                .prisonId("MDI")
+                                .bookingId(2L)
+                                .eventDate(today)
+                                .createUserId("user")
+                                .build()
+                ))
+
+        val attendances =
+                service.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
+
+        assertThat(attendances).containsExactlyInAnyOrderElementsOf(
+                setOf(
+                        AttendanceDto
+                            .builder()
+                            .id(2)
+                            .attended(true)
+                            .paid(true)
+                            .eventId(2)
+                            .eventLocationId(3)
+                            .period(TimePeriod.AM)
+                            .prisonId("MDI")
+                            .bookingId(2L)
+                            .eventDate(date)
+                            .createUserId("user")
+                            .locked(false)
+                            .build(),
+                        AttendanceDto
+                            .builder()
+                            .id(1)
+                            .absentReason(AbsentReason.Refused)
+                            .attended(false)
+                            .paid(false)
+                            .eventId(2)
+                            .eventLocationId(3)
+                            .period(TimePeriod.AM)
+                            .prisonId("MDI")
+                            .bookingId(1L)
+                            .eventDate(date)
+                            .createUserId("user")
+                            .locked(false)
+                            .caseNoteId(1)
+                            .build()
+                )
+        )
+    }
 }
