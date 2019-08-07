@@ -275,7 +275,7 @@ public class AttendanceService {
      }
 
     public Set<AttendanceDto> getAttendanceForOffendersThatHaveScheduledActivity(final String prisonId, final LocalDate date, final TimePeriod period) {
-        final var bookingIds = nomisService.getScheduleActivities(prisonId, date, period);
+        final var bookingIds = nomisService.getBookingIdsForScheduleActivities(prisonId, date, period);
 
         final var attendances = attendanceRepository.
                 findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookingIds, date, period);

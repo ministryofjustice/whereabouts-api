@@ -1183,7 +1183,7 @@ class AttendanceServiceTest {
 
         service.getAttendanceForOffendersThatHaveScheduledActivity(agencyId, date, period)
 
-        verify(nomisService).getScheduleActivities(agencyId, date, period)
+        verify(nomisService).getBookingIdsForScheduleActivities(agencyId, date, period)
     }
 
     @Test
@@ -1194,7 +1194,7 @@ class AttendanceServiceTest {
         val date = LocalDate.now()
         val period = TimePeriod.AM
 
-        `when`(nomisService.getScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
+        `when`(nomisService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
 
         service.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
         verify(attendanceRepository).findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, setOf(1L, 2L), date, period)
@@ -1208,7 +1208,7 @@ class AttendanceServiceTest {
         val date = LocalDate.now()
         val period = TimePeriod.AM
 
-        `when`(nomisService.getScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
+        `when`(nomisService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
 
         `when`(attendanceRepository
                 .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, setOf(1L, 2L), date, period))

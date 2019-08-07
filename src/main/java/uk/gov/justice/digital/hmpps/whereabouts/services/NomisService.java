@@ -66,7 +66,7 @@ public class NomisService {
         restTemplate.put(url, Map.of("text", text), bookingId, caseNoteId);
     }
 
-    public Set<Long> getScheduleActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
+    public Set<Long> getBookingIdsForScheduleActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
         final var url = "/bookings/schedules/{prisonId}/activities?date={date}&period={period}";
 
         final var responseType = new ParameterizedTypeReference<List<Map>>() {};
