@@ -54,7 +54,7 @@ class Elite2MockServer : WireMockRule(8999) {
     fun stubGetScheduledActivities(prisonId: String = "MDI", date: LocalDate = LocalDate.now(), period: TimePeriod = TimePeriod.AM) {
         this.stubFor(
                 WireMock.get(
-                        WireMock.urlEqualTo("/api/bookings/schedules/$prisonId/activities?date=$date&period=$period"))
+                        WireMock.urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period"))
                                 .willReturn(WireMock.aResponse()
                                         .withHeader("Content-Type", "application/json")
                                         .withBody(gson.toJson(listOf(
