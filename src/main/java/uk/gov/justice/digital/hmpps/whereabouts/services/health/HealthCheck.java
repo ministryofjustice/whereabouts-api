@@ -20,7 +20,7 @@ public abstract class HealthCheck implements HealthIndicator {
             final var responseEntity = this.restTemplate.getForEntity("/ping", String.class);
             return Health.up().withDetail("HttpStatus", responseEntity.getStatusCode()).build();
         } catch (final RestClientException e) {
-            return Health.outOfService() down(e).build();
+            return Health.down(e).build();
         }
     }
 }
