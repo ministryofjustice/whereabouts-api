@@ -29,11 +29,11 @@ public class RestTemplateConfiguration {
     @Value("${elite2api.endpoint.url}")
     private String elite2UriRoot;
 
-    @Value("${elite2api.endpoint.url.api}")
-    private String apiRootUri;
-
     @Value("${oauth.endpoint.url}")
     private String oauthRootUri;
+
+    @Value("${casenotes.endpoint.url}")
+    private String caseNotesRootUri;
 
     private final OAuth2ClientContext oauth2ClientContext;
     private final ClientCredentialsResourceDetails elite2apiDetails;
@@ -52,6 +52,11 @@ public class RestTemplateConfiguration {
     @Bean(name = "oauthApiRestTemplate")
     public RestTemplate oauthRestTemplate(final RestTemplateBuilder restTemplateBuilder) {
         return getRestTemplate(restTemplateBuilder, oauthRootUri);
+    }
+
+    @Bean(name = "caseNotesApiRestTemplate")
+    public RestTemplate caseNotesRestTemplate(final RestTemplateBuilder restTemplateBuilder) {
+        return getRestTemplate(restTemplateBuilder, caseNotesRootUri);
     }
 
     private RestTemplate getRestTemplate(final RestTemplateBuilder restTemplateBuilder, final String uri) {
@@ -77,7 +82,7 @@ public class RestTemplateConfiguration {
 
         elite2SystemRestTemplate.setAccessTokenProvider(new GatewayAwareAccessTokenProvider(authenticationFacade));
 
-        RootUriTemplateHandler.addTo(elite2SystemRestTemplate, this.apiRootUri);
+        RootUriTemplateHandler.addTo(elite2SystemRestTemplate, elite2UriRoot + "/api");
 
         return elite2SystemRestTemplate;
     }
@@ -85,7 +90,7 @@ public class RestTemplateConfiguration {
 
     public class GatewayAwareAccessTokenProvider extends ClientCredentialsAccessTokenProvider {
 
-        public GatewayAwareAccessTokenProvider(final AuthenticationFacade authenticationFacade) {
+        GatewayAwareAccessTokenProvider(final AuthenticationFacade authenticationFacade) {
             this.setTokenRequestEnhancer(new TokenRequestEnhancer(authenticationFacade));
         }
 
@@ -99,12 +104,12 @@ public class RestTemplateConfiguration {
 
         private final AuthenticationFacade authenticationFacade;
 
-        TokenRequestEnhancer(AuthenticationFacade authenticationFacade) {
+        TokenRequestEnhancer(final AuthenticationFacade authenticationFacade) {
             this.authenticationFacade = authenticationFacade;
         }
 
         @Override
-        public void enhance(AccessTokenRequest request, OAuth2ProtectedResourceDetails resource, MultiValueMap<String, String> form, HttpHeaders headers) {
+        public void enhance(final AccessTokenRequest request, final OAuth2ProtectedResourceDetails resource, final MultiValueMap<String, String> form, final HttpHeaders headers) {
             form.set("username", authenticationFacade.getCurrentUsername());
         }
     }

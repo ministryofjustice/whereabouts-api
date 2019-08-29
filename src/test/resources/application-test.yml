@@ -10,7 +10,10 @@ elite2api:
   host: localhost
   port: 8999
 
-oauth.endpoint.url: http://localhost:8090/auth
+oauth:
+  endpoint.url: http://localhost:8090/auth
+casenotes:
+  endpoint.url: http://localhost:8093
 
 management.endpoint:
   health.cache.time-to-live: 0

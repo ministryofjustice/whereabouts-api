@@ -19,12 +19,17 @@ class HealthCheckIntegrationTest : IntegrationTest() {
         @get:ClassRule
         @JvmStatic
         val oauthMockServer = WireMockRule(8090)
+
+        @get:ClassRule
+        @JvmStatic
+        val caseNotesMockServer = WireMockRule(8093)
     }
 
     @Before
     fun resetStubs() {
         elite2MockServer.resetAll()
         oauthMockServer.resetAll()
+        caseNotesMockServer.resetAll()
     }
 
     @Test
@@ -33,8 +38,10 @@ class HealthCheckIntegrationTest : IntegrationTest() {
 
         val response = restTemplate.getForEntity("/health", String::class.java)
 
+        System.out.println(response.body)
         assertThatJson(response.body).node("details.elite2ApiHealth.details.HttpStatus").isEqualTo("OK")
         assertThatJson(response.body).node("details.OAuthApiHealth.details.HttpStatus").isEqualTo("OK")
+        assertThatJson(response.body).node("details.caseNotesApiHealth.details.HttpStatus").isEqualTo("OK")
         assertThatJson(response.body).node("status").isEqualTo("UP")
         assertThat(response.statusCodeValue).isEqualTo(200)
     }
@@ -47,6 +54,7 @@ class HealthCheckIntegrationTest : IntegrationTest() {
 
         assertThatJson(response.body).node("details.elite2ApiHealth.details.error").isEqualTo("org.springframework.web.client.HttpClientErrorException\$NotFound: 404 Not Found")
         assertThatJson(response.body).node("details.OAuthApiHealth.details.error").isEqualTo("org.springframework.web.client.HttpClientErrorException\$NotFound: 404 Not Found")
+        assertThatJson(response.body).node("details.caseNotesApiHealth.details.error").isEqualTo("org.springframework.web.client.HttpClientErrorException\$NotFound: 404 Not Found")
         assertThatJson(response.body).node("status").isEqualTo("DOWN")
         assertThat(response.statusCodeValue).isEqualTo(503)
     }
@@ -59,6 +67,7 @@ class HealthCheckIntegrationTest : IntegrationTest() {
 
         assertThatJson(response.body).node("details.elite2ApiHealth.details.error").isEqualTo("org.springframework.web.client.HttpClientErrorException: 418 418")
         assertThatJson(response.body).node("details.OAuthApiHealth.details.error").isEqualTo("org.springframework.web.client.HttpClientErrorException: 418 418")
+        assertThatJson(response.body).node("details.caseNotesApiHealth.details.error").isEqualTo("org.springframework.web.client.HttpClientErrorException: 418 418")
         assertThatJson(response.body).node("status").isEqualTo("DOWN")
         assertThat(response.statusCodeValue).isEqualTo(503)
     }
@@ -70,6 +79,11 @@ class HealthCheckIntegrationTest : IntegrationTest() {
                 .withStatus(status)))
 
         oauthMockServer.stubFor(get("/auth/ping").willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(if (status == 200) "pong" else "some error")
+                .withStatus(status)))
+
+        caseNotesMockServer.stubFor(get("/ping").willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(if (status == 200) "pong" else "some error")
                 .withStatus(status)))
