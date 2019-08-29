@@ -66,7 +66,17 @@ elite2api:
     tokenName: elite2_token
     authenticationScheme: header
     clientAuthenticationScheme: header
+  endpoint.url: http://localhost:8080
+
+oauth:
+  endpoint.url: http://localhost:9090/auth
+  token.url: ${oauth.endpoint.url}/oauth/token
+  client:
+    id: whereabouts-api-client
+    secret: clientsecret
+
+casenotes:
+  endpoint.url: http://localhost:8083
 
 graceful:
-  shutdown:
-    enabled: false
+  shutdown.enabled: false
