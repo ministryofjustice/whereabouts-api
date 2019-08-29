@@ -1,13 +1,13 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
-import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.junit.WireMockRule
+import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Test
-import org.springframework.boot.test.web.client.exchange
-import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
 
 
 class HealthCheckIntegrationTest : IntegrationTest() {
@@ -21,28 +21,57 @@ class HealthCheckIntegrationTest : IntegrationTest() {
         val oauthMockServer = WireMockRule(8090)
     }
 
+    @Before
+    fun resetStubs() {
+        elite2MockServer.resetAll()
+        oauthMockServer.resetAll()
+    }
+
     @Test
-    fun `Health page reports ok` () {
+    fun `Health page reports ok`() {
+        subPing(200)
 
-        elite2MockServer.stubFor(
-                WireMock.get(WireMock.urlPathEqualTo("/ping"))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200)
-                                .withBody("pong"))
-        )
+        val response = restTemplate.getForEntity("/health", String::class.java)
 
-        oauthMockServer.stubFor(
-                WireMock.get(WireMock.urlPathEqualTo("/auth/ping"))
-                        .willReturn(WireMock.aResponse()
-                                .withStatus(200)
-                                .withBody("pong"))
-        )
+        assertThatJson(response.body).node("details.elite2ApiHealth.details.HttpStatus").isEqualTo("OK")
+        assertThatJson(response.body).node("details.OAuthApiHealth.details.HttpStatus").isEqualTo("OK")
+        assertThatJson(response.body).node("status").isEqualTo("UP")
+        assertThat(response.statusCodeValue).isEqualTo(200)
+    }
 
-        val response: ResponseEntity<String> =
-                restTemplate.exchange("/health", HttpMethod.GET, createHeaderEntity("headers"))
+    @Test
+    fun `Health page reports down`() {
+        subPing(404)
 
-        val body = gson.fromJson(response.body, Map::class.java)
+        val response = restTemplate.getForEntity("/health", String::class.java)
 
-        assertThat(body["status"]).isEqualTo("UP")
+        assertThatJson(response.body).node("details.elite2ApiHealth.details.error").isEqualTo("org.springframework.web.client.HttpClientErrorException\$NotFound: 404 Not Found")
+        assertThatJson(response.body).node("details.OAuthApiHealth.details.error").isEqualTo("org.springframework.web.client.HttpClientErrorException\$NotFound: 404 Not Found")
+        assertThatJson(response.body).node("status").isEqualTo("DOWN")
+        assertThat(response.statusCodeValue).isEqualTo(503)
+    }
+
+    @Test
+    fun `Health page reports a teapot`() {
+        subPing(418)
+
+        val response = restTemplate.getForEntity("/health", String::class.java)
+
+        assertThatJson(response.body).node("details.elite2ApiHealth.details.error").isEqualTo("org.springframework.web.client.HttpClientErrorException: 418 418")
+        assertThatJson(response.body).node("details.OAuthApiHealth.details.error").isEqualTo("org.springframework.web.client.HttpClientErrorException: 418 418")
+        assertThatJson(response.body).node("status").isEqualTo("DOWN")
+        assertThat(response.statusCodeValue).isEqualTo(503)
+    }
+
+    private fun subPing(status: Int) {
+        elite2MockServer.stubFor(get("/ping").willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(if (status == 200) "pong" else "some error")
+                .withStatus(status)))
+
+        oauthMockServer.stubFor(get("/auth/ping").willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(if (status == 200) "pong" else "some error")
+                .withStatus(status)))
     }
 }
