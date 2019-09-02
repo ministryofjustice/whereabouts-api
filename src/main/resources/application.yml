@@ -62,7 +62,7 @@ elite2api:
   client:
     clientId: ${oauth.client.id}
     clientSecret: ${oauth.client.secret}
-    accessTokenUri: ${ouath.token.url}
+    accessTokenUri: ${oauth.token.url}
     tokenName: elite2_token
     authenticationScheme: header
     clientAuthenticationScheme: header
