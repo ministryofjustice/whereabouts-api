@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*;
@@ -20,17 +21,13 @@ import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class AttendanceService {
     private final static NomisEventOutcomeMapper nomisEventOutcomeMapper = new NomisEventOutcomeMapper();
 
     private final AttendanceRepository attendanceRepository;
-    private final NomisService nomisService;
-
-
-    public AttendanceService(final AttendanceRepository attendanceRepository, final NomisService nomisService) {
-        this.attendanceRepository = attendanceRepository;
-        this.nomisService = nomisService;
-    }
+    private final Elite2ApiService elite2ApiService;
+    private final CaseNotesService caseNotesService;
 
     public Set<AttendanceDto> getAttendanceForEventLocation(final String prisonId, final Long eventLocationId, final LocalDate date, final TimePeriod period) {
         final var attendance = attendanceRepository
@@ -73,7 +70,7 @@ public class AttendanceService {
     @Transactional
     public AttendanceDto createAttendance(final CreateAttendanceDto attendanceDto) {
 
-        var attendance = attendanceRepository.save(toAttendance(attendanceDto));
+        final var attendance = attendanceRepository.save(toAttendance(attendanceDto));
 
         postNomisAttendance(attendance);
         postIEPWarningIfRequired(
@@ -110,10 +107,10 @@ public class AttendanceService {
     }
 
     @Transactional
-    public Set<AttendanceDto> attendAll(AttendAllDto attendAll) {
+    public Set<AttendanceDto> attendAll(final AttendAllDto attendAll) {
         final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(null, true, true, "");
 
-        nomisService.putAttendanceForMultipleBookings(attendAll.getBookingActivities(), eventOutcome);
+        elite2ApiService.putAttendanceForMultipleBookings(attendAll.getBookingActivities(), eventOutcome);
 
 
         final var attendances =
@@ -129,7 +126,7 @@ public class AttendanceService {
                                 .period(attendAll.getPeriod())
                                 .prisonId(attendAll.getPrisonId())
                                 .build())
-                .collect(Collectors.toSet());
+                        .collect(Collectors.toSet());
 
         attendanceRepository.saveAll(attendances);
 
@@ -162,35 +159,29 @@ public class AttendanceService {
             final var rescindedReason = "IEP rescinded: " + (newAttendanceDetails.getAttended() ? "attended" : formattedAbsentReason);
 
             log.info("{} raised for {}", rescindedReason, attendance.toBuilder().comments(null));
+            final var offenderNo = elite2ApiService.getOffenderNoFromBookingId(attendance.getBookingId());
 
-            nomisService.putCaseNoteAmendment(
-                    attendance.getBookingId(),
-                    attendance.getCaseNoteId(),
-                    rescindedReason);
+            caseNotesService.putCaseNoteAmendment(offenderNo, attendance.getCaseNoteId(), rescindedReason);
 
             return Optional.empty();
-        } else if (shouldReinstatePreviousIEPWarning) {
+        }
+        if (shouldReinstatePreviousIEPWarning) {
 
             final var reinstatedReason = "IEP reinstated: " + formattedAbsentReason;
 
             log.info("{} raised for {}", reinstatedReason, attendance.toBuilder().comments(null));
+            final var offenderNo = elite2ApiService.getOffenderNoFromBookingId(attendance.getBookingId());
 
-            nomisService.putCaseNoteAmendment(
-                    attendance.getBookingId(),
-                    attendance.getCaseNoteId(),
-                    reinstatedReason);
+            caseNotesService.putCaseNoteAmendment(offenderNo, attendance.getCaseNoteId(), reinstatedReason);
 
             return Optional.empty();
         }
-        else {
-            return postIEPWarningIfRequired(
-                    attendance.getBookingId(),
-                    attendance.getCaseNoteId(),
-                    newAttendanceDetails.getAbsentReason(),
-                    newAttendanceDetails.getComments()
-            );
-        }
-
+        return postIEPWarningIfRequired(
+                attendance.getBookingId(),
+                attendance.getCaseNoteId(),
+                newAttendanceDetails.getAbsentReason(),
+                newAttendanceDetails.getComments()
+        );
     }
 
 
@@ -203,21 +194,22 @@ public class AttendanceService {
 
         log.info("Updating attendance on NOMIS {} {}", attendance.toBuilder().comments(null).build(), eventOutcome);
 
-        nomisService.putAttendance(attendance.getBookingId(), attendance.getEventId(), eventOutcome);
+        elite2ApiService.putAttendance(attendance.getBookingId(), attendance.getEventId(), eventOutcome);
     }
 
     private Optional<Long> postIEPWarningIfRequired(final Long bookingId, final Long caseNoteId, final AbsentReason reason, final String text) {
         if (caseNoteId == null && reason != null && AbsentReason.getIepTriggers().contains(reason)) {
-            log.info("IEP Warning created for bookingIds {}", bookingId);
+            log.info("IEP Warning created for bookingId {}", bookingId);
+            final var offenderNo = elite2ApiService.getOffenderNoFromBookingId(bookingId);
 
             final var modifiedTextWithReason = AbsentReasonFormatter.titlecase(reason.toString()) + " - " + text;
-            final var caseNote = nomisService.postCaseNote(
-                    bookingId,
+            final var caseNote = caseNotesService.postCaseNote(
+                    offenderNo,
                     "NEG",//"Negative Behaviour"
                     "IEP_WARN", //"IEP Warning",
                     modifiedTextWithReason,
                     LocalDateTime.now());
-             return Optional.of(caseNote.getCaseNoteId());
+            return Optional.of(caseNote.getCaseNoteId());
         }
 
         return Optional.empty();
@@ -227,7 +219,7 @@ public class AttendanceService {
         if (attendance.getCreateDateTime() == null)
             return false;
 
-        final LocalDate dateOfChange = attendance.getModifyDateTime() == null ?
+        final var dateOfChange = attendance.getModifyDateTime() == null ?
                 attendance.getCreateDateTime().toLocalDate() :
                 attendance.getModifyDateTime().toLocalDate();
 
@@ -237,22 +229,22 @@ public class AttendanceService {
     }
 
     private Attendance toAttendance(final CreateAttendanceDto attendanceDto) {
-         return Attendance
-                 .builder()
-                 .eventLocationId(attendanceDto.getEventLocationId())
-                 .eventDate(attendanceDto.getEventDate())
-                 .eventId(attendanceDto.getEventId())
-                 .bookingId(attendanceDto.getBookingId())
-                 .period(attendanceDto.getPeriod())
-                 .paid(attendanceDto.getPaid())
-                 .attended(attendanceDto.getAttended())
-                 .prisonId(attendanceDto.getPrisonId())
-                 .absentReason(attendanceDto.getAbsentReason())
-                 .comments(attendanceDto.getComments())
-                 .build();
-     }
+        return Attendance
+                .builder()
+                .eventLocationId(attendanceDto.getEventLocationId())
+                .eventDate(attendanceDto.getEventDate())
+                .eventId(attendanceDto.getEventId())
+                .bookingId(attendanceDto.getBookingId())
+                .period(attendanceDto.getPeriod())
+                .paid(attendanceDto.getPaid())
+                .attended(attendanceDto.getAttended())
+                .prisonId(attendanceDto.getPrisonId())
+                .absentReason(attendanceDto.getAbsentReason())
+                .comments(attendanceDto.getComments())
+                .build();
+    }
 
-     private AttendanceDto toAttendanceDto(Attendance attendanceData) {
+    private AttendanceDto toAttendanceDto(final Attendance attendanceData) {
         return AttendanceDto.builder()
                 .id(attendanceData.getId())
                 .eventDate(attendanceData.getEventDate())
@@ -272,10 +264,10 @@ public class AttendanceService {
                 .modifyDateTime(attendanceData.getModifyDateTime())
                 .modifyUserId(attendanceData.getModifyUserId())
                 .build();
-     }
+    }
 
     public Set<AttendanceDto> getAttendanceForOffendersThatHaveScheduledActivity(final String prisonId, final LocalDate date, final TimePeriod period) {
-        final var bookingIds = nomisService.getBookingIdsForScheduleActivities(prisonId, date, period);
+        final var bookingIds = elite2ApiService.getBookingIdsForScheduleActivities(prisonId, date, period);
 
         final var attendances = attendanceRepository.
                 findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookingIds, date, period);

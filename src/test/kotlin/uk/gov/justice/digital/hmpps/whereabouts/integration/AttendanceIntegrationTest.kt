@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -9,6 +10,7 @@ import org.springframework.boot.test.web.client.exchange
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*
+import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.CaseNotesMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.Elite2MockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
@@ -19,7 +21,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.stream.Collectors
 
-class AttendanceIntegrationTest : IntegrationTest () {
+class AttendanceIntegrationTest : IntegrationTest() {
 
     companion object {
         @get:ClassRule
@@ -29,10 +31,23 @@ class AttendanceIntegrationTest : IntegrationTest () {
         @get:ClassRule
         @JvmStatic
         val oauthMockServer = OAuthMockServer()
+
+        @get:ClassRule
+        @JvmStatic
+        val caseNotesMockServer = CaseNotesMockServer()
     }
 
     @Autowired
     lateinit var attendanceRepository: AttendanceRepository
+
+    @Before
+    fun resetStubs() {
+        elite2MockServer.resetAll()
+        oauthMockServer.resetAll()
+        caseNotesMockServer.resetAll()
+
+        oauthMockServer.stubGrantToken()
+    }
 
     @Test
     fun `should make an elite api request to update an offenders attendance`() {
@@ -72,12 +87,13 @@ class AttendanceIntegrationTest : IntegrationTest () {
     fun `should make an elite api request to create a IEP warning case note`() {
         val activityId = 2L
         val bookingId = 1
+        val offenderNo = "AB1234C"
         val comments = "Test comment"
         val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
-        val createCaseNote = "/api/bookings/$bookingId/caseNotes"
 
         elite2MockServer.stubUpdateAttendance()
-        elite2MockServer.stubCreateCaseNote()
+        caseNotesMockServer.stubCreateCaseNote()
+        elite2MockServer.stubGetBooking()
 
         val attendance = CreateAttendanceDto
                 .builder()
@@ -94,7 +110,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 .build()
 
         val response: ResponseEntity<String> =
-                restTemplate.exchange("/attendance",   HttpMethod.POST, createHeaderEntity(attendance))
+                restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendance))
 
         assertThat(response.statusCodeValue).isEqualTo(201)
 
@@ -105,7 +121,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 )))
         ))
 
-       elite2MockServer.verify(postRequestedFor(urlEqualTo(createCaseNote))
+        caseNotesMockServer.verify(postRequestedFor(urlEqualTo("/case-notes/$offenderNo"))
                 .withRequestBody(matchingJsonPath("$[?(@.type == 'NEG')]"))
                 .withRequestBody(matchingJsonPath("$[?(@.subType == 'IEP_WARN')]"))
                 .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused - $comments')]"))
@@ -116,7 +132,8 @@ class AttendanceIntegrationTest : IntegrationTest () {
     @Test
     fun `receive a list of attendance for a prison, location, date and period`() {
         elite2MockServer.stubUpdateAttendance()
-        elite2MockServer.stubCreateCaseNote()
+        elite2MockServer.stubGetBooking()
+        caseNotesMockServer.stubCreateCaseNote()
 
         attendanceRepository.deleteAll()
 
@@ -175,17 +192,17 @@ class AttendanceIntegrationTest : IntegrationTest () {
     fun `should return a bad request when the 'bookingId' is missing`() {
 
         val response: ResponseEntity<String> =
-            restTemplate.exchange("/attendance", HttpMethod.POST,
-                  createHeaderEntity(CreateAttendanceDto
-                    .builder()
-                    .prisonId("LEI")
-                    .eventId(2)
-                    .eventLocationId(2)
-                    .eventDate(LocalDate.of(2010, 10, 10))
-                    .period(TimePeriod.AM)
-                    .attended(true)
-                    .paid(true)
-                    .build()))
+                restTemplate.exchange("/attendance", HttpMethod.POST,
+                        createHeaderEntity(CreateAttendanceDto
+                                .builder()
+                                .prisonId("LEI")
+                                .eventId(2)
+                                .eventLocationId(2)
+                                .eventDate(LocalDate.of(2010, 10, 10))
+                                .period(TimePeriod.AM)
+                                .attended(true)
+                                .paid(true)
+                                .build()))
 
         assertThat(response.statusCodeValue).isEqualTo(400)
     }
@@ -281,7 +298,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                                 .prisonId("LEI")
                                 .eventId(1)
                                 .eventLocationId(1)
-                                .eventDate(LocalDate.of(2019,10,10))
+                                .eventDate(LocalDate.of(2019, 10, 10))
                                 .attended(true)
                                 .paid(true)
                                 .build()))
@@ -364,7 +381,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
     }
 
     @Test
-    fun `should return the attendance dto on creation` () {
+    fun `should return the attendance dto on creation`() {
         val activityId = 2L
 
         elite2MockServer.stubUpdateAttendance()
@@ -394,14 +411,13 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
     @Test
     fun `should make a case note amendment request`() {
-        val bookingId = 1
+        val offenderNo = "BC1234D"
         val activityId = 2L
         val caseNoteId = 3L
 
         elite2MockServer.stubUpdateAttendance()
-        elite2MockServer.stubCaseNoteAmendment()
-
-        oauthMockServer.stubGrantToken()
+        caseNotesMockServer.stubCaseNoteAmendment(offenderNo)
+        elite2MockServer.stubGetBooking(offenderNo)
 
         val savedAttendance = attendanceRepository.save(
                 Attendance.builder()
@@ -437,7 +453,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         assertThat(response.statusCodeValue).isEqualTo(204)
 
-        elite2MockServer.verify(putRequestedFor(urlEqualTo("/api/bookings/$bookingId/caseNotes/$caseNoteId"))
+        caseNotesMockServer.verify(putRequestedFor(urlEqualTo("/case-notes/$offenderNo/$caseNoteId"))
                 .withRequestBody(matchingJsonPath("$[?(@.text == 'IEP rescinded: attended')]"))
 
         )
@@ -533,7 +549,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 .bookingId(1)
                 .build())
 
-       attendanceRepository.save(Attendance
+        attendanceRepository.save(Attendance
                 .builder()
                 .absentReason(AbsentReason.Refused)
                 .period(TimePeriod.PM)
@@ -557,14 +573,13 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         TimePeriod.PM)
 
         assertThat(response.statusCodeValue).isEqualTo(200)
-        assertThat(response.body).extracting("bookingId").contains(1L,2L)
+        assertThat(response.body).extracting("bookingId").contains(1L, 2L)
     }
 
     @Test
     fun `should attend all supplied in bookings`() {
         val bookingIds = setOf(1L, 2L)
 
-        oauthMockServer.stubGrantToken()
         elite2MockServer.stubUpdateAttendanceForBookingIds()
 
         attendanceRepository.deleteAll()
@@ -603,7 +618,6 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
     @Test
     fun `should return attendance information for offenders that have scheduled activity`() {
-        oauthMockServer.stubGrantToken()
         elite2MockServer.stubGetScheduledActivities()
 
         val prisonId = "MDI"
@@ -612,19 +626,19 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         attendanceRepository.save(
                 Attendance
-                    .builder()
-                    .absentReason(AbsentReason.Refused)
-                    .attended(false)
-                    .paid(false)
-                    .eventId(2)
-                    .eventLocationId(3)
-                    .period(TimePeriod.AM)
-                    .prisonId("MDI")
-                    .bookingId(1L)
-                    .eventDate(date)
-                    .createUserId("user")
-                    .caseNoteId(1)
-                    .build())
+                        .builder()
+                        .absentReason(AbsentReason.Refused)
+                        .attended(false)
+                        .paid(false)
+                        .eventId(2)
+                        .eventLocationId(3)
+                        .period(TimePeriod.AM)
+                        .prisonId("MDI")
+                        .bookingId(1L)
+                        .eventDate(date)
+                        .createUserId("user")
+                        .caseNoteId(1)
+                        .build())
 
 
         val response = restTemplate.exchange(
@@ -634,7 +648,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 ListOfAttendanceDtoReferenceType())
 
         assertThat(response.statusCodeValue).isEqualTo(200)
-        assertThat(response.body.size).isEqualTo(1)
+        assertThat(response.body).hasSize(1)
 
         elite2MockServer.verify(getRequestedFor(urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period")))
 

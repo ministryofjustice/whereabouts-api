@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 public class CaseNotesApiHealth extends HealthCheck {
 
     @Autowired
-    public CaseNotesApiHealth(@Qualifier("caseNotesApiRestTemplate") final RestTemplate restTemplate) {
+    public CaseNotesApiHealth(@Qualifier("caseNotesApiHealthRestTemplate") final RestTemplate restTemplate) {
         super(restTemplate);
     }
 }

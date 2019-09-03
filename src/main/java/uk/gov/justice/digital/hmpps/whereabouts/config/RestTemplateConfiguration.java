@@ -54,8 +54,8 @@ public class RestTemplateConfiguration {
         return getRestTemplate(restTemplateBuilder, oauthRootUri);
     }
 
-    @Bean(name = "caseNotesApiRestTemplate")
-    public RestTemplate caseNotesRestTemplate(final RestTemplateBuilder restTemplateBuilder) {
+    @Bean(name = "caseNotesApiHealthRestTemplate")
+    public RestTemplate caseNotesHealthRestTemplate(final RestTemplateBuilder restTemplateBuilder) {
         return getRestTemplate(restTemplateBuilder, caseNotesRootUri);
     }
 
@@ -72,8 +72,8 @@ public class RestTemplateConfiguration {
                 new JwtAuthInterceptor());
     }
 
-    @Bean
-    public OAuth2RestTemplate elite2SystemRestTemplate(final AuthenticationFacade authenticationFacade) {
+    @Bean(name = "elite2ApiRestTemplate")
+    public OAuth2RestTemplate elite2ApiRestTemplate(final AuthenticationFacade authenticationFacade) {
 
         final var elite2SystemRestTemplate = new OAuth2RestTemplate(elite2apiDetails, oauth2ClientContext);
         final var systemInterceptors = elite2SystemRestTemplate.getInterceptors();
@@ -87,6 +87,20 @@ public class RestTemplateConfiguration {
         return elite2SystemRestTemplate;
     }
 
+    @Bean(name = "caseNotesApiRestTemplate")
+    public OAuth2RestTemplate caseNotesApiRestTemplate(final AuthenticationFacade authenticationFacade) {
+
+        final var caseNotesApiRestTemplate = new OAuth2RestTemplate(elite2apiDetails, oauth2ClientContext);
+        final var systemInterceptors = caseNotesApiRestTemplate.getInterceptors();
+
+        systemInterceptors.add(new W3cTracingInterceptor());
+
+        caseNotesApiRestTemplate.setAccessTokenProvider(new GatewayAwareAccessTokenProvider(authenticationFacade));
+
+        RootUriTemplateHandler.addTo(caseNotesApiRestTemplate, caseNotesRootUri);
+
+        return caseNotesApiRestTemplate;
+    }
 
     public class GatewayAwareAccessTokenProvider extends ClientCredentialsAccessTokenProvider {
 
