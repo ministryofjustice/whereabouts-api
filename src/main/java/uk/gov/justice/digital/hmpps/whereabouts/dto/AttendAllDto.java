@@ -19,13 +19,9 @@ import java.util.Set;
 @Builder(toBuilder = true)
 @ApiModel(description = "Attend all parameters")
 public class AttendAllDto {
-    @ApiModelProperty(required = true, value = "Set of active booking ids", example = "1")
+    @ApiModelProperty(required = true, value = "Set of active booking and activity ids" )
     @NotNull
-    private Set<Long> bookingIds;
-
-    @ApiModelProperty(required = true, value = "Id of event", example = "2")
-    @NotNull
-    private Long eventId;
+    private Set<BookingActivity> bookingActivities;
 
     @ApiModelProperty(required = true, value = "Id of the location the event is taking place", example = "4")
     @NotNull
@@ -43,5 +39,4 @@ public class AttendAllDto {
     @ApiModelProperty(required = true, value = "Date the event is scheduled", example = "2019-10-01")
     @NotNull
     private LocalDate eventDate;
-
 }

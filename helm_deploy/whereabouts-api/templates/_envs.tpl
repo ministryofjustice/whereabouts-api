@@ -19,6 +19,9 @@ env:
   - name: ELITE2API_ENDPOINT_URL
     value: "{{ .Values.env.ELITE2API_ENDPOINT_URL }}"
 
+  - name: CASENOTES_ENDPOINT_URL
+    value: "{{ .Values.env.CASENOTES_ENDPOINT_URL }}"
+
   - name: OAUTH_ENDPOINT_URL
     value: "{{ .Values.env.OAUTH_ENDPOINT_URL }}"
 

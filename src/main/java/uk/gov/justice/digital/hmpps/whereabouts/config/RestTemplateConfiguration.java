@@ -29,11 +29,11 @@ public class RestTemplateConfiguration {
     @Value("${elite2api.endpoint.url}")
     private String elite2UriRoot;
 
-    @Value("${elite2api.endpoint.url.api}")
-    private String apiRootUri;
-
     @Value("${oauth.endpoint.url}")
     private String oauthRootUri;
+
+    @Value("${casenotes.endpoint.url}")
+    private String caseNotesRootUri;
 
     private final OAuth2ClientContext oauth2ClientContext;
     private final ClientCredentialsResourceDetails elite2apiDetails;
@@ -54,6 +54,11 @@ public class RestTemplateConfiguration {
         return getRestTemplate(restTemplateBuilder, oauthRootUri);
     }
 
+    @Bean(name = "caseNotesApiHealthRestTemplate")
+    public RestTemplate caseNotesHealthRestTemplate(final RestTemplateBuilder restTemplateBuilder) {
+        return getRestTemplate(restTemplateBuilder, caseNotesRootUri);
+    }
+
     private RestTemplate getRestTemplate(final RestTemplateBuilder restTemplateBuilder, final String uri) {
         return restTemplateBuilder
                 .rootUri(uri)
@@ -67,8 +72,8 @@ public class RestTemplateConfiguration {
                 new JwtAuthInterceptor());
     }
 
-    @Bean
-    public OAuth2RestTemplate elite2SystemRestTemplate(final AuthenticationFacade authenticationFacade) {
+    @Bean(name = "elite2ApiRestTemplate")
+    public OAuth2RestTemplate elite2ApiRestTemplate(final AuthenticationFacade authenticationFacade) {
 
         final var elite2SystemRestTemplate = new OAuth2RestTemplate(elite2apiDetails, oauth2ClientContext);
         final var systemInterceptors = elite2SystemRestTemplate.getInterceptors();
@@ -77,15 +82,29 @@ public class RestTemplateConfiguration {
 
         elite2SystemRestTemplate.setAccessTokenProvider(new GatewayAwareAccessTokenProvider(authenticationFacade));
 
-        RootUriTemplateHandler.addTo(elite2SystemRestTemplate, this.apiRootUri);
+        RootUriTemplateHandler.addTo(elite2SystemRestTemplate, elite2UriRoot + "/api");
 
         return elite2SystemRestTemplate;
     }
 
+    @Bean(name = "caseNotesApiRestTemplate")
+    public OAuth2RestTemplate caseNotesApiRestTemplate(final AuthenticationFacade authenticationFacade) {
+
+        final var caseNotesApiRestTemplate = new OAuth2RestTemplate(elite2apiDetails, oauth2ClientContext);
+        final var systemInterceptors = caseNotesApiRestTemplate.getInterceptors();
+
+        systemInterceptors.add(new W3cTracingInterceptor());
+
+        caseNotesApiRestTemplate.setAccessTokenProvider(new GatewayAwareAccessTokenProvider(authenticationFacade));
+
+        RootUriTemplateHandler.addTo(caseNotesApiRestTemplate, caseNotesRootUri);
+
+        return caseNotesApiRestTemplate;
+    }
 
     public class GatewayAwareAccessTokenProvider extends ClientCredentialsAccessTokenProvider {
 
-        public GatewayAwareAccessTokenProvider(final AuthenticationFacade authenticationFacade) {
+        GatewayAwareAccessTokenProvider(final AuthenticationFacade authenticationFacade) {
             this.setTokenRequestEnhancer(new TokenRequestEnhancer(authenticationFacade));
         }
 
@@ -99,12 +118,12 @@ public class RestTemplateConfiguration {
 
         private final AuthenticationFacade authenticationFacade;
 
-        TokenRequestEnhancer(AuthenticationFacade authenticationFacade) {
+        TokenRequestEnhancer(final AuthenticationFacade authenticationFacade) {
             this.authenticationFacade = authenticationFacade;
         }
 
         @Override
-        public void enhance(AccessTokenRequest request, OAuth2ProtectedResourceDetails resource, MultiValueMap<String, String> form, HttpHeaders headers) {
+        public void enhance(final AccessTokenRequest request, final OAuth2ProtectedResourceDetails resource, final MultiValueMap<String, String> form, final HttpHeaders headers) {
             form.set("username", authenticationFacade.getCurrentUsername());
         }
     }

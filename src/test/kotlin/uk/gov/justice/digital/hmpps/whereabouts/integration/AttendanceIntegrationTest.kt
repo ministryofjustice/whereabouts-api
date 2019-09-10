@@ -2,16 +2,15 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.exchange
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendAllDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.*
+import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.CaseNotesMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.Elite2MockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
@@ -20,8 +19,9 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.stream.Collectors
 
-class AttendanceIntegrationTest : IntegrationTest () {
+class AttendanceIntegrationTest : IntegrationTest() {
 
     companion object {
         @get:ClassRule
@@ -31,10 +31,23 @@ class AttendanceIntegrationTest : IntegrationTest () {
         @get:ClassRule
         @JvmStatic
         val oauthMockServer = OAuthMockServer()
+
+        @get:ClassRule
+        @JvmStatic
+        val caseNotesMockServer = CaseNotesMockServer()
     }
 
     @Autowired
     lateinit var attendanceRepository: AttendanceRepository
+
+    @Before
+    fun resetStubs() {
+        elite2MockServer.resetAll()
+        oauthMockServer.resetAll()
+        caseNotesMockServer.resetAll()
+
+        oauthMockServer.stubGrantToken()
+    }
 
     @Test
     fun `should make an elite api request to update an offenders attendance`() {
@@ -74,12 +87,13 @@ class AttendanceIntegrationTest : IntegrationTest () {
     fun `should make an elite api request to create a IEP warning case note`() {
         val activityId = 2L
         val bookingId = 1
+        val offenderNo = "AB1234C"
         val comments = "Test comment"
         val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
-        val createCaseNote = "/api/bookings/$bookingId/caseNotes"
 
         elite2MockServer.stubUpdateAttendance()
-        elite2MockServer.stubCreateCaseNote()
+        caseNotesMockServer.stubCreateCaseNote()
+        elite2MockServer.stubGetBooking()
 
         val attendance = CreateAttendanceDto
                 .builder()
@@ -96,7 +110,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 .build()
 
         val response: ResponseEntity<String> =
-                restTemplate.exchange("/attendance",   HttpMethod.POST, createHeaderEntity(attendance))
+                restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendance))
 
         assertThat(response.statusCodeValue).isEqualTo(201)
 
@@ -107,7 +121,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 )))
         ))
 
-       elite2MockServer.verify(postRequestedFor(urlEqualTo(createCaseNote))
+        caseNotesMockServer.verify(postRequestedFor(urlEqualTo("/case-notes/$offenderNo"))
                 .withRequestBody(matchingJsonPath("$[?(@.type == 'NEG')]"))
                 .withRequestBody(matchingJsonPath("$[?(@.subType == 'IEP_WARN')]"))
                 .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused - $comments')]"))
@@ -118,7 +132,8 @@ class AttendanceIntegrationTest : IntegrationTest () {
     @Test
     fun `receive a list of attendance for a prison, location, date and period`() {
         elite2MockServer.stubUpdateAttendance()
-        elite2MockServer.stubCreateCaseNote()
+        elite2MockServer.stubGetBooking()
+        caseNotesMockServer.stubCreateCaseNote()
 
         attendanceRepository.deleteAll()
 
@@ -177,17 +192,17 @@ class AttendanceIntegrationTest : IntegrationTest () {
     fun `should return a bad request when the 'bookingId' is missing`() {
 
         val response: ResponseEntity<String> =
-            restTemplate.exchange("/attendance", HttpMethod.POST,
-                  createHeaderEntity(CreateAttendanceDto
-                    .builder()
-                    .prisonId("LEI")
-                    .eventId(2)
-                    .eventLocationId(2)
-                    .eventDate(LocalDate.of(2010, 10, 10))
-                    .period(TimePeriod.AM)
-                    .attended(true)
-                    .paid(true)
-                    .build()))
+                restTemplate.exchange("/attendance", HttpMethod.POST,
+                        createHeaderEntity(CreateAttendanceDto
+                                .builder()
+                                .prisonId("LEI")
+                                .eventId(2)
+                                .eventLocationId(2)
+                                .eventDate(LocalDate.of(2010, 10, 10))
+                                .period(TimePeriod.AM)
+                                .attended(true)
+                                .paid(true)
+                                .build()))
 
         assertThat(response.statusCodeValue).isEqualTo(400)
     }
@@ -283,7 +298,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                                 .prisonId("LEI")
                                 .eventId(1)
                                 .eventLocationId(1)
-                                .eventDate(LocalDate.of(2019,10,10))
+                                .eventDate(LocalDate.of(2019, 10, 10))
                                 .attended(true)
                                 .paid(true)
                                 .build()))
@@ -366,7 +381,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
     }
 
     @Test
-    fun `should return the attendance dto on creation` () {
+    fun `should return the attendance dto on creation`() {
         val activityId = 2L
 
         elite2MockServer.stubUpdateAttendance()
@@ -390,86 +405,19 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         assertThat(savedAttendance.id).isGreaterThan(0)
         assertThat(savedAttendance.createUserId).isEqualTo("ITAG_USER")
-        assertThat(savedAttendance.locked).isEqualTo(true)
+        assertThat(savedAttendance.locked).isEqualTo(false)
         assertThat(response.statusCodeValue).isEqualTo(201)
     }
 
     @Test
-    fun `should return a 400 bad request when 'locked' is true for paid`() {
-        val yesterdayDateTime = LocalDateTime.now().minusDays(1)
-
-        elite2MockServer.stubUpdateAttendance()
-
-        val persistedAttendance = attendanceRepository.save(
-                Attendance.builder()
-                        .absentReason(AbsentReason.Refused)
-                        .bookingId(1)
-                        .comments("Refused to turn up")
-                        .attended(false)
-                        .paid(true)
-                        .createDateTime(yesterdayDateTime)
-                        .eventDate(yesterdayDateTime.toLocalDate())
-                        .eventId(1)
-                        .prisonId("LEI")
-                        .period(TimePeriod.AM)
-                        .eventLocationId(2)
-                        .build())
-
-        val response =
-                restTemplate.exchange(
-                        "/attendance/${persistedAttendance.id}",
-                        HttpMethod.PUT,
-                        createHeaderEntity(UpdateAttendanceDto.builder().attended(true).paid(true).build()),
-                        String::class.java,
-                        LocalDate.of(2019, 10, 10),
-                        TimePeriod.AM)
-
-        assertThat(response.statusCodeValue).isEqualTo(400)
-    }
-
-    @Test
-    fun `should return a 400 bad request when 'locked' is true for unpaid`() {
-        val sevenDaysAgoDateTime = LocalDateTime.now().minusDays(7)
-
-        elite2MockServer.stubUpdateAttendance()
-
-        val persistedAttendance = attendanceRepository.save(
-                Attendance.builder()
-                        .absentReason(AbsentReason.Refused)
-                        .bookingId(1)
-                        .comments("Refused to turn up")
-                        .attended(false)
-                        .paid(false)
-                        .createDateTime(sevenDaysAgoDateTime)
-                        .eventDate(sevenDaysAgoDateTime.toLocalDate())
-                        .eventId(1)
-                        .prisonId("LEI")
-                        .period(TimePeriod.AM)
-                        .eventLocationId(2)
-                        .build())
-
-        val response =
-                restTemplate.exchange(
-                        "/attendance/${persistedAttendance.id}",
-                        HttpMethod.PUT,
-                        createHeaderEntity(UpdateAttendanceDto.builder().attended(true).paid(true).build()),
-                        String::class.java,
-                        LocalDate.of(2019, 10, 10),
-                        TimePeriod.AM)
-
-        assertThat(response.statusCodeValue).isEqualTo(400)
-    }
-
-    @Test
     fun `should make a case note amendment request`() {
-        val bookingId = 1
+        val offenderNo = "BC1234D"
         val activityId = 2L
         val caseNoteId = 3L
 
         elite2MockServer.stubUpdateAttendance()
-        elite2MockServer.stubCaseNoteAmendment()
-
-        oauthMockServer.stubGrantToken()
+        caseNotesMockServer.stubCaseNoteAmendment(offenderNo)
+        elite2MockServer.stubGetBooking(offenderNo)
 
         val savedAttendance = attendanceRepository.save(
                 Attendance.builder()
@@ -505,7 +453,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
 
         assertThat(response.statusCodeValue).isEqualTo(204)
 
-        elite2MockServer.verify(putRequestedFor(urlEqualTo("/api/bookings/$bookingId/caseNotes/$caseNoteId"))
+        caseNotesMockServer.verify(putRequestedFor(urlEqualTo("/case-notes/$offenderNo/$caseNoteId"))
                 .withRequestBody(matchingJsonPath("$[?(@.text == 'IEP rescinded: attended')]"))
 
         )
@@ -601,7 +549,7 @@ class AttendanceIntegrationTest : IntegrationTest () {
                 .bookingId(1)
                 .build())
 
-       attendanceRepository.save(Attendance
+        attendanceRepository.save(Attendance
                 .builder()
                 .absentReason(AbsentReason.Refused)
                 .period(TimePeriod.PM)
@@ -625,26 +573,29 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         TimePeriod.PM)
 
         assertThat(response.statusCodeValue).isEqualTo(200)
-        assertThat(response.body).extracting("bookingId").contains(1L,2L)
+        assertThat(response.body).extracting("bookingId").contains(1L, 2L)
     }
 
     @Test
     fun `should attend all supplied in bookings`() {
         val bookingIds = setOf(1L, 2L)
 
-        oauthMockServer.stubGrantToken()
         elite2MockServer.stubUpdateAttendanceForBookingIds()
 
         attendanceRepository.deleteAll()
 
+        val bookingActivities = bookingIds
+                .stream()
+                .map { BookingActivity.builder().activityId(2L).bookingId(it).build() }
+                .collect(Collectors.toSet())
+
         val attendAll = AttendAllDto
                 .builder()
-                .bookingIds(bookingIds)
                 .eventDate(LocalDate.of(2019, 10, 10))
                 .eventLocationId(1L)
-                .eventId(2L)
                 .prisonId("LEI")
                 .period(TimePeriod.AM)
+                .bookingActivities(bookingActivities)
                 .build()
 
         val response =
@@ -652,18 +603,54 @@ class AttendanceIntegrationTest : IntegrationTest () {
                         "/attendance/attend-all",
                         HttpMethod.POST,
                         createHeaderEntity(attendAll),
-                        String::class.java,
-                        LocalDate.of(2019, 10, 10),
-                        TimePeriod.PM)
+                        String::class.java)
 
         assertThat(response.statusCodeValue).isEqualTo(201)
 
-        elite2MockServer.verify(putRequestedFor(urlEqualTo("/api/bookings/activities/2/attendance"))
+        elite2MockServer.verify(putRequestedFor(urlEqualTo("/api/bookings/activities/attendance"))
                 .withRequestBody(equalToJson(gson.toJson(mapOf(
                         "eventOutcome" to "ATT",
                         "performance" to "STANDARD",
                         "outcomeComment" to "",
-                        "bookingIds" to bookingIds
+                        "bookingActivities" to bookingActivities
                 )))))
+    }
+
+    @Test
+    fun `should return attendance information for offenders that have scheduled activity`() {
+        elite2MockServer.stubGetScheduledActivities()
+
+        val prisonId = "MDI"
+        val date = LocalDate.now()
+        val period = TimePeriod.AM
+
+        attendanceRepository.save(
+                Attendance
+                        .builder()
+                        .absentReason(AbsentReason.Refused)
+                        .attended(false)
+                        .paid(false)
+                        .eventId(2)
+                        .eventLocationId(3)
+                        .period(TimePeriod.AM)
+                        .prisonId("MDI")
+                        .bookingId(1L)
+                        .eventDate(date)
+                        .createUserId("user")
+                        .caseNoteId(1)
+                        .build())
+
+
+        val response = restTemplate.exchange(
+                "/attendance/$prisonId/attendance-for-scheduled-activities?date=$date&period=$period",
+                HttpMethod.GET,
+                createHeaderEntity(""),
+                ListOfAttendanceDtoReferenceType())
+
+        assertThat(response.statusCodeValue).isEqualTo(200)
+        assertThat(response.body).hasSize(1)
+
+        elite2MockServer.verify(getRequestedFor(urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period")))
+
     }
 }
