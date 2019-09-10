@@ -438,10 +438,13 @@ class AttendanceServiceTest {
         `when`(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
                 .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
+        val date = LocalDate.of(2019, 10, 10)
+
         `when`(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
         val attendance = testAttendanceDto
                 .toBuilder()
+                .eventDate(date)
                 .absentReason(AbsentReason.UnacceptableAbsence)
                 .attended(false)
                 .paid(false)
@@ -449,20 +452,24 @@ class AttendanceServiceTest {
 
         service.createAttendance(attendance)
 
-        verify(caseNotesService).postCaseNote(
-                eq("AB1234C"),
-                eq("NEG"),
-                eq("IEP_WARN"),
-                eq("Unacceptable absence - hello"),
-                isA(LocalDateTime::class.java))
+        verify(caseNotesService)
+                .postCaseNote(
+                        eq("AB1234C"),
+                        eq("NEG"),
+                        eq("IEP_WARN"),
+                        eq("Unacceptable absence - hello"),
+                        eq(date.atStartOfDay()))
     }
 
 
     @Test
     fun `should create negative case note for 'Refused'`() {
 
+        val date = LocalDate.of(2019, 10, 10)
+
         val attendance = testAttendanceDto
                 .toBuilder()
+                .eventDate(date)
                 .absentReason(AbsentReason.Refused)
                 .attended(false)
                 .paid(false)
@@ -480,16 +487,19 @@ class AttendanceServiceTest {
                         eq("NEG"),
                         eq("IEP_WARN"),
                         eq("Refused - hello"),
-                        isA(LocalDateTime::class.java))
+                        eq(date.atStartOfDay()))
     }
 
     @Test
     fun `should create a negative case note using user supplied comment`() {
 
+        val date = LocalDate.of(2019, 10, 10)
+
         val attendance = testAttendanceDto
                 .toBuilder()
                 .absentReason(AbsentReason.Refused)
                 .attended(false)
+                .eventDate(date)
                 .comments("test comment")
                 .paid(false)
                 .build()
@@ -506,7 +516,7 @@ class AttendanceServiceTest {
                         eq("NEG"),
                         eq("IEP_WARN"),
                         eq("Refused - test comment"),
-                        isA(LocalDateTime::class.java))
+                        eq(date.atStartOfDay()))
     }
 
 

@@ -77,7 +77,8 @@ public class AttendanceService {
                 attendance.getBookingId(),
                 attendance.getCaseNoteId(),
                 attendance.getAbsentReason(),
-                attendance.getComments()
+                attendance.getComments(),
+                attendance.getEventDate()
         ).ifPresent(attendance::setCaseNoteId);
 
         log.info("attendance created {}", attendance.toBuilder().comments(null));
@@ -176,12 +177,15 @@ public class AttendanceService {
 
             return Optional.empty();
         }
+
         return postIEPWarningIfRequired(
                 attendance.getBookingId(),
                 attendance.getCaseNoteId(),
                 newAttendanceDetails.getAbsentReason(),
-                newAttendanceDetails.getComments()
+                newAttendanceDetails.getComments(),
+                attendance.getEventDate()
         );
+
     }
 
 
@@ -197,7 +201,7 @@ public class AttendanceService {
         elite2ApiService.putAttendance(attendance.getBookingId(), attendance.getEventId(), eventOutcome);
     }
 
-    private Optional<Long> postIEPWarningIfRequired(final Long bookingId, final Long caseNoteId, final AbsentReason reason, final String text) {
+    private Optional<Long> postIEPWarningIfRequired(final Long bookingId, final Long caseNoteId, final AbsentReason reason, final String text, final LocalDate eventDate) {
         if (caseNoteId == null && reason != null && AbsentReason.getIepTriggers().contains(reason)) {
             log.info("IEP Warning created for bookingId {}", bookingId);
             final var offenderNo = elite2ApiService.getOffenderNoFromBookingId(bookingId);
@@ -208,7 +212,7 @@ public class AttendanceService {
                     "NEG",//"Negative Behaviour"
                     "IEP_WARN", //"IEP Warning",
                     modifiedTextWithReason,
-                    LocalDateTime.now());
+                    eventDate.atStartOfDay());
             return Optional.of(caseNote.getCaseNoteId());
         }
 
