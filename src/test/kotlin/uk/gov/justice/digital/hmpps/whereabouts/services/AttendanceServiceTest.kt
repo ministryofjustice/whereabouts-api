@@ -464,8 +464,11 @@ class AttendanceServiceTest {
         `when`(nomisService.postCaseNote(anyLong(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
                 .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
+        val date = LocalDate.of(2019, 10, 10)
+
         val attendance = testAttendanceDto
                 .toBuilder()
+                .eventDate(date)
                 .absentReason(AbsentReason.UnacceptableAbsence)
                 .attended(false)
                 .paid(false)
@@ -481,15 +484,18 @@ class AttendanceServiceTest {
                         eq("NEG"),
                         eq("IEP_WARN"),
                         eq("Unacceptable absence - hello"),
-                        isA(LocalDateTime::class.java))
+                        eq(date.atStartOfDay()))
     }
 
 
     @Test
     fun `should create negative case note for 'Refused'`() {
 
+        val date = LocalDate.of(2019, 10, 10)
+
         val attendance = testAttendanceDto
                 .toBuilder()
+                .eventDate(date)
                 .absentReason(AbsentReason.Refused)
                 .attended(false)
                 .paid(false)
@@ -508,7 +514,7 @@ class AttendanceServiceTest {
                         eq("NEG"),
                         eq("IEP_WARN"),
                         eq("Refused - hello"),
-                        isA(LocalDateTime::class.java))
+                        eq(date.atStartOfDay()))
     }
 
     @Test
@@ -516,10 +522,13 @@ class AttendanceServiceTest {
 
         val service = AttendanceService(attendanceRepository, nomisService)
 
+        val date = LocalDate.of(2019, 10, 10)
+
         val attendance = testAttendanceDto
                 .toBuilder()
                 .absentReason(AbsentReason.Refused)
                 .attended(false)
+                .eventDate(date)
                 .comments("test comment")
                 .paid(false)
                 .build()
@@ -535,7 +544,7 @@ class AttendanceServiceTest {
                         eq("NEG"),
                         eq("IEP_WARN"),
                         eq("Refused - test comment"),
-                        isA(LocalDateTime::class.java))
+                        eq(date.atStartOfDay()))
     }
 
 
