@@ -84,7 +84,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
     }
 
     @Test
-    fun `should make an elite api request to create a IEP warning case note`() {
+    fun `should make a case note service request to create a IEP warning case note`() {
         val activityId = 2L
         val bookingId = 1
         val offenderNo = "AB1234C"
@@ -125,7 +125,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
                 .withRequestBody(matchingJsonPath("$[?(@.type == 'NEG')]"))
                 .withRequestBody(matchingJsonPath("$[?(@.subType == 'IEP_WARN')]"))
                 .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused - $comments')]"))
-                .withRequestBody(matchingJsonPath("$.occurrence"))
+                .withRequestBody(matchingJsonPath("$.occurrenceDateTime"))
         )
     }
 
