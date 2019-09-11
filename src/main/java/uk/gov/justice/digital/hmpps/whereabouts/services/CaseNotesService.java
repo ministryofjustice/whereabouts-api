@@ -25,7 +25,7 @@ public class CaseNotesService {
                         "type", type,
                         "subType", subType,
                         "text", text,
-                        "occurrence", occurrence.toString()),
+                        "occurrenceDateTime", occurrence.toString()),
                 CaseNoteDto.class, offenderNo);
 
         return response.getBody();
