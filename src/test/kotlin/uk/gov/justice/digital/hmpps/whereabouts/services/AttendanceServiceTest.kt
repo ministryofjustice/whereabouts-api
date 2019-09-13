@@ -1077,7 +1077,7 @@ class AttendanceServiceTest {
     }
 
     @Test
-    fun `should create an attendance record locally and via elite for multiple bookings`() {
+    fun `should create an attendance record locally and via elite for multiple bookings for attend-all`() {
         val bookingIds = setOf(1L, 2L)
 
         val bookingActivities = bookingIds
@@ -1225,5 +1225,63 @@ class AttendanceServiceTest {
                                 .build()
                 )
         )
+    }
+
+    @Test
+    fun `should create an attendance records locally and push event out comes up to elite for multiple bookings`() {
+        val bookingIds = setOf(1L, 2L)
+
+        val bookingActivities = bookingIds
+                .stream()
+                .map { BookingActivity.builder().activityId(1L).bookingId(it).build() }
+                .collect(Collectors.toSet())
+
+        val savedAttendanceDetails = service.createAttendances(
+                AttendancesDto
+                        .builder()
+                        .eventDate(LocalDate.now().minusDays(1))
+                        .eventLocationId(2L)
+                        .prisonId("LEI")
+                        .period(TimePeriod.AM)
+                        .reason(AbsentReason.AcceptableAbsence)
+                        .comments("test")
+                        .attended(false)
+                        .paid(true)
+                        .bookingActivities(bookingActivities)
+                        .build())
+
+        assertThat(savedAttendanceDetails).containsExactlyInAnyOrder(
+                AttendanceDto
+                        .builder()
+                        .bookingId(1L)
+                        .eventDate(LocalDate.now().minusDays(1))
+                        .eventId(1L)
+                        .eventLocationId(2L)
+                        .prisonId("LEI")
+                        .period(TimePeriod.AM)
+                        .locked(false)
+                        .attended(false)
+                        .paid(true)
+                        .comments("test")
+                        .absentReason(AbsentReason.AcceptableAbsence)
+                        .build(),
+                AttendanceDto
+                        .builder()
+                        .bookingId(2L)
+                        .eventDate(LocalDate.now().minusDays(1))
+                        .eventId(1L)
+                        .eventLocationId(2L)
+                        .prisonId("LEI")
+                        .period(TimePeriod.AM)
+                        .locked(false)
+                        .paid(true)
+                        .attended(false)
+                        .comments("test")
+                        .absentReason(AbsentReason.AcceptableAbsence)
+                        .build())
+
+        verify(attendanceRepository).saveAll(anySet())
+        verify(elite2ApiService).putAttendanceForMultipleBookings(bookingActivities,
+                EventOutcome("ACCAB", null, "test"))
     }
 }

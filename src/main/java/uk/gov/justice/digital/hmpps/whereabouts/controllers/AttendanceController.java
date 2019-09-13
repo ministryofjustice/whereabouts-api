@@ -48,11 +48,24 @@ public class AttendanceController {
         return attendanceService.createAttendance(attendance);
     }
 
+    @PostMapping(value = "/bookings", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation(value = "Create new attendance records for multiple offenders (This endpoint does not trigger IEP warnings)",
+            responseContainer = "Set",
+            notes = "Stores new attendance record for multiple offenders, posts attendance details back up to PNOMIS")
+    public Set<AttendanceDto> postAttendances(
+            @ApiParam(value = "Attendance parameters parameters", required = true)
+            @RequestBody
+            @Valid final AttendancesDto attendances) {
+
+           return attendanceService.createAttendances(attendances);
+    }
+
     @PostMapping(value = "/attend-all", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "Attend all",
             responseContainer = "Set",
-            notes = "Stores new attendance records as paid attended, posts attendance details back up to PNOMIS for multiple booking ids")
+            notes = "Stores new attendance records as paid attended, posts attendance details back up to PNOMIS")
     public Set<AttendanceDto> attendAll(
             @ApiParam(value = "Attend all parameters", required = true)
             @RequestBody

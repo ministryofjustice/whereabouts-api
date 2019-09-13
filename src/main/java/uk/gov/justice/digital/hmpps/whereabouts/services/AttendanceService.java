@@ -12,7 +12,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.AbsentReasonFormatter;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -232,7 +231,47 @@ public class AttendanceService {
         return (attendance.getPaid()) ? dateDifference >= 1 : dateDifference >= 7;
     }
 
-    private Attendance toAttendance(final CreateAttendanceDto attendanceDto) {
+    public Set<AttendanceDto> getAttendanceForOffendersThatHaveScheduledActivity(final String prisonId, final LocalDate date, final TimePeriod period) {
+        final var bookingIds = elite2ApiService.getBookingIdsForScheduleActivities(prisonId, date, period);
+
+        final var attendances = attendanceRepository.
+                findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookingIds, date, period);
+
+        return attendances.stream().map(this::toAttendanceDto).collect(Collectors.toSet());
+    }
+
+    public Set<AttendanceDto> createAttendances(AttendancesDto attendancesDto) {
+        final var attendances = attendancesDto.getBookingActivities()
+                .stream()
+                .map(attendance -> Attendance.builder()
+                        .bookingId(attendance.getBookingId())
+                        .eventId(attendance.getActivityId())
+                        .attended(attendancesDto.getAttended())
+                        .paid(attendancesDto.getPaid())
+                        .absentReason(attendancesDto.getReason())
+                        .comments(attendancesDto.getComments())
+                        .eventDate(attendancesDto.getEventDate())
+                        .eventLocationId(attendancesDto.getEventLocationId())
+                        .period(attendancesDto.getPeriod())
+                        .prisonId(attendancesDto.getPrisonId())
+                        .build())
+                .collect(Collectors.toSet());
+
+        attendanceRepository.saveAll(attendances);
+
+        final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
+                attendancesDto.getReason(),
+                attendancesDto.getAttended(),
+                attendancesDto.getPaid(),
+                attendancesDto.getComments()
+        );
+
+        elite2ApiService.putAttendanceForMultipleBookings(attendancesDto.getBookingActivities(), eventOutcome);
+
+        return attendances.stream().map(this::toAttendanceDto).collect(Collectors.toSet());
+    }
+
+     private Attendance toAttendance(final CreateAttendanceDto attendanceDto) {
         return Attendance
                 .builder()
                 .eventLocationId(attendanceDto.getEventLocationId())
@@ -268,14 +307,5 @@ public class AttendanceService {
                 .modifyDateTime(attendanceData.getModifyDateTime())
                 .modifyUserId(attendanceData.getModifyUserId())
                 .build();
-    }
-
-    public Set<AttendanceDto> getAttendanceForOffendersThatHaveScheduledActivity(final String prisonId, final LocalDate date, final TimePeriod period) {
-        final var bookingIds = elite2ApiService.getBookingIdsForScheduleActivities(prisonId, date, period);
-
-        final var attendances = attendanceRepository.
-                findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookingIds, date, period);
-
-        return attendances.stream().map(this::toAttendanceDto).collect(Collectors.toSet());
     }
 }
