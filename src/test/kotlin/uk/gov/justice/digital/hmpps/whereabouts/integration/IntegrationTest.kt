@@ -27,8 +27,6 @@ class ListOfAttendanceDtoReferenceType : ParameterizedTypeReference<List<Attenda
 @ContextConfiguration
 @Slf4j
 abstract class IntegrationTest {
-
-
     @Autowired
     lateinit var restTemplate: TestRestTemplate
 
