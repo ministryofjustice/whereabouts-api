@@ -16,7 +16,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService;
 public class AbsentReasonsController {
     private final AttendanceService attendanceService;
 
-    public AbsentReasonsController(AttendanceService attendanceService) {
+    public AbsentReasonsController(final AttendanceService attendanceService) {
         this.attendanceService = attendanceService;
     }
 

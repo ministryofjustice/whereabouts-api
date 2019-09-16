@@ -29,7 +29,7 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 public class AttendancesController {
     private final AttendanceService attendanceService;
 
-    public AttendancesController(AttendanceService attendanceService) {
+    public AttendancesController(final AttendanceService attendanceService) {
         this.attendanceService = attendanceService;
     }
 
