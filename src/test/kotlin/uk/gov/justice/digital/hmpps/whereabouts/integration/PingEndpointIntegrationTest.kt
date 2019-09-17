@@ -13,11 +13,8 @@ import org.springframework.util.MimeType
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PingEndpointIntegrationTest {
-
-
     @Autowired
     lateinit var testRestTemplate: TestRestTemplate
-
 
     @Test
     fun `ping endpoint responds with pong`() {

@@ -2,36 +2,12 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
-import com.github.tomakehurst.wiremock.junit.WireMockRule
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
-import org.junit.ClassRule
 import org.junit.Test
 
 
 class HealthCheckIntegrationTest : IntegrationTest() {
-    companion object {
-        @get:ClassRule
-        @JvmStatic
-        val elite2MockServer = WireMockRule(8999)
-
-        @get:ClassRule
-        @JvmStatic
-        val oauthMockServer = WireMockRule(8090)
-
-        @get:ClassRule
-        @JvmStatic
-        val caseNotesMockServer = WireMockRule(8093)
-    }
-
-    @Before
-    fun resetStubs() {
-        elite2MockServer.resetAll()
-        oauthMockServer.resetAll()
-        caseNotesMockServer.resetAll()
-    }
-
     @Test
     fun `Health page reports ok`() {
         subPing(200)

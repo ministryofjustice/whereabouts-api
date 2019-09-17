@@ -52,7 +52,7 @@ public class AttendanceController {
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "Attend all",
             responseContainer = "Set",
-            notes = "Stores new attendance records as paid attended, posts attendance details back up to PNOMIS for multiple booking ids")
+            notes = "Stores new attendance records as paid attended, posts attendance details back up to PNOMIS")
     public Set<AttendanceDto> attendAll(
             @ApiParam(value = "Attend all parameters", required = true)
             @RequestBody
