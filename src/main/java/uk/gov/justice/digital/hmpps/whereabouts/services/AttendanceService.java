@@ -269,7 +269,10 @@ public class AttendanceService {
 
         elite2ApiService.putAttendanceForMultipleBookings(attendancesDto.getBookingActivities(), eventOutcome);
 
-        return attendances.stream().map(this::toAttendanceDto).collect(Collectors.toSet());
+        return attendances
+                .stream()
+                .map(this::toAttendanceDto)
+                .collect(Collectors.toSet());
     }
 
      private Attendance toAttendance(final CreateAttendanceDto attendanceDto) {
