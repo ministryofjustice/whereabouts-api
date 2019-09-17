@@ -27,7 +27,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockSe
 class ListOfAttendanceDtoReferenceType : ParameterizedTypeReference<List<AttendanceDto>>()
 
 @RunWith(SpringJUnit4ClassRunner::class)
-//@RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @ContextConfiguration
