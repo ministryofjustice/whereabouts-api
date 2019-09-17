@@ -2,17 +2,12 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
-import org.junit.ClassRule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.exchange
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*
-import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.CaseNotesMockServer
-import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.Elite2MockServer
-import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -23,31 +18,8 @@ import java.util.stream.Collectors
 
 class AttendanceIntegrationTest : IntegrationTest() {
 
-    companion object {
-        @get:ClassRule
-        @JvmStatic
-        val elite2MockServer = Elite2MockServer()
-
-        @get:ClassRule
-        @JvmStatic
-        val oauthMockServer = OAuthMockServer()
-
-        @get:ClassRule
-        @JvmStatic
-        val caseNotesMockServer = CaseNotesMockServer()
-    }
-
     @Autowired
     lateinit var attendanceRepository: AttendanceRepository
-
-    @Before
-    fun resetStubs() {
-        elite2MockServer.resetAll()
-        oauthMockServer.resetAll()
-        caseNotesMockServer.resetAll()
-
-        oauthMockServer.stubGrantToken()
-    }
 
     @Test
     fun `should make an elite api request to update an offenders attendance`() {
@@ -403,10 +375,10 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
         val savedAttendance = response.body!!
 
+        assertThat(response.statusCodeValue).isEqualTo(201)
         assertThat(savedAttendance.id).isGreaterThan(0)
         assertThat(savedAttendance.createUserId).isEqualTo("ITAG_USER")
         assertThat(savedAttendance.locked).isEqualTo(false)
-        assertThat(response.statusCodeValue).isEqualTo(201)
     }
 
     @Test
@@ -581,7 +553,6 @@ class AttendanceIntegrationTest : IntegrationTest() {
         val bookingIds = setOf(1L, 2L)
 
         elite2MockServer.stubUpdateAttendanceForBookingIds()
-
         attendanceRepository.deleteAll()
 
         val bookingActivities = bookingIds

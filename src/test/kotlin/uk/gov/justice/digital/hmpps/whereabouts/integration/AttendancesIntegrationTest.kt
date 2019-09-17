@@ -2,8 +2,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
-import org.junit.ClassRule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
@@ -11,9 +9,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
-import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.CaseNotesMockServer
-import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.Elite2MockServer
-import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -24,32 +19,8 @@ import java.util.stream.Collectors
 
 class AttendancesIntegrationTest : IntegrationTest() {
 
-    companion object {
-        @get:ClassRule
-        @JvmStatic
-        val elite2MockServer = Elite2MockServer()
-
-        @get:ClassRule
-        @JvmStatic
-        val oauthMockServer = OAuthMockServer()
-
-        @get:ClassRule
-        @JvmStatic
-        val caseNotesMockServer = CaseNotesMockServer()
-    }
-
     @Autowired
     lateinit var attendanceRepository: AttendanceRepository
-
-    @Before
-    fun resetStubs() {
-        elite2MockServer.resetAll()
-        oauthMockServer.resetAll()
-        caseNotesMockServer.resetAll()
-
-        oauthMockServer.stubGrantToken()
-    }
-
 
     @Test
     fun `receive a list of attendance for a prison, location, date and period`() {

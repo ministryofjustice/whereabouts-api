@@ -240,6 +240,7 @@ public class AttendanceService {
         return attendances.stream().map(this::toAttendanceDto).collect(Collectors.toSet());
     }
 
+    @Transactional
     public Set<AttendanceDto> createAttendances(AttendancesDto attendancesDto) {
         final var attendances = attendancesDto.getBookingActivities()
                 .stream()
