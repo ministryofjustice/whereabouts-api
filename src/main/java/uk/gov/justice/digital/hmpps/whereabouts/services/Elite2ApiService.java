@@ -28,15 +28,12 @@ public class Elite2ApiService {
 
     public void putAttendanceForMultipleBookings(final Set<BookingActivity> bookingActivities, final EventOutcome eventOutcome) {
         final var url = "/bookings/activities/attendance";
-        final var performance = eventOutcome.getPerformance();
-        final var comments = eventOutcome.getOutcomeComment();
+        final var body = new HashMap<String, Object>();
 
-        final var body = Map.of(
-                "bookingActivities", bookingActivities,
-                "eventOutcome", eventOutcome.getEventOutcome(),
-                "performance", performance != null ? performance : "",
-                "outcomeComment", comments != null ? comments : ""
-        );
+        body.put("bookingActivities", bookingActivities);
+        body.put("eventOutcome", eventOutcome.getEventOutcome());
+        body.put("performance", eventOutcome.getPerformance());
+        body.put("outcomeComment", eventOutcome.getOutcomeComment());
 
         restTemplate.put(url, body);
     }
