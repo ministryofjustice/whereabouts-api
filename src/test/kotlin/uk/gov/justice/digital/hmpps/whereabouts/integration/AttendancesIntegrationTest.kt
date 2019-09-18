@@ -200,7 +200,6 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
         elite2MockServer.verify(WireMock.putRequestedFor(WireMock.urlEqualTo("/api/bookings/activities/attendance"))
                 .withRequestBody(WireMock.equalToJson(gson.toJson(mapOf(
-                        "outcomeComment" to null,
                         "performance" to "STANDARD",
                         "bookingActivities" to bookingActivities,
                         "eventOutcome" to "ATT"

@@ -12,7 +12,6 @@ private class LocalDateDeserializer : JsonDeserializer<LocalDate> {
 
 fun getGson() : Gson {
     return GsonBuilder()
-            .serializeNulls()
             .registerTypeAdapter(LocalDate::class.java, LocalDateDeserializer())
             .create()
 }
