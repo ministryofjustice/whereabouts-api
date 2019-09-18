@@ -174,7 +174,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     val bookingActivities = bookingIds
         .stream()
-        .map { BookingActivity.builder().activityId(2L).bookingId(it).build() }
+        .map { BookingActivity(activityId = 2L,bookingId = it) }
         .collect(Collectors.toSet())
 
     val attendAll = AttendancesDto
