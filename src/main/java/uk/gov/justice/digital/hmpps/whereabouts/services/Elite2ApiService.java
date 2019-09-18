@@ -29,17 +29,6 @@ public class Elite2ApiService {
 
     public void putAttendanceForMultipleBookings(final Set<BookingActivity> bookingActivities, final EventOutcome eventOutcome) {
         final var url = "/bookings/activities/attendance";
-        /*final var body = new HashMap<String, Object>();
-
-        body.put("bookingActivities", bookingActivities);
-        body.put("eventOutcome", eventOutcome.getEventOutcome());
-
-        if (eventOutcome.getPerformance() != null)
-            body.put("performance", eventOutcome.getPerformance());
-
-        if (eventOutcome.getOutcomeComment() != null)
-            body.put("outcomeComment", eventOutcome.getOutcomeComment());
-*/
 
         final var body = new EventOutcomesDto(
                 eventOutcome.getEventOutcome(),
@@ -47,6 +36,7 @@ public class Elite2ApiService {
                 eventOutcome.getOutcomeComment(),
                 bookingActivities
         );
+        
         restTemplate.put(url, body);
     }
 
