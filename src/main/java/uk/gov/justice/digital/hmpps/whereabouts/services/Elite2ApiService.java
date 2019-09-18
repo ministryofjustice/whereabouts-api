@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import java.time.LocalDate;
@@ -28,7 +29,7 @@ public class Elite2ApiService {
 
     public void putAttendanceForMultipleBookings(final Set<BookingActivity> bookingActivities, final EventOutcome eventOutcome) {
         final var url = "/bookings/activities/attendance";
-        final var body = new HashMap<String, Object>();
+        /*final var body = new HashMap<String, Object>();
 
         body.put("bookingActivities", bookingActivities);
         body.put("eventOutcome", eventOutcome.getEventOutcome());
@@ -38,7 +39,14 @@ public class Elite2ApiService {
 
         if (eventOutcome.getOutcomeComment() != null)
             body.put("outcomeComment", eventOutcome.getOutcomeComment());
+*/
 
+        final var body = new EventOutcomesDto(
+                eventOutcome.getEventOutcome(),
+                eventOutcome.getPerformance(),
+                eventOutcome.getOutcomeComment(),
+                bookingActivities
+        );
         restTemplate.put(url, body);
     }
 

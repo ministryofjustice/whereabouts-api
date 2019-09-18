@@ -1082,7 +1082,7 @@ class AttendanceServiceTest {
 
     val bookingActivities = bookingIds
         .stream()
-        .map { BookingActivity.builder().activityId(1L).bookingId(it).build() }
+        .map { BookingActivity(activityId = 1L, bookingId = it) }
         .collect(Collectors.toSet())
 
     val savedAttendanceDetails = service.attendAll(
@@ -1233,7 +1233,7 @@ class AttendanceServiceTest {
 
     val bookingActivities = bookingIds
         .stream()
-        .map { BookingActivity.builder().activityId(1L).bookingId(it).build() }
+        .map { BookingActivity(activityId = 1L, bookingId = it) }
         .collect(Collectors.toSet())
 
     val savedAttendanceDetails = service.createAttendances(
