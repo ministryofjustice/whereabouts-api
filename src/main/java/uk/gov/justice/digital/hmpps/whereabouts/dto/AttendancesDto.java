@@ -20,7 +20,7 @@ import java.util.Set;
 @Builder(toBuilder = true)
 @ApiModel(description = "Attend all parameters")
 public class AttendancesDto {
-    @ApiModelProperty(required = true, value = "Set of active booking and activity ids" )
+    @ApiModelProperty(required = true, value = "Set of active booking and activity ids")
     @NotNull
     private Set<BookingActivity> bookingActivities;
 
@@ -36,7 +36,7 @@ public class AttendancesDto {
     @NotNull
     private String prisonId;
 
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @ApiModelProperty(required = true, value = "Date the event is scheduled", example = "2019-10-01")
     @NotNull
     private LocalDate eventDate;

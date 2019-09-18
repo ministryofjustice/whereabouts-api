@@ -11,7 +11,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService;
 @Api(tags = {"absence-reasons"})
 @RestController()
 @RequestMapping(
-        value="absence-reasons",
+        value = "absence-reasons",
         produces = MediaType.APPLICATION_JSON_VALUE)
 public class AbsentReasonsController {
     private final AttendanceService attendanceService;

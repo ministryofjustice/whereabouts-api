@@ -5,13 +5,13 @@ import java.lang.reflect.Type
 import java.time.LocalDate
 
 private class LocalDateDeserializer : JsonDeserializer<LocalDate> {
-    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext?): LocalDate {
-        return LocalDate.parse(json.getAsJsonPrimitive().getAsString())
-    }
+  override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext?): LocalDate {
+    return LocalDate.parse(json.getAsJsonPrimitive().getAsString())
+  }
 }
 
-fun getGson() : Gson {
-    return GsonBuilder()
-            .registerTypeAdapter(LocalDate::class.java, LocalDateDeserializer())
-            .create()
+fun getGson(): Gson {
+  return GsonBuilder()
+      .registerTypeAdapter(LocalDate::class.java, LocalDateDeserializer())
+      .create()
 }

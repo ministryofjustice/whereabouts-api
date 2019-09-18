@@ -51,12 +51,12 @@ public class CreateAttendanceDto {
     @ApiModelProperty(value = "Reason the offender did not attendance the event", example = "Refused")
     private AbsentReason absentReason;
 
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @ApiModelProperty(required = true, value = "Date the event is scheduled", example = "2019-10-01")
     @NotNull
     private LocalDate eventDate;
 
     @Length(max = 240)
-    @ApiModelProperty( value = "Comments about non attendance. This also gets used for the IEP warning text ")
+    @ApiModelProperty(value = "Comments about non attendance. This also gets used for the IEP warning text ")
     private String comments;
 }
