@@ -32,8 +32,12 @@ public class Elite2ApiService {
 
         body.put("bookingActivities", bookingActivities);
         body.put("eventOutcome", eventOutcome.getEventOutcome());
-        body.put("performance", eventOutcome.getPerformance());
-        body.put("outcomeComment", eventOutcome.getOutcomeComment());
+
+        if(eventOutcome.getPerformance() != null)
+            body.put("performance", eventOutcome.getPerformance());
+
+        if(eventOutcome.getOutcomeComment() != null)
+            body.put("outcomeComment", eventOutcome.getOutcomeComment());
 
         restTemplate.put(url, body);
     }
