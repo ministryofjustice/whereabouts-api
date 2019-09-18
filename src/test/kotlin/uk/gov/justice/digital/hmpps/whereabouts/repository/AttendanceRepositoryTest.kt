@@ -22,51 +22,51 @@ import javax.validation.ConstraintViolationException
 @Transactional
 open class AttendanceRepositoryTest {
 
-    @Autowired
-    lateinit var attendanceRepository: AttendanceRepository
+  @Autowired
+  lateinit var attendanceRepository: AttendanceRepository
 
-    private val now = LocalDate.now()
+  private val now = LocalDate.now()
 
-    private val attendance = Attendance.builder()
-            .attended(true)
-            .paid(true)
-            .bookingId(121)
-            .eventDate(LocalDate.now())
-            .eventId(1)
-            .eventLocationId(1)
-            .absentReason(AbsentReason.Refused)
-            .prisonId("LEI")
-            .period(TimePeriod.AM)
-            .build()
+  private val attendance = Attendance.builder()
+      .attended(true)
+      .paid(true)
+      .bookingId(121)
+      .eventDate(LocalDate.now())
+      .eventId(1)
+      .eventLocationId(1)
+      .absentReason(AbsentReason.Refused)
+      .prisonId("LEI")
+      .period(TimePeriod.AM)
+      .build()
 
-    @Test
-    fun `should insert attendance`() {
-        SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
+  @Test
+  fun `should insert attendance`() {
+    SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
 
-        val id = attendanceRepository.save(attendance).id
+    val id = attendanceRepository.save(attendance).id
 
-        TestTransaction.flagForCommit()
-        TestTransaction.end()
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
 
-        val savedAttendance = attendanceRepository.findById(id).get()
+    val savedAttendance = attendanceRepository.findById(id).get()
 
-        assertThat(savedAttendance.attended).isEqualTo(true)
-        assertThat(savedAttendance.paid).isEqualTo(true)
-        assertThat(savedAttendance.eventDate).isEqualTo(now)
-        assertThat(savedAttendance.eventId).isEqualTo(1)
-        assertThat(savedAttendance.eventLocationId).isEqualTo(1)
-        assertThat(savedAttendance.absentReason).isEqualTo(AbsentReason.Refused)
-        assertThat(savedAttendance.prisonId).isEqualToIgnoringCase("LEI")
-        assertThat(savedAttendance.period).isEqualTo(TimePeriod.AM)
+    assertThat(savedAttendance.attended).isEqualTo(true)
+    assertThat(savedAttendance.paid).isEqualTo(true)
+    assertThat(savedAttendance.eventDate).isEqualTo(now)
+    assertThat(savedAttendance.eventId).isEqualTo(1)
+    assertThat(savedAttendance.eventLocationId).isEqualTo(1)
+    assertThat(savedAttendance.absentReason).isEqualTo(AbsentReason.Refused)
+    assertThat(savedAttendance.prisonId).isEqualToIgnoringCase("LEI")
+    assertThat(savedAttendance.period).isEqualTo(TimePeriod.AM)
 
-        assertThat(savedAttendance.createUserId).isEqualTo("user")
-        assertThat(savedAttendance.createDateTime.toLocalDate()).isEqualTo(now)
+    assertThat(savedAttendance.createUserId).isEqualTo("user")
+    assertThat(savedAttendance.createDateTime.toLocalDate()).isEqualTo(now)
 
-    }
+  }
 
-    @Test(expected = ConstraintViolationException::class)
-    fun `should throw error on missing fields` () {
-            attendanceRepository.save(Attendance.builder().build())
-    }
+  @Test(expected = ConstraintViolationException::class)
+  fun `should throw error on missing fields`() {
+    attendanceRepository.save(Attendance.builder().build())
+  }
 
 }

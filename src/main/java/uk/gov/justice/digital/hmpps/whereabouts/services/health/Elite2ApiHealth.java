@@ -10,6 +10,6 @@ public class Elite2ApiHealth extends HealthCheck {
 
     @Autowired
     public Elite2ApiHealth(@Qualifier("elite2ApiHealthRestTemplate") final RestTemplate restTemplate) {
-       super(restTemplate);
+        super(restTemplate);
     }
 }

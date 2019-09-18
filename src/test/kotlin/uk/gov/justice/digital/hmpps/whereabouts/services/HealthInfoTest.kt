@@ -7,10 +7,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.health.HealthInfo
 import java.util.*
 
 class HealthInfoTest {
-    @Test
-    fun shouldIncludeVersionInfo() {
-        val properties = Properties()
-        properties.setProperty("version", "somever")
-        assertThat(HealthInfo(BuildProperties(properties)).health().details).isEqualTo(mapOf("version" to "somever"))
-    }
+  @Test
+  fun shouldIncludeVersionInfo() {
+    val properties = Properties()
+    properties.setProperty("version", "somever")
+    assertThat(HealthInfo(BuildProperties(properties)).health().details).isEqualTo(mapOf("version" to "somever"))
+  }
 }

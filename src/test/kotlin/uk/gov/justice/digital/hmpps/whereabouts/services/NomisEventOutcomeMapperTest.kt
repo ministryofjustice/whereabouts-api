@@ -5,46 +5,46 @@ import org.junit.Test
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 
 class NomisEventOutcomeMapperTest {
-    private val eventOutcomeMapper = NomisEventOutcomeMapper()
+  private val eventOutcomeMapper = NomisEventOutcomeMapper()
 
-    @Test
-    fun `should throw an exception when a unpaid reason is used for a paid attendance`() {
-        val unpaidReasons = AbsentReason.getUnpaidReasons()
+  @Test
+  fun `should throw an exception when a unpaid reason is used for a paid attendance`() {
+    val unpaidReasons = AbsentReason.getUnpaidReasons()
 
-        unpaidReasons.forEach {
-            val reason = it
+    unpaidReasons.forEach {
+      val reason = it
 
-            assertThatThrownBy {
-                eventOutcomeMapper.getEventOutcome(reason, attended = false, paid = true, comment = null)
-            }.hasMessage(String.format("%s is not a valid paid reason", reason))
-        }
+      assertThatThrownBy {
+        eventOutcomeMapper.getEventOutcome(reason, attended = false, paid = true, comment = null)
+      }.hasMessage(String.format("%s is not a valid paid reason", reason))
     }
+  }
 
-    @Test
-    fun `should throw an exception when a paid reason is used for an unpaid attendance`() {
+  @Test
+  fun `should throw an exception when a paid reason is used for an unpaid attendance`() {
 
-        val unpaidReasons = AbsentReason.getPaidReasons()
+    val unpaidReasons = AbsentReason.getPaidReasons()
 
-        unpaidReasons.forEach {
-            val reason = it
+    unpaidReasons.forEach {
+      val reason = it
 
-            assertThatThrownBy {
-                eventOutcomeMapper.getEventOutcome(reason, attended = false, paid = false, comment = null)
-            }.hasMessage(String.format("%s is not a valid unpaid reason", reason))
-        }
+      assertThatThrownBy {
+        eventOutcomeMapper.getEventOutcome(reason, attended = false, paid = false, comment = null)
+      }.hasMessage(String.format("%s is not a valid unpaid reason", reason))
     }
+  }
 
-    @Test
-    fun `should throw an exception when an absent reason is supplied for a a valid attendance`() {
-        assertThatThrownBy {
-            eventOutcomeMapper.getEventOutcome(AbsentReason.SessionCancelled, attended = true, paid = true, comment = null)
-        }.hasMessage("An absent reason was supplied for a valid attendance")
-    }
+  @Test
+  fun `should throw an exception when an absent reason is supplied for a a valid attendance`() {
+    assertThatThrownBy {
+      eventOutcomeMapper.getEventOutcome(AbsentReason.SessionCancelled, attended = true, paid = true, comment = null)
+    }.hasMessage("An absent reason was supplied for a valid attendance")
+  }
 
-    @Test
-    fun `should make absent reason required when attendance is not set`() {
-        assertThatThrownBy {
-            eventOutcomeMapper.getEventOutcome(null, false, paid = true, comment = null)
-        }.hasMessage("An absent reason was not supplied")
-    }
+  @Test
+  fun `should make absent reason required when attendance is not set`() {
+    assertThatThrownBy {
+      eventOutcomeMapper.getEventOutcome(null, false, paid = true, comment = null)
+    }.hasMessage("An absent reason was not supplied")
+  }
 }

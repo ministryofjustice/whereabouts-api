@@ -32,47 +32,47 @@ class ListOfAttendanceDtoReferenceType : ParameterizedTypeReference<List<Attenda
 @ContextConfiguration
 @Slf4j
 abstract class IntegrationTest {
-    @Autowired
-    lateinit var restTemplate: TestRestTemplate
+  @Autowired
+  lateinit var restTemplate: TestRestTemplate
 
-    internal val gson: Gson = getGson()
+  internal val gson: Gson = getGson()
 
-    @Value("\${token}")
-    private val token: String? = null
+  @Value("\${token}")
+  private val token: String? = null
 
-    companion object {
-        @get:ClassRule
-        @JvmStatic
-        val elite2MockServer = Elite2MockServer()
+  companion object {
+    @get:ClassRule
+    @JvmStatic
+    val elite2MockServer = Elite2MockServer()
 
-        @get:ClassRule
-        @JvmStatic
-        val oauthMockServer = OAuthMockServer()
+    @get:ClassRule
+    @JvmStatic
+    val oauthMockServer = OAuthMockServer()
 
-        @get:ClassRule
-        @JvmStatic
-        val caseNotesMockServer = CaseNotesMockServer()
-    }
+    @get:ClassRule
+    @JvmStatic
+    val caseNotesMockServer = CaseNotesMockServer()
+  }
 
-    init {
-        SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
-        // Resolves an issue where Wiremock keeps previous sockets open from other tests causing connection resets
-        System.setProperty("http.keepAlive", "false");
-    }
+  init {
+    SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
+    // Resolves an issue where Wiremock keeps previous sockets open from other tests causing connection resets
+    System.setProperty("http.keepAlive", "false");
+  }
 
-    @Before
-    fun resetStubs() {
-        elite2MockServer.resetAll()
-        oauthMockServer.resetAll()
-        caseNotesMockServer.resetAll()
+  @Before
+  fun resetStubs() {
+    elite2MockServer.resetAll()
+    oauthMockServer.resetAll()
+    caseNotesMockServer.resetAll()
 
-        oauthMockServer.stubGrantToken()
-    }
+    oauthMockServer.stubGrantToken()
+  }
 
-    internal fun createHeaderEntity(entity: Any): HttpEntity<*> {
-        val headers = HttpHeaders()
-        headers.add("Authorization", "bearer $token")
-        headers.contentType = MediaType.APPLICATION_JSON
-        return HttpEntity(entity, headers)
-    }
+  internal fun createHeaderEntity(entity: Any): HttpEntity<*> {
+    val headers = HttpHeaders()
+    headers.add("Authorization", "bearer $token")
+    headers.contentType = MediaType.APPLICATION_JSON
+    return HttpEntity(entity, headers)
+  }
 }

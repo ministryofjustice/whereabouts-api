@@ -27,7 +27,7 @@ public class AttendanceDto {
     private Boolean attended;
     private AbsentReason absentReason;
     private Boolean paid;
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate eventDate;
     private String comments;
     private LocalDateTime createDateTime;

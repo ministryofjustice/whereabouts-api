@@ -13,16 +13,16 @@ import org.springframework.util.MimeType
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PingEndpointIntegrationTest {
-    @Autowired
-    lateinit var testRestTemplate: TestRestTemplate
+  @Autowired
+  lateinit var testRestTemplate: TestRestTemplate
 
-    @Test
-    fun `ping endpoint responds with pong`() {
-        val response = testRestTemplate.getForEntity("/ping", String::class.java)
+  @Test
+  fun `ping endpoint responds with pong`() {
+    val response = testRestTemplate.getForEntity("/ping", String::class.java)
 
-        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+    assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
 
-        assertThat(response.body).isEqualTo("pong")
-        assertThat(response.headers.contentType).isEqualTo(MimeType.valueOf("text/plain;charset=UTF-8"))
-    }
+    assertThat(response.body).isEqualTo("pong")
+    assertThat(response.headers.contentType).isEqualTo(MimeType.valueOf("text/plain;charset=UTF-8"))
+  }
 }

@@ -29,6 +29,6 @@ public class UpdateAttendanceDto {
     private AbsentReason absentReason;
 
     @Length(max = 240)
-    @ApiModelProperty( value = "Comments about non attendance. This also gets used for the IEP warning text ")
+    @ApiModelProperty(value = "Comments about non attendance. This also gets used for the IEP warning text ")
     private String comments;
 }

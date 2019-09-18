@@ -10,38 +10,38 @@ import java.util.Map;
 @Component
 public class UserSecurityUtils implements AuthenticationFacade {
 
-	public Authentication getAuthentication() {
-		return SecurityContextHolder.getContext().getAuthentication();
-	}
+    public Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
 
-	@Override
-	public String getCurrentUsername() {
-		String username;
+    @Override
+    public String getCurrentUsername() {
+        String username;
 
-		Object userPrincipal = getUserPrincipal();
+        Object userPrincipal = getUserPrincipal();
 
-		if (userPrincipal instanceof String) {
-			username = (String) userPrincipal;
-		} else if (userPrincipal instanceof UserDetails) {
-			username = ((UserDetails)userPrincipal).getUsername();
-		} else if (userPrincipal instanceof Map) {
-			Map userPrincipalMap = (Map) userPrincipal;
-			username = (String) userPrincipalMap.get("username");
-		} else {
-			username = null;
-		}
+        if (userPrincipal instanceof String) {
+            username = (String) userPrincipal;
+        } else if (userPrincipal instanceof UserDetails) {
+            username = ((UserDetails) userPrincipal).getUsername();
+        } else if (userPrincipal instanceof Map) {
+            Map userPrincipalMap = (Map) userPrincipal;
+            username = (String) userPrincipalMap.get("username");
+        } else {
+            username = null;
+        }
 
-		return username;
-	}
+        return username;
+    }
 
-	private Object getUserPrincipal() {
-		Object userPrincipal = null;
+    private Object getUserPrincipal() {
+        Object userPrincipal = null;
 
-		final Authentication auth = getAuthentication();
+        final Authentication auth = getAuthentication();
 
-		if (auth != null) {
-			userPrincipal = auth.getPrincipal();
-		}
-		return userPrincipal;
-	}
+        if (auth != null) {
+            userPrincipal = auth.getPrincipal();
+        }
+        return userPrincipal;
+    }
 }

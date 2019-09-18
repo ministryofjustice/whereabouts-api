@@ -22,7 +22,7 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 @Api(tags = {"attendances"})
 @RestController()
 @RequestMapping(
-        value="attendances",
+        value = "attendances",
         produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 public class AttendancesController {
@@ -52,9 +52,9 @@ public class AttendancesController {
             response = AttendancesResponse.class,
             notes = "Request attendance details")
     public AttendancesResponse getAttendanceForEventLocation(@ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") String prisonId,
-                                                            @ApiParam(value = "Location id of event") @PathVariable("event-location") Long eventLocationId,
-                                                            @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
-                                                            @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") TimePeriod period) {
+                                                             @ApiParam(value = "Location id of event") @PathVariable("event-location") Long eventLocationId,
+                                                             @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+                                                             @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") TimePeriod period) {
 
         return AttendancesResponse.builder()
                 .attendances(attendanceService.getAttendanceForEventLocation(prisonId, eventLocationId, date, period))
@@ -67,8 +67,8 @@ public class AttendancesController {
             response = AttendancesResponse.class,
             notes = "Request absences details")
     public AttendancesResponse getAbsences(@ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") String prisonId,
-                                          @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
-                                          @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") TimePeriod period) {
+                                           @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+                                           @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") TimePeriod period) {
 
         return AttendancesResponse.builder()
                 .attendances(attendanceService.getAbsences(prisonId, date, period))
@@ -81,9 +81,9 @@ public class AttendancesController {
             response = AttendancesResponse.class,
             notes = "Request attendance details")
     public AttendancesResponse getAttendanceForBookings(@ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") String prisonId,
-                                                       @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
-                                                       @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") TimePeriod period,
-                                                       @ApiParam(value = "Booking ids (bookings=1&bookings=2)", required = true) @RequestParam(name = "bookings") Set<Long> bookings) {
+                                                        @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+                                                        @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") TimePeriod period,
+                                                        @ApiParam(value = "Booking ids (bookings=1&bookings=2)", required = true) @RequestParam(name = "bookings") Set<Long> bookings) {
 
         return AttendancesResponse.builder()
                 .attendances(attendanceService.getAttendanceForBookings(prisonId, bookings, date, period))
@@ -96,8 +96,8 @@ public class AttendancesController {
             response = AttendancesResponse.class,
             notes = "Request attendance details")
     public AttendancesResponse getAttendanceForOffendersThatHaveScheduleActivity(@ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") String prisonId,
-                                                                                @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
-                                                                                @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") TimePeriod period) {
+                                                                                 @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+                                                                                 @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") TimePeriod period) {
 
         return AttendancesResponse.builder()
                 .attendances(attendanceService.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period))

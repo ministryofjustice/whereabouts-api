@@ -275,7 +275,7 @@ public class AttendanceService {
                 .collect(Collectors.toSet());
     }
 
-     private Attendance toAttendance(final CreateAttendanceDto attendanceDto) {
+    private Attendance toAttendance(final CreateAttendanceDto attendanceDto) {
         return Attendance
                 .builder()
                 .eventLocationId(attendanceDto.getEventLocationId())
