@@ -166,6 +166,54 @@ class AttendancesIntegrationTest : IntegrationTest() {
   }
 
   @Test
+  fun `should return attendance information for set of bookings ids by post`() {
+    elite2MockServer.stubUpdateAttendance()
+    attendanceRepository.deleteAll()
+
+    attendanceRepository.save(Attendance
+        .builder()
+        .absentReason(AbsentReason.Refused)
+        .period(TimePeriod.PM)
+        .prisonId("LEI")
+        .eventLocationId(2)
+        .eventId(1)
+        .eventDate(LocalDate.of(2019, 10, 10))
+        .comments("hello world")
+        .attended(true)
+        .paid(true)
+        .bookingId(1)
+        .build())
+
+    attendanceRepository.save(Attendance
+        .builder()
+        .absentReason(AbsentReason.Refused)
+        .period(TimePeriod.PM)
+        .prisonId("LEI")
+        .eventLocationId(2)
+        .eventId(1)
+        .eventDate(LocalDate.of(2019, 10, 10))
+        .comments("hello world")
+        .attended(true)
+        .paid(true)
+        .bookingId(2)
+        .build())
+
+    val bookings = setOf(1, 2)
+
+    val response =
+        restTemplate.exchange(
+            "/attendances/LEI?date={0}&period={1}",
+            HttpMethod.POST,
+            createHeaderEntity(bookings),
+            AttendancesResponse::class.java,
+            LocalDate.of(2019, 10, 10),
+            TimePeriod.PM)
+
+    assertThat(response.statusCodeValue).isEqualTo(200)
+    assertThat(response.body?.attendances).extracting("bookingId").contains(1L, 2L)
+  }
+
+  @Test
   fun `should create multiple attendances`() {
     val bookingIds = setOf(1L, 2L)
 

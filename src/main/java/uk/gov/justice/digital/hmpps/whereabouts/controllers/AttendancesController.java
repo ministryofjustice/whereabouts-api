@@ -91,6 +91,21 @@ public class AttendancesController {
 
     }
 
+    @PostMapping("/{prison}")
+    @ApiOperation(value = "Returns set of attendance details for set of booking ids",
+            response = AttendancesResponse.class,
+            notes = "Request attendance details")
+    public AttendancesResponse getAttendanceForBookingsByPost(@ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") String prisonId,
+                                                              @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+                                                              @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") TimePeriod period,
+                                                              @ApiParam(value = "Booking ids (bookings=1&bookings=2)", required = true) @RequestBody Set<Long> bookings) {
+
+        return AttendancesResponse.builder()
+                .attendances(attendanceService.getAttendanceForBookings(prisonId, bookings, date, period))
+                .build();
+
+    }
+
     @GetMapping("/{prison}/attendance-for-scheduled-activities")
     @ApiOperation(value = "Return a set of attendance details for all offenders that have scheduled activity",
             response = AttendancesResponse.class,
