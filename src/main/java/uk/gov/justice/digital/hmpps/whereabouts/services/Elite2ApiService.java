@@ -36,7 +36,7 @@ public class Elite2ApiService {
                 eventOutcome.getOutcomeComment(),
                 bookingActivities
         );
-        
+
         restTemplate.put(url, body);
     }
 
