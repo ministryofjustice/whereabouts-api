@@ -11,9 +11,7 @@ image:
 
 ingress:
   enabled: true
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/whitelist-source-range: "217.33.148.210/32,81.134.202.29/32,18.130.180.126/32,35.177.252.195/32"
+  enable_whitelist: true
   hosts:
     - host: whereabouts-api-preprod.service.justice.gov.uk
       cert_secret: whereabouts-api-cert
@@ -26,3 +24,12 @@ env:
   CASENOTES_ENDPOINT_URL: "https://preprod.offender-case-notes.service.justice.gov.uk"
   JAVA_OPTS: "-Xmx512m"
   OAUTH_CLIENT_ID: "whereabouts-api-client"
+
+whitelist:
+  office: "217.33.148.210/32"
+  health-kick: "35.177.252.195/32"
+  mojvpn: "81.134.202.29/32"
+  cloudplatform-live1-1: "35.178.209.113/32"
+  cloudplatform-live1-2: "3.8.51.207/32"
+  cloudplatform-live1-3: "35.177.252.54/32"
+  prisonstaff-hub-preprod-eb: "18.130.180.126/32"
