@@ -48,6 +48,19 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     assertThat(response.statusCodeValue).isEqualTo(503)
   }
 
+  @Test
+  fun `Health page reports a timeout`() {
+    subPingWithDelay(200)
+
+    val response = restTemplate.getForEntity("/health", String::class.java)
+
+    assertThatJson(response.body).node("details.elite2ApiHealth.details.error").isEqualTo("org.springframework.web.client.ResourceAccessException: I/O error on GET request for \\\"http://localhost:8999/ping\\\": Read timed out; nested exception is java.net.SocketTimeoutException: Read timed out")
+    assertThatJson(response.body).node("details.OAuthApiHealth.details.HttpStatus").isEqualTo("OK")
+    assertThatJson(response.body).node("details.caseNotesApiHealth.details.HttpStatus").isEqualTo("OK")
+    assertThatJson(response.body).node("status").isEqualTo("DOWN")
+    assertThat(response.statusCodeValue).isEqualTo(503)
+  }
+
   private fun subPing(status: Int) {
     elite2MockServer.stubFor(get("/ping").willReturn(aResponse()
         .withHeader("Content-Type", "application/json")
@@ -63,5 +76,23 @@ class HealthCheckIntegrationTest : IntegrationTest() {
         .withHeader("Content-Type", "application/json")
         .withBody(if (status == 200) "pong" else "some error")
         .withStatus(status)))
+  }
+
+  private fun subPingWithDelay(status: Int) {
+    elite2MockServer.stubFor(get("/ping").willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(if (status == 200) "pong" else "some error")
+            .withStatus(status)
+            .withFixedDelay(1000)))
+
+    oauthMockServer.stubFor(get("/auth/ping").willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(if (status == 200) "pong" else "some error")
+            .withStatus(status)))
+
+    caseNotesMockServer.stubFor(get("/ping").willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(if (status == 200) "pong" else "some error")
+            .withStatus(status)))
   }
 }
