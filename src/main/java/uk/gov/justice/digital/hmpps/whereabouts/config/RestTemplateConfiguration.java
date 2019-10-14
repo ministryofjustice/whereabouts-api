@@ -6,7 +6,6 @@ import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.security.oauth2.client.OAuth2ClientContext;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
@@ -19,9 +18,6 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade;
 import uk.gov.justice.digital.hmpps.whereabouts.utils.JwtAuthInterceptor;
-import uk.gov.justice.digital.hmpps.whereabouts.utils.W3cTracingInterceptor;
-
-import java.util.List;
 
 @Configuration
 public class RestTemplateConfiguration {
@@ -62,23 +58,14 @@ public class RestTemplateConfiguration {
     private RestTemplate getRestTemplate(final RestTemplateBuilder restTemplateBuilder, final String uri) {
         return restTemplateBuilder
                 .rootUri(uri)
-                .additionalInterceptors(getRequestInterceptors())
+                .additionalInterceptors(new JwtAuthInterceptor())
                 .build();
-    }
-
-    private List<ClientHttpRequestInterceptor> getRequestInterceptors() {
-        return List.of(
-                new W3cTracingInterceptor(),
-                new JwtAuthInterceptor());
     }
 
     @Bean(name = "elite2ApiRestTemplate")
     public OAuth2RestTemplate elite2ApiRestTemplate(final AuthenticationFacade authenticationFacade) {
 
         final var elite2SystemRestTemplate = new OAuth2RestTemplate(elite2apiDetails, oauth2ClientContext);
-        final var systemInterceptors = elite2SystemRestTemplate.getInterceptors();
-
-        systemInterceptors.add(new W3cTracingInterceptor());
 
         elite2SystemRestTemplate.setAccessTokenProvider(new GatewayAwareAccessTokenProvider(authenticationFacade));
 
@@ -91,9 +78,6 @@ public class RestTemplateConfiguration {
     public OAuth2RestTemplate caseNotesApiRestTemplate(final AuthenticationFacade authenticationFacade) {
 
         final var caseNotesApiRestTemplate = new OAuth2RestTemplate(elite2apiDetails, oauth2ClientContext);
-        final var systemInterceptors = caseNotesApiRestTemplate.getInterceptors();
-
-        systemInterceptors.add(new W3cTracingInterceptor());
 
         caseNotesApiRestTemplate.setAccessTokenProvider(new GatewayAwareAccessTokenProvider(authenticationFacade));
 
@@ -102,7 +86,7 @@ public class RestTemplateConfiguration {
         return caseNotesApiRestTemplate;
     }
 
-    public class GatewayAwareAccessTokenProvider extends ClientCredentialsAccessTokenProvider {
+    public static class GatewayAwareAccessTokenProvider extends ClientCredentialsAccessTokenProvider {
 
         GatewayAwareAccessTokenProvider(final AuthenticationFacade authenticationFacade) {
             this.setTokenRequestEnhancer(new TokenRequestEnhancer(authenticationFacade));
@@ -114,7 +98,7 @@ public class RestTemplateConfiguration {
         }
     }
 
-    public class TokenRequestEnhancer implements RequestEnhancer {
+    public static class TokenRequestEnhancer implements RequestEnhancer {
 
         private final AuthenticationFacade authenticationFacade;
 
