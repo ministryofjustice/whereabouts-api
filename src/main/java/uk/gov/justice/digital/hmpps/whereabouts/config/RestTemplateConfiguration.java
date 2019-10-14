@@ -19,6 +19,8 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade;
 import uk.gov.justice.digital.hmpps.whereabouts.utils.JwtAuthInterceptor;
 
+import java.time.Duration;
+
 @Configuration
 public class RestTemplateConfiguration {
 
@@ -31,34 +33,40 @@ public class RestTemplateConfiguration {
     @Value("${casenotes.endpoint.url}")
     private String caseNotesRootUri;
 
+    private final Duration healthTimeout;
+
     private final OAuth2ClientContext oauth2ClientContext;
     private final ClientCredentialsResourceDetails elite2apiDetails;
 
     public RestTemplateConfiguration(final OAuth2ClientContext oauth2ClientContext,
-                                     final ClientCredentialsResourceDetails elite2apiDetails) {
+                                     final ClientCredentialsResourceDetails elite2apiDetails,
+                                     @Value("${api.health-timeout:1s}") final Duration healthTimeout) {
         this.oauth2ClientContext = oauth2ClientContext;
         this.elite2apiDetails = elite2apiDetails;
+        this.healthTimeout = healthTimeout;
     }
 
     @Bean(name = "elite2ApiHealthRestTemplate")
     public RestTemplate elite2ApiHealthRestTemplate(final RestTemplateBuilder restTemplateBuilder) {
-        return getRestTemplate(restTemplateBuilder, elite2UriRoot);
+        return getHealthRestTemplate(restTemplateBuilder, elite2UriRoot);
     }
 
-    @Bean(name = "oauthApiRestTemplate")
+    @Bean(name = "oauthApiHealthRestTemplate")
     public RestTemplate oauthRestTemplate(final RestTemplateBuilder restTemplateBuilder) {
-        return getRestTemplate(restTemplateBuilder, oauthRootUri);
+        return getHealthRestTemplate(restTemplateBuilder, oauthRootUri);
     }
 
     @Bean(name = "caseNotesApiHealthRestTemplate")
     public RestTemplate caseNotesHealthRestTemplate(final RestTemplateBuilder restTemplateBuilder) {
-        return getRestTemplate(restTemplateBuilder, caseNotesRootUri);
+        return getHealthRestTemplate(restTemplateBuilder, caseNotesRootUri);
     }
 
-    private RestTemplate getRestTemplate(final RestTemplateBuilder restTemplateBuilder, final String uri) {
+    private RestTemplate getHealthRestTemplate(final RestTemplateBuilder restTemplateBuilder, final String uri) {
         return restTemplateBuilder
                 .rootUri(uri)
                 .additionalInterceptors(new JwtAuthInterceptor())
+                .setConnectTimeout(healthTimeout)
+                .setReadTimeout(healthTimeout)
                 .build();
     }
 
