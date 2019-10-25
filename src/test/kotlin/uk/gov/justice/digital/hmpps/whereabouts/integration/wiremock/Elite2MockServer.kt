@@ -39,6 +39,18 @@ class Elite2MockServer : WireMockRule(8999) {
     )
   }
 
+  fun stubGetScheduledActivitiesForDateRange(prisonId: String = "MDI", fromDate: LocalDate = LocalDate.now(), toDate: LocalDate = LocalDate.now(), period: TimePeriod = TimePeriod.AM) {
+    stubFor(get(urlEqualTo("/api/schedules/$prisonId/activities-by-date-range?fromDate=$fromDate&toDate=$toDate&timeSlot=$period"))
+        .willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(gson.toJson(listOf(
+                mapOf("bookingId" to 1L),
+                mapOf("bookingId" to 2L)))
+            )
+            .withStatus(200))
+    )
+  }
+
   fun stubGetBooking(offenderNo: String = "AB1234C") {
     stubFor(get(urlEqualTo("/api/bookings/1?basicInfo=true"))
         .willReturn(aResponse()
