@@ -1,27 +1,33 @@
 package uk.gov.justice.digital.hmpps.whereabouts.repository
 
-
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration
+import org.springframework.boot.autoconfigure.security.servlet.SpringBootWebSecurityConfiguration
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.context.annotation.Import
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.context.transaction.TestTransaction
-import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.validation.ConstraintViolationException
 
 @RunWith(SpringRunner::class)
 @ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@Transactional
+//@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(AuditConfiguration::class, StubAuthenticationFacadeConfiguration::class)
+@EnableAutoConfiguration(exclude = [SecurityFilterAutoConfiguration::class, SpringBootWebSecurityConfiguration::class])
+@DataJpaTest
 open class AttendanceRepositoryTest {
 
   @Autowired
@@ -63,7 +69,6 @@ open class AttendanceRepositoryTest {
 
     assertThat(savedAttendance.createUserId).isEqualTo("user")
     assertThat(savedAttendance.createDateTime.toLocalDate()).isEqualTo(now)
-
   }
 
   @Test(expected = ConstraintViolationException::class)
@@ -71,4 +76,71 @@ open class AttendanceRepositoryTest {
     attendanceRepository.save(Attendance.builder().build())
   }
 
+  @Test
+  fun `should find attendance by date range`() {
+    val attendanceToday =  Attendance
+        .builder()
+        .bookingId(1)
+        .attended(true)
+        .prisonId("LEI")
+        .period(TimePeriod.AM)
+        .eventDate(LocalDate.now())
+        .eventId(1)
+        .eventLocationId(1)
+        .createUserId("test")
+        .createDateTime(LocalDateTime.now())
+        .build()
+
+    val attendanceLastMonth =  Attendance
+        .builder()
+        .bookingId(1)
+        .attended(true)
+        .prisonId("LEI")
+        .period(TimePeriod.AM)
+        .eventDate(LocalDate.now().minusMonths(1))
+        .eventId(2)
+        .eventLocationId(1)
+        .createUserId("test")
+        .createDateTime(LocalDateTime.now())
+        .build()
+
+    val attendanceLastYear =  Attendance
+        .builder()
+        .bookingId(1)
+        .attended(true)
+        .prisonId("LEI")
+        .period(TimePeriod.AM)
+        .eventDate(LocalDate.now().minusYears(1))
+        .eventId(3)
+        .eventLocationId(1)
+        .createUserId("test")
+        .createDateTime(LocalDateTime.now())
+        .build()
+
+    attendanceRepository.saveAll(setOf(
+        attendanceLastMonth,
+        attendanceLastYear,
+        attendanceToday
+    ))
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+
+    val results = attendanceRepository
+        .findByPrisonIdAndPeriodAndEventDateBetween(
+            "LEI",
+            TimePeriod.AM,
+            LocalDate.now().minusMonths(2),
+            LocalDate.now()
+        )
+
+    assertThat(results).hasSize(2)
+
+    attendanceRepository.deleteAll(setOf(
+        attendanceLastMonth,
+        attendanceLastYear,
+        attendanceToday
+    ))
+  }
 }

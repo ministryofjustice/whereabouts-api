@@ -1,9 +1,11 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -11,9 +13,9 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.Stats
 import java.time.LocalDate
 
-class AttendanceStatisticsIntegrationTest : IntegrationTest() {
+open class AttendanceStatisticsControllerTest : IntegrationTest() {
 
-  @Autowired
+  @MockBean
   lateinit var attendanceRepository: AttendanceRepository
 
   private val prisonId = "MDI"
@@ -27,7 +29,7 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
 
     val response =
         restTemplate.exchange(
-            "/attendance-statistics/counts-over-date-range/$prisonId/?fromDate={0}&toDate={1}&period={2}",
+            "/attendance-statistics/$prisonId/over-date-range?fromDate={0}&toDate={1}&period={2}",
             HttpMethod.GET,
             createHeaderEntity(""),
             Any::class.java,
@@ -47,7 +49,10 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should populate stats with data`() {
-    val attendance = attendanceRepository.save(
+    elite2MockServer.stubGetScheduledActivitiesForDateRange(prisonId, fromDate, toDate, period)
+
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(any(), any(), any(), any())).thenReturn(
+        setOf(
         Attendance
             .builder()
             .bookingId(1)
@@ -58,13 +63,11 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
             .eventId(1)
             .eventLocationId(1)
             .build()
-    )
-
-    elite2MockServer.stubGetScheduledActivitiesForDateRange(prisonId, fromDate, toDate, period)
+        ))
 
     val response =
         restTemplate.exchange(
-            "/attendance-statistics/counts-over-date-range/$prisonId/?fromDate={0}&toDate={1}&period={2}",
+            "/attendance-statistics/$prisonId/over-date-range?fromDate={0}&toDate={1}&period={2}",
             HttpMethod.GET,
             createHeaderEntity(""),
             Stats::class.java,
@@ -75,7 +78,5 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
 
     assertThat(response.body?.paidReasons?.attended).isEqualTo(1)
     assertThat(response.statusCodeValue).isEqualTo(200)
-
-    attendanceRepository.delete(attendance)
   }
 }

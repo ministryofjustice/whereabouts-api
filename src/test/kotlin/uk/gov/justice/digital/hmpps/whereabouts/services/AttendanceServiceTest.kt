@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Before
@@ -58,7 +59,7 @@ class AttendanceServiceTest {
   @Before
   fun before() {
     // return the attendance entity on save
-    doAnswer { it.getArgument(0) as Attendance }.`when`(attendanceRepository).save(any())
+    doAnswer { it.getArgument(0) as Attendance }.whenever(attendanceRepository).save(any())
     service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
   }
 
@@ -67,7 +68,7 @@ class AttendanceServiceTest {
 
     val now = LocalDateTime.now()
 
-    `when`(attendanceRepository
+    whenever(attendanceRepository
         .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, today, TimePeriod.AM))
         .thenReturn(setOf(
             Attendance.builder()
@@ -114,7 +115,7 @@ class AttendanceServiceTest {
   fun `should return locked true when attendance unpaid 7 days ago`() {
     val sevenDaysAgoTime = LocalDateTime.now().minusDays(7)
 
-    `when`(attendanceRepository
+    whenever(attendanceRepository
         .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, sevenDaysAgoTime.toLocalDate(), TimePeriod.AM))
         .thenReturn(setOf(
             Attendance.builder()
@@ -161,7 +162,7 @@ class AttendanceServiceTest {
   fun `should return locked false when attendance unpaid under 7 days ago`() {
     val sixDaysAgoTime = LocalDateTime.now().minusDays(6)
 
-    `when`(attendanceRepository
+    whenever(attendanceRepository
         .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, sixDaysAgoTime.toLocalDate(), TimePeriod.AM))
         .thenReturn(setOf(
             Attendance.builder()
@@ -208,7 +209,7 @@ class AttendanceServiceTest {
   fun `should return locked true when attendance paid yesterday`() {
     val yesterdayTime = LocalDateTime.now().minusDays(1)
 
-    `when`(attendanceRepository
+    whenever(attendanceRepository
         .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, yesterdayTime.toLocalDate(), TimePeriod.AM))
         .thenReturn(setOf(
             Attendance.builder()
@@ -394,9 +395,9 @@ class AttendanceServiceTest {
   @Test
   fun `should record unpaid absence as 'Refused'`() {
 
-    `when`(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
         .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-    `when`(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     val attendance = testAttendanceDto
         .toBuilder()
@@ -414,9 +415,9 @@ class AttendanceServiceTest {
   @Test
   fun `should record unpaid absence for 'Unacceptable absence'`() {
 
-    `when`(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
         .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-    `when`(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     val attendance = testAttendanceDto
         .toBuilder()
@@ -435,12 +436,12 @@ class AttendanceServiceTest {
   @Test
   fun `should create negative case note for 'Unacceptable absence'`() {
 
-    `when`(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
         .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
     val date = LocalDate.of(2019, 10, 10)
 
-    `when`(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     val attendance = testAttendanceDto
         .toBuilder()
@@ -475,9 +476,9 @@ class AttendanceServiceTest {
         .paid(false)
         .build()
 
-    `when`(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
         .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-    `when`(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     service.createAttendance(attendance)
 
@@ -504,9 +505,9 @@ class AttendanceServiceTest {
         .paid(false)
         .build()
 
-    `when`(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
         .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-    `when`(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     service.createAttendance(attendance)
 
@@ -540,9 +541,9 @@ class AttendanceServiceTest {
   @Test
   fun `should save case note id returned from the postCaseNote api call`() {
 
-    `when`(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
         .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-    `when`(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     service.createAttendance(testAttendanceDto
         .toBuilder()
@@ -576,7 +577,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should throw an AttendanceNotFoundException`() {
-    `when`(attendanceRepository.findById(1)).thenReturn(Optional.empty())
+    whenever(attendanceRepository.findById(1)).thenReturn(Optional.empty())
 
     assertThatThrownBy {
       service.updateAttendance(1, UpdateAttendanceDto.builder().build())
@@ -586,7 +587,7 @@ class AttendanceServiceTest {
   @Test
   fun `should update select fields only`() {
 
-    `when`(attendanceRepository.findById(1)).thenReturn(
+    whenever(attendanceRepository.findById(1)).thenReturn(
         Optional.of(Attendance
             .builder()
             .id(1)
@@ -629,7 +630,7 @@ class AttendanceServiceTest {
   @Test
   fun `should go from unpaid none attendance to paid attendance `() {
 
-    `when`(attendanceRepository.findById(1)).thenReturn(
+    whenever(attendanceRepository.findById(1)).thenReturn(
         Optional.of(Attendance
             .builder()
             .id(1)
@@ -677,7 +678,7 @@ class AttendanceServiceTest {
     val today = LocalDate.now()
     val lastWeek = LocalDate.now().minusWeeks(1)
 
-    `when`(attendanceRepository.findById(1)).thenReturn(
+    whenever(attendanceRepository.findById(1)).thenReturn(
         Optional.of(Attendance
             .builder()
             .id(1)
@@ -703,7 +704,7 @@ class AttendanceServiceTest {
     val yesterday = LocalDate.now().minusDays(1)
     val today = LocalDate.now()
 
-    `when`(attendanceRepository.findById(1)).thenReturn(
+    whenever(attendanceRepository.findById(1)).thenReturn(
         Optional.of(Attendance
             .builder()
             .id(1)
@@ -728,7 +729,7 @@ class AttendanceServiceTest {
     val yesterday = LocalDate.now().minusDays(1)
     val today = LocalDate.now()
 
-    `when`(attendanceRepository.findById(1)).thenReturn(
+    whenever(attendanceRepository.findById(1)).thenReturn(
         Optional.of(Attendance
             .builder()
             .id(1)
@@ -750,9 +751,9 @@ class AttendanceServiceTest {
   @Test
   fun `should return attendance dto on creation`() {
 
-    `when`(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
         .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-    `when`(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     val created = service.createAttendance(CreateAttendanceDto
         .builder()
@@ -791,7 +792,7 @@ class AttendanceServiceTest {
   @Test
   fun `should post case note amendment going from unpaid absent refused to paid attendance`() {
 
-    `when`(attendanceRepository.findById(1))
+    whenever(attendanceRepository.findById(1))
         .thenReturn(Optional.of(
             Attendance.builder()
                 .bookingId(1)
@@ -804,7 +805,7 @@ class AttendanceServiceTest {
                 .eventDate(today)
                 .caseNoteId(1)
                 .build()))
-    `when`(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     service.updateAttendance(1, UpdateAttendanceDto.builder().attended(true).paid(true).build())
 
@@ -815,7 +816,7 @@ class AttendanceServiceTest {
   @Test
   fun `should post IEP reinstated case note amendment if going from unpaid (IEP warning) to paid attendance (IEP rescinded) to unpaid absent unacceptable`() {
 
-    `when`(attendanceRepository.findById(1))
+    whenever(attendanceRepository.findById(1))
         .thenReturn(Optional.of(
             Attendance.builder()
                 .bookingId(1)
@@ -826,7 +827,7 @@ class AttendanceServiceTest {
                 .eventDate(today)
                 .caseNoteId(1)
                 .build()))
-    `when`(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     service.updateAttendance(1, UpdateAttendanceDto.builder()
         .attended(false)
@@ -842,11 +843,11 @@ class AttendanceServiceTest {
   @Test
   fun `should not post a case note amendment going from paid attendance to unpaid absent refused`() {
 
-    `when`(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
+    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
         .thenReturn(CaseNoteDto.builder().caseNoteId(1).build())
-    `when`(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
-    `when`(attendanceRepository.findById(1))
+    whenever(attendanceRepository.findById(1))
         .thenReturn(Optional.of(Attendance.builder()
             .bookingId(1)
             .eventLocationId(1)
@@ -869,7 +870,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should sentence case absent reasons`() {
-    `when`(attendanceRepository.findById(1))
+    whenever(attendanceRepository.findById(1))
         .thenReturn(Optional.of(Attendance.builder()
             .bookingId(1)
             .eventLocationId(1)
@@ -880,7 +881,7 @@ class AttendanceServiceTest {
             .absentReason(AbsentReason.Refused)
             .eventDate(today)
             .build()))
-    `when`(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     service.updateAttendance(1, UpdateAttendanceDto.builder()
         .attended(false)
@@ -895,7 +896,7 @@ class AttendanceServiceTest {
   @Test
   fun `should not raise case note or amendment IEP warnings`() {
 
-    `when`(attendanceRepository.findById(1))
+    whenever(attendanceRepository.findById(1))
         .thenReturn(Optional.of(Attendance.builder()
             .bookingId(1)
             .eventLocationId(1)
@@ -918,7 +919,7 @@ class AttendanceServiceTest {
   @Test
   fun `should not raise case note or amendment IEP warnings going from unpaid to unpaid`() {
 
-    `when`(attendanceRepository.findById(1))
+    whenever(attendanceRepository.findById(1))
         .thenReturn(Optional.of(Attendance.builder()
             .bookingId(1)
             .eventLocationId(1)
@@ -954,7 +955,7 @@ class AttendanceServiceTest {
         .absentReason(AbsentReason.Refused)
         .build()
 
-    `when`(attendanceRepository.findById(1)).thenReturn(Optional.of(attendanceEntity.toBuilder().build()))
+    whenever(attendanceRepository.findById(1)).thenReturn(Optional.of(attendanceEntity.toBuilder().build()))
 
     service.updateAttendance(1, UpdateAttendanceDto.builder()
         .attended(false)
@@ -983,8 +984,8 @@ class AttendanceServiceTest {
         .absentReason(AbsentReason.Refused)
         .build()
 
-    `when`(attendanceRepository.findById(1)).thenReturn(Optional.of(attendanceEntity.toBuilder().build()))
-    `when`(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(attendanceRepository.findById(1)).thenReturn(Optional.of(attendanceEntity.toBuilder().build()))
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     service.updateAttendance(1, UpdateAttendanceDto.builder()
         .attended(true)
@@ -1019,7 +1020,7 @@ class AttendanceServiceTest {
 
     val now = LocalDateTime.now()
 
-    `when`(attendanceRepository
+    whenever(attendanceRepository
         .findByPrisonIdAndEventDateAndPeriodAndAbsentReasonNotNull("LEI", today, TimePeriod.AM))
         .thenReturn(setOf(
             Attendance.builder()
@@ -1143,7 +1144,7 @@ class AttendanceServiceTest {
     val date = LocalDate.now()
     val period = TimePeriod.AM
 
-    `when`(elite2ApiService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
+    whenever(elite2ApiService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
 
     service.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
     verify(attendanceRepository).findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, setOf(1L, 2L), date, period)
@@ -1155,9 +1156,9 @@ class AttendanceServiceTest {
     val date = LocalDate.now()
     val period = TimePeriod.AM
 
-    `when`(elite2ApiService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
+    whenever(elite2ApiService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
 
-    `when`(attendanceRepository
+    whenever(attendanceRepository
         .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, setOf(1L, 2L), date, period))
         .thenReturn(setOf(
             Attendance.builder()

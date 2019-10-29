@@ -1,10 +1,12 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.any
+import org.mockito.Mockito.anyString
 import org.mockito.junit.MockitoJUnitRunner
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
@@ -92,7 +94,7 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count attendances`() {
-    `when`(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
 
     val service = buildAttendanceStatistics()
@@ -104,7 +106,7 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count acceptable absences`() {
-    `when`(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
 
     val service = buildAttendanceStatistics()
@@ -116,7 +118,7 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count approved course`() {
-    `when`(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
 
     val service = buildAttendanceStatistics()
@@ -128,7 +130,7 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count not required`() {
-    `when`(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
 
     val service = buildAttendanceStatistics()
@@ -140,7 +142,7 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count refused`() {
-    `when`(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
 
     val service = buildAttendanceStatistics()
@@ -152,7 +154,7 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count rest day`() {
-    `when`(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
 
     val service = buildAttendanceStatistics()
@@ -164,7 +166,7 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count session cancelled`() {
-    `when`(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
 
     val service = buildAttendanceStatistics()
@@ -176,7 +178,7 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count sick`() {
-    `when`(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
 
     val service = buildAttendanceStatistics()
@@ -189,7 +191,7 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count unacceptable absence`() {
-    `when`(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
 
     val service = buildAttendanceStatistics()
@@ -201,10 +203,10 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count not recorded`() {
-    `when`(elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(anyString(), any(), any(), any()))
+    whenever(elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(anyString(), any(), any(), any()))
         .thenReturn(setOf(1, 2, 3, 100, 102))
 
-    `when`(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
 
     val service = buildAttendanceStatistics()
@@ -216,10 +218,10 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count offender schedules`() {
-    `when`(elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(anyString(), any(), any(), any()))
+    whenever(elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(anyString(), any(), any(), any()))
         .thenReturn(setOf(1, 2, 3, 100, 102, 100, 100, 100))
 
-    `when`(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(setOf())
 
     val service = buildAttendanceStatistics()

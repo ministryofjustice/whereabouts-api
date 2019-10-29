@@ -29,11 +29,10 @@ public class AttendanceStatisticsController {
         this.attendanceStatistics = attendanceStatistics;
     }
 
-    @GetMapping("/counts-over-date-range/{prison}")
-    @ApiOperation(value = "Returns set of attendance details",
+    @GetMapping("{prison}/over-date-range")
+    @ApiOperation(value = "Request attendance statistics",
             response = Stats.class,
-            responseContainer = "Set",
-            notes = "Request attendance details")
+            notes = "Request attendance statistics")
     public Stats getAttendanceForEventLocation(
             @ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") String prisonId,
             @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") TimePeriod period,
