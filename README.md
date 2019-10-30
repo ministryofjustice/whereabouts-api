@@ -8,7 +8,7 @@
 ```
 
 #### To run:
-This service requires oauth and elite2 to wok. Bootstrap these services by running. 
+This service requires oauth and elite2 to work. Bootstrap these services by running. 
 ```bash
 docker-compose up
 ```
