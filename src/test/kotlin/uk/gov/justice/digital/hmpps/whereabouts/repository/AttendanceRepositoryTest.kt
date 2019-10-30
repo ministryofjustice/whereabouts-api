@@ -137,4 +137,73 @@ open class AttendanceRepositoryTest {
         attendanceToday
     ))
   }
+
+  @Test
+  fun `should return AM and PM attendances`() {
+    val attendanceToday = Attendance
+        .builder()
+        .bookingId(1)
+        .attended(true)
+        .prisonId("LEI")
+        .period(TimePeriod.AM)
+        .eventDate(LocalDate.now())
+        .eventId(1)
+        .eventLocationId(1)
+        .createUserId("test")
+        .createDateTime(LocalDateTime.now())
+        .build()
+
+    val attendanceLastMonth = Attendance
+        .builder()
+        .bookingId(1)
+        .attended(true)
+        .prisonId("LEI")
+        .period(TimePeriod.AM)
+        .eventDate(LocalDate.now())
+        .eventId(2)
+        .eventLocationId(1)
+        .createUserId("test")
+        .createDateTime(LocalDateTime.now())
+        .build()
+
+    val attendanceLastYear = Attendance
+        .builder()
+        .bookingId(1)
+        .attended(true)
+        .prisonId("LEI")
+        .period(TimePeriod.ED)
+        .eventDate(LocalDate.now())
+        .eventId(3)
+        .eventLocationId(1)
+        .createUserId("test")
+        .createDateTime(LocalDateTime.now())
+        .build()
+
+    attendanceRepository.saveAll(setOf(
+        attendanceLastMonth,
+        attendanceLastYear,
+        attendanceToday
+    ))
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+
+    val results = attendanceRepository
+        .findByPrisonIdAndPeriodOrPeriodAndEventDateBetween(
+            "LEI",
+            TimePeriod.AM,
+            TimePeriod.PM,
+            LocalDate.now().minusMonths(2),
+            LocalDate.now()
+        )
+
+    assertThat(results).extracting("eventId").contains(2L, 1L)
+
+    attendanceRepository.deleteAll(setOf(
+        attendanceLastMonth,
+        attendanceLastYear,
+        attendanceToday
+    ))
+  }
 }
