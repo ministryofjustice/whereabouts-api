@@ -12,10 +12,12 @@ data class Stats(val offenderSchedules: Int? = 0, val notRecorded: Int? = 0, val
 
 @Service
 open class AttendanceStatistics(private val attendanceRepository: AttendanceRepository, private val elite2ApiService: Elite2ApiService) {
-  fun getStats(prisonId: String, period: TimePeriod, from: LocalDate, to: LocalDate): Stats {
+  fun getStats(prisonId: String, period: TimePeriod?, from: LocalDate, to: LocalDate): Stats {
 
-    val attendances = attendanceRepository
-        .findByPrisonIdAndPeriodAndEventDateBetween(prisonId, period, from, to)
+    val attendances = if (period == null)
+      attendanceRepository.findByPrisonIdAndPeriodOrPeriodAndEventDateBetween(prisonId, TimePeriod.AM, TimePeriod.PM, from, to)
+    else
+      attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(prisonId, period, from, to)
 
     val attendanceBookingIds = attendances.map { it.bookingId }
 

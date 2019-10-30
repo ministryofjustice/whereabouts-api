@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -248,6 +249,16 @@ class AttendanceStatisticsTest {
     val stats = service.getStats(prisonId, period, from, to)
 
     assertThat(stats).extracting("unpaidReasons").extracting("restInCell").contains(1)
+  }
+
+  @Test
+  fun `should call the correct repository method when period all is supplied`() {
+    val service = buildAttendanceStatistics()
+
+    service.getStats(prisonId, null, from, to)
+
+    verify(attendanceRepository)
+        .findByPrisonIdAndPeriodOrPeriodAndEventDateBetween(prisonId, TimePeriod.AM, TimePeriod.PM, from, to)
   }
 
   private fun buildAttendanceStatistics() = AttendanceStatistics(attendanceRepository, elite2ApiService)
