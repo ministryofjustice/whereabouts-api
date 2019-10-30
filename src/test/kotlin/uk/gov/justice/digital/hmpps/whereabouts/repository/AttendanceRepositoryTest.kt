@@ -4,17 +4,13 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.SpringBootWebSecurityConfiguration
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.context.annotation.Import
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.context.transaction.TestTransaction
-import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
+import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -24,10 +20,8 @@ import javax.validation.ConstraintViolationException
 
 @RunWith(SpringRunner::class)
 @ActiveProfiles("test")
-//@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(AuditConfiguration::class, StubAuthenticationFacadeConfiguration::class)
-@EnableAutoConfiguration(exclude = [SecurityFilterAutoConfiguration::class, SpringBootWebSecurityConfiguration::class])
-@DataJpaTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@Transactional
 open class AttendanceRepositoryTest {
 
   @Autowired
