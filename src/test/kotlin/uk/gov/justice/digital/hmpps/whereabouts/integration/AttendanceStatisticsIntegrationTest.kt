@@ -13,7 +13,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.Stats
 import java.time.LocalDate
 
-open class AttendanceStatisticsControllerTest : IntegrationTest() {
+open class AttendanceStatisticsIntegrationTest : IntegrationTest() {
 
   @MockBean
   lateinit var attendanceRepository: AttendanceRepository
