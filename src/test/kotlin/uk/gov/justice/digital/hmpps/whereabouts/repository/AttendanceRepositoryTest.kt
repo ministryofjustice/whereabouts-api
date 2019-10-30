@@ -129,7 +129,7 @@ open class AttendanceRepositoryTest {
             LocalDate.now()
         )
 
-    assertThat(results).extracting("eventId").contains(2, 1)
+    assertThat(results).extracting("eventId").contains(2L, 1L)
 
     attendanceRepository.deleteAll(setOf(
         attendanceLastMonth,
