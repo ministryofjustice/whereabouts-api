@@ -7,14 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.exchange
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import uk.gov.justice.digital.hmpps.whereabouts.dto.*
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.stream.Collectors
 
 class AttendanceIntegrationTest : IntegrationTest() {
 
@@ -99,65 +100,6 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused - $comments')]"))
         .withRequestBody(matchingJsonPath("$.occurrenceDateTime"))
     )
-  }
-
-  @Test
-  fun `receive a list of attendance for a prison, location, date and period`() {
-    elite2MockServer.stubUpdateAttendance()
-    elite2MockServer.stubGetBooking()
-    caseNotesMockServer.stubCreateCaseNote()
-
-    attendanceRepository.deleteAll()
-
-    val attendanceId = attendanceRepository.save(Attendance
-        .builder()
-        .absentReason(AbsentReason.Refused)
-        .period(TimePeriod.PM)
-        .prisonId("LEI")
-        .eventLocationId(2)
-        .eventId(1)
-        .eventDate(LocalDate.of(2019, 10, 10))
-        .comments("hello world")
-        .attended(false)
-        .paid(false)
-        .bookingId(1)
-        .build()
-    ).id
-
-    val response =
-        restTemplate.exchange(
-            "/attendance/LEI/2?date={0}&period={1}",
-            HttpMethod.GET,
-            createHeaderEntity(""),
-            ListOfAttendanceDtoReferenceType(),
-            LocalDate.of(2019, 10, 10),
-            TimePeriod.PM)
-
-    val result = response.body!!
-
-    assertThat(response.statusCodeValue).isEqualTo(200)
-
-    assertThat(result)
-        .usingElementComparatorIgnoringFields("createDateTime", "modifyDateTime")
-        .containsExactlyInAnyOrder(
-            AttendanceDto
-                .builder()
-                .id(attendanceId)
-                .absentReason(AbsentReason.Refused)
-                .period(TimePeriod.PM)
-                .prisonId("LEI")
-                .eventLocationId(2)
-                .eventId(1)
-                .eventDate(LocalDate.of(2019, 10, 10))
-                .comments("hello world")
-                .attended(false)
-                .paid(false)
-                .bookingId(1)
-                .createUserId("user")
-                .modifyUserId("user")
-                .locked(false)
-                .build())
-
   }
 
   @Test
@@ -432,44 +374,6 @@ class AttendanceIntegrationTest : IntegrationTest() {
   }
 
   @Test
-  fun `should return modified by and modified on`() {
-    elite2MockServer.stubUpdateAttendance()
-
-    attendanceRepository.save(
-        Attendance.builder()
-            .bookingId(1)
-            .paid(false)
-            .attended(false)
-            .absentReason(AbsentReason.Refused)
-            .comments("Refused")
-            .eventDate(LocalDate.of(2019, 10, 10))
-            .eventId(1)
-            .eventLocationId(2)
-            .prisonId("LEI")
-            .period(TimePeriod.AM)
-            .createDateTime(LocalDateTime.now())
-            .createUserId("user")
-            .build())
-
-    val response =
-        restTemplate.exchange(
-            "/attendance/LEI/2?date={0}&period={1}",
-            HttpMethod.GET,
-            createHeaderEntity(""),
-            ListOfAttendanceDtoReferenceType(),
-            LocalDate.of(2019, 10, 10),
-            TimePeriod.AM)
-
-
-    val savedAttendance = response?.body!!.first()
-
-    assertThat(savedAttendance.id).isGreaterThan(0)
-    assertThat(savedAttendance.modifyUserId).isEqualTo("user")
-    assertThat(savedAttendance.modifyDateTime).isNotNull()
-    assertThat(response.statusCodeValue).isEqualTo(200)
-  }
-
-  @Test
   fun `should request a new auth token for each new incoming request`() {
     elite2MockServer.stubUpdateAttendance()
     elite2MockServer.stubUpdateAttendance()
@@ -500,128 +404,5 @@ class AttendanceIntegrationTest : IntegrationTest() {
         restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendanceDto))
 
     assertThat(response.statusCodeValue).isEqualTo(201)
-  }
-
-  @Test
-  fun `should return attendance information for set of bookings ids`() {
-    elite2MockServer.stubUpdateAttendance()
-    attendanceRepository.deleteAll()
-
-    attendanceRepository.save(Attendance
-        .builder()
-        .absentReason(AbsentReason.Refused)
-        .period(TimePeriod.PM)
-        .prisonId("LEI")
-        .eventLocationId(2)
-        .eventId(1)
-        .eventDate(LocalDate.of(2019, 10, 10))
-        .comments("hello world")
-        .attended(true)
-        .paid(true)
-        .bookingId(1)
-        .build())
-
-    attendanceRepository.save(Attendance
-        .builder()
-        .absentReason(AbsentReason.Refused)
-        .period(TimePeriod.PM)
-        .prisonId("LEI")
-        .eventLocationId(2)
-        .eventId(1)
-        .eventDate(LocalDate.of(2019, 10, 10))
-        .comments("hello world")
-        .attended(true)
-        .paid(true)
-        .bookingId(2)
-        .build())
-
-    val response =
-        restTemplate.exchange(
-            "/attendance/LEI?date={0}&period={1}&bookings=${1}&bookings=${2}",
-            HttpMethod.GET,
-            createHeaderEntity(""),
-            ListOfAttendanceDtoReferenceType(),
-            LocalDate.of(2019, 10, 10),
-            TimePeriod.PM)
-
-    assertThat(response.statusCodeValue).isEqualTo(200)
-    assertThat(response.body).extracting("bookingId").contains(1L, 2L)
-  }
-
-  @Test
-  fun `should attend all supplied in bookings`() {
-    val bookingIds = setOf(1L, 2L)
-
-    elite2MockServer.stubUpdateAttendanceForBookingIds()
-    attendanceRepository.deleteAll()
-
-    val bookingActivities = bookingIds
-        .stream()
-        .map { BookingActivity(activityId = 2L,bookingId = it) }
-        .collect(Collectors.toSet())
-
-    val attendAll = AttendAllDto
-        .builder()
-        .eventDate(LocalDate.of(2019, 10, 10))
-        .eventLocationId(1L)
-        .prisonId("LEI")
-        .period(TimePeriod.AM)
-        .bookingActivities(bookingActivities)
-        .build()
-
-    val response =
-        restTemplate.exchange(
-            "/attendance/attend-all",
-            HttpMethod.POST,
-            createHeaderEntity(attendAll),
-            String::class.java)
-
-    assertThat(response.statusCodeValue).isEqualTo(201)
-
-    elite2MockServer.verify(putRequestedFor(urlEqualTo("/api/bookings/activities/attendance"))
-        .withRequestBody(equalToJson(gson.toJson(mapOf(
-            "eventOutcome" to "ATT",
-            "performance" to "STANDARD",
-            "outcomeComment" to "",
-            "bookingActivities" to bookingActivities
-        )))))
-  }
-
-  @Test
-  fun `should return attendance information for offenders that have scheduled activity`() {
-    elite2MockServer.stubGetScheduledActivities()
-
-    val prisonId = "MDI"
-    val date = LocalDate.now()
-    val period = TimePeriod.AM
-
-    attendanceRepository.save(
-        Attendance
-            .builder()
-            .absentReason(AbsentReason.Refused)
-            .attended(false)
-            .paid(false)
-            .eventId(2)
-            .eventLocationId(3)
-            .period(TimePeriod.AM)
-            .prisonId("MDI")
-            .bookingId(1L)
-            .eventDate(date)
-            .createUserId("user")
-            .caseNoteId(1)
-            .build())
-
-
-    val response = restTemplate.exchange(
-        "/attendance/$prisonId/attendance-for-scheduled-activities?date=$date&period=$period",
-        HttpMethod.GET,
-        createHeaderEntity(""),
-        ListOfAttendanceDtoReferenceType())
-
-    assertThat(response.statusCodeValue).isEqualTo(200)
-    assertThat(response.body).hasSize(1)
-
-    elite2MockServer.verify(getRequestedFor(urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period")))
-
   }
 }

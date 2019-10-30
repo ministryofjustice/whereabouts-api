@@ -17,7 +17,7 @@ open class AttendanceStatistics(private val attendanceRepository: AttendanceRepo
     val attendances = attendanceRepository
         .findByPrisonIdAndPeriodAndEventDateBetween(prisonId, period, from, to)
 
-    val attendanceBookingIds = attendances.map { it.bookingId }.toSet()
+    val attendanceBookingIds = attendances.map { it.bookingId }
 
     val offendersScheduledForActivity =
         elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(prisonId, period, from, to)
