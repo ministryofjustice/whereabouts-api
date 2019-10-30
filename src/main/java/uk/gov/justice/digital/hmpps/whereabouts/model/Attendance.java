@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.CreatedBy;
@@ -18,7 +17,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "OFFENDER_ATTENDANCE")
-@Data()
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
@@ -74,4 +72,241 @@ public class Attendance {
     @LastModifiedBy
     @Column(name = "MODIFY_USER_ID")
     private String modifyUserId;
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public @NotNull Long getBookingId() {
+        return this.bookingId;
+    }
+
+    public void setBookingId(@NotNull Long bookingId) {
+        this.bookingId = bookingId;
+    }
+
+    public @NotNull Long getEventId() {
+        return this.eventId;
+    }
+
+    public void setEventId(@NotNull Long eventId) {
+        this.eventId = eventId;
+    }
+
+    public @NotNull Long getEventLocationId() {
+        return this.eventLocationId;
+    }
+
+    public void setEventLocationId(@NotNull Long eventLocationId) {
+        this.eventLocationId = eventLocationId;
+    }
+
+    public @NotNull LocalDate getEventDate() {
+        return this.eventDate;
+    }
+
+    public void setEventDate(@NotNull LocalDate eventDate) {
+        this.eventDate = eventDate;
+    }
+
+    public @NotNull TimePeriod getPeriod() {
+        return this.period;
+    }
+
+    public void setPeriod(@NotNull TimePeriod period) {
+        this.period = period;
+    }
+
+    public @NotNull @Length(max = 6) String getPrisonId() {
+        return this.prisonId;
+    }
+
+    public void setPrisonId(@NotNull @Length(max = 6) String prisonId) {
+        this.prisonId = prisonId;
+    }
+
+    public Boolean getPaid() {
+        return this.paid;
+    }
+
+    public void setPaid(Boolean paid) {
+        this.paid = paid;
+    }
+
+    public Boolean getAttended() {
+        return this.attended;
+    }
+
+    public void setAttended(Boolean attended) {
+        this.attended = attended;
+    }
+
+    public AbsentReason getAbsentReason() {
+        return this.absentReason;
+    }
+
+    public void setAbsentReason(AbsentReason absentReason) {
+        this.absentReason = absentReason;
+    }
+
+    public @Length(max = 240) String getComments() {
+        return this.comments;
+    }
+
+    public void setComments(@Length(max = 240) String comments) {
+        this.comments = comments;
+    }
+
+    public Long getCaseNoteId() {
+        return this.caseNoteId;
+    }
+
+    public void setCaseNoteId(Long caseNoteId) {
+        this.caseNoteId = caseNoteId;
+    }
+
+    public LocalDateTime getCreateDateTime() {
+        return this.createDateTime;
+    }
+
+    public void setCreateDateTime(LocalDateTime createDateTime) {
+        this.createDateTime = createDateTime;
+    }
+
+    public String getCreateUserId() {
+        return this.createUserId;
+    }
+
+    public void setCreateUserId(String createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public LocalDateTime getModifyDateTime() {
+        return this.modifyDateTime;
+    }
+
+    public void setModifyDateTime(LocalDateTime modifyDateTime) {
+        this.modifyDateTime = modifyDateTime;
+    }
+
+    public String getModifyUserId() {
+        return this.modifyUserId;
+    }
+
+    public void setModifyUserId(String modifyUserId) {
+        this.modifyUserId = modifyUserId;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Attendance)) return false;
+        final Attendance other = (Attendance) o;
+        if (!other.canEqual((Object) this)) return false;
+        final Object this$id = this.getId();
+        final Object other$id = other.getId();
+        if (this$id == null ? other$id != null : !this$id.equals(other$id)) return false;
+        final Object this$bookingId = this.getBookingId();
+        final Object other$bookingId = other.getBookingId();
+        if (this$bookingId == null ? other$bookingId != null : !this$bookingId.equals(other$bookingId)) return false;
+        final Object this$eventId = this.getEventId();
+        final Object other$eventId = other.getEventId();
+        if (this$eventId == null ? other$eventId != null : !this$eventId.equals(other$eventId)) return false;
+        final Object this$eventLocationId = this.getEventLocationId();
+        final Object other$eventLocationId = other.getEventLocationId();
+        if (this$eventLocationId == null ? other$eventLocationId != null : !this$eventLocationId.equals(other$eventLocationId))
+            return false;
+        final Object this$eventDate = this.getEventDate();
+        final Object other$eventDate = other.getEventDate();
+        if (this$eventDate == null ? other$eventDate != null : !this$eventDate.equals(other$eventDate)) return false;
+        final Object this$period = this.getPeriod();
+        final Object other$period = other.getPeriod();
+        if (this$period == null ? other$period != null : !this$period.equals(other$period)) return false;
+        final Object this$prisonId = this.getPrisonId();
+        final Object other$prisonId = other.getPrisonId();
+        if (this$prisonId == null ? other$prisonId != null : !this$prisonId.equals(other$prisonId)) return false;
+        final Object this$paid = this.getPaid();
+        final Object other$paid = other.getPaid();
+        if (this$paid == null ? other$paid != null : !this$paid.equals(other$paid)) return false;
+        final Object this$attended = this.getAttended();
+        final Object other$attended = other.getAttended();
+        if (this$attended == null ? other$attended != null : !this$attended.equals(other$attended)) return false;
+        final Object this$absentReason = this.getAbsentReason();
+        final Object other$absentReason = other.getAbsentReason();
+        if (this$absentReason == null ? other$absentReason != null : !this$absentReason.equals(other$absentReason))
+            return false;
+        final Object this$comments = this.getComments();
+        final Object other$comments = other.getComments();
+        if (this$comments == null ? other$comments != null : !this$comments.equals(other$comments)) return false;
+        final Object this$caseNoteId = this.getCaseNoteId();
+        final Object other$caseNoteId = other.getCaseNoteId();
+        if (this$caseNoteId == null ? other$caseNoteId != null : !this$caseNoteId.equals(other$caseNoteId))
+            return false;
+        final Object this$createDateTime = this.getCreateDateTime();
+        final Object other$createDateTime = other.getCreateDateTime();
+        if (this$createDateTime == null ? other$createDateTime != null : !this$createDateTime.equals(other$createDateTime))
+            return false;
+        final Object this$createUserId = this.getCreateUserId();
+        final Object other$createUserId = other.getCreateUserId();
+        if (this$createUserId == null ? other$createUserId != null : !this$createUserId.equals(other$createUserId))
+            return false;
+        final Object this$modifyDateTime = this.getModifyDateTime();
+        final Object other$modifyDateTime = other.getModifyDateTime();
+        if (this$modifyDateTime == null ? other$modifyDateTime != null : !this$modifyDateTime.equals(other$modifyDateTime))
+            return false;
+        final Object this$modifyUserId = this.getModifyUserId();
+        final Object other$modifyUserId = other.getModifyUserId();
+        if (this$modifyUserId == null ? other$modifyUserId != null : !this$modifyUserId.equals(other$modifyUserId))
+            return false;
+        return true;
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof Attendance;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = 1;
+        final Object $id = this.getId();
+        result = result * PRIME + ($id == null ? 43 : $id.hashCode());
+        final Object $bookingId = this.getBookingId();
+        result = result * PRIME + ($bookingId == null ? 43 : $bookingId.hashCode());
+        final Object $eventId = this.getEventId();
+        result = result * PRIME + ($eventId == null ? 43 : $eventId.hashCode());
+        final Object $eventLocationId = this.getEventLocationId();
+        result = result * PRIME + ($eventLocationId == null ? 43 : $eventLocationId.hashCode());
+        final Object $eventDate = this.getEventDate();
+        result = result * PRIME + ($eventDate == null ? 43 : $eventDate.hashCode());
+        final Object $period = this.getPeriod();
+        result = result * PRIME + ($period == null ? 43 : $period.hashCode());
+        final Object $prisonId = this.getPrisonId();
+        result = result * PRIME + ($prisonId == null ? 43 : $prisonId.hashCode());
+        final Object $paid = this.getPaid();
+        result = result * PRIME + ($paid == null ? 43 : $paid.hashCode());
+        final Object $attended = this.getAttended();
+        result = result * PRIME + ($attended == null ? 43 : $attended.hashCode());
+        final Object $absentReason = this.getAbsentReason();
+        result = result * PRIME + ($absentReason == null ? 43 : $absentReason.hashCode());
+        final Object $comments = this.getComments();
+        result = result * PRIME + ($comments == null ? 43 : $comments.hashCode());
+        final Object $caseNoteId = this.getCaseNoteId();
+        result = result * PRIME + ($caseNoteId == null ? 43 : $caseNoteId.hashCode());
+        final Object $createDateTime = this.getCreateDateTime();
+        result = result * PRIME + ($createDateTime == null ? 43 : $createDateTime.hashCode());
+        final Object $createUserId = this.getCreateUserId();
+        result = result * PRIME + ($createUserId == null ? 43 : $createUserId.hashCode());
+        final Object $modifyDateTime = this.getModifyDateTime();
+        result = result * PRIME + ($modifyDateTime == null ? 43 : $modifyDateTime.hashCode());
+        final Object $modifyUserId = this.getModifyUserId();
+        result = result * PRIME + ($modifyUserId == null ? 43 : $modifyUserId.hashCode());
+        return result;
+    }
+
+    public String toString() {
+        return "Attendance(id=" + this.getId() + ", bookingId=" + this.getBookingId() + ", eventId=" + this.getEventId() + ", eventLocationId=" + this.getEventLocationId() + ", eventDate=" + this.getEventDate() + ", period=" + this.getPeriod() + ", prisonId=" + this.getPrisonId() + ", paid=" + this.getPaid() + ", attended=" + this.getAttended() + ", absentReason=" + this.getAbsentReason() + ", comments=" + this.getComments() + ", caseNoteId=" + this.getCaseNoteId() + ", createDateTime=" + this.getCreateDateTime() + ", createUserId=" + this.getCreateUserId() + ", modifyDateTime=" + this.getModifyDateTime() + ", modifyUserId=" + this.getModifyUserId() + ")";
+    }
 }

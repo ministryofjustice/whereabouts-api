@@ -13,7 +13,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse;
 import javax.persistence.EntityNotFoundException;
 
 @RestControllerAdvice(
-        basePackageClasses = {AttendanceController.class}
+        basePackageClasses = {AttendanceController.class, AttendanceStatisticsController.class, AttendancesController.class}
 )
 @Slf4j
 public class ControllerAdvice {

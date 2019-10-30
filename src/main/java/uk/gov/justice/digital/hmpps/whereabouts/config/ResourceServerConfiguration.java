@@ -9,8 +9,6 @@ import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.domain.AuditorAware;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -23,7 +21,6 @@ import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
-import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -33,7 +30,6 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uk.gov.justice.digital.hmpps.whereabouts.controllers.AttendanceController;
-import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -43,7 +39,6 @@ import java.util.Optional;
 @Configuration
 @EnableSwagger2
 @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
-@EnableJpaAuditing(auditorAwareRef = "auditorAware")
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
     @Value("${jwt.public.key}")
@@ -132,20 +127,6 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 "HMPPS Digital Studio",
                 "",
                 "feedback@digital.justice.gov.uk");
-    }
-
-    @Service(value = "auditorAware")
-    public class AuditorAwareImpl implements AuditorAware<String> {
-        AuthenticationFacade authenticationFacade;
-
-        public AuditorAwareImpl(final AuthenticationFacade authenticationFacade) {
-            this.authenticationFacade = authenticationFacade;
-        }
-
-        @Override
-        public Optional<String> getCurrentAuditor() {
-            return Optional.ofNullable(authenticationFacade.getCurrentUsername());
-        }
     }
 
     @Bean
