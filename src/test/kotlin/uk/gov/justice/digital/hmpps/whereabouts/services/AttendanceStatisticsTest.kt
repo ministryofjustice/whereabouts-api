@@ -212,7 +212,7 @@ class AttendanceStatisticsTest {
   @Test
   fun `count not recorded`() {
     whenever(elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(anyString(), any(), any(), any()))
-        .thenReturn(setOf(1, 2, 3, 100, 102))
+        .thenReturn(listOf(1, 2, 3, 100, 102))
 
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
@@ -227,16 +227,13 @@ class AttendanceStatisticsTest {
   @Test
   fun `count offender schedules`() {
     whenever(elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(anyString(), any(), any(), any()))
-        .thenReturn(setOf(1, 2, 3, 100, 102, 100, 100, 100))
-
-    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-        .thenReturn(setOf())
+        .thenReturn(listOf(1, 2, 3, 100, 102, 100, 100, 100))
 
     val service = buildAttendanceStatistics()
 
-    val stats = service.getStats(prisonId, period, from, to)
+    val stats = service.getStats(prisonId, TimePeriod.AM, from, to)
 
-    assertThat(stats).extracting("offenderSchedules").contains(5)
+    assertThat(stats).extracting("scheduleActivities").contains(8)
   }
 
   @Test

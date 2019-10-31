@@ -8,7 +8,7 @@ import java.time.LocalDate
 
 data class PaidReasons(val attended: Int? = 0, val acceptableAbsences: Int? = 0, val approvedCourse: Int? = 0, val notRequired: Int? = 0)
 data class UnpaidReasons(val refused: Int? = 0, val restDay: Int? = 0, val sessionCancelled: Int? = 0, val sick: Int? = 0, val unacceptableAbsence: Int? = 0, val restInCell: Int? = 0)
-data class Stats(val offenderSchedules: Int? = 0, val notRecorded: Int? = 0, val paidReasons: PaidReasons?, val unpaidReasons: UnpaidReasons?)
+data class Stats(val scheduleActivities: Int? = 0, val notRecorded: Int? = 0, val paidReasons: PaidReasons?, val unpaidReasons: UnpaidReasons?)
 
 @Service
 open class AttendanceStatistics(private val attendanceRepository: AttendanceRepository, private val elite2ApiService: Elite2ApiService) {
@@ -25,7 +25,7 @@ open class AttendanceStatistics(private val attendanceRepository: AttendanceRepo
         elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(prisonId, period, from, to)
 
     return Stats(
-        offenderSchedules = offendersScheduledForActivity.count(),
+        scheduleActivities = offendersScheduledForActivity.count(),
         notRecorded = offendersScheduledForActivity.count { !attendanceBookingIds.contains(it) },
         paidReasons = PaidReasons(
             attended = attendances.count { it.attended },
