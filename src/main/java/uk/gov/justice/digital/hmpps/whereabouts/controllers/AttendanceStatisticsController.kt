@@ -23,7 +23,7 @@ class AttendanceStatisticsController(private val attendanceStatistics: Attendanc
   @ApiOperation(value = "Request attendance statistics", response = Stats::class, notes = "Request attendance statistics")
   fun getAttendanceForEventLocation(
       @ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-      @ApiParam(value = "Time period") @RequestParam(name = "period", defaultValue = "Leave blank for AM + PM") period: TimePeriod,
+      @ApiParam(value = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
       @ApiParam(value = "From date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
       @ApiParam(value = "To date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate): Stats {
 
