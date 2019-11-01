@@ -48,29 +48,6 @@ open class AttendanceStatisticsIntegrationTest : IntegrationTest() {
   }
 
   @Test
-  fun `should request schedules by date range and leave timeSlot blank`() {
-    elite2MockServer.stubGetScheduledActivitiesForDateRange(prisonId, fromDate, toDate, null)
-
-    val response =
-        restTemplate.exchange(
-            "/attendance-statistics/$prisonId/over-date-range?fromDate={0}&toDate={1}",
-            HttpMethod.GET,
-            createHeaderEntity(""),
-            Any::class.java,
-            fromDate,
-            toDate
-        )
-
-    assertThat(response.statusCodeValue).isEqualTo(200)
-
-    elite2MockServer.verify(WireMock.getRequestedFor(
-        WireMock.urlEqualTo(
-            "/api/schedules/$prisonId/activities-by-date-range?fromDate=$fromDate&toDate=$toDate&timeSlot="
-        )
-    ))
-  }
-
-  @Test
   fun `should populate stats with data`() {
     elite2MockServer.stubGetScheduledActivitiesForDateRange(prisonId, fromDate, toDate, period)
 

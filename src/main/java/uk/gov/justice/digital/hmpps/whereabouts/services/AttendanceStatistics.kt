@@ -14,15 +14,15 @@ data class Stats(val scheduleActivities: Int? = 0, val notRecorded: Int? = 0, va
 open class AttendanceStatistics(private val attendanceRepository: AttendanceRepository, private val elite2ApiService: Elite2ApiService) {
   fun getStats(prisonId: String, period: TimePeriod?, from: LocalDate, to: LocalDate): Stats {
 
-    val attendances = if (period == null)
-      attendanceRepository.findByPrisonIdAndPeriodOrPeriodAndEventDateBetween(prisonId, TimePeriod.AM, TimePeriod.PM, from, to)
-    else
-      attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(prisonId, period, from, to)
+    val periods = period?.let { setOf(it) } ?: setOf(TimePeriod.PM, TimePeriod.AM)
+    val offendersScheduledForActivity = getScheduleActivityForPeriods(prisonId, from, to, periods)
+
+    val attendances = when (periods.size) {
+      in 2..3 -> attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(prisonId, from, to, periods)
+      else -> attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(prisonId, period, from, to)
+    }
 
     val attendanceBookingIds = attendances.map { it.bookingId }
-
-    val offendersScheduledForActivity =
-        elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(prisonId, period, from, to)
 
     return Stats(
         scheduleActivities = offendersScheduledForActivity.count(),
@@ -43,4 +43,8 @@ open class AttendanceStatistics(private val attendanceRepository: AttendanceRepo
         )
     )
   }
+
+  private fun getScheduleActivityForPeriods(prisonId: String, from: LocalDate, to: LocalDate, periods: Set<TimePeriod>): List<Long> =
+      periods.map { elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(prisonId, it, from, to) }.flatten()
+
 }
