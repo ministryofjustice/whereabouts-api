@@ -255,8 +255,32 @@ class AttendanceStatisticsTest {
     service.getStats(prisonId, null, from, to)
 
     verify(attendanceRepository)
-        .findByPrisonIdAndPeriodOrPeriodAndEventDateBetween(prisonId, TimePeriod.AM, TimePeriod.PM, from, to)
+        .findByPrisonIdAndEventDateBetweenAndPeriodIn(prisonId, from, to, setOf(TimePeriod.AM, TimePeriod.PM))
   }
+
+  @Test
+  fun `should call the elite2 schedule api twice, once for AM and then for PM`() {
+    val service = buildAttendanceStatistics()
+
+    whenever(elite2ApiService
+        .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.AM, from, to))
+        .thenReturn(listOf(1, 2))
+
+    whenever(elite2ApiService
+        .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.PM, from, to))
+        .thenReturn(listOf(1, 2))
+
+    val stats = service.getStats(prisonId, null, from, to)
+
+    verify(elite2ApiService)
+        .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.AM, from, to)
+
+    verify(elite2ApiService)
+        .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.PM, from, to)
+
+    assertThat(stats).extracting("notRecorded").containsExactly(4)
+  }
+
 
   private fun buildAttendanceStatistics() = AttendanceStatistics(attendanceRepository, elite2ApiService)
 }

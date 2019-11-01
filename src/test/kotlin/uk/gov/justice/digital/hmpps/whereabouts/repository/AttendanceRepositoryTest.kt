@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.repository
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,6 +41,16 @@ open class AttendanceRepositoryTest {
       .prisonId("LEI")
       .period(TimePeriod.AM)
       .build()
+
+
+  @Before
+  fun clearRepository() {
+    attendanceRepository.deleteAll()
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+  }
 
   @Test
   fun `should insert attendance`() {
@@ -130,12 +141,6 @@ open class AttendanceRepositoryTest {
         )
 
     assertThat(results).extracting("eventId").contains(2L, 1L)
-
-    attendanceRepository.deleteAll(setOf(
-        attendanceLastMonth,
-        attendanceLastYear,
-        attendanceToday
-    ))
   }
 
   @Test
@@ -158,7 +163,7 @@ open class AttendanceRepositoryTest {
         .bookingId(1)
         .attended(true)
         .prisonId("LEI")
-        .period(TimePeriod.AM)
+        .period(TimePeriod.PM)
         .eventDate(LocalDate.now())
         .eventId(2)
         .eventLocationId(1)
@@ -171,9 +176,22 @@ open class AttendanceRepositoryTest {
         .bookingId(1)
         .attended(true)
         .prisonId("LEI")
+        .period(TimePeriod.AM)
+        .eventDate(LocalDate.now().minusYears(1))
+        .eventId(3)
+        .eventLocationId(1)
+        .createUserId("test")
+        .createDateTime(LocalDateTime.now())
+        .build()
+
+    val attendanceED = Attendance
+        .builder()
+        .bookingId(1)
+        .attended(true)
+        .prisonId("LEI")
         .period(TimePeriod.ED)
         .eventDate(LocalDate.now())
-        .eventId(3)
+        .eventId(4)
         .eventLocationId(1)
         .createUserId("test")
         .createDateTime(LocalDateTime.now())
@@ -182,7 +200,8 @@ open class AttendanceRepositoryTest {
     attendanceRepository.saveAll(setOf(
         attendanceLastMonth,
         attendanceLastYear,
-        attendanceToday
+        attendanceToday,
+        attendanceED
     ))
 
     TestTransaction.flagForCommit()
@@ -190,20 +209,13 @@ open class AttendanceRepositoryTest {
     TestTransaction.start()
 
     val results = attendanceRepository
-        .findByPrisonIdAndPeriodOrPeriodAndEventDateBetween(
+        .findByPrisonIdAndEventDateBetweenAndPeriodIn(
             "LEI",
-            TimePeriod.AM,
-            TimePeriod.PM,
             LocalDate.now().minusMonths(2),
-            LocalDate.now()
+            LocalDate.now(),
+            setOf(TimePeriod.AM, TimePeriod.PM)
         )
 
-    assertThat(results).extracting("eventId").contains(2L, 1L)
-
-    attendanceRepository.deleteAll(setOf(
-        attendanceLastMonth,
-        attendanceLastYear,
-        attendanceToday
-    ))
+    assertThat(results).extracting("eventId").containsExactly(2L, 1L)
   }
 }

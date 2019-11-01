@@ -1229,7 +1229,7 @@ class AttendanceServiceTest {
   }
 
   @Test
-  fun `should create an attendance records locally and push event out comes up to elite for multiple bookings`() {
+  fun `should create an attendance records locally and push event out-comes up to elite for multiple bookings`() {
     val bookingIds = setOf(1L, 2L)
 
     val bookingActivities = bookingIds
