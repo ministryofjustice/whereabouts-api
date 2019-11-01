@@ -17,8 +17,8 @@ open class AttendanceStatistics(private val attendanceRepository: AttendanceRepo
     val periods = period?.let { setOf(it) } ?: setOf(TimePeriod.PM, TimePeriod.AM)
     val offendersScheduledForActivity = getScheduleActivityForPeriods(prisonId, from, to, periods)
 
-    val attendances = when (period) {
-      null -> attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(prisonId, from, to, setOf(TimePeriod.AM, TimePeriod.PM))
+    val attendances = when (periods.size) {
+      in 2..3 -> attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(prisonId, from, to, periods)
       else -> attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(prisonId, period, from, to)
     }
 
