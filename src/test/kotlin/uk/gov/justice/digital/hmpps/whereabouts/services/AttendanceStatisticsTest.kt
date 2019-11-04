@@ -121,7 +121,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("paidReasons").extracting("acceptableAbsences").contains(1)
+    assertThat(stats).extracting("paidReasons").extracting("acceptableAbsence").contains(1)
   }
 
   @Test
