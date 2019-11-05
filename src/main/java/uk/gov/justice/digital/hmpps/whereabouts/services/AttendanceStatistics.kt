@@ -46,5 +46,4 @@ open class AttendanceStatistics(private val attendanceRepository: AttendanceRepo
 
   private fun getScheduleActivityForPeriods(prisonId: String, from: LocalDate, to: LocalDate, periods: Set<TimePeriod>): List<Long> =
       periods.map { elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(prisonId, it, from, to) }.flatten()
-
 }

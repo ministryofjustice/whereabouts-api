@@ -36,4 +36,5 @@ public class AttendanceDto {
     private String modifyUserId;
     private Long caseNoteId;
     private Boolean locked;
+    private String cellLocation;
 }

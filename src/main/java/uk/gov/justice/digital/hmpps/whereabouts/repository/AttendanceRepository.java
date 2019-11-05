@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.repository;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
@@ -21,4 +22,6 @@ public interface AttendanceRepository extends CrudRepository<Attendance, Long> {
     Set<Attendance> findByPrisonIdAndPeriodAndEventDateBetween(String prisonId, TimePeriod period, LocalDate from, LocalDate to);
 
     Set<Attendance> findByPrisonIdAndEventDateBetweenAndPeriodIn(String prisonId, LocalDate from, LocalDate to, Set<TimePeriod> periods);
+
+    Set<Attendance> findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(String prisonId, LocalDate from, LocalDate to, Set<TimePeriod> periods, AbsentReason reason);
 }

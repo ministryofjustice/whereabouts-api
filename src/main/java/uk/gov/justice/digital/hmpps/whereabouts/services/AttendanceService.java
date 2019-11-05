@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -275,6 +276,32 @@ public class AttendanceService {
                 .collect(Collectors.toSet());
     }
 
+    public Set<AttendanceDto> getAbsences(final String prisonId, final AbsentReason absentReason, final LocalDate fromDate, final LocalDate toDate,
+                                          final TimePeriod period) {
+
+        final var periods = period == null ? Set.of(TimePeriod.AM, TimePeriod.PM) : Set.of(period);
+        final var offenderDetails = periods
+                .stream()
+                .flatMap(p -> elite2ApiService.getScheduleActivityOffenderData(prisonId, fromDate, toDate, p).stream())
+                .collect(Collectors.toList());
+
+        final var attendances = attendanceRepository
+                .findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prisonId, fromDate, toDate, periods, absentReason);
+
+        return attendances.stream()
+                .map(this::toAttendanceDto)
+                .filter(attendance -> offenderDetails.stream().anyMatch(findAttendance(attendance)))
+                .map(attendanceDto -> attendanceDto
+                        .toBuilder()
+                        .cellLocation(offenderDetails.stream().filter(findAttendance(attendanceDto)).findFirst().map(OffenderDetails::getCellLocation).orElse(""))
+                        .build())
+                .collect(Collectors.toSet());
+    }
+
+    private Predicate<? super OffenderDetails> findAttendance(final AttendanceDto attendance) {
+        return offender -> offender.getBookingId() == attendance.getBookingId() && offender.getEventId() == attendance.getEventId() && TimePeriod.valueOf(offender.getTimeSlot()) == attendance.getPeriod();
+    }
+
     private Attendance toAttendance(final CreateAttendanceDto attendanceDto) {
         return Attendance
                 .builder()
@@ -312,4 +339,5 @@ public class AttendanceService {
                 .modifyUserId(attendanceData.getModifyUserId())
                 .build();
     }
+
 }
