@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import java.time.LocalDate;
@@ -79,6 +80,17 @@ public class Elite2ApiService {
                 .filter(entry -> entry.containsKey("bookingId"))
                 .map(entry -> Long.valueOf(entry.get("bookingId").toString()))
                 .collect(Collectors.toList());
+    }
+
+    public List<OffenderDetails> getScheduleActivityOffenderData(final String prisonId, final LocalDate fromDate, final LocalDate toDate, final TimePeriod period) {
+        final var url = "/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}";
+
+        final var responseType = new ParameterizedTypeReference<List<OffenderDetails>>() {
+        };
+        final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, prisonId, fromDate, toDate, period);
+        final var body = response.getBody();
+
+        return body != null ? body : Collections.emptyList();
     }
 }
 

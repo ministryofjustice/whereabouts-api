@@ -1,8 +1,11 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.assertj.core.groups.Tuple
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,7 +62,7 @@ class AttendanceServiceTest {
   @Before
   fun before() {
     // return the attendance entity on save
-    doAnswer { it.getArgument(0) as Attendance }.whenever(attendanceRepository).save(any())
+    doAnswer { it.getArgument(0) as Attendance }.whenever(attendanceRepository).save(ArgumentMatchers.any(Attendance::class.java))
     service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
   }
 
@@ -264,7 +267,7 @@ class AttendanceServiceTest {
             .build()
     )
 
-    verify(attendanceRepository)?.save(Attendance.builder()
+    verify(attendanceRepository).save(Attendance.builder()
         .attended(true)
         .paid(true)
         .eventId(2)
@@ -864,7 +867,7 @@ class AttendanceServiceTest {
         .comments("Refused!")
         .build())
 
-    verify(caseNotesService, never()).putCaseNoteAmendment(anyString(), anyLong(), ArgumentMatchers.anyString())
+    verify(caseNotesService, never()).putCaseNoteAmendment(anyString(), anyLong(), anyString())
     verify(caseNotesService).postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
   }
 
@@ -1054,7 +1057,7 @@ class AttendanceServiceTest {
                 .build()
         ))
 
-    val result = service.getAbsences("LEI", today, TimePeriod.AM)
+    val result = service.getAbsencesForReason("LEI", today, TimePeriod.AM)
 
     assertThat(result).containsAnyElementsOf(mutableListOf(
         AttendanceDto
@@ -1284,5 +1287,124 @@ class AttendanceServiceTest {
     verify(attendanceRepository).saveAll(anySet())
     verify(elite2ApiService).putAttendanceForMultipleBookings(bookingActivities,
         EventOutcome("ACCAB", null, "test"))
+  }
+
+  @Test
+  fun `should make a request for schedule activity over a date range`() {
+    val service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
+    val prison = "MDI"
+    val fromDate = LocalDate.now()
+    val toDate = LocalDate.now().plusDays(20)
+    val reason = AbsentReason.Refused
+    val period = TimePeriod.PM
+
+    service.getAbsencesForReason(prison, reason, fromDate, toDate, period)
+
+    verify(elite2ApiService).getScheduleActivityOffenderData(prison, fromDate, toDate, period)
+    verify(attendanceRepository).findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prison, fromDate, toDate, setOf(period), reason)
+  }
+
+  @Test
+  fun `should make requests for schedule activity over a date range, one request for each period`() {
+    val service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
+    val prison = "MDI"
+    val fromDate = LocalDate.now()
+    val toDate = LocalDate.now().plusDays(20)
+    val reason = AbsentReason.Refused
+
+    service.getAbsencesForReason(prison, reason, fromDate, toDate, null)
+
+    verify(elite2ApiService).getScheduleActivityOffenderData(prison, fromDate, toDate, TimePeriod.AM)
+    verify(elite2ApiService).getScheduleActivityOffenderData(prison, fromDate, toDate, TimePeriod.PM)
+    verify(attendanceRepository).findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prison, fromDate, toDate, setOf(TimePeriod.AM, TimePeriod.PM), reason)
+  }
+
+  @Test
+  fun `should match absences with scheduled activity on bookingId, eventId and Period`() {
+    val eventDate = LocalDate.now()
+    val eventTime = LocalDateTime.now()
+    val prison = "MDI"
+
+    whenever(elite2ApiService.getScheduleActivityOffenderData(any(), any(), any(), any())).thenReturn(listOf(
+        OffenderDetails(bookingId = 1, eventId = 2, cellLocation = "cell1", startTime = eventTime, endTime = eventTime, eventDate = eventDate, timeSlot = "AM")
+    ))
+
+    whenever(attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(any(), any(), any(), any(), any())).thenReturn(setOf(
+        Attendance.builder().bookingId(1).eventId(1).attended(false).paid(false).prisonId(prison).period(TimePeriod.AM).absentReason(AbsentReason.Refused).build(),
+        Attendance.builder().bookingId(1).eventId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.AM).absentReason(AbsentReason.Refused).build(),
+        Attendance.builder().bookingId(1).eventId(3).attended(false).paid(false).prisonId(prison).period(TimePeriod.AM).absentReason(AbsentReason.RestDay).build(),
+        Attendance.builder().bookingId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.PM).build(),
+        Attendance.builder().bookingId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.ED).build()
+    ))
+
+    val service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
+    val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, TimePeriod.AM)
+
+    assertThat(attendances).extracting("bookingId", "eventId").containsExactly(Tuple.tuple(1L, 2L))
+  }
+
+  @Test
+  fun `should match absences with scheduled activity on bookingId, eventId and multiple Periods`() {
+    val eventDate = LocalDate.now()
+    val eventTime = LocalDateTime.now()
+    val prison = "MDI"
+
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prison, eventDate, eventDate, TimePeriod.AM)).thenReturn(listOf(
+        OffenderDetails(bookingId = 1, eventId = 2, startTime = eventTime, endTime = eventTime, eventDate = eventDate, timeSlot = "AM")
+    ))
+
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prison, eventDate, eventDate, TimePeriod.PM)).thenReturn(listOf(
+        OffenderDetails(bookingId = 1, eventId = 3, startTime = eventTime, endTime = eventTime, eventDate = eventDate, timeSlot = "PM")
+    ))
+
+    whenever(attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(any(), any(), any(), any(), any())).thenReturn(setOf(
+        Attendance.builder().bookingId(1).eventId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.AM).absentReason(AbsentReason.Refused).build(),
+        Attendance.builder().bookingId(1).eventId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.PM).absentReason(AbsentReason.Refused).build(),
+        Attendance.builder().bookingId(1).eventId(3).attended(false).paid(false).prisonId(prison).period(TimePeriod.PM).absentReason(AbsentReason.RestDay).build(),
+        Attendance.builder().bookingId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.PM).build(),
+        Attendance.builder().bookingId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.ED).build()
+    ))
+
+    val service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
+    val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, null)
+
+    assertThat(attendances).extracting("bookingId", "eventId").containsExactlyInAnyOrder(Tuple.tuple(1L, 2L), Tuple.tuple(1L, 3L))
+  }
+
+  @Test
+  fun `should enhance attendance dto with cell location`() {
+    val eventDate = LocalDate.now()
+    val eventTime = LocalDateTime.now()
+    val prison = "MDI"
+
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prison, eventDate, eventDate, TimePeriod.AM)).thenReturn(listOf(
+        OffenderDetails(bookingId = 1, eventId = 2, cellLocation = "cell2", startTime = eventTime, endTime = eventTime, eventDate = eventDate, timeSlot = "AM"),
+        OffenderDetails(bookingId = 1, eventId = 2, cellLocation = "cell3", startTime = eventTime, endTime = eventTime, eventDate = eventDate, timeSlot = "PM")
+    ))
+
+    whenever(attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(any(), any(), any(), any(), any())).thenReturn(setOf(
+        Attendance.builder().bookingId(1).eventId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.AM).absentReason(AbsentReason.Refused).build()
+    ))
+
+    val service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
+    val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, TimePeriod.AM)
+
+    assertThat(attendances).extracting("bookingId", "eventId", "cellLocation").containsExactlyInAnyOrder(Tuple.tuple(1L, 2L, "cell2"))
+  }
+
+  @Test
+  fun `should substitute toDate with fromDate when toDate is null`() {
+    val service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
+    val date = LocalDate.now().atStartOfDay().toLocalDate()
+
+    val prison = "MDI"
+    val reason = AbsentReason.Refused
+    val period = TimePeriod.AM
+
+
+    service.getAbsencesForReason(prison, reason, date, null, period)
+
+    verify(attendanceRepository).findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prison, date, date, setOf(period), reason)
+    verify(elite2ApiService).getScheduleActivityOffenderData(prison, date, date, period)
   }
 }
