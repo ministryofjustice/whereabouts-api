@@ -96,8 +96,8 @@ class AttendancesController(private val attendanceService: AttendanceService) {
   }
 
   @GetMapping("/{prison}/absences-for-scheduled-activities/{absentReason}")
-  @ApiOperation(value = "Return a set of absence details for all offenders that have scheduled activity", response = AttendancesResponse::class, notes = "Request attendance details")
-  fun searchAttendanceForOffendersThatHaveScheduleActivity(
+  @ApiOperation(value = "Return a set of absences for all offenders that have scheduled activity", response = AttendancesResponse::class, notes = "Request absences")
+  fun getAbsencesForReason(
       @ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
       @ApiParam(value = "Absent reason (e.g Refused, AcceptableAbsence)") @PathVariable(name = "absentReason") absentReason: AbsentReason,
       @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
