@@ -39,7 +39,7 @@ public class AttendanceService {
                 .collect(Collectors.toSet());
     }
 
-    public Set<AttendanceDto> getAbsences(final String prisonId, final LocalDate date, final TimePeriod period) {
+    public Set<AttendanceDto> getAbsencesForReason(final String prisonId, final LocalDate date, final TimePeriod period) {
         final var attendance = attendanceRepository
                 .findByPrisonIdAndEventDateAndPeriodAndAbsentReasonNotNull(prisonId, date, period);
 
@@ -276,17 +276,19 @@ public class AttendanceService {
                 .collect(Collectors.toSet());
     }
 
-    public Set<AttendanceDto> getAbsences(final String prisonId, final AbsentReason absentReason, final LocalDate fromDate, final LocalDate toDate,
-                                          final TimePeriod period) {
+    public Set<AttendanceDto> getAbsencesForReason(final String prisonId, final AbsentReason absentReason, final LocalDate fromDate, final LocalDate toDate,
+                                                   final TimePeriod period) {
 
         final var periods = period == null ? Set.of(TimePeriod.AM, TimePeriod.PM) : Set.of(period);
+        final var endDate = toDate != null ? toDate : fromDate;
+
         final var offenderDetails = periods
                 .stream()
-                .flatMap(p -> elite2ApiService.getScheduleActivityOffenderData(prisonId, fromDate, toDate, p).stream())
+                .flatMap(p -> elite2ApiService.getScheduleActivityOffenderData(prisonId, fromDate, endDate, p).stream())
                 .collect(Collectors.toList());
 
         final var attendances = attendanceRepository
-                .findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prisonId, fromDate, toDate, periods, absentReason);
+                .findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prisonId, fromDate, endDate, periods, absentReason);
 
         return attendances.stream()
                 .map(this::toAttendanceDto)

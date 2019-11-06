@@ -56,7 +56,7 @@ class AttendancesController(private val attendanceService: AttendanceService) {
                   @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod): AttendancesResponse {
 
     return AttendancesResponse(
-        attendances = attendanceService.getAbsences(prisonId, date, period)
+        attendances = attendanceService.getAbsencesForReason(prisonId, date, period)
     )
   }
 
@@ -104,6 +104,6 @@ class AttendancesController(private val attendanceService: AttendanceService) {
       @ApiParam(value = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate?,
       @ApiParam(value = "Time period") @RequestParam(name = "period") period: TimePeriod?
   ): AttendancesResponse = AttendancesResponse(
-      attendances = attendanceService.getAbsences(prisonId, absentReason, fromDate, toDate ?: fromDate, period)
+      attendances = attendanceService.getAbsencesForReason(prisonId, absentReason, fromDate, toDate, period)
   )
 }
