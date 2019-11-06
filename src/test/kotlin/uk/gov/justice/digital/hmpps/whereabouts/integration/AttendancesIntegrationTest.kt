@@ -1,9 +1,13 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import org.springframework.beans.factory.annotation.Autowired
+import org.mockito.ArgumentMatchers.anySet
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesDto
@@ -19,7 +23,7 @@ import java.util.stream.Collectors
 
 class AttendancesIntegrationTest : IntegrationTest() {
 
-  @Autowired
+  @MockBean
   lateinit var attendanceRepository: AttendanceRepository
 
   @Test
@@ -28,22 +32,21 @@ class AttendancesIntegrationTest : IntegrationTest() {
     elite2MockServer.stubGetBooking()
     caseNotesMockServer.stubCreateCaseNote()
 
-    attendanceRepository.deleteAll()
-
-    val attendanceId = attendanceRepository.save(Attendance
-        .builder()
-        .absentReason(AbsentReason.Refused)
-        .period(TimePeriod.PM)
-        .prisonId("LEI")
-        .eventLocationId(2)
-        .eventId(1)
-        .eventDate(LocalDate.of(2019, 10, 10))
-        .comments("hello world")
-        .attended(false)
-        .paid(false)
-        .bookingId(1)
-        .build()
-    ).id
+    whenever(attendanceRepository.findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(any(), any(), any(), any()))
+        .thenReturn(setOf(Attendance
+            .builder()
+            .id(1)
+            .absentReason(AbsentReason.Refused)
+            .period(TimePeriod.PM)
+            .prisonId("LEI")
+            .eventLocationId(2)
+            .eventId(1)
+            .eventDate(LocalDate.of(2019, 10, 10))
+            .comments("hello world")
+            .attended(false)
+            .paid(false)
+            .bookingId(1)
+            .build()))
 
     val response =
         restTemplate.exchange(
@@ -58,11 +61,10 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     assertThat(response.statusCodeValue).isEqualTo(200)
     assertThat(result)
-        .usingElementComparatorIgnoringFields("createDateTime", "modifyDateTime")
         .containsExactlyInAnyOrder(
             AttendanceDto
                 .builder()
-                .id(attendanceId)
+                .id(1)
                 .absentReason(AbsentReason.Refused)
                 .period(TimePeriod.PM)
                 .prisonId("LEI")
@@ -73,8 +75,6 @@ class AttendancesIntegrationTest : IntegrationTest() {
                 .attended(false)
                 .paid(false)
                 .bookingId(1)
-                .createUserId("user")
-                .modifyUserId("user")
                 .locked(false)
                 .build())
 
@@ -85,21 +85,24 @@ class AttendancesIntegrationTest : IntegrationTest() {
   fun `should return modified by and modified on`() {
     elite2MockServer.stubUpdateAttendance()
 
-    attendanceRepository.save(
-        Attendance.builder()
-            .bookingId(1)
-            .paid(false)
-            .attended(false)
-            .absentReason(AbsentReason.Refused)
-            .comments("Refused")
-            .eventDate(LocalDate.of(2019, 10, 10))
-            .eventId(1)
-            .eventLocationId(2)
-            .prisonId("LEI")
-            .period(TimePeriod.AM)
-            .createDateTime(LocalDateTime.now())
-            .createUserId("user")
-            .build())
+    whenever(attendanceRepository.findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(any(), any(), any(), any()))
+        .thenReturn(setOf(
+            Attendance.builder()
+                .id(1)
+                .bookingId(1)
+                .paid(false)
+                .attended(false)
+                .absentReason(AbsentReason.Refused)
+                .comments("Refused")
+                .eventDate(LocalDate.of(2019, 10, 10))
+                .eventId(1)
+                .eventLocationId(2)
+                .prisonId("LEI")
+                .period(TimePeriod.AM)
+                .createDateTime(LocalDateTime.now())
+                .createUserId("user")
+                .build()))
+
 
     val response =
         restTemplate.exchange(
@@ -114,43 +117,43 @@ class AttendancesIntegrationTest : IntegrationTest() {
     val savedAttendance = response?.body?.attendances?.first()
 
     assertThat(savedAttendance?.id).isGreaterThan(0)
-    assertThat(savedAttendance?.modifyUserId).isEqualTo("user")
-    assertThat(savedAttendance?.modifyDateTime).isNotNull()
     assertThat(response.statusCodeValue).isEqualTo(200)
   }
 
   @Test
   fun `should return attendance information for set of bookings ids`() {
     elite2MockServer.stubUpdateAttendance()
-    attendanceRepository.deleteAll()
 
-    attendanceRepository.save(Attendance
-        .builder()
-        .absentReason(AbsentReason.Refused)
-        .period(TimePeriod.PM)
-        .prisonId("LEI")
-        .eventLocationId(2)
-        .eventId(1)
-        .eventDate(LocalDate.of(2019, 10, 10))
-        .comments("hello world")
-        .attended(true)
-        .paid(true)
-        .bookingId(1)
-        .build())
-
-    attendanceRepository.save(Attendance
-        .builder()
-        .absentReason(AbsentReason.Refused)
-        .period(TimePeriod.PM)
-        .prisonId("LEI")
-        .eventLocationId(2)
-        .eventId(1)
-        .eventDate(LocalDate.of(2019, 10, 10))
-        .comments("hello world")
-        .attended(true)
-        .paid(true)
-        .bookingId(2)
-        .build())
+    whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(any(), any(), any(), any()))
+        .thenReturn(setOf(
+            Attendance
+                .builder()
+                .id(1)
+                .absentReason(AbsentReason.Refused)
+                .period(TimePeriod.PM)
+                .prisonId("LEI")
+                .eventLocationId(2)
+                .eventId(1)
+                .eventDate(LocalDate.of(2019, 10, 10))
+                .comments("hello world")
+                .attended(true)
+                .paid(true)
+                .bookingId(1)
+                .build(),
+            Attendance
+                .builder()
+                .id(2)
+                .absentReason(AbsentReason.Refused)
+                .period(TimePeriod.PM)
+                .prisonId("LEI")
+                .eventLocationId(2)
+                .eventId(1)
+                .eventDate(LocalDate.of(2019, 10, 10))
+                .comments("hello world")
+                .attended(true)
+                .paid(true)
+                .bookingId(2)
+                .build()))
 
     val response =
         restTemplate.exchange(
@@ -168,35 +171,38 @@ class AttendancesIntegrationTest : IntegrationTest() {
   @Test
   fun `should return attendance information for set of bookings ids by post`() {
     elite2MockServer.stubUpdateAttendance()
-    attendanceRepository.deleteAll()
 
-    attendanceRepository.save(Attendance
-        .builder()
-        .absentReason(AbsentReason.Refused)
-        .period(TimePeriod.PM)
-        .prisonId("LEI")
-        .eventLocationId(2)
-        .eventId(1)
-        .eventDate(LocalDate.of(2019, 10, 10))
-        .comments("hello world")
-        .attended(true)
-        .paid(true)
-        .bookingId(1)
-        .build())
-
-    attendanceRepository.save(Attendance
-        .builder()
-        .absentReason(AbsentReason.Refused)
-        .period(TimePeriod.PM)
-        .prisonId("LEI")
-        .eventLocationId(2)
-        .eventId(1)
-        .eventDate(LocalDate.of(2019, 10, 10))
-        .comments("hello world")
-        .attended(true)
-        .paid(true)
-        .bookingId(2)
-        .build())
+    whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(any(), any(), any(), any()))
+        .thenReturn(setOf(
+            Attendance
+                .builder()
+                .id(1)
+                .absentReason(AbsentReason.Refused)
+                .period(TimePeriod.PM)
+                .prisonId("LEI")
+                .eventLocationId(2)
+                .eventId(1)
+                .eventDate(LocalDate.of(2019, 10, 10))
+                .comments("hello world")
+                .attended(true)
+                .paid(true)
+                .bookingId(1)
+                .build(),
+            Attendance
+                .builder()
+                .id(2)
+                .absentReason(AbsentReason.Refused)
+                .period(TimePeriod.PM)
+                .prisonId("LEI")
+                .eventLocationId(2)
+                .eventId(1)
+                .eventDate(LocalDate.of(2019, 10, 10))
+                .comments("hello world")
+                .attended(true)
+                .paid(true)
+                .bookingId(2)
+                .build()
+        ))
 
     val bookings = setOf(1, 2)
 
@@ -218,11 +224,10 @@ class AttendancesIntegrationTest : IntegrationTest() {
     val bookingIds = setOf(1L, 2L)
 
     elite2MockServer.stubUpdateAttendanceForBookingIds()
-    attendanceRepository.deleteAll()
 
     val bookingActivities = bookingIds
         .stream()
-        .map { BookingActivity(activityId = 2L,bookingId = it) }
+        .map { BookingActivity(activityId = 2L, bookingId = it) }
         .collect(Collectors.toSet())
 
     val attendAll = AttendancesDto
@@ -252,6 +257,8 @@ class AttendancesIntegrationTest : IntegrationTest() {
             "bookingActivities" to bookingActivities,
             "eventOutcome" to "ATT"
         )))))
+
+    verify(attendanceRepository).saveAll<Attendance>(anySet())
   }
 
   @Test
@@ -262,22 +269,21 @@ class AttendancesIntegrationTest : IntegrationTest() {
     val date = LocalDate.now()
     val period = TimePeriod.AM
 
-    attendanceRepository.save(
-        Attendance
+    whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(any(), anySet(), any(), any()))
+        .thenReturn(setOf(Attendance
             .builder()
+            .id(1)
             .absentReason(AbsentReason.Refused)
             .attended(false)
             .paid(false)
             .eventId(2)
             .eventLocationId(3)
-            .period(TimePeriod.AM)
-            .prisonId("MDI")
+            .period(period)
+            .prisonId(prisonId)
             .bookingId(1L)
             .eventDate(date)
-            .createUserId("user")
             .caseNoteId(1)
-            .build())
-
+            .build()))
 
     val response = restTemplate.exchange(
         "/attendances/$prisonId/attendance-for-scheduled-activities?date=$date&period=$period",
@@ -289,5 +295,41 @@ class AttendancesIntegrationTest : IntegrationTest() {
     assertThat(response.body?.attendances).hasSize(1)
 
     elite2MockServer.verify(WireMock.getRequestedFor(WireMock.urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period")))
+  }
+
+  @Test
+  fun `should return absences for scheduled activity`() {
+    val prisonId = "MDI"
+    val date = LocalDate.now()
+    val period = TimePeriod.AM
+    val reason = AbsentReason.Refused
+
+    elite2MockServer.stubGetScheduledActivitiesForDateRange(prisonId, date, date, period)
+
+    whenever(attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(any(), any(), any(), anySet(), any()))
+        .thenReturn(setOf(
+            Attendance
+                .builder()
+                .id(1)
+                .absentReason(reason)
+                .attended(false)
+                .paid(false)
+                .eventId(1)
+                .eventDate(date)
+                .eventLocationId(3)
+                .period(period)
+                .prisonId(prisonId)
+                .bookingId(1L)
+                .caseNoteId(1)
+                .build()))
+
+    val response = restTemplate.exchange(
+        "/attendances/${prisonId}/absences-for-scheduled-activities/${reason}?fromDate=$date&period=$period",
+        HttpMethod.GET,
+        createHeaderEntity(""),
+        AttendancesResponse::class.java)
+
+    assertThat(response.statusCodeValue).isEqualTo(200)
+    assertThat(response.body?.attendances).hasSize(1)
   }
 }

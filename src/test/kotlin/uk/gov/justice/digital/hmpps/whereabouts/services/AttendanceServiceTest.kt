@@ -267,7 +267,7 @@ class AttendanceServiceTest {
             .build()
     )
 
-    verify(attendanceRepository)?.save(Attendance.builder()
+    verify(attendanceRepository).save(Attendance.builder()
         .attended(true)
         .paid(true)
         .eventId(2)

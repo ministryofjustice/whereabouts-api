@@ -27,7 +27,7 @@ class AttendancesController(private val attendanceService: AttendanceService) {
   @ResponseStatus(HttpStatus.CREATED)
   @ApiOperation(value = "Create new attendance records for multiple offenders (This endpoint does not trigger IEP warnings)", response = AttendancesResponse::class, notes = "Stores new attendance record for multiple offenders, posts attendance details back up to PNOMIS")
   fun postAttendances(
-      @ApiParam(value = "Attendance parameters parameters", required = true)
+      @ApiParam(value = "Attendance parameters", required = true)
       @RequestBody
       @Valid
       attendances: AttendancesDto): AttendancesResponse {
@@ -101,11 +101,9 @@ class AttendancesController(private val attendanceService: AttendanceService) {
       @ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
       @ApiParam(value = "Absent reason (e.g Refused, AcceptableAbsence)") @PathVariable(name = "absentReason") absentReason: AbsentReason,
       @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
-      @ApiParam(value = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate,
+      @ApiParam(value = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate?,
       @ApiParam(value = "Time period") @RequestParam(name = "period") period: TimePeriod?
-  ): AttendancesResponse {
-    return AttendancesResponse(
-        attendances = attendanceService.getAbsences(prisonId, absentReason, fromDate, toDate, period)
-    )
-  }
+  ): AttendancesResponse = AttendancesResponse(
+      attendances = attendanceService.getAbsences(prisonId, absentReason, fromDate, toDate ?: fromDate, period)
+  )
 }

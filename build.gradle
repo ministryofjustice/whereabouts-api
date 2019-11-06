@@ -121,11 +121,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.gebish:geb-core:3.2'
-    testImplementation 'org.gebish:geb-spock:3.2'
-    testImplementation 'org.seleniumhq.selenium:selenium-support:3.141.59'
-    testImplementation 'org.seleniumhq.selenium:selenium-chrome-driver:3.141.59'
-    testImplementation 'org.seleniumhq.selenium:selenium-firefox-driver:3.141.59'
     testImplementation 'io.github.http-builder-ng:http-builder-ng-apache:1.0.4'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.9.0'
     testImplementation 'com.github.tomakehurst:wiremock-standalone:2.25.1'

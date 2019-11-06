@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.repository
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.groups.Tuple
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -18,6 +19,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.validation.ConstraintViolationException
+
 
 @RunWith(SpringRunner::class)
 @ActiveProfiles("test")
@@ -45,6 +47,7 @@ open class AttendanceRepositoryTest {
 
   @Before
   fun clearRepository() {
+    SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
     attendanceRepository.deleteAll()
 
     TestTransaction.flagForCommit()
@@ -54,8 +57,6 @@ open class AttendanceRepositoryTest {
 
   @Test
   fun `should insert attendance`() {
-    SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
-
     val id = attendanceRepository.save(attendance).id
 
     TestTransaction.flagForCommit()
@@ -217,5 +218,55 @@ open class AttendanceRepositoryTest {
         )
 
     assertThat(results).extracting("eventId").containsExactly(2L, 1L)
+  }
+
+  @Test
+  fun `should match on date range, period and absent reason`() {
+    val attendances = setOf(
+        Attendance.builder()
+            .bookingId(1)
+            .eventId(1)
+            .eventLocationId(1)
+            .eventDate(LocalDate.now().atStartOfDay().toLocalDate())
+            .prisonId("MDI")
+            .period(TimePeriod.AM)
+            .attended(false)
+            .paid(true)
+            .absentReason(AbsentReason.Refused)
+            .build(),
+        Attendance.builder()
+            .bookingId(1)
+            .eventId(2)
+            .eventLocationId(1)
+            .eventDate(LocalDate.now().plusMonths(1))
+            .prisonId("MDI")
+            .period(TimePeriod.AM)
+            .attended(false)
+            .paid(true)
+            .absentReason(AbsentReason.Refused)
+            .build(),
+        Attendance.builder()
+            .bookingId(1)
+            .eventId(3)
+            .eventLocationId(1)
+            .eventDate(LocalDate.now().plusMonths(1))
+            .prisonId("MDI")
+            .period(TimePeriod.AM)
+            .attended(false)
+            .paid(true)
+            .absentReason(AbsentReason.SessionCancelled)
+            .build()
+    )
+
+    attendanceRepository.saveAll(attendances)
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+
+    val result = attendanceRepository
+        .findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason("MDI", LocalDate.now(),
+            LocalDate.now().plusMonths(12), setOf(TimePeriod.AM), AbsentReason.Refused)
+
+    assertThat(result).extracting("bookingId", "eventId").containsExactlyInAnyOrder(Tuple.tuple(1L, 2L), Tuple.tuple(1L, 1L))
   }
 }
