@@ -46,8 +46,8 @@ class Elite2MockServer : WireMockRule(8999) {
         .willReturn(aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(listOf(
-                mapOf("bookingId" to 1L, "eventId" to 1L, "timeSlot" to period.toString()),
-                mapOf("bookingId" to 2L, "eventId" to 12L, "timeSlot" to period.toString()))))
+                mapOf("bookingId" to 1L, "eventId" to 1L),
+                mapOf("bookingId" to 2L, "eventId" to 12L))))
             .withStatus(200))
     )
   }
