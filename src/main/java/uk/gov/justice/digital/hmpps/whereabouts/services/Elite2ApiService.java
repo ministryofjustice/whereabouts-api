@@ -68,7 +68,8 @@ public class Elite2ApiService {
     public List<Long> getBookingIdsForScheduleActivitiesByDateRange(final String prisonId, final TimePeriod period, final LocalDate fromDate, final LocalDate toDate) {
         final var url = "/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}";
 
-        final var responseType = new ParameterizedTypeReference<List<Map>>() {};
+        final var responseType = new ParameterizedTypeReference<List<Map>>() {
+        };
         final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, prisonId, fromDate, toDate, period);
         final var body = response.getBody();
 

@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor
 @Builder(toBuilder = true)
 @ApiModel(description = "Attendances response")
 data class AttendancesResponse(@ApiModelProperty(required = true, value = "Set of attendances")
-                               var attendances: Set<AttendanceDto>? = null
+                               var attendances: Set<AttendanceDto>? = null,
+                               var absences: Set<AbsenceDto>? = null
 )
 

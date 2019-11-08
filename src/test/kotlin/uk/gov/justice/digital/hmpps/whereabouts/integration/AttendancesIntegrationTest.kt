@@ -330,6 +330,6 @@ class AttendancesIntegrationTest : IntegrationTest() {
         AttendancesResponse::class.java)
 
     assertThat(response.statusCodeValue).isEqualTo(200)
-    assertThat(response.body?.attendances).hasSize(1)
+    assertThat(response.body?.absences).hasSize(1)
   }
 }

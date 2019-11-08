@@ -104,6 +104,6 @@ class AttendancesController(private val attendanceService: AttendanceService) {
       @ApiParam(value = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate?,
       @ApiParam(value = "Time period") @RequestParam(name = "period") period: TimePeriod?
   ): AttendancesResponse = AttendancesResponse(
-      attendances = attendanceService.getAbsencesForReason(prisonId, absentReason, fromDate, toDate, period)
+      absences = attendanceService.getAbsencesForReason(prisonId, absentReason, fromDate, toDate, period)
   )
 }

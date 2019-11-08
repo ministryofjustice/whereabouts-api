@@ -276,32 +276,69 @@ public class AttendanceService {
                 .collect(Collectors.toSet());
     }
 
-    public Set<AttendanceDto> getAbsencesForReason(final String prisonId, final AbsentReason absentReason, final LocalDate fromDate, final LocalDate toDate,
-                                                   final TimePeriod period) {
+    public Set<AbsenceDto> getAbsencesForReason(final String prisonId, final AbsentReason absentReason, final LocalDate fromDate, final LocalDate toDate,
+                                                final TimePeriod period) {
 
         final var periods = period == null ? Set.of(TimePeriod.AM, TimePeriod.PM) : Set.of(period);
         final var endDate = toDate != null ? toDate : fromDate;
 
         final var offenderDetails = periods
                 .stream()
-                .flatMap(p -> elite2ApiService.getScheduleActivityOffenderData(prisonId, fromDate, endDate, p).stream())
+                .flatMap(p -> elite2ApiService.getScheduleActivityOffenderData(prisonId, fromDate, endDate, p)
+                        .stream().map(offender -> offenderDetailsWithPeriod(offender, p)))
                 .collect(Collectors.toList());
 
         final var attendances = attendanceRepository
                 .findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prisonId, fromDate, endDate, periods, absentReason);
 
         return attendances.stream()
-                .map(this::toAttendanceDto)
-                .filter(attendance -> offenderDetails.stream().anyMatch(findAttendance(attendance)))
-                .map(attendanceDto -> attendanceDto
-                        .toBuilder()
-                        .cellLocation(offenderDetails.stream().filter(findAttendance(attendanceDto)).findFirst().map(OffenderDetails::getCellLocation).orElse(""))
-                        .build())
+                .filter(attendance -> offenderDetails.stream().anyMatch(findAttendance(attendance.getBookingId(), attendance.getEventId(), attendance.getPeriod())))
+                .map(attendance -> {
+                    final var details = offenderDetails.stream()
+                            .filter(findAttendance(attendance.getBookingId(), attendance.getEventId(), attendance.getPeriod())).findFirst()
+                            .orElseThrow();
+
+                    return toAbsenceDto(details, attendance);
+                })
                 .collect(Collectors.toSet());
     }
 
-    private Predicate<? super OffenderDetails> findAttendance(final AttendanceDto attendance) {
-        return offender -> offender.getBookingId() == attendance.getBookingId() && offender.getEventId() == attendance.getEventId() && TimePeriod.valueOf(offender.getTimeSlot()) == attendance.getPeriod();
+    private OffenderDetails offenderDetailsWithPeriod(final OffenderDetails details, final TimePeriod period) {
+        return details.copy(
+                details.getBookingId(),
+                details.getOffenderNo(),
+                details.getEventId(),
+                details.getCellLocation(),
+                details.getEventDate(),
+                period.toString(),
+                details.getFirstName(),
+                details.getLastName(),
+                details.getComment()
+        );
+    }
+
+    private AbsenceDto toAbsenceDto(final OffenderDetails details, final Attendance attendance) {
+        return new AbsenceDto(
+                attendance.getId(),
+                attendance.getBookingId(),
+                details.getOffenderNo(),
+                attendance.getEventId(),
+                attendance.getEventLocationId(),
+                attendance.getEventDate(),
+                TimePeriod.valueOf(details.getTimeSlot()),
+                attendance.getAbsentReason(),
+                details.getComment(),
+                attendance.getComments(),
+                details.getCellLocation(),
+                details.getFirstName(),
+                details.getLastName()
+        );
+    }
+
+    private Predicate<? super OffenderDetails> findAttendance(final Long bookingId, final Long eventId, final TimePeriod period) {
+        return offender -> offender.getBookingId().equals(bookingId) &&
+                offender.getEventId().equals(eventId) &&
+                TimePeriod.valueOf(offender.getTimeSlot()) == period;
     }
 
     private Attendance toAttendance(final CreateAttendanceDto attendanceDto) {
