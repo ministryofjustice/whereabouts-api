@@ -12,6 +12,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.AbsentReasonFormatter;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -336,8 +337,8 @@ public class AttendanceService {
     }
 
     private Predicate<? super OffenderDetails> findAttendance(final Long bookingId, final Long eventId, final TimePeriod period) {
-        return offender -> offender.getBookingId().equals(bookingId) &&
-                offender.getEventId().equals(eventId) &&
+        return offender -> Objects.equals(offender.getBookingId(), bookingId) &&
+                Objects.equals(offender.getEventId(), eventId) &&
                 TimePeriod.valueOf(offender.getTimeSlot()) == period;
     }
 
