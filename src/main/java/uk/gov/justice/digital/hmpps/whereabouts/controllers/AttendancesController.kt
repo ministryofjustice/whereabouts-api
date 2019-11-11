@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat.ISO.DATE
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsencesResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesResponse
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
@@ -96,14 +97,14 @@ class AttendancesController(private val attendanceService: AttendanceService) {
   }
 
   @GetMapping("/{prison}/absences-for-scheduled-activities/{absentReason}")
-  @ApiOperation(value = "Return a set of absences for all offenders that have scheduled activity", response = AttendancesResponse::class, notes = "Request absences")
+  @ApiOperation(value = "Return a set of absences for all offenders that have scheduled activity", response = AbsencesResponse::class, notes = "Request absences")
   fun getAbsencesForReason(
       @ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
       @ApiParam(value = "Absent reason (e.g Refused, AcceptableAbsence)") @PathVariable(name = "absentReason") absentReason: AbsentReason,
       @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
       @ApiParam(value = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate?,
       @ApiParam(value = "Time period") @RequestParam(name = "period") period: TimePeriod?
-  ): AttendancesResponse = AttendancesResponse(
+  ): AbsencesResponse = AbsencesResponse(
       absences = attendanceService.getAbsencesForReason(prisonId, absentReason, fromDate, toDate, period)
   )
 }

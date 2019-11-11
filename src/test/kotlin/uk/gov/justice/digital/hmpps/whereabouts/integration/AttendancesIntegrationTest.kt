@@ -9,10 +9,7 @@ import org.junit.Test
 import org.mockito.ArgumentMatchers.anySet
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesResponse
-import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
+import uk.gov.justice.digital.hmpps.whereabouts.dto.*
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -327,7 +324,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
         "/attendances/${prisonId}/absences-for-scheduled-activities/${reason}?fromDate=$date&period=$period",
         HttpMethod.GET,
         createHeaderEntity(""),
-        AttendancesResponse::class.java)
+        AbsencesResponse::class.java)
 
     assertThat(response.statusCodeValue).isEqualTo(200)
     assertThat(response.body?.absences).hasSize(1)
