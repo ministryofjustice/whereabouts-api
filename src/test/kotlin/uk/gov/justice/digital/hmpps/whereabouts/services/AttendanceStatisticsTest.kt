@@ -109,7 +109,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("paidReasons").extracting("attended").contains(1)
+    assertThat(stats).extracting("paidReasons").extracting("attended").isEqualTo(1)
   }
 
   @Test
@@ -121,7 +121,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("paidReasons").extracting("acceptableAbsence").contains(1)
+    assertThat(stats).extracting("paidReasons").extracting("acceptableAbsence").isEqualTo(1)
   }
 
   @Test
@@ -133,7 +133,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("paidReasons").extracting("approvedCourse").contains(1)
+    assertThat(stats).extracting("paidReasons").extracting("approvedCourse").isEqualTo(1)
   }
 
   @Test
@@ -145,7 +145,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("paidReasons").extracting("notRequired").contains(1)
+    assertThat(stats).extracting("paidReasons").extracting("notRequired").isEqualTo(1)
   }
 
   @Test
@@ -157,7 +157,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("unpaidReasons").extracting("refused").contains(1)
+    assertThat(stats).extracting("unpaidReasons").extracting("refused").isEqualTo(1)
   }
 
   @Test
@@ -169,7 +169,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("unpaidReasons").extracting("restDay").contains(1)
+    assertThat(stats).extracting("unpaidReasons").extracting("restDay").isEqualTo(1)
   }
 
   @Test
@@ -181,7 +181,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("unpaidReasons").extracting("sessionCancelled").contains(1)
+    assertThat(stats).extracting("unpaidReasons").extracting("sessionCancelled").isEqualTo(1)
   }
 
   @Test
@@ -193,7 +193,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("unpaidReasons").extracting("sick").contains(1)
+    assertThat(stats).extracting("unpaidReasons").extracting("sick").isEqualTo(1)
   }
 
 
@@ -206,7 +206,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("unpaidReasons").extracting("unacceptableAbsence").contains(1)
+    assertThat(stats).extracting("unpaidReasons").extracting("unacceptableAbsence").isEqualTo(1)
   }
 
   @Test
@@ -221,7 +221,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("notRecorded").contains(2)
+    assertThat(stats).extracting("notRecorded").isEqualTo(2)
   }
 
   @Test
@@ -233,7 +233,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, TimePeriod.AM, from, to)
 
-    assertThat(stats).extracting("scheduleActivities").contains(8)
+    assertThat(stats).extracting("scheduleActivities").isEqualTo(8)
   }
 
   @Test
@@ -245,7 +245,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("unpaidReasons").extracting("restInCell").contains(1)
+    assertThat(stats).extracting("unpaidReasons").extracting("restInCell").isEqualTo(1)
   }
 
   @Test
@@ -278,7 +278,7 @@ class AttendanceStatisticsTest {
     verify(elite2ApiService)
         .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.PM, from, to)
 
-    assertThat(stats).extracting("notRecorded").containsExactly(4)
+    assertThat(stats).extracting("notRecorded").isEqualTo(4)
   }
 
 
