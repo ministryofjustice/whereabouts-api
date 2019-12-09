@@ -130,6 +130,7 @@ dependencies {
     implementation 'com.pauldijou:jwt-core_2.11:4.2.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.google.guava:guava:28.1-jre'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.github.http-builder-ng:http-builder-ng-apache:1.0.4'
