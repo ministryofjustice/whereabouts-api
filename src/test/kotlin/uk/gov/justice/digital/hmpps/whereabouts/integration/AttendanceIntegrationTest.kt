@@ -305,7 +305,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
             .prisonId("LEI")
             .bookingId(1)
             .eventId(2)
-            .eventLocationId(2)
+            .eventLocationId(1)
             .eventDate(LocalDate.now())
             .period(TimePeriod.AM)
             .attended(true)
