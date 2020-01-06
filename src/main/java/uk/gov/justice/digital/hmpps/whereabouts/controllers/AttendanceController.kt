@@ -12,6 +12,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendAllDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceExists
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceLocked
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceNotFound
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
@@ -30,9 +31,14 @@ class AttendanceController(private val attendanceService: AttendanceService) {
       @ApiParam(value = "Attendance details", required = true)
       @RequestBody
       @Valid
-      attendance: CreateAttendanceDto): AttendanceDto {
+      attendance: CreateAttendanceDto): ResponseEntity<Any> {
+    val createdAttendance: AttendanceDto =  try {
+      attendanceService.createAttendance(attendance)
+    } catch (e: AttendanceExists) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body("Attendance already exists")
+    }
 
-    return attendanceService.createAttendance(attendance)
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdAttendance)
   }
 
   @PutMapping(path = ["/{id}"], consumes = [MediaType.APPLICATION_JSON_VALUE])

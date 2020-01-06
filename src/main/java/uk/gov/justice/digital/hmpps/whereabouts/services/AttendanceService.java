@@ -69,7 +69,21 @@ public class AttendanceService {
     }
 
     @Transactional
-    public AttendanceDto createAttendance(final CreateAttendanceDto attendanceDto) {
+    public AttendanceDto createAttendance(final CreateAttendanceDto attendanceDto) throws AttendanceExists {
+
+        final var provisionalAttendance = toAttendance(attendanceDto);
+
+        final var existing = attendanceRepository.findByPrisonIdAndBookingIdAndEventIdAndEventDateAndPeriod(
+                provisionalAttendance.getPrisonId(),
+                provisionalAttendance.getBookingId(),
+                provisionalAttendance.getEventId(),
+                provisionalAttendance.getEventDate(),
+                provisionalAttendance.getPeriod());
+
+        if (existing.size() > 0){
+            log.info("Attendance already created");
+            throw new AttendanceExists();
+        }
 
         final var attendance = attendanceRepository.save(toAttendance(attendanceDto));
 
