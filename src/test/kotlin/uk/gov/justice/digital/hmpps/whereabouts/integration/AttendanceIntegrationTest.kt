@@ -298,25 +298,39 @@ class AttendanceIntegrationTest : IntegrationTest() {
   fun `should return a 409 bad request when attendance already exists`() {
     elite2MockServer.stubUpdateAttendance()
 
-    postAttendance()
+    attendanceRepository.save(
+            Attendance.builder()
+                    .absentReason(AbsentReason.Refused)
+                    .bookingId(1)
+                    .comments("Refused to turn up")
+                    .attended(false)
+                    .paid(false)
+                    .createDateTime(LocalDateTime.now())
+                    .eventDate(LocalDate.now())
+                    .eventId(2)
+                    .prisonId("LEI")
+                    .period(TimePeriod.AM)
+                    .eventLocationId(2)
+                    .build())
 
-    val attendance = CreateAttendanceDto
-            .builder()
-            .prisonId("LEI")
-            .bookingId(1)
-            .eventId(2)
-            .eventLocationId(1)
-            .eventDate(LocalDate.now())
-            .period(TimePeriod.AM)
-            .attended(true)
-            .paid(true)
-            .build()
+    val attendanceDto =
+            CreateAttendanceDto
+                    .builder()
+                    .prisonId("LEI")
+                    .attended(true)
+                    .paid(true)
+                    .bookingId(1)
+                    .eventId(2)
+                    .eventLocationId(1)
+                    .period(TimePeriod.AM)
+                    .eventDate(LocalDate.now())
+                    .build()
 
-    val response: ResponseEntity<String> =
-            restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendance))
+    val errorResponse: ResponseEntity<String> =
+            restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendanceDto))
 
-    assertThat(response.statusCodeValue).isEqualTo(409)
-    assertThat(response.body).contains("Attendance already exists")
+    assertThat(errorResponse.statusCodeValue).isEqualTo(409)
+    assertThat(errorResponse.body).contains("Attendance already exists")
   }
 
   @Test
