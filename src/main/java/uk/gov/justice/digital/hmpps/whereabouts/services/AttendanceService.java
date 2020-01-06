@@ -73,14 +73,15 @@ public class AttendanceService {
 
         final var provisionalAttendance = toAttendance(attendanceDto);
 
-        final var existing = attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(
+        final var existing = attendanceRepository.findByPrisonIdAndBookingIdAndEventIdAndEventDateAndPeriod(
                 provisionalAttendance.getPrisonId(),
-                Set.of(provisionalAttendance.getBookingId()),
+                provisionalAttendance.getBookingId(),
+                provisionalAttendance.getEventId(),
                 provisionalAttendance.getEventDate(),
                 provisionalAttendance.getPeriod());
 
         if (existing.size() > 0){
-            log.info("Attendance already created, attendance id {}", provisionalAttendance.getId());
+            log.info("Attendance already created");
             throw new AttendanceExists();
         }
 

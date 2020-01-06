@@ -590,7 +590,7 @@ class AttendanceServiceTest {
   @Test
   fun `should throw an AttendanceExistsException when attendance already created`() {
 
-    whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod("LEI", setOf(1), LocalDate.now(), TimePeriod.AM)).thenReturn(
+    whenever(attendanceRepository.findByPrisonIdAndBookingIdAndEventIdAndEventDateAndPeriod("LEI",1, 1, LocalDate.now(), TimePeriod.AM)).thenReturn(
             setOf(Attendance
                     .builder()
                     .id(1)
