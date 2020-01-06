@@ -295,17 +295,28 @@ class AttendanceIntegrationTest : IntegrationTest() {
   }
 
   @Test
-  fun `should return a 400 bad request when attendance already exists`() {
-    val response =
-            restTemplate.exchange(
-                    "/attendance",
-                    HttpMethod.POST,
-                    createHeaderEntity(CreateAttendanceDto.builder().attended(true).build()),
-                    String::class.java,
-                    LocalDate.of(2019, 10, 10),
-                    TimePeriod.AM)
+  fun `should return a 409 bad request when attendance already exists`() {
+    elite2MockServer.stubUpdateAttendance()
 
-    assertThat(response.statusCodeValue).isEqualTo(400)
+    postAttendance()
+
+    val attendance = CreateAttendanceDto
+            .builder()
+            .prisonId("LEI")
+            .bookingId(1)
+            .eventId(2)
+            .eventLocationId(2)
+            .eventDate(LocalDate.now())
+            .period(TimePeriod.AM)
+            .attended(true)
+            .paid(true)
+            .build()
+
+    val response: ResponseEntity<String> =
+            restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendance))
+
+    assertThat(response.statusCodeValue).isEqualTo(409)
+    assertThat(response.body).contains("Attendance already exists")
   }
 
   @Test

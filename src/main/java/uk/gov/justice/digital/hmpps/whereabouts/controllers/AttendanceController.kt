@@ -35,7 +35,7 @@ class AttendanceController(private val attendanceService: AttendanceService) {
     val createdAttendance: AttendanceDto =  try {
       attendanceService.createAttendance(attendance)
     } catch (e: AttendanceExists) {
-      return ResponseEntity.badRequest().build()
+      return ResponseEntity.status(HttpStatus.CONFLICT).body("Attendance already exists")
     }
 
     return ResponseEntity.status(HttpStatus.CREATED).body(createdAttendance)
