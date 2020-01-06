@@ -588,6 +588,40 @@ class AttendanceServiceTest {
   }
 
   @Test
+  fun `should throw an AttendanceExistsException when attendance already created`() {
+
+    whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod("LEI", setOf(1), LocalDate.now(), TimePeriod.AM)).thenReturn(
+            setOf(Attendance
+                    .builder()
+                    .id(1)
+                    .attended(true)
+                    .paid(true)
+                    .eventId(1)
+                    .eventLocationId(2)
+                    .eventDate(LocalDate.now())
+                    .prisonId("LEI")
+                    .bookingId(1)
+                    .period(TimePeriod.AM)
+                    .build()))
+
+    assertThatThrownBy {
+      service.createAttendance(CreateAttendanceDto
+              .builder()
+              .absentReason(AbsentReason.Refused)
+              .attended(false)
+              .paid(false)
+              .bookingId(1)
+              .comments("test comments")
+              .eventId(1)
+              .eventLocationId(2)
+              .period(TimePeriod.AM)
+              .prisonId("LEI")
+              .eventDate(LocalDate.now())
+              .build())
+    }.isExactlyInstanceOf(AttendanceExists::class.java)
+  }
+
+  @Test
   fun `should update select fields only`() {
 
     whenever(attendanceRepository.findById(1)).thenReturn(

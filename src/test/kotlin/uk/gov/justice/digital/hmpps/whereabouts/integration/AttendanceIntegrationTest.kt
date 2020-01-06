@@ -59,19 +59,19 @@ class AttendanceIntegrationTest : IntegrationTest() {
   @Test
   fun `should make a case note service request to create a IEP warning case note`() {
     val activityId = 2L
-    val bookingId = 1
-    val offenderNo = "AB1234C"
+    val bookingId = 3L
+    val offenderNo = "AB1234G"
     val comments = "Test comment"
     val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
 
-    elite2MockServer.stubUpdateAttendance()
-    caseNotesMockServer.stubCreateCaseNote()
-    elite2MockServer.stubGetBooking()
+    elite2MockServer.stubUpdateAttendance(bookingId)
+    caseNotesMockServer.stubCreateCaseNote(offenderNo)
+    elite2MockServer.stubGetBooking(offenderNo, bookingId)
 
     val attendance = CreateAttendanceDto
         .builder()
         .prisonId("LEI")
-        .bookingId(1)
+        .bookingId(bookingId)
         .eventId(activityId)
         .eventLocationId(2)
         .eventDate(LocalDate.of(2010, 10, 10))
@@ -295,15 +295,29 @@ class AttendanceIntegrationTest : IntegrationTest() {
   }
 
   @Test
+  fun `should return a 400 bad request when attendance already exists`() {
+    val response =
+            restTemplate.exchange(
+                    "/attendance",
+                    HttpMethod.POST,
+                    createHeaderEntity(CreateAttendanceDto.builder().attended(true).build()),
+                    String::class.java,
+                    LocalDate.of(2019, 10, 10),
+                    TimePeriod.AM)
+
+    assertThat(response.statusCodeValue).isEqualTo(400)
+  }
+
+  @Test
   fun `should return the attendance dto on creation`() {
     val activityId = 2L
 
-    elite2MockServer.stubUpdateAttendance()
+    elite2MockServer.stubUpdateAttendance(5)
 
     val attendance = CreateAttendanceDto
         .builder()
         .prisonId("LEI")
-        .bookingId(1)
+        .bookingId(5)
         .eventId(activityId)
         .eventLocationId(2)
         .eventDate(LocalDate.of(2010, 10, 10))
@@ -376,24 +390,24 @@ class AttendanceIntegrationTest : IntegrationTest() {
   @Test
   fun `should request a new auth token for each new incoming request`() {
     elite2MockServer.stubUpdateAttendance()
-    elite2MockServer.stubUpdateAttendance()
+    elite2MockServer.stubUpdateAttendance(2)
     oauthMockServer.resetAll()
     oauthMockServer.stubGrantToken()
 
     postAttendance()
-    postAttendance()
+    postAttendance(2)
 
     oauthMockServer.verify(2, postRequestedFor(urlEqualTo("/auth/oauth/token")))
   }
 
-  private fun postAttendance() {
+  private fun postAttendance(bookingId: Long = 1) {
     val attendanceDto =
         CreateAttendanceDto
             .builder()
             .prisonId("LEI")
             .attended(true)
             .paid(true)
-            .bookingId(1)
+            .bookingId(bookingId)
             .eventId(2)
             .eventLocationId(1)
             .period(TimePeriod.AM)

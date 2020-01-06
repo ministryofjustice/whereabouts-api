@@ -52,8 +52,8 @@ class Elite2MockServer : WireMockRule(8999) {
     )
   }
 
-  fun stubGetBooking(offenderNo: String = "AB1234C") {
-    stubFor(get(urlEqualTo("/api/bookings/1?basicInfo=true"))
+  fun stubGetBooking(offenderNo: String = "AB1234C", bookingId: Long = 1) {
+    stubFor(get(urlEqualTo("/api/bookings/$bookingId?basicInfo=true"))
         .willReturn(aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(mapOf("offenderNo" to offenderNo)))
