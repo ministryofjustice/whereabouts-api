@@ -6,13 +6,18 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsentReasonsDto
-import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 
 @Api(tags = ["absence-reasons"])
 @RestController
 @RequestMapping(value = ["absence-reasons"], produces = [MediaType.APPLICATION_JSON_VALUE])
-class AbsentReasonsController(private val attendanceService: AttendanceService) {
+class AbsentReasonsController {
 
   @GetMapping
-  fun reasons(): AbsentReasonsDto = attendanceService.absenceReasons
+  fun reasons(): AbsentReasonsDto =
+      AbsentReasonsDto(
+        AbsentReason.getPaidReasons(),
+        AbsentReason.getUnpaidReasons(),
+        AbsentReason.getIepTriggers()
+      )
 }
