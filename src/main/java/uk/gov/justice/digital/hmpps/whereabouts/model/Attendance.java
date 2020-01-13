@@ -1,8 +1,5 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -17,10 +14,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "OFFENDER_ATTENDANCE")
-@NoArgsConstructor
-@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-@Builder(toBuilder = true)
 public class Attendance {
     @Id()
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -72,6 +66,32 @@ public class Attendance {
     @LastModifiedBy
     @Column(name = "MODIFY_USER_ID")
     private String modifyUserId;
+
+    public Attendance(Long id, @NotNull Long bookingId, @NotNull Long eventId, @NotNull Long eventLocationId, @NotNull LocalDate eventDate, @NotNull TimePeriod period, @NotNull @Length(max = 6) String prisonId, Boolean paid, Boolean attended, AbsentReason absentReason, @Length(max = 240) String comments, Long caseNoteId, LocalDateTime createDateTime, String createUserId, LocalDateTime modifyDateTime, String modifyUserId) {
+        this.id = id;
+        this.bookingId = bookingId;
+        this.eventId = eventId;
+        this.eventLocationId = eventLocationId;
+        this.eventDate = eventDate;
+        this.period = period;
+        this.prisonId = prisonId;
+        this.paid = paid;
+        this.attended = attended;
+        this.absentReason = absentReason;
+        this.comments = comments;
+        this.caseNoteId = caseNoteId;
+        this.createDateTime = createDateTime;
+        this.createUserId = createUserId;
+        this.modifyDateTime = modifyDateTime;
+        this.modifyUserId = modifyUserId;
+    }
+
+    public Attendance() {
+    }
+
+    public static AttendanceBuilder builder() {
+        return new AttendanceBuilder();
+    }
 
     public Long getId() {
         return this.id;
@@ -308,5 +328,119 @@ public class Attendance {
 
     public String toString() {
         return "Attendance(id=" + this.getId() + ", bookingId=" + this.getBookingId() + ", eventId=" + this.getEventId() + ", eventLocationId=" + this.getEventLocationId() + ", eventDate=" + this.getEventDate() + ", period=" + this.getPeriod() + ", prisonId=" + this.getPrisonId() + ", paid=" + this.getPaid() + ", attended=" + this.getAttended() + ", absentReason=" + this.getAbsentReason() + ", comments=" + this.getComments() + ", caseNoteId=" + this.getCaseNoteId() + ", createDateTime=" + this.getCreateDateTime() + ", createUserId=" + this.getCreateUserId() + ", modifyDateTime=" + this.getModifyDateTime() + ", modifyUserId=" + this.getModifyUserId() + ")";
+    }
+
+    public AttendanceBuilder toBuilder() {
+        return new AttendanceBuilder().id(this.id).bookingId(this.bookingId).eventId(this.eventId).eventLocationId(this.eventLocationId).eventDate(this.eventDate).period(this.period).prisonId(this.prisonId).paid(this.paid).attended(this.attended).absentReason(this.absentReason).comments(this.comments).caseNoteId(this.caseNoteId).createDateTime(this.createDateTime).createUserId(this.createUserId).modifyDateTime(this.modifyDateTime).modifyUserId(this.modifyUserId);
+    }
+
+    public static class AttendanceBuilder {
+        private Long id;
+        private @NotNull Long bookingId;
+        private @NotNull Long eventId;
+        private @NotNull Long eventLocationId;
+        private @NotNull LocalDate eventDate;
+        private @NotNull TimePeriod period;
+        private @NotNull @Length(max = 6) String prisonId;
+        private Boolean paid;
+        private Boolean attended;
+        private AbsentReason absentReason;
+        private @Length(max = 240) String comments;
+        private Long caseNoteId;
+        private LocalDateTime createDateTime;
+        private String createUserId;
+        private LocalDateTime modifyDateTime;
+        private String modifyUserId;
+
+        AttendanceBuilder() {
+        }
+
+        public Attendance.AttendanceBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder bookingId(@NotNull Long bookingId) {
+            this.bookingId = bookingId;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder eventId(@NotNull Long eventId) {
+            this.eventId = eventId;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder eventLocationId(@NotNull Long eventLocationId) {
+            this.eventLocationId = eventLocationId;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder eventDate(@NotNull LocalDate eventDate) {
+            this.eventDate = eventDate;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder period(@NotNull TimePeriod period) {
+            this.period = period;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder prisonId(@NotNull @Length(max = 6) String prisonId) {
+            this.prisonId = prisonId;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder paid(Boolean paid) {
+            this.paid = paid;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder attended(Boolean attended) {
+            this.attended = attended;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder absentReason(AbsentReason absentReason) {
+            this.absentReason = absentReason;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder comments(@Length(max = 240) String comments) {
+            this.comments = comments;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder caseNoteId(Long caseNoteId) {
+            this.caseNoteId = caseNoteId;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder createDateTime(LocalDateTime createDateTime) {
+            this.createDateTime = createDateTime;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder createUserId(String createUserId) {
+            this.createUserId = createUserId;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder modifyDateTime(LocalDateTime modifyDateTime) {
+            this.modifyDateTime = modifyDateTime;
+            return this;
+        }
+
+        public Attendance.AttendanceBuilder modifyUserId(String modifyUserId) {
+            this.modifyUserId = modifyUserId;
+            return this;
+        }
+
+        public Attendance build() {
+            return new Attendance(id, bookingId, eventId, eventLocationId, eventDate, period, prisonId, paid, attended, absentReason, comments, caseNoteId, createDateTime, createUserId, modifyDateTime, modifyUserId);
+        }
+
+        public String toString() {
+            return "Attendance.AttendanceBuilder(id=" + this.id + ", bookingId=" + this.bookingId + ", eventId=" + this.eventId + ", eventLocationId=" + this.eventLocationId + ", eventDate=" + this.eventDate + ", period=" + this.period + ", prisonId=" + this.prisonId + ", paid=" + this.paid + ", attended=" + this.attended + ", absentReason=" + this.absentReason + ", comments=" + this.comments + ", caseNoteId=" + this.caseNoteId + ", createDateTime=" + this.createDateTime + ", createUserId=" + this.createUserId + ", modifyDateTime=" + this.modifyDateTime + ", modifyUserId=" + this.modifyUserId + ")";
+        }
     }
 }

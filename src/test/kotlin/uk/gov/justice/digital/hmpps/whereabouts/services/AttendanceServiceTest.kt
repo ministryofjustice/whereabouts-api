@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.anyOrNull
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
@@ -11,13 +12,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.anySet
+import org.mockito.Mockito.doAnswer
 import org.mockito.Spy
 import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*
-import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -33,10 +34,10 @@ class AttendanceServiceTest {
   private lateinit var attendanceRepository: AttendanceRepository
 
   @Mock
-  private lateinit var elite2ApiService: Elite2ApiService
+  private lateinit var iepWarningService: IEPWarningService
 
   @Mock
-  private lateinit var caseNotesService: CaseNotesService
+  private lateinit var elite2ApiService: Elite2ApiService
 
   private val today: LocalDate = LocalDate.now()
   private val testAttendanceDto: CreateAttendanceDto =
@@ -63,7 +64,7 @@ class AttendanceServiceTest {
   fun before() {
     // return the attendance entity on save
     doAnswer { it.getArgument(0) as Attendance }.whenever(attendanceRepository).save(ArgumentMatchers.any(Attendance::class.java))
-    service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
+    service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
   }
 
   @Test
@@ -397,11 +398,6 @@ class AttendanceServiceTest {
 
   @Test
   fun `should record unpaid absence as 'Refused'`() {
-
-    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
-        .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
-
     val attendance = testAttendanceDto
         .toBuilder()
         .absentReason(AbsentReason.Refused)
@@ -417,11 +413,6 @@ class AttendanceServiceTest {
 
   @Test
   fun `should record unpaid absence for 'Unacceptable absence'`() {
-
-    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
-        .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
-
     val attendance = testAttendanceDto
         .toBuilder()
         .absentReason(AbsentReason.UnacceptableAbsence)
@@ -435,94 +426,6 @@ class AttendanceServiceTest {
     verify(elite2ApiService).putAttendance(attendance.bookingId,
         attendance.eventId, EventOutcome("UNACAB", null, "hello"))
   }
-
-  @Test
-  fun `should create negative case note for 'Unacceptable absence'`() {
-
-    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
-        .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-
-    val date = LocalDate.of(2019, 10, 10)
-
-    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
-
-    val attendance = testAttendanceDto
-        .toBuilder()
-        .eventDate(date)
-        .absentReason(AbsentReason.UnacceptableAbsence)
-        .attended(false)
-        .paid(false)
-        .build()
-
-    service.createAttendance(attendance)
-
-    verify(caseNotesService)
-        .postCaseNote(
-            eq("AB1234C"),
-            eq("NEG"),
-            eq("IEP_WARN"),
-            eq("Unacceptable absence - hello"),
-            eq(date.atStartOfDay()))
-  }
-
-
-  @Test
-  fun `should create negative case note for 'Refused'`() {
-
-    val date = LocalDate.of(2019, 10, 10)
-
-    val attendance = testAttendanceDto
-        .toBuilder()
-        .eventDate(date)
-        .absentReason(AbsentReason.Refused)
-        .attended(false)
-        .paid(false)
-        .build()
-
-    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
-        .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
-
-    service.createAttendance(attendance)
-
-    verify(caseNotesService)
-        .postCaseNote(
-            eq("AB1234C"),
-            eq("NEG"),
-            eq("IEP_WARN"),
-            eq("Refused - hello"),
-            eq(date.atStartOfDay()))
-  }
-
-  @Test
-  fun `should create a negative case note using user supplied comment`() {
-
-    val date = LocalDate.of(2019, 10, 10)
-
-    val attendance = testAttendanceDto
-        .toBuilder()
-        .absentReason(AbsentReason.Refused)
-        .attended(false)
-        .eventDate(date)
-        .comments("test comment")
-        .paid(false)
-        .build()
-
-    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
-        .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
-
-    service.createAttendance(attendance)
-
-    verify(caseNotesService)
-        .postCaseNote(
-            eq("AB1234C"),
-            eq("NEG"),
-            eq("IEP_WARN"),
-            eq("Refused - test comment"),
-            eq(date.atStartOfDay()))
-  }
-
 
   @Test
   fun `should record paid absence for 'Approved course'`() {
@@ -543,10 +446,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should save case note id returned from the postCaseNote api call`() {
-
-    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
-        .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(iepWarningService.postIEPWarningIfRequired(any(), anyOrNull(), any(), any(),any())).thenReturn(Optional.of(100L))
 
     service.createAttendance(testAttendanceDto
         .toBuilder()
@@ -667,6 +567,8 @@ class AttendanceServiceTest {
   @Test
   fun `should go from unpaid none attendance to paid attendance `() {
 
+    whenever(iepWarningService.handleIEPWarningScenarios(any(), any())).thenReturn(Optional.empty())
+
     whenever(attendanceRepository.findById(1)).thenReturn(
         Optional.of(Attendance
             .builder()
@@ -707,6 +609,8 @@ class AttendanceServiceTest {
             .bookingId(1)
             .period(TimePeriod.AM)
             .build())
+
+    verify(iepWarningService).handleIEPWarningScenarios(any(), any())
   }
 
   @Test
@@ -787,10 +691,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should return attendance dto on creation`() {
-
-    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
-        .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
-    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(iepWarningService.postIEPWarningIfRequired(any(), anyOrNull(), any(), any(),any())).thenReturn(Optional.of(100L))
 
     val created = service.createAttendance(CreateAttendanceDto
         .builder()
@@ -827,186 +728,6 @@ class AttendanceServiceTest {
 
 
   @Test
-  fun `should post case note amendment going from unpaid absent refused to paid attendance`() {
-
-    whenever(attendanceRepository.findById(1))
-        .thenReturn(Optional.of(
-            Attendance.builder()
-                .bookingId(1)
-                .eventLocationId(1)
-                .eventId(1)
-                .comments("Refused to turn up")
-                .paid(false)
-                .attended(false)
-                .absentReason(AbsentReason.Refused)
-                .eventDate(today)
-                .caseNoteId(1)
-                .build()))
-    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
-
-    service.updateAttendance(1, UpdateAttendanceDto.builder().attended(true).paid(true).build())
-
-    verify(caseNotesService)
-        .putCaseNoteAmendment("AB1234C", 1, "IEP rescinded: attended")
-  }
-
-  @Test
-  fun `should post IEP reinstated case note amendment if going from unpaid (IEP warning) to paid attendance (IEP rescinded) to unpaid absent unacceptable`() {
-
-    whenever(attendanceRepository.findById(1))
-        .thenReturn(Optional.of(
-            Attendance.builder()
-                .bookingId(1)
-                .eventLocationId(1)
-                .eventId(1)
-                .paid(true)
-                .attended(true)
-                .eventDate(today)
-                .caseNoteId(1)
-                .build()))
-    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
-
-    service.updateAttendance(1, UpdateAttendanceDto.builder()
-        .attended(false)
-        .paid(false)
-        .absentReason(AbsentReason.UnacceptableAbsence)
-        .comments("Unacceptable absence - No show.")
-        .build())
-
-    verify(caseNotesService)
-        .putCaseNoteAmendment("AB1234C", 1, "IEP reinstated: Unacceptable absence")
-  }
-
-  @Test
-  fun `should not post a case note amendment going from paid attendance to unpaid absent refused`() {
-
-    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
-        .thenReturn(CaseNoteDto.builder().caseNoteId(1).build())
-    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
-
-    whenever(attendanceRepository.findById(1))
-        .thenReturn(Optional.of(Attendance.builder()
-            .bookingId(1)
-            .eventLocationId(1)
-            .eventId(1)
-            .paid(true)
-            .attended(true)
-            .eventDate(today)
-            .build()))
-
-    service.updateAttendance(1, UpdateAttendanceDto.builder()
-        .attended(false)
-        .paid(false)
-        .absentReason(AbsentReason.Refused)
-        .comments("Refused!")
-        .build())
-
-    verify(caseNotesService, never()).putCaseNoteAmendment(anyString(), anyLong(), anyString())
-    verify(caseNotesService).postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
-  }
-
-  @Test
-  fun `should sentence case absent reasons`() {
-    whenever(attendanceRepository.findById(1))
-        .thenReturn(Optional.of(Attendance.builder()
-            .bookingId(1)
-            .eventLocationId(1)
-            .eventId(1)
-            .paid(false)
-            .attended(false)
-            .caseNoteId(1)
-            .absentReason(AbsentReason.Refused)
-            .eventDate(today)
-            .build()))
-    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
-
-    service.updateAttendance(1, UpdateAttendanceDto.builder()
-        .attended(false)
-        .paid(true)
-        .absentReason(AbsentReason.NotRequired)
-        .comments("not required to work today")
-        .build())
-
-    verify(caseNotesService).putCaseNoteAmendment("AB1234C", 1, "IEP rescinded: Not required")
-  }
-
-  @Test
-  fun `should not raise case note or amendment IEP warnings`() {
-
-    whenever(attendanceRepository.findById(1))
-        .thenReturn(Optional.of(Attendance.builder()
-            .bookingId(1)
-            .eventLocationId(1)
-            .eventId(1)
-            .eventDate(today)
-            .paid(true)
-            .attended(true)
-            .build()))
-
-    service.updateAttendance(1, UpdateAttendanceDto.builder()
-        .attended(false)
-        .absentReason(AbsentReason.NotRequired)
-        .paid(true)
-        .build())
-
-    verify(caseNotesService, never()).putCaseNoteAmendment(anyString(), anyLong(), anyString())
-    verify(caseNotesService, never()).postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
-  }
-
-  @Test
-  fun `should not raise case note or amendment IEP warnings going from unpaid to unpaid`() {
-
-    whenever(attendanceRepository.findById(1))
-        .thenReturn(Optional.of(Attendance.builder()
-            .bookingId(1)
-            .eventLocationId(1)
-            .eventId(1)
-            .eventDate(today)
-            .absentReason(AbsentReason.AcceptableAbsence)
-            .paid(false)
-            .attended(false)
-            .build()))
-
-    service.updateAttendance(1, UpdateAttendanceDto.builder()
-        .attended(false)
-        .absentReason(AbsentReason.NotRequired)
-        .paid(true)
-        .build())
-
-    verify(caseNotesService, never()).putCaseNoteAmendment(anyString(), anyLong(), anyString())
-    verify(caseNotesService, never()).postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
-  }
-
-  @Test
-  fun `should not trigger an IEP warning if one was previously triggered`() {
-
-    val attendanceEntity = Attendance.builder()
-        .bookingId(1)
-        .eventLocationId(1)
-        .eventId(1)
-        .eventDate(today)
-        .paid(false)
-        .attended(false)
-        .caseNoteId(1)
-        .comments("do not overwrite")
-        .absentReason(AbsentReason.Refused)
-        .build()
-
-    whenever(attendanceRepository.findById(1)).thenReturn(Optional.of(attendanceEntity.toBuilder().build()))
-
-    service.updateAttendance(1, UpdateAttendanceDto.builder()
-        .attended(false)
-        .absentReason(AbsentReason.Refused)
-        .comments("Never turned up")
-        .paid(false)
-        .build())
-
-    verify(caseNotesService, never()).putCaseNoteAmendment(anyString(), anyLong(), anyString())
-    verify(caseNotesService, never()).postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
-    verify(attendanceRepository).save(attendanceEntity.toBuilder().comments("Never turned up").build())
-  }
-
-  @Test
   fun `should remove previous comment when no longer required`() {
 
     val attendanceEntity = Attendance.builder()
@@ -1022,15 +743,12 @@ class AttendanceServiceTest {
         .build()
 
     whenever(attendanceRepository.findById(1)).thenReturn(Optional.of(attendanceEntity.toBuilder().build()))
-    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     service.updateAttendance(1, UpdateAttendanceDto.builder()
         .attended(true)
         .paid(true)
         .build())
 
-    verify(caseNotesService).putCaseNoteAmendment("AB1234C", 1, "IEP rescinded: attended")
-    verify(caseNotesService, never()).postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
     verify(attendanceRepository).save(attendanceEntity
         .toBuilder()
         .comments(null)
@@ -1325,7 +1043,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should make a request for schedule activity over a date range`() {
-    val service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
     val prison = "MDI"
     val fromDate = LocalDate.now()
     val toDate = LocalDate.now().plusDays(20)
@@ -1340,7 +1058,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should make requests for schedule activity over a date range, one request for each period`() {
-    val service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
     val prison = "MDI"
     val fromDate = LocalDate.now()
     val toDate = LocalDate.now().plusDays(20)
@@ -1370,7 +1088,7 @@ class AttendanceServiceTest {
         Attendance.builder().bookingId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.ED).build()
     ))
 
-    val service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
     val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, TimePeriod.AM)
 
     assertThat(attendances).extracting("bookingId", "eventId").containsExactly(Tuple.tuple(1L, 2L))
@@ -1397,7 +1115,7 @@ class AttendanceServiceTest {
         Attendance.builder().bookingId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.ED).build()
     ))
 
-    val service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
     val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, null)
 
     assertThat(attendances).extracting("bookingId", "eventId").containsExactlyInAnyOrder(Tuple.tuple(1L, 2L), Tuple.tuple(1L, 3L))
@@ -1473,7 +1191,7 @@ class AttendanceServiceTest {
             .build()
     ))
 
-    val service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
     val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, null)
 
     assertThat(attendances).extracting("attendanceId", "bookingId", "offenderNo", "eventId", "eventLocationId",
@@ -1489,7 +1207,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should substitute toDate with fromDate when toDate is null`() {
-    val service = AttendanceService(attendanceRepository, elite2ApiService, caseNotesService)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
     val date = LocalDate.now().atStartOfDay().toLocalDate()
 
     val prison = "MDI"

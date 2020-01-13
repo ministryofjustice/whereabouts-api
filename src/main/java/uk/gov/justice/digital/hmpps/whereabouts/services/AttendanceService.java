@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*;
@@ -8,12 +7,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository;
-import uk.gov.justice.digital.hmpps.whereabouts.utils.AbsentReasonFormatter;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -22,13 +19,17 @@ import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
 @Slf4j
-@AllArgsConstructor
 public class AttendanceService {
     private final static NomisEventOutcomeMapper nomisEventOutcomeMapper = new NomisEventOutcomeMapper();
-
     private final AttendanceRepository attendanceRepository;
     private final Elite2ApiService elite2ApiService;
-    private final CaseNotesService caseNotesService;
+    private final IEPWarningService iepWarningService;
+
+    public AttendanceService(final AttendanceRepository attendanceRepository, final Elite2ApiService elite2ApiService, final IEPWarningService iepWarningService) {
+        this.attendanceRepository = attendanceRepository;
+        this.elite2ApiService = elite2ApiService;
+        this.iepWarningService = iepWarningService;
+    }
 
     public Set<AttendanceDto> getAttendanceForEventLocation(final String prisonId, final Long eventLocationId, final LocalDate date, final TimePeriod period) {
         final var attendance = attendanceRepository
@@ -88,7 +89,8 @@ public class AttendanceService {
         final var attendance = attendanceRepository.save(toAttendance(attendanceDto));
 
         postNomisAttendance(attendance);
-        postIEPWarningIfRequired(
+
+        iepWarningService.postIEPWarningIfRequired(
                 attendance.getBookingId(),
                 attendance.getCaseNoteId(),
                 attendance.getAbsentReason(),
@@ -110,7 +112,8 @@ public class AttendanceService {
             throw new AttendanceLocked();
         }
 
-        handleIEPWarningScenarios(attendance, newAttendanceDetails).ifPresent(attendance::setCaseNoteId);
+        iepWarningService.handleIEPWarningScenarios(attendance, newAttendanceDetails)
+                .ifPresent(attendance::setCaseNoteId);
 
         attendance.setComments(newAttendanceDetails.getComments());
         attendance.setAttended(newAttendanceDetails.getAttended());
@@ -152,58 +155,6 @@ public class AttendanceService {
                 .collect(Collectors.toSet());
     }
 
-    private Optional<Long> handleIEPWarningScenarios(final Attendance attendance, final UpdateAttendanceDto newAttendanceDetails) {
-        final var alreadyTriggeredIEPWarning =
-                attendance.getAbsentReason() != null &&
-                        AbsentReason.getIepTriggers().contains(attendance.getAbsentReason());
-
-        final var shouldTriggerIEPWarning =
-                newAttendanceDetails.getAbsentReason() != null &&
-                        AbsentReason.getIepTriggers().contains(newAttendanceDetails.getAbsentReason());
-
-        if (alreadyTriggeredIEPWarning && shouldTriggerIEPWarning) return Optional.empty();
-
-        final var formattedAbsentReason = newAttendanceDetails.getAbsentReason() != null ?
-                AbsentReasonFormatter.titlecase(newAttendanceDetails.getAbsentReason().toString()) : null;
-
-        final var shouldRevokePreviousIEPWarning = attendance.getCaseNoteId() != null && !shouldTriggerIEPWarning;
-
-        final var shouldReinstatePreviousIEPWarning = attendance.getCaseNoteId() != null && shouldTriggerIEPWarning;
-
-        if (shouldRevokePreviousIEPWarning) {
-
-            final var rescindedReason = "IEP rescinded: " + (newAttendanceDetails.getAttended() ? "attended" : formattedAbsentReason);
-
-            log.info("{} raised for {}", rescindedReason, attendance.toBuilder().comments(null));
-            final var offenderNo = elite2ApiService.getOffenderNoFromBookingId(attendance.getBookingId());
-
-            caseNotesService.putCaseNoteAmendment(offenderNo, attendance.getCaseNoteId(), rescindedReason);
-
-            return Optional.empty();
-        }
-        if (shouldReinstatePreviousIEPWarning) {
-
-            final var reinstatedReason = "IEP reinstated: " + formattedAbsentReason;
-
-            log.info("{} raised for {}", reinstatedReason, attendance.toBuilder().comments(null));
-            final var offenderNo = elite2ApiService.getOffenderNoFromBookingId(attendance.getBookingId());
-
-            caseNotesService.putCaseNoteAmendment(offenderNo, attendance.getCaseNoteId(), reinstatedReason);
-
-            return Optional.empty();
-        }
-
-        return postIEPWarningIfRequired(
-                attendance.getBookingId(),
-                attendance.getCaseNoteId(),
-                newAttendanceDetails.getAbsentReason(),
-                newAttendanceDetails.getComments(),
-                attendance.getEventDate()
-        );
-
-    }
-
-
     private void postNomisAttendance(final Attendance attendance) {
         final var eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
                 attendance.getAbsentReason(),
@@ -214,24 +165,6 @@ public class AttendanceService {
         log.info("Updating attendance on NOMIS {} {}", attendance.toBuilder().comments(null).build(), eventOutcome);
 
         elite2ApiService.putAttendance(attendance.getBookingId(), attendance.getEventId(), eventOutcome);
-    }
-
-    private Optional<Long> postIEPWarningIfRequired(final Long bookingId, final Long caseNoteId, final AbsentReason reason, final String text, final LocalDate eventDate) {
-        if (caseNoteId == null && reason != null && AbsentReason.getIepTriggers().contains(reason)) {
-            log.info("IEP Warning created for bookingId {}", bookingId);
-            final var offenderNo = elite2ApiService.getOffenderNoFromBookingId(bookingId);
-
-            final var modifiedTextWithReason = AbsentReasonFormatter.titlecase(reason.toString()) + " - " + text;
-            final var caseNote = caseNotesService.postCaseNote(
-                    offenderNo,
-                    "NEG",//"Negative Behaviour"
-                    "IEP_WARN", //"IEP Warning",
-                    modifiedTextWithReason,
-                    eventDate.atStartOfDay());
-            return Optional.of(caseNote.getCaseNoteId());
-        }
-
-        return Optional.empty();
     }
 
     private Boolean isAttendanceLocked(final Attendance attendance) {
