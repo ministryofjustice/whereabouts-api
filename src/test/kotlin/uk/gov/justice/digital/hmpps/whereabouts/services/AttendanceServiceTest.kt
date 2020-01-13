@@ -1,21 +1,13 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.anyOrNull
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockito_kotlin.*
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.groups.Tuple
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
-import org.mockito.Mock
-import org.mockito.Mockito.anySet
-import org.mockito.Mockito.doAnswer
-import org.mockito.Spy
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.ArgumentMatchers.anySet
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*
@@ -28,16 +20,10 @@ import java.time.LocalDateTime
 import java.util.*
 import java.util.stream.Collectors
 
-@RunWith(MockitoJUnitRunner::class)
 class AttendanceServiceTest {
-  @Spy
-  private lateinit var attendanceRepository: AttendanceRepository
-
-  @Mock
-  private lateinit var iepWarningService: IEPWarningService
-
-  @Mock
-  private lateinit var elite2ApiService: Elite2ApiService
+  private val attendanceRepository: AttendanceRepository = spy()
+  private val iepWarningService: IEPWarningService = mock()
+  private val elite2ApiService: Elite2ApiService = mock()
 
   private val today: LocalDate = LocalDate.now()
   private val testAttendanceDto: CreateAttendanceDto =
@@ -391,6 +377,7 @@ class AttendanceServiceTest {
         .build()
 
     service.createAttendance(attendance)
+
 
     verify(elite2ApiService).putAttendance(attendance.bookingId,
         attendance.eventId, EventOutcome("REST", null, "hello"))

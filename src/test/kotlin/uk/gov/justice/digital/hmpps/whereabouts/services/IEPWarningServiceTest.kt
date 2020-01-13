@@ -1,13 +1,11 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.Mockito.*
 import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
@@ -15,13 +13,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-@RunWith(MockitoJUnitRunner::class)
 class IEPWarningServiceTest {
-  @Mock
-  private lateinit var elite2ApiService: Elite2ApiService
 
-  @Mock
-  private lateinit var caseNotesService: CaseNotesService
+
+  private val elite2ApiService: Elite2ApiService = mock()
+  private val caseNotesService: CaseNotesService = mock()
 
   private val today: LocalDate = LocalDate.now()
 
@@ -37,26 +33,26 @@ class IEPWarningServiceTest {
 
     val date = LocalDate.of(2019, 10, 10)
 
-    whenever(caseNotesService.postCaseNote(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(LocalDateTime::class.java)))
+    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
         .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
-    whenever(elite2ApiService.getOffenderNoFromBookingId(Mockito.anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     service.postIEPWarningIfRequired(1, null, AbsentReason.Refused, "test comment", date)
 
     verify(caseNotesService)
         .postCaseNote(
-            Mockito.eq("AB1234C"),
-            Mockito.eq("NEG"),
-            Mockito.eq("IEP_WARN"),
-            Mockito.eq("Refused - test comment"),
-            Mockito.eq(date.atStartOfDay()))
+            eq("AB1234C"),
+            eq("NEG"),
+            eq("IEP_WARN"),
+            eq("Refused - test comment"),
+            eq(date.atStartOfDay()))
   }
 
 
   @Test
   fun `should post IEP reinstated case note amendment if going from unpaid (IEP warning) to paid attendance (IEP rescinded) to unpaid absent unacceptable`() {
-    whenever(elite2ApiService.getOffenderNoFromBookingId(Mockito.anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     val attendance = Attendance.builder()
         .bookingId(1)
@@ -84,9 +80,9 @@ class IEPWarningServiceTest {
   @Test
   fun `should not post a case note amendment going from paid attendance to unpaid absent refused`() {
 
-    whenever(caseNotesService.postCaseNote(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(LocalDateTime::class.java)))
+    whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
         .thenReturn(CaseNoteDto.builder().caseNoteId(1).build())
-    whenever(elite2ApiService.getOffenderNoFromBookingId(Mockito.anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     val attendance = Attendance.builder()
         .bookingId(1)
@@ -106,13 +102,13 @@ class IEPWarningServiceTest {
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
-    verify(caseNotesService, Mockito.never()).putCaseNoteAmendment(Mockito.anyString(), Mockito.anyLong(), Mockito.anyString())
-    verify(caseNotesService).postCaseNote(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(LocalDateTime::class.java))
+    verify(caseNotesService, never()).putCaseNoteAmendment(anyString(), anyLong(), anyString())
+    verify(caseNotesService).postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
   }
 
   @Test
   fun `should sentence case absent reasons`() {
-    whenever(elite2ApiService.getOffenderNoFromBookingId(Mockito.anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     val attendance = Attendance.builder()
         .bookingId(1)
@@ -159,8 +155,8 @@ class IEPWarningServiceTest {
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
-    verify(caseNotesService, Mockito.never()).putCaseNoteAmendment(Mockito.anyString(), Mockito.anyLong(), Mockito.anyString())
-    verify(caseNotesService, Mockito.never()).postCaseNote(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(LocalDateTime::class.java))
+    verify(caseNotesService, never()).putCaseNoteAmendment(anyString(), anyLong(), anyString())
+    verify(caseNotesService, never()).postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
   }
 
   @Test
@@ -185,8 +181,8 @@ class IEPWarningServiceTest {
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
-    verify(caseNotesService, Mockito.never()).putCaseNoteAmendment(Mockito.anyString(), Mockito.anyLong(), Mockito.anyString())
-    verify(caseNotesService, Mockito.never()).postCaseNote(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(LocalDateTime::class.java))
+    verify(caseNotesService, never()).putCaseNoteAmendment(anyString(), anyLong(), anyString())
+    verify(caseNotesService, never()).postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
   }
 
   @Test
@@ -213,13 +209,13 @@ class IEPWarningServiceTest {
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
-    verify(caseNotesService, Mockito.never()).putCaseNoteAmendment(Mockito.anyString(), Mockito.anyLong(), Mockito.anyString())
-    verify(caseNotesService, Mockito.never()).postCaseNote(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any(LocalDateTime::class.java))
+    verify(caseNotesService, never()).putCaseNoteAmendment(anyString(), anyLong(), anyString())
+    verify(caseNotesService, never()).postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java))
   }
 
   @Test
   fun `should post case note amendment going from unpaid absent refused to paid attendance`() {
-    whenever(elite2ApiService.getOffenderNoFromBookingId(Mockito.anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     val attendance =   Attendance.builder()
         .bookingId(1)

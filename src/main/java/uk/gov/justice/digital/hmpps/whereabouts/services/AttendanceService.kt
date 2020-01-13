@@ -21,21 +21,13 @@ open class AttendanceService(private val attendanceRepository: AttendanceReposit
     val nomisEventOutcomeMapper: NomisEventOutcomeMapper = NomisEventOutcomeMapper()
   }
 
-  val absenceReasons: AbsentReasonsDto
-    get() = AbsentReasonsDto(
-        AbsentReason.getPaidReasons(),
-        AbsentReason.getUnpaidReasons(),
-        AbsentReason.getIepTriggers()
-    )
-
   open fun getAttendanceForEventLocation(prisonId: String?, eventLocationId: Long?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
     val attendance = attendanceRepository
         .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(prisonId, eventLocationId, date, period)
 
     return attendance
-        .stream()
-        .map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }
-        .collect(Collectors.toSet())
+        .map { toAttendanceDto(it) }
+        .toSet()
   }
 
   open fun getAbsencesForReason(prisonId: String?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
@@ -43,19 +35,15 @@ open class AttendanceService(private val attendanceRepository: AttendanceReposit
         .findByPrisonIdAndEventDateAndPeriodAndAbsentReasonNotNull(prisonId, date, period)
 
     return attendance
-        .stream()
-        .map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }
-        .collect(Collectors.toSet())
+        .map { toAttendanceDto(it) }
+        .toSet()
   }
 
   open fun getAttendanceForBookings(prisonId: String?, bookings: Set<Long?>?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
     val attendance = attendanceRepository
         .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookings, date, period)
 
-    return attendance
-        .stream()
-        .map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }
-        .collect(Collectors.toSet())
+    return attendance.map {  toAttendanceDto(it) }.toSet()
   }
 
   @Transactional
@@ -166,7 +154,6 @@ open class AttendanceService(private val attendanceRepository: AttendanceReposit
   @Transactional
   open fun createAttendances(attendancesDto: AttendancesDto): Set<AttendanceDto> {
     val attendances = attendancesDto.bookingActivities
-        .stream()
         .map { (bookingId, activityId) ->
           Attendance.builder()
               .bookingId(bookingId)
@@ -181,7 +168,7 @@ open class AttendanceService(private val attendanceRepository: AttendanceReposit
               .prisonId(attendancesDto.prisonId)
               .build()
         }
-        .collect(Collectors.toSet())
+        .toSet()
 
     attendanceRepository.saveAll(attendances)
 
@@ -205,13 +192,10 @@ open class AttendanceService(private val attendanceRepository: AttendanceReposit
     val periods = if (period == null) setOf(TimePeriod.AM, TimePeriod.PM) else setOf(period)
     val endDate = toDate ?: fromDate
 
-    val offenderDetails = periods
-        .stream()
-        .flatMap { p: TimePeriod ->
-          elite2ApiService.getScheduleActivityOffenderData(prisonId, fromDate, endDate, p)
-              .stream().map { offender: OffenderDetails -> offenderDetailsWithPeriod(offender, p) }
-        }
-        .collect(Collectors.toList())
+    val offenderDetails = periods.flatMap { timePeriod ->
+      elite2ApiService.getScheduleActivityOffenderData(prisonId, fromDate, endDate, timePeriod)
+          .map { offenderDetailsWithPeriod(it, timePeriod) }.toSet()
+    }
 
     val attendances = attendanceRepository
         .findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prisonId, fromDate, endDate, periods, absentReason)
