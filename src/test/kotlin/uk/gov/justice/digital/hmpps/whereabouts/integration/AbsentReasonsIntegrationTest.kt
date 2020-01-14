@@ -24,11 +24,9 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
     )
     val unpaidReasons = setOf(
         AbsentReason.SessionCancelled,
-        AbsentReason.RestInCell,
         AbsentReason.RestDay,
         AbsentReason.UnacceptableAbsence,
         AbsentReason.Refused,
-        AbsentReason.Sick,
         AbsentReason.RestInCellOrSick,
         AbsentReason.RefusedIncentiveLevelWarning
     )

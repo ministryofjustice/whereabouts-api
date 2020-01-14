@@ -79,15 +79,8 @@ class NomisEventOutcomeMapperTest {
   }
 
   @Test
-  fun `should return 'REST' for 'RestInCell`() {
-    val nomisOutcome = eventOutcomeMapper.getEventOutcome(AbsentReason.RestInCell, false, false, "hello")
-
-    assertThat(nomisOutcome).isEqualTo(EventOutcome("REST", null, "hello"))
-  }
-
-  @Test
-  fun `should return 'REST' for 'Sick'`() {
-    val nomisOutcome = eventOutcomeMapper.getEventOutcome(AbsentReason.Sick, false, false, "hello")
+  fun `should return 'REST' for 'RestInCellOrSick`() {
+    val nomisOutcome = eventOutcomeMapper.getEventOutcome(AbsentReason.RestInCellOrSick, false, false, "hello")
 
     assertThat(nomisOutcome).isEqualTo(EventOutcome("REST", null, "hello"))
   }
