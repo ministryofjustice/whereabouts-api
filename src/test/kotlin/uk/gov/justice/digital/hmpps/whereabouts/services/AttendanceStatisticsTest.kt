@@ -64,24 +64,10 @@ class AttendanceStatisticsTest {
           .paid(false)
           .build(),
       Attendance.builder()
-          .id(6)
-          .bookingId(6)
-          .attended(false)
-          .absentReason(AbsentReason.RestDay)
-          .paid(false)
-          .build(),
-      Attendance.builder()
           .id(7)
           .bookingId(7)
           .attended(false)
           .absentReason(AbsentReason.SessionCancelled)
-          .paid(false)
-          .build(),
-      Attendance.builder()
-          .id(8)
-          .bookingId(8)
-          .attended(false)
-          .absentReason(AbsentReason.Sick)
           .paid(false)
           .build(),
       Attendance.builder()
@@ -92,17 +78,17 @@ class AttendanceStatisticsTest {
           .paid(false)
           .build(),
       Attendance.builder()
-          .id(10)
+          .id(11)
           .bookingId(9)
           .attended(false)
-          .absentReason(AbsentReason.RestInCell)
+          .absentReason(AbsentReason.RestInCellOrSick)
           .paid(false)
           .build(),
       Attendance.builder()
           .id(11)
           .bookingId(9)
           .attended(false)
-          .absentReason(AbsentReason.RestInCellOrSick)
+          .absentReason(AbsentReason.RefusedIncentiveLevelWarning)
           .paid(false)
           .build()
   )
@@ -168,18 +154,6 @@ class AttendanceStatisticsTest {
   }
 
   @Test
-  fun `count rest day`() {
-    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-        .thenReturn(attendances)
-
-    val service = buildAttendanceStatistics()
-
-    val stats = service.getStats(prisonId, period, from, to)
-
-    assertThat(stats).extracting("unpaidReasons").extracting("restDay").isEqualTo(1)
-  }
-
-  @Test
   fun `count session cancelled`() {
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
@@ -190,19 +164,6 @@ class AttendanceStatisticsTest {
 
     assertThat(stats).extracting("unpaidReasons").extracting("sessionCancelled").isEqualTo(1)
   }
-
-  @Test
-  fun `count sick`() {
-    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-        .thenReturn(attendances)
-
-    val service = buildAttendanceStatistics()
-
-    val stats = service.getStats(prisonId, period, from, to)
-
-    assertThat(stats).extracting("unpaidReasons").extracting("sick").isEqualTo(1)
-  }
-
 
   @Test
   fun `count unacceptable absence`() {
@@ -244,7 +205,7 @@ class AttendanceStatisticsTest {
   }
 
   @Test
-  fun `count rest in cell`() {
+  fun `count rest in cell or sick`() {
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
 
@@ -252,11 +213,12 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("unpaidReasons").extracting("restInCell").isEqualTo(1)
+    assertThat(stats).extracting("unpaidReasons").extracting("restInCellOrSick").isEqualTo(1)
   }
+
 
   @Test
-  fun `count rest in cell mor sick`() {
+  fun `count refusedIncentiveLevelWarning`() {
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
 
@@ -264,8 +226,9 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("unpaidReasons").extracting("restInCell").isEqualTo(1)
+    assertThat(stats).extracting("unpaidReasons").extracting("refusedIncentiveLevelWarning").isEqualTo(1)
   }
+
 
   @Test
   fun `should call the correct repository method when period all is supplied`() {

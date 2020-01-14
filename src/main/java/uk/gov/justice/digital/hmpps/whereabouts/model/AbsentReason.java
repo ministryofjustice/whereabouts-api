@@ -7,8 +7,6 @@ public enum AbsentReason {
     AcceptableAbsence,
     SessionCancelled,
     RestInCellOrSick,
-    RestInCell,
-    Sick,
     RestDay,
     UnacceptableAbsence,
     NotRequired,
@@ -30,9 +28,7 @@ public enum AbsentReason {
                 RestDay,
                 UnacceptableAbsence,
                 Refused,
-                RefusedIncentiveLevelWarning,
-                RestInCell,
-                Sick
+                RefusedIncentiveLevelWarning
         );
     }
 

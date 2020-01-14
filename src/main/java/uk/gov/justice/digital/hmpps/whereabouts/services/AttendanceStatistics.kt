@@ -7,7 +7,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 
 data class PaidReasons(val attended: Int? = 0, val acceptableAbsence: Int? = 0, val approvedCourse: Int? = 0, val notRequired: Int? = 0)
-data class UnpaidReasons(val refused: Int? = 0, val restDay: Int? = 0, val sessionCancelled: Int? = 0, val sick: Int? = 0, val unacceptableAbsence: Int? = 0, val restInCell: Int? = 0, val RestInCellOrSick: Int? = 0)
+data class UnpaidReasons(val refused: Int? = 0, val refusedIncentiveLevelWarning: Int?, val sessionCancelled: Int? = 0, val unacceptableAbsence: Int? = 0, val restInCell: Int? = 0, val restInCellOrSick: Int? = 0)
 data class Stats(val scheduleActivities: Int? = 0, val notRecorded: Int? = 0, val paidReasons: PaidReasons?, val unpaidReasons: UnpaidReasons?)
 
 @Service
@@ -35,12 +35,10 @@ open class AttendanceStatistics(private val attendanceRepository: AttendanceRepo
         ),
         unpaidReasons = UnpaidReasons(
             refused = attendances.count { it.absentReason == AbsentReason.Refused },
-            restDay = attendances.count { it.absentReason == AbsentReason.RestDay },
+            refusedIncentiveLevelWarning = attendances.count { it.absentReason == AbsentReason.RefusedIncentiveLevelWarning },
             sessionCancelled = attendances.count { it.absentReason == AbsentReason.SessionCancelled },
-            sick = attendances.count { it.absentReason == AbsentReason.Sick },
             unacceptableAbsence = attendances.count { it.absentReason == AbsentReason.UnacceptableAbsence },
-            restInCell = attendances.count { it.absentReason == AbsentReason.RestInCell },
-            RestInCellOrSick = attendances.count { it.absentReason == AbsentReason.RestInCellOrSick }
+            restInCellOrSick = attendances.count { it.absentReason == AbsentReason.RestInCellOrSick }
         )
     )
   }

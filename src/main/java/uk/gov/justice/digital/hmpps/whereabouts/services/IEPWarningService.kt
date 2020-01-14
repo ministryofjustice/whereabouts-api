@@ -38,7 +38,7 @@ open class IEPWarningService(private val caseNotesService: CaseNotesService, pri
     }
 
     if (shouldReinstatePreviousIEPWarning) {
-      val reinstatedReason = "Incentive Level warning reinstated: $formattedAbsentReason"
+        val reinstatedReason = "Incentive Level warning reinstated: $formattedAbsentReason"
       log.info("{} raised for {}", reinstatedReason, attendance.toBuilder().comments(null))
       val offenderNo = elite2ApiService.getOffenderNoFromBookingId(attendance.bookingId)
       caseNotesService.putCaseNoteAmendment(offenderNo, attendance.caseNoteId, reinstatedReason)
