@@ -45,7 +45,7 @@ class IEPWarningServiceTest {
             eq("AB1234C"),
             eq("NEG"),
             eq("IEP_WARN"),
-            eq("Refused incentive level warning - test comment"),
+            eq("Refused Incentive Level warning - test comment"),
             eq(date.atStartOfDay()))
   }
 
@@ -74,7 +74,7 @@ class IEPWarningServiceTest {
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
     verify(caseNotesService)
-        .putCaseNoteAmendment("AB1234C", 1, "Incentive level warning reinstated: Unacceptable absence")
+        .putCaseNoteAmendment("AB1234C", 1, "Incentive Level warning reinstated: Unacceptable absence")
   }
 
   @Test
@@ -130,7 +130,7 @@ class IEPWarningServiceTest {
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
-    verify(caseNotesService).putCaseNoteAmendment("AB1234C", 1, "Incentive level warning rescinded: Not required")
+    verify(caseNotesService).putCaseNoteAmendment("AB1234C", 1, "Incentive Level warning rescinded: Not required")
   }
 
 
@@ -235,7 +235,7 @@ class IEPWarningServiceTest {
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
     verify(caseNotesService)
-        .putCaseNoteAmendment("AB1234C", 1, "Incentive level warning rescinded: attended")
+        .putCaseNoteAmendment("AB1234C", 1, "Incentive Level warning rescinded: attended")
   }
 
 }
