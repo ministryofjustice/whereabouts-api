@@ -6,33 +6,37 @@ public enum AbsentReason {
     ApprovedCourse,
     AcceptableAbsence,
     SessionCancelled,
+    RestInCellOrSick,
     RestInCell,
+    Sick,
     RestDay,
     UnacceptableAbsence,
     NotRequired,
     Refused,
-    Sick;
+    RefusedIncentiveLevelWarning;
 
     public static Set<AbsentReason> getPaidReasons() {
         return Set.of(
-                AbsentReason.ApprovedCourse,
-                AbsentReason.AcceptableAbsence,
-                AbsentReason.NotRequired
+                ApprovedCourse,
+                AcceptableAbsence,
+                NotRequired
         );
     }
 
     public static Set<AbsentReason> getUnpaidReasons() {
         return Set.of(
-                AbsentReason.SessionCancelled,
-                AbsentReason.RestInCell,
-                AbsentReason.RestDay,
-                AbsentReason.UnacceptableAbsence,
-                AbsentReason.Refused,
-                AbsentReason.Sick
+                SessionCancelled,
+                RestInCellOrSick,
+                RestDay,
+                UnacceptableAbsence,
+                Refused,
+                RefusedIncentiveLevelWarning,
+                RestInCell,
+                Sick
         );
     }
 
     public static Set<AbsentReason> getIepTriggers() {
-        return Set.of(AbsentReason.Refused, AbsentReason.UnacceptableAbsence);
+        return Set.of(RefusedIncentiveLevelWarning, UnacceptableAbsence);
     }
 }

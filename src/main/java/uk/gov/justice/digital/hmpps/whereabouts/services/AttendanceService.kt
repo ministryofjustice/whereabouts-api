@@ -15,10 +15,14 @@ import java.util.stream.Collectors
 import javax.transaction.Transactional
 
 @Service
-open class AttendanceService(private val attendanceRepository: AttendanceRepository, private val elite2ApiService: Elite2ApiService, private val iepWarningService: IEPWarningService) {
+open class AttendanceService(
+    private val attendanceRepository: AttendanceRepository,
+    private val elite2ApiService: Elite2ApiService,
+    private val iepWarningService: IEPWarningService,
+    private val nomisEventOutcomeMapper: NomisEventOutcomeMapper ) {
+
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
-    val nomisEventOutcomeMapper: NomisEventOutcomeMapper = NomisEventOutcomeMapper()
   }
 
   open fun getAttendanceForEventLocation(prisonId: String?, eventLocationId: Long?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
