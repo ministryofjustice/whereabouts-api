@@ -24,6 +24,7 @@ class AttendanceServiceTest {
   private val attendanceRepository: AttendanceRepository = spy()
   private val iepWarningService: IEPWarningService = mock()
   private val elite2ApiService: Elite2ApiService = mock()
+  private val nomisEventOutcomeMapper: NomisEventOutcomeMapper = mock()
 
   private val today: LocalDate = LocalDate.now()
   private val testAttendanceDto: CreateAttendanceDto =
@@ -40,6 +41,7 @@ class AttendanceServiceTest {
           .eventDate(today)
           .comments("hello")
           .build()
+
   private lateinit var service: AttendanceService
 
   init {
@@ -50,7 +52,7 @@ class AttendanceServiceTest {
   fun before() {
     // return the attendance entity on save
     doAnswer { it.getArgument(0) as Attendance }.whenever(attendanceRepository).save(ArgumentMatchers.any(Attendance::class.java))
-    service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
+    service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
   }
 
   @Test
@@ -269,25 +271,8 @@ class AttendanceServiceTest {
   }
 
   @Test
-  fun `should record paid attendance`() {
-
-    val attendance = testAttendanceDto
-        .toBuilder()
-        .attended(true)
-        .paid(true)
-        .absentReason(null)
-        .build()
-
-    service.createAttendance(attendance)
-
-    verify(elite2ApiService).putAttendance(attendance.bookingId,
-        attendance.eventId, EventOutcome("ATT", "STANDARD", attendance.comments))
-
-  }
-
-
-  @Test
-  fun `should record paid absence for 'acceptable absence'`() {
+  fun `should call nomisEventOutcomeMapper with the correct parameters`() {
+    whenever(nomisEventOutcomeMapper.getEventOutcome(any(), any(), any(), any())).thenReturn(EventOutcome("ACCAB", null, "hello"))
 
     val attendance = testAttendanceDto
         .toBuilder()
@@ -298,142 +283,13 @@ class AttendanceServiceTest {
 
     service.createAttendance(attendance)
 
-    verify(elite2ApiService).putAttendance(attendance.bookingId,
-        attendance.eventId, EventOutcome("ACCAB", null, "hello"))
-  }
-
-  @Test
-  fun `should record paid absence for 'not required'`() {
-
-    val attendance = testAttendanceDto
-        .toBuilder()
-        .absentReason(AbsentReason.NotRequired)
-        .attended(false)
-        .paid(true)
-        .build()
-
-    service.createAttendance(attendance)
-
-    verify(elite2ApiService).putAttendance(attendance.bookingId,
-        attendance.eventId, EventOutcome("NREQ", null, "hello"))
-  }
-
-  @Test
-  fun `should record unpaid absence for 'session cancelled'`() {
-
-    val attendance = testAttendanceDto
-        .toBuilder()
-        .absentReason(AbsentReason.SessionCancelled)
-        .attended(false)
-        .paid(false)
-        .build()
-
-    service.createAttendance(attendance)
-
-    verify(elite2ApiService).putAttendance(attendance.bookingId,
-        attendance.eventId, EventOutcome("CANC", null, "hello"))
-  }
-
-  @Test
-  fun `should record unpaid absence for 'rest in cell'`() {
-
-    val attendance = testAttendanceDto
-        .toBuilder()
-        .absentReason(AbsentReason.RestInCell)
-        .attended(false)
-        .paid(false)
-        .build()
-
-    service.createAttendance(attendance)
-
-    verify(elite2ApiService).putAttendance(attendance.bookingId,
-        attendance.eventId, EventOutcome("REST", null, "hello"))
-  }
-
-  @Test
-  fun `should record unpaid absence for 'Sick'`() {
-
-    val attendance = testAttendanceDto
-        .toBuilder()
-        .absentReason(AbsentReason.Sick)
-        .attended(false)
-        .paid(false)
-        .build()
-
-    service.createAttendance(attendance)
-
-    verify(elite2ApiService).putAttendance(attendance.bookingId,
-        attendance.eventId, EventOutcome("REST", null, "hello"))
-  }
-
-  @Test
-  fun `should record unpaid absence for 'Rest day'`() {
-
-    val attendance = testAttendanceDto
-        .toBuilder()
-        .absentReason(AbsentReason.RestDay)
-        .attended(false)
-        .paid(false)
-        .build()
-
-    service.createAttendance(attendance)
-
-
-    verify(elite2ApiService).putAttendance(attendance.bookingId,
-        attendance.eventId, EventOutcome("REST", null, "hello"))
-  }
-
-  @Test
-  fun `should record unpaid absence as 'Refused'`() {
-    val attendance = testAttendanceDto
-        .toBuilder()
-        .absentReason(AbsentReason.Refused)
-        .attended(false)
-        .paid(false)
-        .build()
-
-    service.createAttendance(attendance)
-
-    verify(elite2ApiService).putAttendance(attendance.bookingId,
-        attendance.eventId, EventOutcome("UNACAB", null, "hello"))
-  }
-
-  @Test
-  fun `should record unpaid absence for 'Unacceptable absence'`() {
-    val attendance = testAttendanceDto
-        .toBuilder()
-        .absentReason(AbsentReason.UnacceptableAbsence)
-        .attended(false)
-        .paid(false)
-        .build()
-
-
-    service.createAttendance(attendance)
-
-    verify(elite2ApiService).putAttendance(attendance.bookingId,
-        attendance.eventId, EventOutcome("UNACAB", null, "hello"))
-  }
-
-  @Test
-  fun `should record paid absence for 'Approved course'`() {
-    val attendance = testAttendanceDto
-        .toBuilder()
-        .absentReason(AbsentReason.ApprovedCourse)
-        .attended(false)
-        .paid(true)
-        .build()
-
-
-    service.createAttendance(attendance)
-
-    verify(elite2ApiService).putAttendance(attendance.bookingId,
-        attendance.eventId, EventOutcome("ACCAB", null, "hello"))
+    verify(nomisEventOutcomeMapper).getEventOutcome(AbsentReason.AcceptableAbsence, false, true, "hello")
   }
 
 
   @Test
   fun `should save case note id returned from the postCaseNote api call`() {
-    whenever(iepWarningService.postIEPWarningIfRequired(any(), anyOrNull(), any(), any(),any())).thenReturn(Optional.of(100L))
+    whenever(iepWarningService.postIEPWarningIfRequired(any(), anyOrNull(), any(), any(), any())).thenReturn(Optional.of(100L))
 
     service.createAttendance(testAttendanceDto
         .toBuilder()
@@ -821,6 +677,8 @@ class AttendanceServiceTest {
 
   @Test
   fun `should create an attendance record locally and via elite for multiple bookings for attend-all`() {
+    whenever(nomisEventOutcomeMapper.getEventOutcome(anyOrNull(), any(), any(), any())).thenReturn(EventOutcome("ATT", "STANDARD", ""))
+
     val bookingIds = setOf(1L, 2L)
 
     val bookingActivities = bookingIds
@@ -972,6 +830,8 @@ class AttendanceServiceTest {
 
   @Test
   fun `should create an attendance records locally and push event out-comes up to elite for multiple bookings`() {
+    whenever(nomisEventOutcomeMapper.getEventOutcome(any(), any(), any(), any())).thenReturn(EventOutcome("ACCAB", null, "test"))
+
     val bookingIds = setOf(1L, 2L)
 
     val bookingActivities = bookingIds
@@ -1030,7 +890,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should make a request for schedule activity over a date range`() {
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
     val prison = "MDI"
     val fromDate = LocalDate.now()
     val toDate = LocalDate.now().plusDays(20)
@@ -1045,7 +905,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should make requests for schedule activity over a date range, one request for each period`() {
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
     val prison = "MDI"
     val fromDate = LocalDate.now()
     val toDate = LocalDate.now().plusDays(20)
@@ -1075,7 +935,7 @@ class AttendanceServiceTest {
         Attendance.builder().bookingId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.ED).build()
     ))
 
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
     val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, TimePeriod.AM)
 
     assertThat(attendances).extracting("bookingId", "eventId").containsExactly(Tuple.tuple(1L, 2L))
@@ -1102,7 +962,7 @@ class AttendanceServiceTest {
         Attendance.builder().bookingId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.ED).build()
     ))
 
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
     val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, null)
 
     assertThat(attendances).extracting("bookingId", "eventId").containsExactlyInAnyOrder(Tuple.tuple(1L, 2L), Tuple.tuple(1L, 3L))
@@ -1178,7 +1038,7 @@ class AttendanceServiceTest {
             .build()
     ))
 
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
     val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, null)
 
     assertThat(attendances).extracting("attendanceId", "bookingId", "offenderNo", "eventId", "eventLocationId",
@@ -1194,7 +1054,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should substitute toDate with fromDate when toDate is null`() {
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
     val date = LocalDate.now().atStartOfDay().toLocalDate()
 
     val prison = "MDI"

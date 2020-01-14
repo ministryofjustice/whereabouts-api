@@ -19,7 +19,6 @@ open class IEPWarningService(private val caseNotesService: CaseNotesService, pri
   open fun handleIEPWarningScenarios(attendance: Attendance, newAttendanceDetails: UpdateAttendanceDto): Optional<Long> {
     val alreadyTriggeredIEPWarning = attendance.absentReason != null &&
         AbsentReason.getIepTriggers().contains(attendance.absentReason)
-
     val shouldTriggerIEPWarning = newAttendanceDetails.absentReason != null &&
         AbsentReason.getIepTriggers().contains(newAttendanceDetails.absentReason)
 
@@ -31,7 +30,7 @@ open class IEPWarningService(private val caseNotesService: CaseNotesService, pri
 
 
     if (shouldRevokePreviousIEPWarning) {
-      val rescindedReason = "IEP rescinded: " + if (newAttendanceDetails.attended) "attended" else formattedAbsentReason
+      val rescindedReason = "Incentive Level warning rescinded: " + if (newAttendanceDetails.attended) "attended" else formattedAbsentReason
       log.info("{} raised for {}", rescindedReason, attendance.toBuilder().comments(null))
       val offenderNo = elite2ApiService.getOffenderNoFromBookingId(attendance.bookingId)
       caseNotesService.putCaseNoteAmendment(offenderNo, attendance.caseNoteId, rescindedReason)
@@ -39,7 +38,7 @@ open class IEPWarningService(private val caseNotesService: CaseNotesService, pri
     }
 
     if (shouldReinstatePreviousIEPWarning) {
-      val reinstatedReason = "IEP reinstated: $formattedAbsentReason"
+      val reinstatedReason = "Incentive Level warning reinstated: $formattedAbsentReason"
       log.info("{} raised for {}", reinstatedReason, attendance.toBuilder().comments(null))
       val offenderNo = elite2ApiService.getOffenderNoFromBookingId(attendance.bookingId)
       caseNotesService.putCaseNoteAmendment(offenderNo, attendance.caseNoteId, reinstatedReason)
@@ -59,7 +58,7 @@ open class IEPWarningService(private val caseNotesService: CaseNotesService, pri
     if (caseNoteId == null && reason != null && AbsentReason.getIepTriggers().contains(reason)) {
       log.info("IEP Warning created for bookingId {}", bookingId)
       val offenderNo = elite2ApiService.getOffenderNoFromBookingId(bookingId)
-      val modifiedTextWithReason = AbsentReasonFormatter.titlecase(reason.toString()) + " - " + text
+      val modifiedTextWithReason = formatReasonAndComment(reason, text)
       val caseNote = caseNotesService.postCaseNote(
           offenderNo,
           "NEG",  //"Negative Behaviour"
@@ -69,5 +68,16 @@ open class IEPWarningService(private val caseNotesService: CaseNotesService, pri
       return Optional.of(caseNote.caseNoteId)
     }
     return Optional.empty()
+  }
+
+  private fun formatReasonAndComment(reason: AbsentReason, comment: String?) : String {
+    return when(reason) {
+      AbsentReason.RefusedIncentiveLevelWarning -> {
+        "Refused Incentive Level warning - $comment"
+      }
+      else -> {
+        AbsentReasonFormatter.titlecase(reason.toString()) + " - " + comment
+      }
+    }
   }
 }

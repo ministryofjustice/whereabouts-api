@@ -38,14 +38,14 @@ class IEPWarningServiceTest {
 
     whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
-    service.postIEPWarningIfRequired(1, null, AbsentReason.Refused, "test comment", date)
+    service.postIEPWarningIfRequired(1, null, AbsentReason.RefusedIncentiveLevelWarning, "test comment", date)
 
     verify(caseNotesService)
         .postCaseNote(
             eq("AB1234C"),
             eq("NEG"),
             eq("IEP_WARN"),
-            eq("Refused - test comment"),
+            eq("Refused Incentive Level warning - test comment"),
             eq(date.atStartOfDay()))
   }
 
@@ -74,7 +74,7 @@ class IEPWarningServiceTest {
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
     verify(caseNotesService)
-        .putCaseNoteAmendment("AB1234C", 1, "IEP reinstated: Unacceptable absence")
+        .putCaseNoteAmendment("AB1234C", 1, "Incentive Level warning reinstated: Unacceptable absence")
   }
 
   @Test
@@ -96,7 +96,7 @@ class IEPWarningServiceTest {
     val updateAttendance = UpdateAttendanceDto.builder()
         .attended(false)
         .paid(false)
-        .absentReason(AbsentReason.Refused)
+        .absentReason(AbsentReason.RefusedIncentiveLevelWarning)
         .comments("Refused!")
         .build()
 
@@ -130,7 +130,7 @@ class IEPWarningServiceTest {
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
-    verify(caseNotesService).putCaseNoteAmendment("AB1234C", 1, "IEP rescinded: Not required")
+    verify(caseNotesService).putCaseNoteAmendment("AB1234C", 1, "Incentive Level warning rescinded: Not required")
   }
 
 
@@ -149,7 +149,7 @@ class IEPWarningServiceTest {
     val updateAttendance = UpdateAttendanceDto.builder()
         .attended(false)
         .comments("test")
-        .absentReason(AbsentReason.NotRequired)
+        .absentReason(AbsentReason.Refused)
         .paid(true)
         .build()
 
@@ -235,7 +235,7 @@ class IEPWarningServiceTest {
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
     verify(caseNotesService)
-        .putCaseNoteAmendment("AB1234C", 1, "IEP rescinded: attended")
+        .putCaseNoteAmendment("AB1234C", 1, "Incentive Level warning rescinded: attended")
   }
 
 }

@@ -18,8 +18,8 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
     val result: AbsentReasonsDto = gson.fromJson(response.body, object : TypeToken<AbsentReasonsDto>() {}.type)
 
     val paidReasons = setOf(
-        AbsentReason.ApprovedCourse,
         AbsentReason.AcceptableAbsence,
+        AbsentReason.ApprovedCourse,
         AbsentReason.NotRequired
     )
     val unpaidReasons = setOf(
@@ -28,10 +28,13 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
         AbsentReason.RestDay,
         AbsentReason.UnacceptableAbsence,
         AbsentReason.Refused,
-        AbsentReason.Sick
+        AbsentReason.Sick,
+        AbsentReason.RestInCellOrSick,
+        AbsentReason.RefusedIncentiveLevelWarning
     )
+
     val triggersIEPWarnings = setOf(
-        AbsentReason.Refused,
+        AbsentReason.RefusedIncentiveLevelWarning,
         AbsentReason.UnacceptableAbsence
     )
 
@@ -39,6 +42,5 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
 
     assertThat(result).isEqualTo(expected)
   }
-
 }
 

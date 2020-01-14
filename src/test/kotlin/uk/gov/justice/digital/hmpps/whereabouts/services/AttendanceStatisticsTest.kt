@@ -97,6 +97,13 @@ class AttendanceStatisticsTest {
           .attended(false)
           .absentReason(AbsentReason.RestInCell)
           .paid(false)
+          .build(),
+      Attendance.builder()
+          .id(11)
+          .bookingId(9)
+          .attended(false)
+          .absentReason(AbsentReason.RestInCellOrSick)
+          .paid(false)
           .build()
   )
 
@@ -238,6 +245,18 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count rest in cell`() {
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
+        .thenReturn(attendances)
+
+    val service = buildAttendanceStatistics()
+
+    val stats = service.getStats(prisonId, period, from, to)
+
+    assertThat(stats).extracting("unpaidReasons").extracting("restInCell").isEqualTo(1)
+  }
+
+  @Test
+  fun `count rest in cell mor sick`() {
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
 

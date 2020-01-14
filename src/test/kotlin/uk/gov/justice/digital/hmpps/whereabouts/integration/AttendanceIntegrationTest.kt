@@ -78,7 +78,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .period(TimePeriod.AM)
         .attended(false)
         .paid(false)
-        .absentReason(AbsentReason.Refused)
+        .absentReason(AbsentReason.RefusedIncentiveLevelWarning)
         .comments(comments)
         .build()
 
@@ -97,7 +97,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
     caseNotesMockServer.verify(postRequestedFor(urlEqualTo("/case-notes/$offenderNo"))
         .withRequestBody(matchingJsonPath("$[?(@.type == 'NEG')]"))
         .withRequestBody(matchingJsonPath("$[?(@.subType == 'IEP_WARN')]"))
-        .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused - $comments')]"))
+        .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused Incentive Level warning - $comments')]"))
         .withRequestBody(matchingJsonPath("$.occurrenceDateTime"))
     )
   }
@@ -407,7 +407,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
     assertThat(response.statusCodeValue).isEqualTo(204)
 
     caseNotesMockServer.verify(putRequestedFor(urlEqualTo("/case-notes/$offenderNo/$caseNoteId"))
-        .withRequestBody(matchingJsonPath("$[?(@.text == 'IEP rescinded: attended')]"))
+        .withRequestBody(matchingJsonPath("$[?(@.text == 'Incentive Level warning rescinded: attended')]"))
 
     )
   }
