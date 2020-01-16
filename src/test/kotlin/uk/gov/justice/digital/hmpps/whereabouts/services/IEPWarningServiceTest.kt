@@ -38,7 +38,7 @@ class IEPWarningServiceTest {
 
     whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
-    service.postIEPWarningIfRequired(1, null, AbsentReason.RefusedIncentiveLevelWarning, "test comment", date)
+    service.postIEPWarningIfRequired(1, null, AbsentReason.RefusedWithIncentiveLevelWarning, "test comment", date)
 
     verify(caseNotesService)
         .postCaseNote(
@@ -96,7 +96,7 @@ class IEPWarningServiceTest {
     val updateAttendance = UpdateAttendanceDto.builder()
         .attended(false)
         .paid(false)
-        .absentReason(AbsentReason.RefusedIncentiveLevelWarning)
+        .absentReason(AbsentReason.RefusedWithIncentiveLevelWarning)
         .comments("Refused!")
         .build()
 

@@ -11,7 +11,7 @@ public enum AbsentReason {
     UnacceptableAbsence,
     NotRequired,
     Refused,
-    RefusedIncentiveLevelWarning;
+    RefusedWithIncentiveLevelWarning;
 
     public static Set<AbsentReason> getPaidReasons() {
         return Set.of(
@@ -28,11 +28,11 @@ public enum AbsentReason {
                 RestDay,
                 UnacceptableAbsence,
                 Refused,
-                RefusedIncentiveLevelWarning
+                RefusedWithIncentiveLevelWarning
         );
     }
 
     public static Set<AbsentReason> getIepTriggers() {
-        return Set.of(RefusedIncentiveLevelWarning, UnacceptableAbsence);
+        return Set.of(RefusedWithIncentiveLevelWarning, UnacceptableAbsence);
     }
 }

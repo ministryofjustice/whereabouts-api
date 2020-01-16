@@ -28,11 +28,11 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
         AbsentReason.UnacceptableAbsence,
         AbsentReason.Refused,
         AbsentReason.RestInCellOrSick,
-        AbsentReason.RefusedIncentiveLevelWarning
+        AbsentReason.RefusedWithIncentiveLevelWarning
     )
 
     val triggersIEPWarnings = setOf(
-        AbsentReason.RefusedIncentiveLevelWarning,
+        AbsentReason.RefusedWithIncentiveLevelWarning,
         AbsentReason.UnacceptableAbsence
     )
 

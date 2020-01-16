@@ -88,7 +88,7 @@ class AttendanceStatisticsTest {
           .id(11)
           .bookingId(9)
           .attended(false)
-          .absentReason(AbsentReason.RefusedIncentiveLevelWarning)
+          .absentReason(AbsentReason.RefusedWithIncentiveLevelWarning)
           .paid(false)
           .build()
   )
@@ -226,7 +226,7 @@ class AttendanceStatisticsTest {
 
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("unpaidReasons").extracting("refusedIncentiveLevelWarning").isEqualTo(1)
+    assertThat(stats).extracting("unpaidReasons").extracting("refusedWithIncentiveLevelWarning").isEqualTo(1)
   }
 
 

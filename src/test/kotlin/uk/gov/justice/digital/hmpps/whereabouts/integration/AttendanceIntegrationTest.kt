@@ -78,7 +78,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .period(TimePeriod.AM)
         .attended(false)
         .paid(false)
-        .absentReason(AbsentReason.RefusedIncentiveLevelWarning)
+        .absentReason(AbsentReason.RefusedWithIncentiveLevelWarning)
         .comments(comments)
         .build()
 

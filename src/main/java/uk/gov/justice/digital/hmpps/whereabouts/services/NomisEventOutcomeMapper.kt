@@ -17,7 +17,7 @@ open class NomisEventOutcomeMapper {
         RestDay to EventOutcome("REST"),
         Refused to EventOutcome("UNACAB"),
         UnacceptableAbsence to EventOutcome("UNACAB"),
-        RefusedIncentiveLevelWarning to EventOutcome("UNACAB")
+        RefusedWithIncentiveLevelWarning to EventOutcome("UNACAB")
     )
   }
 

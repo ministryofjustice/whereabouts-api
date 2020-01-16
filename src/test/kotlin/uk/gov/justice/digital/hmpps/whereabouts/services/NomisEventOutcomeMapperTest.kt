@@ -115,7 +115,7 @@ class NomisEventOutcomeMapperTest {
 
   @Test
   fun `should return 'UNACAB' for  'RefusedIncentiveLevelWarning`() {
-    val nomisOutcome = eventOutcomeMapper.getEventOutcome(AbsentReason.RefusedIncentiveLevelWarning, false, false, "hello")
+    val nomisOutcome = eventOutcomeMapper.getEventOutcome(AbsentReason.RefusedWithIncentiveLevelWarning, false, false, "hello")
 
     assertThat(nomisOutcome).isEqualTo(EventOutcome("UNACAB", null, "hello"))
   }
