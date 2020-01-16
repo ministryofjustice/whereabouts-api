@@ -73,7 +73,7 @@ open class IEPWarningService(private val caseNotesService: CaseNotesService, pri
   private fun formatReasonAndComment(reason: AbsentReason, comment: String?) : String {
     return when(reason) {
       AbsentReason.RefusedIncentiveLevelWarning -> {
-        "Refused Incentive Level warning - $comment"
+        "Refused - Incentive Level warning - $comment"
       }
       else -> {
         AbsentReasonFormatter.titlecase(reason.toString()) + " - " + comment
