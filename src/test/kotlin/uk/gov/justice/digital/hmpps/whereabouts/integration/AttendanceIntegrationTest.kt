@@ -97,7 +97,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
     caseNotesMockServer.verify(postRequestedFor(urlEqualTo("/case-notes/$offenderNo"))
         .withRequestBody(matchingJsonPath("$[?(@.type == 'NEG')]"))
         .withRequestBody(matchingJsonPath("$[?(@.subType == 'IEP_WARN')]"))
-        .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused Incentive Level warning - $comments')]"))
+        .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused - Incentive Level warning - $comments')]"))
         .withRequestBody(matchingJsonPath("$.occurrenceDateTime"))
     )
   }

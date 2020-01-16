@@ -45,7 +45,7 @@ class IEPWarningServiceTest {
             eq("AB1234C"),
             eq("NEG"),
             eq("IEP_WARN"),
-            eq("Refused Incentive Level warning - test comment"),
+            eq("Refused - Incentive Level warning - test comment"),
             eq(date.atStartOfDay()))
   }
 
