@@ -1,15 +1,21 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
 import io.swagger.annotations.*
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import uk.gov.justice.digital.hmpps.whereabouts.services.LocationGroupService
 
-@Api(tags = ["/agencies"])
+@Api(tags = ["agencies"])
+@RestController
+@RequestMapping(value = ["agencies"], produces = [MediaType.APPLICATION_JSON_VALUE])
 @SuppressWarnings("unused")
-class AgencyController(private val locationGroupService: LocationGroupService) {
+class AgencyController(@Qualifier("locationGroupServiceSelector") private val locationGroupService: LocationGroupService) {
 
   @GetMapping("/{agencyId}/locations/groups")
   @ApiOperation(value = "List of all available Location Groups at agency.", notes = "List of all available Location Groups at agency.", nickname = "getAvailableLocationGroups")

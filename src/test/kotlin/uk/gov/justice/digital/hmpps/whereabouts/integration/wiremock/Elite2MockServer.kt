@@ -3,6 +3,8 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
+import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
+import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.time.LocalDate
 
@@ -58,6 +60,42 @@ class Elite2MockServer : WireMockRule(8999) {
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(mapOf("offenderNo" to offenderNo)))
             .withStatus(200))
+    )
+  }
+
+  fun stubGetAgencyLocationGroups(agencyId: String) {
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groupsNew"))
+        .willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(gson.toJson(listOf(
+                LocationGroup.builder().key("A").name("Block A").build()
+            )))
+            .withStatus(200)
+        )
+    )
+  }
+
+  fun stubGetAgencyLocationGroupsNotFound(agencyId: String) {
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groupsNew"))
+        .willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(gson.toJson(
+                ErrorResponse(404, null, "Resource with id [$agencyId] not found", "Resource with id [$agencyId] not found", null)
+            ))
+            .withStatus(404)
+        )
+    )
+  }
+
+  fun stubGetAgencyLocationGroupsServerError(agencyId: String) {
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groupsNew"))
+        .willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(gson.toJson(
+                ErrorResponse(500, null, "Server error", "Server error", null)
+            ))
+            .withStatus(500)
+        )
     )
   }
 }
