@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
 /**
  * Location Details
  **/
+@SuppressWarnings("unused")
 @ApiModel(description = "Location Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
@@ -21,38 +22,38 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @Data
 public class Location {
-    @ApiModelProperty(required = true, value = "Location identifier.", example = "721705")
+    @ApiModelProperty(required = true, value = "Location identifier.")
     @NotNull
     private Long locationId;
 
-    @ApiModelProperty(required = true, value = "Location type.", example = "ROOM")
+    @ApiModelProperty(required = true, value = "Location type.")
     @NotBlank
     private String locationType;
 
-    @ApiModelProperty(required = true, value = "Location description.", example = "MDI-RES-HB1-ALE")
+    @ApiModelProperty(required = true, value = "Location description.")
     @NotBlank
     private String description;
 
-    @ApiModelProperty(value = "What events this room can be used for.", example = "APP")
+    @ApiModelProperty(value = "What events this room can be used for.")
     private String locationUsage;
 
-    @ApiModelProperty(required = true, value = "Identifier of Agency this location is associated with.", example = "MDI")
+    @ApiModelProperty(required = true, value = "Identifier of Agency this location is associated with.")
     @NotBlank
     private String agencyId;
 
-    @ApiModelProperty(value = "Identifier of this location's parent location.", example = "26960")
+    @ApiModelProperty(value = "Identifier of this location's parent location.")
     private Long parentLocationId;
 
-    @ApiModelProperty(value = "Current occupancy of location.", example = "10")
+    @ApiModelProperty(value = "Current occupancy of location.")
     private Integer currentOccupancy;
 
-    @ApiModelProperty(value = "Location prefix. Defines search prefix that will constrain search to this location and its subordinate locations.", example = "RES-HB1-ALE")
+    @ApiModelProperty(value = "Location prefix. Defines search prefix that will constrain search to this location and its subordinate locations.")
     private String locationPrefix;
 
-    @ApiModelProperty(value = "Operational capacity of the location.", example = "20")
+    @ApiModelProperty(value = "Operational capacity of the location.")
     private Integer operationalCapacity;
 
-    @ApiModelProperty(value = "User-friendly location description.", example = "RES-HB1-ALE")
+    @ApiModelProperty(value = "User-friendly location description.")
     private String userDescription;
 
     private String internalLocationCode;

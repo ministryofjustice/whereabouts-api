@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
+import uk.gov.justice.digital.hmpps.whereabouts.security.VerifyAgencyAccess;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -15,19 +16,20 @@ public class LocationGroupServiceSelector implements LocationGroupService {
     private final LocationGroupService overrideService;
 
     public LocationGroupServiceSelector(
-            @Qualifier("defaultLocationGroupService") final LocationGroupService defaultService,
-            @Qualifier("overrideLocationGroupService") final LocationGroupService overrideService) {
+            @Qualifier("defaultLocationGroupService") LocationGroupService defaultService,
+            @Qualifier("overrideLocationGroupService") LocationGroupService overrideService) {
         this.defaultService = defaultService;
         this.overrideService = overrideService;
     }
 
     @Override
+    @VerifyAgencyAccess
     public List<LocationGroup> getLocationGroupsForAgency(final String agencyId) {
         return getLocationGroups(agencyId);
     }
 
     @Override
-    public List<LocationGroup> getLocationGroups(final String agencyId) {
+    public List<LocationGroup> getLocationGroups(String agencyId) {
         val groups = overrideService.getLocationGroups(agencyId);
         if (!groups.isEmpty()) {
             return groups;
@@ -36,7 +38,7 @@ public class LocationGroupServiceSelector implements LocationGroupService {
     }
 
     @Override
-    public Predicate<Location> locationGroupFilter(final String agencyId, final String groupName) {
+    public Predicate<Location> locationGroupFilter(String agencyId, String groupName) {
         if (!overrideService.getLocationGroups(agencyId).isEmpty()) {
             return overrideService.locationGroupFilter(agencyId, groupName);
         }

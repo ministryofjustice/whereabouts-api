@@ -15,7 +15,7 @@ public class LocationGroupFromEliteService implements LocationGroupService {
 
     private final Elite2ApiService elite2ApiService;
 
-    LocationGroupFromEliteService(final Elite2ApiService elite2ApiService) {
+    LocationGroupFromEliteService(Elite2ApiService elite2ApiService) {
         this.elite2ApiService = elite2ApiService;
     }
 
@@ -25,12 +25,12 @@ public class LocationGroupFromEliteService implements LocationGroupService {
     }
 
     @Override
-    public List<LocationGroup> getLocationGroups(final String agencyId) {
+    public List<LocationGroup> getLocationGroups(String agencyId) {
         return elite2ApiService.getLocationGroups(agencyId);
     }
 
     @Override
-    public Predicate<Location> locationGroupFilter(final String agencyId, final String groupName) {
+    public Predicate<Location> locationGroupFilter(String agencyId, String groupName) {
         val prefixToMatch = agencyId + '-' + groupName.replace('_', '-') + '-';
         return (Location location) -> location.getLocationPrefix().startsWith(prefixToMatch);
     }

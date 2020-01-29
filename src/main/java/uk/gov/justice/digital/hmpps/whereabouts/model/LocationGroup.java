@@ -16,6 +16,7 @@ import java.util.List;
 /**
  * Cell Locations are grouped for unlock lists as a 2 level tree. The two levels are referred to as Location and Sub-Location in the prisonstaffhub UI. Each (location/sub-location) group has a name that is understood by prison officers and also serves as a key to retrieve the corresponding Cell Locations and information about their occupants.
  **/
+@SuppressWarnings("unused")
 @ApiModel(description = "Cell Locations are grouped for unlock lists as a 2 level tree. The two levels are referred to as Location and Sub-Location in the prisonstaffhub UI. Each (location/sub-location) group has a name that is understood by prison officers and also serves as a key to retrieve the corresponding Cell Locations and information about their occupants.")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
@@ -23,15 +24,15 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LocationGroup {
-    @ApiModelProperty(required = true, value = "The name of the group", example = "Block A")
+    @ApiModelProperty(required = true, value = "The name of the group")
     @NotBlank
     private String name;
 
-    @ApiModelProperty(required = true, value = "A key for the group", example = "A")
+    @ApiModelProperty(required = true, value = "A key for the group")
     @NotBlank
     private String key;
 
-    @ApiModelProperty(required = true, value = "The child groups of this group", example = "[{\"name\": \"Landing A/1\", \"key\":\"1\"}, {\"name\": \"Landing A/2\", \"key\": \"2\"}]")
+    @ApiModelProperty(required = true, value = "The child groups of this group")
     @NotNull
     @Builder.Default
     private List<LocationGroup> children = new ArrayList<>();
