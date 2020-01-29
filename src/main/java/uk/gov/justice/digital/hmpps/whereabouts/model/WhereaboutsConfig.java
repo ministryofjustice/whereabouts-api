@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 
@@ -21,6 +18,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@ToString
 public class WhereaboutsConfig {
 
     @NotNull
@@ -37,17 +35,5 @@ public class WhereaboutsConfig {
 
     public void setEnabled(final boolean enabled) {
         this.enabled = enabled;
-    }
-
-    @Override
-    public String toString() {
-        final var sb = new StringBuilder();
-
-        sb.append("class WhereaboutsConfig {\n");
-
-        sb.append("  enabled: ").append(enabled).append("\n");
-        sb.append("}\n");
-
-        return sb.toString();
     }
 }

@@ -95,7 +95,7 @@ public class Elite2ApiService {
         return body != null ? body : Collections.emptyList();
     }
 
-    List<LocationGroup> getLocationGroups(String agencyId) {
+    List<LocationGroup> getLocationGroups(final String agencyId) {
         final var url = "/agencies/{agencyId}/locations/groupsNew";
 
         final var responseType = new ParameterizedTypeReference<List<LocationGroup>>() {};
