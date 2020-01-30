@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
+import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import java.time.LocalDate;
@@ -93,5 +94,20 @@ public class Elite2ApiService {
 
         return body != null ? body : Collections.emptyList();
     }
+
+    List<LocationGroup> getLocationGroups(final String agencyId) {
+        final var url = "/agencies/{agencyId}/locations/groupsNew";
+
+        final var responseType = new ParameterizedTypeReference<List<LocationGroup>>() {};
+        final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, agencyId);
+        final var body = response.getBody();
+
+        if (body == null) {
+            return Collections.emptyList();
+        }
+
+        return body;
+    }
+
 }
 
