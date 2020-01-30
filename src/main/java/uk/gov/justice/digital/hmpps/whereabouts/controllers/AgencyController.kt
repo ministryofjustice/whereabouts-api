@@ -14,7 +14,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.LocationGroupService
 @Api(tags = ["agencies"])
 @RestController
 @RequestMapping(value = ["agencies"], produces = [MediaType.APPLICATION_JSON_VALUE])
-@SuppressWarnings("unused")
 class AgencyController(@Qualifier("locationGroupServiceSelector") private val locationGroupService: LocationGroupService) {
 
   @GetMapping("/{agencyId}/locations/groups")
@@ -25,6 +24,6 @@ class AgencyController(@Qualifier("locationGroupServiceSelector") private val lo
     ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse::class, responseContainer = "List"),
     ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse::class, responseContainer = "List")
   ])
-  fun getAvailableLocationGroups(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") agencyId: String?): List<LocationGroup?>?
+  fun getAvailableLocationGroups(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") agencyId: String): List<LocationGroup>
     = locationGroupService.getLocationGroupsForAgency(agencyId)
 }

@@ -10,13 +10,13 @@ public class WhereaboutsEnabledService {
     private final Set<String> enabledAgencies;
 
     public WhereaboutsEnabledService(
-            @Qualifier("overrideLocationGroupService") LocationGroupService service,
-            @Qualifier("whereaboutsEnabled") Set<String> enabledAgencies) {
+            @Qualifier("overrideLocationGroupService") final LocationGroupService service,
+            @Qualifier("whereaboutsEnabled") final Set<String> enabledAgencies) {
         this.service = service;
         this.enabledAgencies = enabledAgencies;
     }
 
-    public boolean isEnabled(String agencyId) {
+    public boolean isEnabled(final String agencyId) {
         return !service.getLocationGroups(agencyId).isEmpty() || enabledAgencies.contains(agencyId);
     }
 }

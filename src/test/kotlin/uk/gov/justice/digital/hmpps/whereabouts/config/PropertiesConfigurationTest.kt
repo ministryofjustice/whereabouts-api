@@ -15,15 +15,11 @@ import java.util.*
 class PropertiesConfigurationTest {
 
   @Autowired
-  private val context: ApplicationContext? = null
+  private lateinit var context: ApplicationContext
 
   @Autowired
   @Qualifier("whereaboutsGroups")
-  private val properties: Properties? = null
-
-//  @Autowired
-//  @Qualifier("whereaboutsEnabled")
-//  var enabled: Set<String>? = null
+  private lateinit var properties: Properties
 
   @Test
   fun checkContext() {
@@ -39,19 +35,13 @@ class PropertiesConfigurationTest {
 
   @Test
   fun whereaboutsGroups_AreAllPatternsThatCompile() {
-    properties!!.values.flatMap { (it as String).split(",")}.map { Regex(it).matches("some input")}
+    properties.values.flatMap { (it as String).split(",")}.map { Regex(it).matches("some input")}
   }
 
   @Test
   fun whereaboutsGroups_NoDuplicateValues() {
-    val duplicates = properties!!.values.flatMap { (it as String).split(",") }.groupingBy { it }.eachCount().any { it.value > 1 }
+    val duplicates = properties.values.flatMap { (it as String).split(",") }.groupingBy { it }.eachCount().any { it.value > 1 }
     assertThat(duplicates).isFalse()
   }
 
-//  @Test
-//  fun enabledAgencies() {
-//    Assertions.assertThat(enabled)
-//        .isNotNull
-//        .contains("BRI")
-//  }
 }
