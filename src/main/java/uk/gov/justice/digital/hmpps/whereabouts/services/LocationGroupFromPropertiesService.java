@@ -74,7 +74,7 @@ public class LocationGroupFromPropertiesService implements LocationGroupService 
     }
 
     @Override
-    public Predicate<Location> locationGroupFilter(String agencyId, String groupName) {
+    public Predicate<Location> locationGroupFilter(final String agencyId, final String groupName) {
         final var patterns = groupsProperties.getProperty(agencyId + '_' + groupName);
         if (patterns == null) {
             throw new EntityNotFoundException(
@@ -84,7 +84,7 @@ public class LocationGroupFromPropertiesService implements LocationGroupService 
 
         return Arrays.stream(patternStrings)
                 .map(Pattern::compile)
-                .map(pattern -> (Predicate<Location>) (Location l) -> pattern.matcher(l.getLocationPrefix()).matches())
+                .map(pattern -> (Predicate<Location>) l -> pattern.matcher(l.getLocationPrefix()).matches())
                 .reduce(Predicate::or)
                 .orElseThrow();
     }

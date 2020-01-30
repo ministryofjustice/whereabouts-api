@@ -10,8 +10,11 @@ import org.springframework.core.io.Resource;
 @Configuration
 public class PropertiesConfiguration {
 
-    @Value("classpath:whereabouts/patterns/*.properties")
-    private Resource[] resources;
+    final private Resource[] resources;
+
+    public PropertiesConfiguration(@Value("classpath:whereabouts/patterns/*.properties") Resource[] resources) {
+        this.resources = resources;
+    }
 
     @Bean
     @Qualifier("whereaboutsGroups")
