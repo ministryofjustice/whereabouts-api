@@ -21,6 +21,10 @@ class PropertiesConfigurationTest {
   @Qualifier("whereaboutsGroups")
   private lateinit var properties: Properties
 
+  @Autowired
+  @Qualifier("whereaboutsEnabled")
+  private lateinit var enabled: Set<String>
+
   @Test
   fun checkContext() {
     assertThat(context).isNotNull
@@ -42,6 +46,11 @@ class PropertiesConfigurationTest {
   fun whereaboutsGroups_NoDuplicateValues() {
     val duplicates = properties.values.flatMap { (it as String).split(",") }.groupingBy { it }.eachCount().any { it.value > 1 }
     assertThat(duplicates).isFalse()
+  }
+
+  @Test
+  fun enabledAgencies() {
+    assertThat(enabled).isNotNull.contains("BRI")
   }
 
 }

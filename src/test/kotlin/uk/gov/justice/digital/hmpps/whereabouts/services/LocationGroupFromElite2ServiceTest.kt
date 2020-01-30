@@ -5,7 +5,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 
-class LocationGroupFromDbServiceTest {
+class LocationGroupFromElite2ServiceTest {
 
   private val elite2ApiService: Elite2ApiService = mock()
   private val service = LocationGroupFromEliteService(elite2ApiService)
