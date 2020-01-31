@@ -20,7 +20,7 @@ class AgencyIntegrationTest: IntegrationTest() {
     val locationGroups = response.body
 
     assertThat(response.statusCodeValue).isEqualTo(200)
-    assertThat(locationGroups).containsExactly(LocationGroup.builder().key("A").name("Block A").build())
+    assertThat(locationGroups).containsExactly(LocationGroup(key="A", name="Block A"))
   }
 
   @Test

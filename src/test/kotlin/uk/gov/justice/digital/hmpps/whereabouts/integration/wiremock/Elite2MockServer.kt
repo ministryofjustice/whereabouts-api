@@ -68,7 +68,7 @@ class Elite2MockServer : WireMockRule(8999) {
         .willReturn(aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(listOf(
-                LocationGroup.builder().key("A").name("Block A").build()
+                LocationGroup(key="A", name="Block A")
             )))
             .withStatus(200)
         )

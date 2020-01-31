@@ -54,6 +54,6 @@ class LocationGroupServiceSelectorTest {
   }
 
   companion object {
-    private val LG1 = LocationGroup.builder().key("A").name("A").build()
+    private val LG1 = LocationGroup(key = "A", name = "A")
   }
 }
