@@ -14,7 +14,6 @@ import javax.persistence.EntityNotFoundException
  * An implementation of LocationGroupService backed by a properties file.
  */
 @Service("overrideLocationGroupService")
-@Slf4j
 class LocationGroupFromPropertiesService(
     @Qualifier("whereaboutsGroups") private val groupsProperties: Properties) : LocationGroupService {
 
