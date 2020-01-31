@@ -15,7 +15,7 @@ class LocationGroupFromEliteService (private val elite2ApiService: Elite2ApiServ
 
   override fun locationGroupFilter(agencyId: String, groupName: String): Predicate<Location> {
     val prefixToMatch = "$agencyId-${groupName.replace('_', '-')}-"
-    return Predicate { (_, _, _, _, _, _, _, locationPrefix) -> locationPrefix.startsWith(prefixToMatch) }
+    return  Predicate { it.locationPrefix.startsWith(prefixToMatch) }
   }
 
 }
