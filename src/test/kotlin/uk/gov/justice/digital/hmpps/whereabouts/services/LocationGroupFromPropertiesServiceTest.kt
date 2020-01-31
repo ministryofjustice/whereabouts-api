@@ -346,13 +346,27 @@ class LocationGroupFromPropertiesServiceTest {
     }
 
     private fun location(locationPrefix: String): Location {
-      val location = Location()
-      location.locationPrefix = locationPrefix
-      return location
+      return aLocation(locationPrefix)
     }
 
     private fun applyPredicatesToLocations(predicate: Predicate<Location>, vararg locationPrefixes: String): List<String> {
       return locationPrefixes.map(::location).filter(predicate::test).map { it.locationPrefix }.toList()
+    }
+
+    private fun aLocation(locationPrefix: String): Location {
+      return Location(
+          locationId = 0,
+          locationType = "",
+          description = "",
+          locationUsage = "",
+          agencyId = "",
+          parentLocationId = 0,
+          currentOccupancy = 0,
+          locationPrefix = locationPrefix,
+          operationalCapacity = 0,
+          userDescription = "",
+          internalLocationCode = ""
+      )
     }
   }
 }
