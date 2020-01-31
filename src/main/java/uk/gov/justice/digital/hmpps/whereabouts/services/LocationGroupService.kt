@@ -1,23 +1,18 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services;
+package uk.gov.justice.digital.hmpps.whereabouts.services
 
-import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
-import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
+import uk.gov.justice.digital.hmpps.whereabouts.model.Location
+import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
+import java.util.function.Predicate
 
-import java.util.List;
-import java.util.function.Predicate;
-
-public interface LocationGroupService {
-
-    List<LocationGroup> getLocationGroupsForAgency(String agencyId);
-
-    List<LocationGroup> getLocationGroups(String agencyId);
-
-    /**
-     * Supply a filter predicate for LocationGroups.
-     *
-     * @param agencyId
-     * @param groupName
-     * @return a suitable predicate.
-     */
-    Predicate<Location> locationGroupFilter(String agencyId, String groupName);
+interface LocationGroupService {
+  fun getLocationGroupsForAgency(agencyId: String): List<LocationGroup>
+  fun getLocationGroups(agencyId: String): List<LocationGroup>
+  /**
+   * Supply a filter predicate for LocationGroups.
+   *
+   * @param agencyId
+   * @param groupName
+   * @return a suitable predicate.
+   */
+  fun locationGroupFilter(agencyId: String, groupName: String): Predicate<Location>
 }

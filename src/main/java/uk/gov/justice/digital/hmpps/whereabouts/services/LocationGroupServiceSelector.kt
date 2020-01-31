@@ -1,45 +1,29 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services;
+package uk.gov.justice.digital.hmpps.whereabouts.services
 
-import lombok.val;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
-import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
-
-import java.util.List;
-import java.util.function.Predicate;
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.whereabouts.model.Location
+import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
+import java.util.function.Predicate
 
 @Service("locationGroupServiceSelector")
-public class LocationGroupServiceSelector implements LocationGroupService {
-    private final LocationGroupService defaultService;
-    private final LocationGroupService overrideService;
+class LocationGroupServiceSelector(
+    @Qualifier("defaultLocationGroupService") private val defaultService: LocationGroupService,
+    @Qualifier("overrideLocationGroupService") private val overrideService: LocationGroupService) : LocationGroupService {
 
-    public LocationGroupServiceSelector(
-            @Qualifier("defaultLocationGroupService") final LocationGroupService defaultService,
-            @Qualifier("overrideLocationGroupService") final LocationGroupService overrideService) {
-        this.defaultService = defaultService;
-        this.overrideService = overrideService;
-    }
+  override fun getLocationGroupsForAgency(agencyId: String): List<LocationGroup> {
+    return getLocationGroups(agencyId)
+  }
 
-    @Override
-    public List<LocationGroup> getLocationGroupsForAgency(final String agencyId) {
-        return getLocationGroups(agencyId);
-    }
+  override fun getLocationGroups(agencyId: String): List<LocationGroup> {
+    val groups = overrideService.getLocationGroups(agencyId)
+    return if (groups.isNotEmpty()) { groups } else defaultService.getLocationGroups(agencyId)
+  }
 
-    @Override
-    public List<LocationGroup> getLocationGroups(final String agencyId) {
-        val groups = overrideService.getLocationGroups(agencyId);
-        if (!groups.isEmpty()) {
-            return groups;
-        }
-        return defaultService.getLocationGroups(agencyId);
-    }
+  override fun locationGroupFilter(agencyId: String, groupName: String): Predicate<Location> {
+    return if (overrideService.getLocationGroups(agencyId).isNotEmpty()) {
+      overrideService.locationGroupFilter(agencyId, groupName)
+    } else defaultService.locationGroupFilter(agencyId, groupName)
+  }
 
-    @Override
-    public Predicate<Location> locationGroupFilter(final String agencyId, final String groupName) {
-        if (!overrideService.getLocationGroups(agencyId).isEmpty()) {
-            return overrideService.locationGroupFilter(agencyId, groupName);
-        }
-        return defaultService.locationGroupFilter(agencyId, groupName);
-    }
 }

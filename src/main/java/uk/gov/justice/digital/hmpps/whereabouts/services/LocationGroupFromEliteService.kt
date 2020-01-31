@@ -1,37 +1,26 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services;
+package uk.gov.justice.digital.hmpps.whereabouts.services
 
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.stereotype.Service;
-import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
-import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
-
-import java.util.List;
-import java.util.function.Predicate;
+import lombok.extern.slf4j.Slf4j
+import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.whereabouts.model.Location
+import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
+import java.util.function.Predicate
 
 @Service("defaultLocationGroupService")
 @Slf4j
-public class LocationGroupFromEliteService implements LocationGroupService {
+class LocationGroupFromEliteService (private val elite2ApiService: Elite2ApiService) : LocationGroupService {
 
-    private final Elite2ApiService elite2ApiService;
+  override fun getLocationGroupsForAgency(agencyId: String): List<LocationGroup> {
+    return getLocationGroups(agencyId)
+  }
 
-    LocationGroupFromEliteService(final Elite2ApiService elite2ApiService) {
-        this.elite2ApiService = elite2ApiService;
-    }
+  override fun getLocationGroups(agencyId: String): List<LocationGroup> {
+    return elite2ApiService.getLocationGroups(agencyId)
+  }
 
-    @Override
-    public List<LocationGroup> getLocationGroupsForAgency(final String agencyId) {
-        return getLocationGroups(agencyId);
-    }
+  override fun locationGroupFilter(agencyId: String, groupName: String): Predicate<Location> {
+    val prefixToMatch = "$agencyId-${groupName.replace('_', '-')}-"
+    return Predicate { (_, _, _, _, _, _, _, locationPrefix) -> locationPrefix.startsWith(prefixToMatch) }
+  }
 
-    @Override
-    public List<LocationGroup> getLocationGroups(final String agencyId) {
-        return elite2ApiService.getLocationGroups(agencyId);
-    }
-
-    @Override
-    public Predicate<Location> locationGroupFilter(final String agencyId, final String groupName) {
-        val prefixToMatch = agencyId + '-' + groupName.replace('_', '-') + '-';
-        return (Location location) -> location.getLocationPrefix().startsWith(prefixToMatch);
-    }
 }
