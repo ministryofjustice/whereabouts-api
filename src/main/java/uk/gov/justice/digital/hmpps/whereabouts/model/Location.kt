@@ -13,15 +13,15 @@ import javax.validation.constraints.NotNull
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class Location (
   @ApiModelProperty(required = true, value = "Location identifier.", example = "721705")
-  val locationId: @NotNull Long,
+  val locationId: Long,
   @ApiModelProperty(required = true, value = "Location type.", example = "ROOM")
-  val locationType: @NotBlank String,
+  val locationType: String,
   @ApiModelProperty(required = true, value = "Location description.", example = "MDI-RES-HB1-ALE")
-  val description: @NotBlank String,
+  val description: String,
   @ApiModelProperty(value = "What events this room can be used for.", example = "APP")
   val locationUsage: String,
   @ApiModelProperty(required = true, value = "Identifier of Agency this location is associated with.", example = "MDI")
-  val agencyId: @NotBlank String,
+  val agencyId: String,
   @ApiModelProperty(value = "Identifier of this location's parent location.", example = "26960")
   val parentLocationId: Long?,
   @ApiModelProperty(value = "Current occupancy of location.", example = "10")
