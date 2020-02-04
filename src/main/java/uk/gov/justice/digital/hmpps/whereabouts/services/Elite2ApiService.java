@@ -3,17 +3,21 @@ package uk.gov.justice.digital.hmpps.whereabouts.services;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
+import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
 
 @Service
 public class Elite2ApiService {
@@ -75,7 +79,7 @@ public class Elite2ApiService {
         final var body = response.getBody();
 
         if (body == null)
-            return Collections.emptyList();
+            return emptyList();
 
         return body
                 .stream()
@@ -92,7 +96,7 @@ public class Elite2ApiService {
         final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, prisonId, fromDate, toDate, period);
         final var body = response.getBody();
 
-        return body != null ? body : Collections.emptyList();
+        return body != null ? body : emptyList();
     }
 
     List<LocationGroup> getLocationGroups(final String agencyId) {
@@ -103,10 +107,23 @@ public class Elite2ApiService {
         final var body = response.getBody();
 
         if (body == null) {
-            return Collections.emptyList();
+            return emptyList();
         }
 
         return body;
+    }
+
+    List<Location> getAgencyLocationsForType(final String agencyId, final String locationType) {
+        final var url = "/agencies/{agencyId}/locations/type/{type}";
+        final var responseType = new ParameterizedTypeReference<List<Location>>() {};
+
+        final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, agencyId, locationType);
+
+        if (response.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+            return emptyList();
+        }
+
+        return response.getBody();
     }
 
 }
