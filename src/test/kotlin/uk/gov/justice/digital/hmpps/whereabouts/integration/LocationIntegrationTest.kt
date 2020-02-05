@@ -19,8 +19,22 @@ class LocationIntegrationTest: IntegrationTest() {
 
     assertThat(response.statusCodeValue).isEqualTo(200)
     assertThat(response.body).containsExactlyInAnyOrder(
-        aLocation(locationId = 507011, description = "Hb7-1-002", agencyId = "RNI"),
-        aLocation(locationId = 507031, description = "Hb7-1-021", agencyId = "RNI")
+        aLocation(locationId = 507011, description = "Hb7-1-002", agencyId = "RNI", locationPrefix = "RNI-HB7-1-002"),
+        aLocation(locationId = 507031, description = "Hb7-1-021", agencyId = "RNI", locationPrefix = "RNI-HB7-1-021")
+    )
+  }
+
+  @Test
+  fun `location groups for agency by location name - defined in elite2 - selects relevant locations only`() {
+    elite2MockServer.stubAgencyLocationsByType("LEI", "CELL", getLeiHb7Locations())
+
+    val response: ResponseEntity<List<Location>> =
+        restTemplate.exchange("/locations/groups/LEI/House_block_7", HttpMethod.GET, createHeaderEntity(""))
+
+    assertThat(response.statusCodeValue).isEqualTo(200)
+    assertThat(response.body).containsExactlyInAnyOrder(
+        aLocation(locationId = 507011, description = "House_block_7-1-002", agencyId = "LEI", locationPrefix = "LEI-House-block-7-1-002"),
+        aLocation(locationId = 507031, description = "House_block_7-1-021", agencyId = "LEI", locationPrefix = "LEI-House-block-7-1-021")
     )
   }
 
@@ -46,23 +60,30 @@ class LocationIntegrationTest: IntegrationTest() {
     assertThat(response.body).contains("Server error")
   }
 
-
   private fun getRniHb7Locations() =
       listOf(
-          aLocation(locationId = 507011, description = "Hb7-1-002", agencyId = "RNI"),
-          aLocation(locationId = 507031, description = "Hb7-1-021", agencyId = "RNI"),
-          aLocation(locationId = 108582, description = "S-1-001",   agencyId = "RNI"),
-          aLocation(locationId = 108583, description = "S-1-002",   agencyId = "RNI")
+          aLocation(locationId = 507011, description = "Hb7-1-002", agencyId = "RNI", locationPrefix = "RNI-HB7-1-002"),
+          aLocation(locationId = 507031, description = "Hb7-1-021", agencyId = "RNI", locationPrefix = "RNI-HB7-1-021"),
+          aLocation(locationId = 108582, description = "S-1-001",   agencyId = "RNI", locationPrefix = "RNI-S-1-001"),
+          aLocation(locationId = 108583, description = "S-1-002",   agencyId = "RNI", locationPrefix = "RNI-S-1-002")
       )
 
-  private fun aLocation(locationId: Long, description: String, agencyId: String) =
+  private fun getLeiHb7Locations() =
+      listOf(
+          aLocation(locationId = 507011, description = "House_block_7-1-002", agencyId = "LEI", locationPrefix = "LEI-House-block-7-1-002"),
+          aLocation(locationId = 507031, description = "House_block_7-1-021", agencyId = "LEI", locationPrefix = "LEI-House-block-7-1-021"),
+          aLocation(locationId = 108582, description = "S-1-001",   agencyId = "LEI", locationPrefix = "LEI-S-1-001"),
+          aLocation(locationId = 108583, description = "S-1-002",   agencyId = "LEI", locationPrefix = "LEI-S-1-002")
+      )
+
+  private fun aLocation(locationId: Long, description: String, agencyId: String, locationPrefix: String) =
       Location(
           locationId = locationId,
           locationType = "CELL",
           description = description,
           agencyId = agencyId,
           currentOccupancy = 0,
-          locationPrefix = "$agencyId-${description.toUpperCase()}",
+          locationPrefix = locationPrefix,
           operationalCapacity = 0,
           userDescription = "",
           internalLocationCode = "",
