@@ -3,9 +3,9 @@ package uk.gov.justice.digital.hmpps.whereabouts.services;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
@@ -13,11 +13,13 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 public class Elite2ApiService {
@@ -113,17 +115,22 @@ public class Elite2ApiService {
         return body;
     }
 
-    List<Location> getAgencyLocationsForType(final String agencyId, final String locationType) {
+    public List<Location> getAgencyLocationsForType(final String agencyId, final String locationType) {
         final var url = "/agencies/{agencyId}/locations/type/{type}";
         final var responseType = new ParameterizedTypeReference<List<Location>>() {};
 
-        final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, agencyId, locationType);
-
-        if (response.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-            return emptyList();
+        List<Location> locations;
+        try {
+            final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, agencyId, locationType);
+            locations = response.getBody();
+        } catch(HttpClientErrorException e) {
+            if (e.getStatusCode().equals(NOT_FOUND)) {
+                throw new EntityNotFoundException(String.format("Locations not found for agency %s with location type %s", agencyId, locationType));
+            }
+            throw e;
         }
 
-        return response.getBody();
+        return locations;
     }
 
 }

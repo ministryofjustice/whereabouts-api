@@ -5,15 +5,13 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 
-internal const val CELL = "CELL"
-
 @Service
 class LocationService(
     private val elite2ApiService: Elite2ApiService,
-    @Qualifier("defaultLocationGroupService") private val locationGroupService: LocationGroupService) {
+    @Qualifier("locationGroupServiceSelector") private val locationGroupService: LocationGroupService) {
 
   fun getCellLocationsForGroup(agencyId: String, groupName: String): List<Location> =
-      elite2ApiService.getAgencyLocationsForType(agencyId, CELL)
+      elite2ApiService.getAgencyLocationsForType(agencyId, "CELL")
           .filter(locationGroupService.locationGroupFilter(agencyId, groupName)::test)
           .toMutableList()
           .map { it.copy(description = it.description.formatLocation()) }
