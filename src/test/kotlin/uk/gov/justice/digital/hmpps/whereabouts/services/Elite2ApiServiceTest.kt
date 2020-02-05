@@ -12,7 +12,9 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.oauth2.client.OAuth2RestTemplate
+import org.springframework.web.client.HttpClientErrorException
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
+import javax.persistence.EntityNotFoundException
 
 class Elite2ApiServiceTest {
 
@@ -36,19 +38,17 @@ class Elite2ApiServiceTest {
     assertThat(response).containsExactly(aLocation(someAgencyId, someLocationType))
   }
 
-  @Test
-  fun `getAgencyLocationsForType - not found returns empty list`() {
+  @Test(expected = EntityNotFoundException::class)
+  fun `getAgencyLocationsForType - not found raises exception`() {
     whenever(restTemplate.exchange(
         anyString(),
         eq(HttpMethod.GET),
         eq(null),
         any<ParameterizedTypeReference<List<Location>>>(),
         eq("any agency"), eq("any locationType")
-    )).thenReturn(ResponseEntity(HttpStatus.NOT_FOUND))
+    )).thenThrow(HttpClientErrorException(HttpStatus.NOT_FOUND))
 
-    val response = elite2ApiService.getAgencyLocationsForType("any agency", "any locationType")
-
-    assertThat(response).isEqualTo(emptyList<Location>())
+    elite2ApiService.getAgencyLocationsForType("any agency", "any locationType")
   }
 
   private fun aLocation(agencyId: String, locationType: String) =

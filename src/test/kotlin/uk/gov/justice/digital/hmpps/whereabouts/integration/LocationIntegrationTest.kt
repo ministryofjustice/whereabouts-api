@@ -14,28 +14,20 @@ class LocationIntegrationTest: IntegrationTest() {
   fun `location groups for agency by location name - defined in properties - selects relevant locations only`() {
     elite2MockServer.stubAgencyLocationsByType("RNI", "CELL", getRniHb7Locations())
 
-    val response: ResponseEntity<List<Location>> =
+    val response: ResponseEntity<String> =
         restTemplate.exchange("/locations/groups/RNI/House block 7", HttpMethod.GET, createHeaderEntity(""))
 
-    assertThat(response.statusCodeValue).isEqualTo(200)
-    assertThat(response.body).containsExactlyInAnyOrder(
-        aLocation(locationId = 507011, description = "Hb7-1-002", agencyId = "RNI", locationPrefix = "RNI-HB7-1-002"),
-        aLocation(locationId = 507031, description = "Hb7-1-021", agencyId = "RNI", locationPrefix = "RNI-HB7-1-021")
-    )
+    assertThatJsonFileAndStatus(response, 200, "RNI_location_groups_agency_locname.json");
   }
 
   @Test
   fun `location groups for agency by location name - defined in elite2 - selects relevant locations only`() {
     elite2MockServer.stubAgencyLocationsByType("LEI", "CELL", getLeiHb7Locations())
 
-    val response: ResponseEntity<List<Location>> =
+    val response: ResponseEntity<String> =
         restTemplate.exchange("/locations/groups/LEI/House_block_7", HttpMethod.GET, createHeaderEntity(""))
 
-    assertThat(response.statusCodeValue).isEqualTo(200)
-    assertThat(response.body).containsExactlyInAnyOrder(
-        aLocation(locationId = 507011, description = "House_block_7-1-002", agencyId = "LEI", locationPrefix = "LEI-House-block-7-1-002"),
-        aLocation(locationId = 507031, description = "House_block_7-1-021", agencyId = "LEI", locationPrefix = "LEI-House-block-7-1-021")
-    )
+    assertThatJsonFileAndStatus(response, 200, "LEI_location_groups_agency_locname.json");
   }
 
   @Test
