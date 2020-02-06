@@ -95,6 +95,16 @@ public class Elite2ApiService {
         return body != null ? body : Collections.emptyList();
     }
 
+    public Long getOffenderBookingId(final String offenderNo) {
+       final var url = "/bookings/offenderNo/{offenderNo}?fullInfo=false";
+
+        final var responseType = new ParameterizedTypeReference<OffenderDetails>() {};
+        final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, offenderNo);
+        final var body = response.getBody();
+
+        return Objects.requireNonNull(body).getBookingId();
+    }
+
     List<LocationGroup> getLocationGroups(final String agencyId) {
         final var url = "/agencies/{agencyId}/locations/groupsNew";
 
@@ -108,6 +118,5 @@ public class Elite2ApiService {
 
         return body;
     }
-
 }
 

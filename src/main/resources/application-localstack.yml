@@ -1,0 +1,16 @@
+spring:
+  profiles:
+    include: dev
+
+sns:
+  provider: localstack
+  endpoint.url: http://localhost:4575
+  topic.arn: arn:aws:sns:eu-west-2:000000000000:offender_events
+
+sqs:
+  provider: localstack
+  queue:
+    name: offender_whereabouts_queue
+  endpoint:
+    url: http://localhost:4576
+  region: eu-west-2

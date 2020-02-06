@@ -8,7 +8,7 @@ env:
     value: "{{ .Values.image.port }}"
 
   - name: SPRING_PROFILES_ACTIVE
-    value: "postgres,logstash"
+    value: "postgres,logstash,sqs"
 
   - name: JAVA_OPTS
     value: "{{ .Values.env.JAVA_OPTS }}"
@@ -63,4 +63,60 @@ env:
       secretKeyRef:
         name: dps-rds-instance-output
         key: rds_instance_endpoint
+
+
+    - name: SNS_AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: offender-events-topic
+          key: access_key_id
+
+    - name: SNS_AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: offender-events-topic
+          key: secret_access_key
+
+    - name: SNS_TOPIC_ARN
+      valueFrom:
+        secretKeyRef:
+          name: offender-events-topic
+          key: topic_arn
+
+    - name: SQS_AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: ocn-events-sqs-instance-output
+          key: access_key_id
+
+    - name: SQS_AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: ocn-events-sqs-instance-output
+          key: secret_access_key
+
+    - name: SQS_QUEUE_NAME
+      valueFrom:
+        secretKeyRef:
+          name: ocn-events-sqs-instance-output
+          key: sqs_ocne_name
+
+    - name: SQS_AWS_DLQ_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: ocn-events-sqs-dl-instance-output
+          key: access_key_id
+
+    - name: SQS_AWS_DLQ_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: ocn-events-sqs-dl-instance-output
+          key: secret_access_key
+
+    - name: SQS_DLQ_NAME
+      valueFrom:
+        secretKeyRef:
+          name: ocn-events-sqs-dl-instance-output
+          key: sqs_ocne_name
+
 {{- end -}}
