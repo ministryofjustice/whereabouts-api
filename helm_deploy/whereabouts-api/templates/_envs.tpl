@@ -64,25 +64,6 @@ env:
         name: dps-rds-instance-output
         key: rds_instance_endpoint
 
-
-    - name: SNS_AWS_ACCESS_KEY_ID
-      valueFrom:
-        secretKeyRef:
-          name: offender-events-topic
-          key: access_key_id
-
-    - name: SNS_AWS_SECRET_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: offender-events-topic
-          key: secret_access_key
-
-    - name: SNS_TOPIC_ARN
-      valueFrom:
-        secretKeyRef:
-          name: offender-events-topic
-          key: topic_arn
-
     - name: SQS_AWS_ACCESS_KEY_ID
       valueFrom:
         secretKeyRef:
