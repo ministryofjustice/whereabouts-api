@@ -39,7 +39,8 @@ services:
       - ELITE2_API_BASE_URL=http://elite2-api:8080
 
   localstack:
-    image: localstack/localstack
+    # pinned to 10.4 due to https://github.com/localstack/localstack/issues/1992
+    image: localstack/localstack:0.10.4
     container_name: localstack
     ports:
       - "4567-4597:4567-4597"

@@ -29,11 +29,11 @@ open class JmsConfig {
   }
 
   @Bean
-  open fun jmsListenerContainerFactory(awsSqs: AmazonSQS?): DefaultJmsListenerContainerFactory {
+  open fun jmsListenerContainerFactory(awsSqs: AmazonSQS): DefaultJmsListenerContainerFactory {
     val factory = DefaultJmsListenerContainerFactory()
     factory.setConnectionFactory(SQSConnectionFactory(ProviderConfiguration(), awsSqs))
     factory.setDestinationResolver(DynamicDestinationResolver())
-    factory.setConcurrency("3-10")
+    factory.setConcurrency("1")
     factory.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE)
     factory.setErrorHandler { t: Throwable? -> log.error("JMS error occurred", t) }
     return factory
