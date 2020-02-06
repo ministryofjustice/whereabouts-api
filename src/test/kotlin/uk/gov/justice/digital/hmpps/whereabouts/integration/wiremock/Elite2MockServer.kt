@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
+import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.time.LocalDate
@@ -94,6 +95,40 @@ class Elite2MockServer : WireMockRule(8999) {
             .withBody(gson.toJson(
                 ErrorResponse(500, null, "Server error", "Server error", null)
             ))
+            .withStatus(500)
+        )
+    )
+  }
+
+  fun stubAgencyLocationsByType(agencyId: String, locationType: String, locations: List<Location>) {
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/type/$locationType"))
+        .willReturn(aResponse()
+            .withHeader("Content-type", "application/json")
+            .withBody(gson.toJson(locations))
+            .withStatus(200)
+        )
+    )
+  }
+
+  fun stubGetAgencyLocationsByTypeNotFound(agencyId: String, locationType: String) {
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/type/$locationType"))
+        .willReturn(aResponse()
+            .withHeader("Content-type", "application/json")
+            .withBody(gson.toJson(listOf(
+                ErrorResponse(404, null, "Locations of type [$locationType] in agency [$agencyId] not found", "Locations of type [$locationType] in agency [$agencyId] not found", null)
+            )))
+            .withStatus(404)
+        )
+    )
+  }
+
+  fun stubGetAgencyLocationsByTypeServerError(agencyId: String, locationType: String) {
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/type/$locationType"))
+        .willReturn(aResponse()
+            .withHeader("Content-type", "application/json")
+            .withBody(gson.toJson(listOf(
+                ErrorResponse(500, null, "Server error", "Server error", null)
+            )))
             .withStatus(500)
         )
     )

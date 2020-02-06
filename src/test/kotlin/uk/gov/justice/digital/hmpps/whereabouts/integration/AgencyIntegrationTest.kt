@@ -6,25 +6,32 @@ import org.springframework.boot.test.web.client.exchange
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
-import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 
 class AgencyIntegrationTest: IntegrationTest() {
 
   @Test
-  fun `location groups should retrieve groups from elite2api`() {
+  fun `location groups - none in properties - should retrieve groups from elite2api`() {
     val agencyId = "LEI"
     elite2MockServer.stubGetAgencyLocationGroups(agencyId)
 
-    val response: ResponseEntity<List<LocationGroup>> =
+    val response: ResponseEntity<String> =
         restTemplate.exchange("/agencies/$agencyId/locations/groups", HttpMethod.GET, createHeaderEntity(""))
-    val locationGroups = response.body
 
-    assertThat(response.statusCodeValue).isEqualTo(200)
-    assertThat(locationGroups).containsExactly(LocationGroup(key="A", name="Block A"))
+    assertThatJsonFileAndStatus(response, 200, "LEI_location_groups.json");
   }
 
   @Test
-  fun `agency not found should be returned to caller`() {
+  fun `location groups - exist in properties - should retrieve groups from properties`() {
+    val agencyId = "MDI"
+
+    val response: ResponseEntity<String> =
+        restTemplate.exchange("/agencies/$agencyId/locations/groups", HttpMethod.GET, createHeaderEntity(""))
+
+    assertThatJsonFileAndStatus(response, 200, "MDI_location_groups.json");
+  }
+
+  @Test
+  fun `location groups - agency not found - should be returned to caller`() {
     val notAnAgencyId = "NON"
     elite2MockServer.stubGetAgencyLocationGroupsNotFound(notAnAgencyId)
 
@@ -36,7 +43,7 @@ class AgencyIntegrationTest: IntegrationTest() {
   }
 
   @Test
-  fun `elite server error should be returned to caller`() {
+  fun `location groups - elite server error - should be returned to caller`() {
     elite2MockServer.stubGetAgencyLocationGroupsServerError("LEI")
 
     val response: ResponseEntity<ErrorResponse> =
