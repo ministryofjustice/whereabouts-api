@@ -21,7 +21,6 @@ import javax.validation.Valid
 @Api(tags = ["attendance"])
 @RestController
 @RequestMapping(value = ["attendance"], produces = [MediaType.APPLICATION_JSON_VALUE])
-@Slf4j
 class AttendanceController(private val attendanceService: AttendanceService) {
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
