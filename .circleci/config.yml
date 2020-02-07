@@ -81,7 +81,10 @@ jobs:
           keys:
             - gradle-{{ checksum "build.gradle" }}
             - gradle-
-      - run: ./gradlew build
+      - run:
+          environment:
+            SQS_PROVIDER: 'localstack'
+          command: ./gradlew build
       - run:
           name: Record the Application Version
           command: |
