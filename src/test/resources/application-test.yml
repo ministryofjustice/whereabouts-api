@@ -28,3 +28,7 @@ jwt:
   keystore:
     password: s3cre3tK3y
     alias: elite2api
+
+
+sqs:
+  provider: false
