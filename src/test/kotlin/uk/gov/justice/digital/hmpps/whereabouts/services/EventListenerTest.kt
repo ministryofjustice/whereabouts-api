@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.google.gson.Gson
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import org.junit.Test
@@ -11,7 +12,7 @@ class EventListenerTest {
 
   @Test
   fun `should call delete with the correct offenderNo`() {
-    val eventListener = EventListener(attendanceService)
+    val eventListener = EventListener(attendanceService, Gson())
     eventListener.handleEvents(getJson("/services/offender-deletion-request.json"))
     verify(attendanceService).deleteAttendances("A1234AA")
   }
