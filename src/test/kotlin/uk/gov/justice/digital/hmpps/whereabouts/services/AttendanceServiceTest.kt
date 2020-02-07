@@ -1076,7 +1076,7 @@ class AttendanceServiceTest {
   }
 
   @Test
-  fun `should attempt to delete two attendance records and riase telemetry event`() {
+  fun `should attempt to delete two attendance records and raise telemetry event`() {
     val offenderNo = "A12345"
 
     whenever(elite2ApiService.getOffenderBookingId(offenderNo)).thenReturn(1)
