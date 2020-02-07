@@ -215,6 +215,16 @@ open class AttendanceService(
         .collect(Collectors.toSet())
   }
 
+  @Transactional
+  open fun deleteAttendances(offenderNo: String) {
+    val bookingId = elite2ApiService.getOffenderBookingId(offenderNo)
+    val attendances = attendanceRepository.findByBookingId(bookingId)
+
+    log.info("Deleting the following attendance records ${attendances.map { it.id }.joinToString(",")}")
+
+    attendanceRepository.deleteAll(attendances)
+  }
+
   private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails {
     return details.copy(
         details.bookingId,

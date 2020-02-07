@@ -136,8 +136,19 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     }
 
     @Bean
+    @Primary
     @RequestScope
     public OAuth2ClientContext oAuth2ClientContext() {
+        return new DefaultOAuth2ClientContext();
+    }
+
+    @Bean(name = "oauth2ClientContextAppScope")
+    public OAuth2ClientContext oauth2ClientContextSingleton() {
+        return new DefaultOAuth2ClientContext();
+    }
+
+    @Bean
+    public OAuth2ClientContext oAuth2ClientContextNoneRequestScope() {
         return new DefaultOAuth2ClientContext();
     }
 }

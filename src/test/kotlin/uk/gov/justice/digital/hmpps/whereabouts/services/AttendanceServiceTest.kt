@@ -333,34 +333,34 @@ class AttendanceServiceTest {
   @Test
   fun `should throw an AttendanceExistsException when attendance already created`() {
 
-    whenever(attendanceRepository.findByPrisonIdAndBookingIdAndEventIdAndEventDateAndPeriod("LEI",1, 1, LocalDate.now(), TimePeriod.AM)).thenReturn(
-            setOf(Attendance
-                    .builder()
-                    .id(1)
-                    .attended(true)
-                    .paid(true)
-                    .eventId(1)
-                    .eventLocationId(2)
-                    .eventDate(LocalDate.now())
-                    .prisonId("LEI")
-                    .bookingId(1)
-                    .period(TimePeriod.AM)
-                    .build()))
+    whenever(attendanceRepository.findByPrisonIdAndBookingIdAndEventIdAndEventDateAndPeriod("LEI", 1, 1, LocalDate.now(), TimePeriod.AM)).thenReturn(
+        setOf(Attendance
+            .builder()
+            .id(1)
+            .attended(true)
+            .paid(true)
+            .eventId(1)
+            .eventLocationId(2)
+            .eventDate(LocalDate.now())
+            .prisonId("LEI")
+            .bookingId(1)
+            .period(TimePeriod.AM)
+            .build()))
 
     assertThatThrownBy {
       service.createAttendance(CreateAttendanceDto
-              .builder()
-              .absentReason(AbsentReason.Refused)
-              .attended(false)
-              .paid(false)
-              .bookingId(1)
-              .comments("test comments")
-              .eventId(1)
-              .eventLocationId(2)
-              .period(TimePeriod.AM)
-              .prisonId("LEI")
-              .eventDate(LocalDate.now())
-              .build())
+          .builder()
+          .absentReason(AbsentReason.Refused)
+          .attended(false)
+          .paid(false)
+          .bookingId(1)
+          .comments("test comments")
+          .eventId(1)
+          .eventLocationId(2)
+          .period(TimePeriod.AM)
+          .prisonId("LEI")
+          .eventDate(LocalDate.now())
+          .build())
     }.isExactlyInstanceOf(AttendanceExists::class.java)
   }
 
@@ -534,7 +534,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should return attendance dto on creation`() {
-    whenever(iepWarningService.postIEPWarningIfRequired(any(), anyOrNull(), any(), any(),any())).thenReturn(Optional.of(100L))
+    whenever(iepWarningService.postIEPWarningIfRequired(any(), anyOrNull(), any(), any(), any())).thenReturn(Optional.of(100L))
 
     val created = service.createAttendance(CreateAttendanceDto
         .builder()
@@ -1066,5 +1066,38 @@ class AttendanceServiceTest {
 
     verify(attendanceRepository).findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prison, date, date, setOf(period), reason)
     verify(elite2ApiService).getScheduleActivityOffenderData(prison, date, date, period)
+  }
+
+  @Test
+  fun `should make a request to get the booking id for a delete event`() {
+    val offenderNo = "A12345"
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
+
+    service.deleteAttendances(offenderNo)
+
+    verify(elite2ApiService).getOffenderBookingId(offenderNo)
+  }
+
+  @Test
+  fun `should attempt to delete two attendance records`() {
+    val offenderNo = "A12345"
+
+    whenever(elite2ApiService.getOffenderBookingId(offenderNo)).thenReturn(1)
+    whenever(attendanceRepository.findByBookingId(1)).thenReturn(setOf(
+        Attendance.builder().bookingId(1).build(),
+        Attendance.builder().bookingId(1).build(),
+        Attendance.builder().bookingId(1).build()
+    ))
+
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
+
+    service.deleteAttendances(offenderNo)
+
+    verify(attendanceRepository).findByBookingId(eq(1))
+    verify(attendanceRepository).deleteAll(eq(setOf(
+        Attendance.builder().bookingId(1).build(),
+        Attendance.builder().bookingId(1).build(),
+        Attendance.builder().bookingId(1).build()
+    )))
   }
 }

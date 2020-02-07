@@ -63,4 +63,41 @@ env:
       secretKeyRef:
         name: dps-rds-instance-output
         key: rds_instance_endpoint
+
+    - name: SQS_AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: whereabouts-api-sqs-instance-output
+          key: access_key_id
+
+    - name: SQS_AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: whereabouts-api-sqs-instance-output
+          key: secret_access_key
+
+    - name: SQS_QUEUE_NAME
+      valueFrom:
+        secretKeyRef:
+          name: whereabouts-api-sqs-instance-output
+          key: sqs_wb_name
+
+    - name: SQS_AWS_DLQ_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: whereabouts-api-sqs-dl-instance-output
+          key: access_key_id
+
+    - name: SQS_AWS_DLQ_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: whereabouts-api-sqs-dl-instance-output
+          key: secret_access_key
+
+    - name: SQS_DLQ_NAME
+      valueFrom:
+        secretKeyRef:
+          name: whereabouts-api-sqs-dl-instance-output
+          key: sqs_wb_name
+
 {{- end -}}

@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
@@ -36,14 +37,17 @@ public class RestTemplateConfiguration {
     private final Duration healthTimeout;
 
     private final OAuth2ClientContext oauth2ClientContext;
+    private final OAuth2ClientContext oauth2ClientContextSingleton;
     private final ClientCredentialsResourceDetails elite2apiDetails;
 
     public RestTemplateConfiguration(final OAuth2ClientContext oauth2ClientContext,
                                      final ClientCredentialsResourceDetails elite2apiDetails,
-                                     @Value("${api.health-timeout:1s}") final Duration healthTimeout) {
+                                     @Value("${api.health-timeout:1s}") final Duration healthTimeout,
+                                     @Qualifier("oauth2ClientContextAppScope") final OAuth2ClientContext oauth2ClientContextSingleton) {
         this.oauth2ClientContext = oauth2ClientContext;
         this.elite2apiDetails = elite2apiDetails;
         this.healthTimeout = healthTimeout;
+        this.oauth2ClientContextSingleton = oauth2ClientContextSingleton;
     }
 
     @Bean(name = "elite2ApiHealthRestTemplate")
@@ -76,6 +80,16 @@ public class RestTemplateConfiguration {
         final var elite2SystemRestTemplate = new OAuth2RestTemplate(elite2apiDetails, oauth2ClientContext);
 
         elite2SystemRestTemplate.setAccessTokenProvider(new GatewayAwareAccessTokenProvider(authenticationFacade));
+
+        RootUriTemplateHandler.addTo(elite2SystemRestTemplate, elite2UriRoot + "/api");
+
+        return elite2SystemRestTemplate;
+    }
+
+    @Bean(name = "elite2ApiRestTemplateAppScope")
+    public OAuth2RestTemplate elite2ApiRestTemplateForEventQueue() {
+
+        final var elite2SystemRestTemplate = new OAuth2RestTemplate(elite2apiDetails, oauth2ClientContextSingleton);
 
         RootUriTemplateHandler.addTo(elite2SystemRestTemplate, elite2UriRoot + "/api");
 

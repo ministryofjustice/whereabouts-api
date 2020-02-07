@@ -81,3 +81,8 @@ casenotes:
 
 graceful:
   shutdown.enabled: false
+
+
+sqs:
+  provider: aws
+  endpoint.region: eu-west-2

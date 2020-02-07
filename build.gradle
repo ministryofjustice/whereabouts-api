@@ -133,6 +133,9 @@ dependencies {
     implementation 'com.google.guava:guava:28.2-jre'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
 
+    implementation 'org.springframework:spring-jms'
+    implementation 'com.amazonaws:amazon-sqs-java-messaging-lib:1.0.8'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.github.http-builder-ng:http-builder-ng-apache:1.0.4'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.12.0'
