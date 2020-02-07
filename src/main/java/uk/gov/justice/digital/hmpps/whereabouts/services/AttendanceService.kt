@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.microsoft.applicationinsights.TelemetryClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -19,7 +20,8 @@ open class AttendanceService(
     private val attendanceRepository: AttendanceRepository,
     private val elite2ApiService: Elite2ApiService,
     private val iepWarningService: IEPWarningService,
-    private val nomisEventOutcomeMapper: NomisEventOutcomeMapper ) {
+    private val nomisEventOutcomeMapper: NomisEventOutcomeMapper,
+    private val telemetryClient: TelemetryClient) {
 
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -223,6 +225,8 @@ open class AttendanceService(
     log.info("Deleting the following attendance records ${attendances.map { it.id }.joinToString(",")}")
 
     attendanceRepository.deleteAll(attendances)
+
+    telemetryClient.trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to  attendances.size.toString()), null)
   }
 
   private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails {
