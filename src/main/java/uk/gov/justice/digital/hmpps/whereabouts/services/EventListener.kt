@@ -4,10 +4,12 @@ import com.google.gson.GsonBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.jms.annotation.JmsListener
 import org.springframework.stereotype.Service
 
 @Service
+@ConditionalOnProperty("sqs.provider")
 open class EventListener(@Qualifier("attendanceServiceAppScope") private val attendanceService: AttendanceService) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
