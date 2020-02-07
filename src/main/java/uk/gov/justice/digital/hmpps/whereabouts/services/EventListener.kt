@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
+
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -10,10 +10,9 @@ import org.springframework.stereotype.Service
 
 @Service
 @ConditionalOnProperty("sqs.provider")
-open class EventListener(@Qualifier("attendanceServiceAppScope") private val attendanceService: AttendanceService) {
+open class EventListener(@Qualifier("attendanceServiceAppScope") private val attendanceService: AttendanceService, private val gson: Gson) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
-    val gson: Gson = GsonBuilder().create()
   }
 
   @JmsListener(destination = "\${sqs.queue.name}")
