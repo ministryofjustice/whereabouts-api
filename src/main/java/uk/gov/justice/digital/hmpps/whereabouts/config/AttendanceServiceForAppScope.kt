@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.config
 
+import com.microsoft.applicationinsights.TelemetryClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -17,8 +18,10 @@ open class AttendanceServiceForAppScope {
       @Qualifier("elite2ApiRestTemplateAppScope") restTemplate: OAuth2RestTemplate,
       attendanceRepository: AttendanceRepository,
       iepWarningService: IEPWarningService,
-      nomisEventOutcomeMapper: NomisEventOutcomeMapper) : AttendanceService {
+      nomisEventOutcomeMapper: NomisEventOutcomeMapper,
+      telemetryClient: TelemetryClient
+      ) : AttendanceService {
 
-    return AttendanceService(attendanceRepository, Elite2ApiService(restTemplate), iepWarningService, nomisEventOutcomeMapper)
+    return AttendanceService(attendanceRepository, Elite2ApiService(restTemplate), iepWarningService, nomisEventOutcomeMapper, telemetryClient)
   }
 }

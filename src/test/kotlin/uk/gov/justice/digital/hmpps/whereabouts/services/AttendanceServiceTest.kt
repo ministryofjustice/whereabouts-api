@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockito_kotlin.*
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -25,6 +26,7 @@ class AttendanceServiceTest {
   private val iepWarningService: IEPWarningService = mock()
   private val elite2ApiService: Elite2ApiService = mock()
   private val nomisEventOutcomeMapper: NomisEventOutcomeMapper = mock()
+  private val telemetryClient: TelemetryClient = mock()
 
   private val today: LocalDate = LocalDate.now()
   private val testAttendanceDto: CreateAttendanceDto =
@@ -52,7 +54,7 @@ class AttendanceServiceTest {
   fun before() {
     // return the attendance entity on save
     doAnswer { it.getArgument(0) as Attendance }.whenever(attendanceRepository).save(ArgumentMatchers.any(Attendance::class.java))
-    service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
+    service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper, telemetryClient)
   }
 
   @Test
@@ -890,7 +892,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should make a request for schedule activity over a date range`() {
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper, telemetryClient)
     val prison = "MDI"
     val fromDate = LocalDate.now()
     val toDate = LocalDate.now().plusDays(20)
@@ -905,7 +907,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should make requests for schedule activity over a date range, one request for each period`() {
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
+    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper, telemetryClient)
     val prison = "MDI"
     val fromDate = LocalDate.now()
     val toDate = LocalDate.now().plusDays(20)
@@ -935,7 +937,6 @@ class AttendanceServiceTest {
         Attendance.builder().bookingId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.ED).build()
     ))
 
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
     val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, TimePeriod.AM)
 
     assertThat(attendances).extracting("bookingId", "eventId").containsExactly(Tuple.tuple(1L, 2L))
@@ -962,7 +963,6 @@ class AttendanceServiceTest {
         Attendance.builder().bookingId(2).attended(false).paid(false).prisonId(prison).period(TimePeriod.ED).build()
     ))
 
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
     val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, null)
 
     assertThat(attendances).extracting("bookingId", "eventId").containsExactlyInAnyOrder(Tuple.tuple(1L, 2L), Tuple.tuple(1L, 3L))
@@ -1038,7 +1038,6 @@ class AttendanceServiceTest {
             .build()
     ))
 
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
     val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, null)
 
     assertThat(attendances).extracting("attendanceId", "bookingId", "offenderNo", "eventId", "eventLocationId",
@@ -1054,7 +1053,6 @@ class AttendanceServiceTest {
 
   @Test
   fun `should substitute toDate with fromDate when toDate is null`() {
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
     val date = LocalDate.now().atStartOfDay().toLocalDate()
 
     val prison = "MDI"
@@ -1071,7 +1069,6 @@ class AttendanceServiceTest {
   @Test
   fun `should make a request to get the booking id for a delete event`() {
     val offenderNo = "A12345"
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
 
     service.deleteAttendances(offenderNo)
 
@@ -1079,25 +1076,24 @@ class AttendanceServiceTest {
   }
 
   @Test
-  fun `should attempt to delete two attendance records`() {
+  fun `should attempt to delete two attendance records and riase telemetry event`() {
     val offenderNo = "A12345"
 
     whenever(elite2ApiService.getOffenderBookingId(offenderNo)).thenReturn(1)
     whenever(attendanceRepository.findByBookingId(1)).thenReturn(setOf(
-        Attendance.builder().bookingId(1).build(),
-        Attendance.builder().bookingId(1).build(),
-        Attendance.builder().bookingId(1).build()
+        Attendance.builder().id(1).bookingId(1).build(),
+        Attendance.builder().id(2).bookingId(1).build(),
+        Attendance.builder().id(3).bookingId(1).build()
     ))
-
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper)
 
     service.deleteAttendances(offenderNo)
 
     verify(attendanceRepository).findByBookingId(eq(1))
     verify(attendanceRepository).deleteAll(eq(setOf(
-        Attendance.builder().bookingId(1).build(),
-        Attendance.builder().bookingId(1).build(),
-        Attendance.builder().bookingId(1).build()
+        Attendance.builder().id(1).bookingId(1).build(),
+        Attendance.builder().id(2).bookingId(1).build(),
+        Attendance.builder().id(3).bookingId(1).build()
     )))
+    verify(telemetryClient).trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to  "3"), null)
   }
 }
