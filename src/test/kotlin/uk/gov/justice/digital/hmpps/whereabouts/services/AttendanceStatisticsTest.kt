@@ -34,12 +34,14 @@ class AttendanceStatisticsTest {
           .bookingId(1)
           .attended(true)
           .paid(true)
+          .period(TimePeriod.AM)
           .build(),
       Attendance.builder()
           .id(2)
           .bookingId(2)
           .attended(false)
           .absentReason(AbsentReason.ApprovedCourse)
+          .period(TimePeriod.AM)
           .paid(true)
           .build(),
       Attendance.builder()
@@ -48,6 +50,7 @@ class AttendanceStatisticsTest {
           .attended(false)
           .absentReason(AbsentReason.AcceptableAbsence)
           .paid(true)
+          .period(TimePeriod.AM)
           .build(),
       Attendance.builder()
           .id(4)
@@ -55,6 +58,7 @@ class AttendanceStatisticsTest {
           .attended(false)
           .absentReason(AbsentReason.NotRequired)
           .paid(true)
+          .period(TimePeriod.AM)
           .build(),
       Attendance.builder()
           .id(5)
@@ -62,6 +66,7 @@ class AttendanceStatisticsTest {
           .attended(false)
           .absentReason(AbsentReason.Refused)
           .paid(false)
+          .period(TimePeriod.AM)
           .build(),
       Attendance.builder()
           .id(7)
@@ -69,6 +74,7 @@ class AttendanceStatisticsTest {
           .attended(false)
           .absentReason(AbsentReason.SessionCancelled)
           .paid(false)
+          .period(TimePeriod.AM)
           .build(),
       Attendance.builder()
           .id(9)
@@ -76,6 +82,7 @@ class AttendanceStatisticsTest {
           .attended(false)
           .absentReason(AbsentReason.UnacceptableAbsence)
           .paid(false)
+          .period(TimePeriod.AM)
           .build(),
       Attendance.builder()
           .id(11)
@@ -83,6 +90,7 @@ class AttendanceStatisticsTest {
           .attended(false)
           .absentReason(AbsentReason.RestInCellOrSick)
           .paid(false)
+          .period(TimePeriod.AM)
           .build(),
       Attendance.builder()
           .id(11)
@@ -90,6 +98,7 @@ class AttendanceStatisticsTest {
           .attended(false)
           .absentReason(AbsentReason.RefusedIncentiveLevelWarning)
           .paid(false)
+          .period(TimePeriod.AM)
           .build()
   )
 
@@ -261,6 +270,29 @@ class AttendanceStatisticsTest {
         .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.PM, from, to)
 
     assertThat(stats).extracting("notRecorded").isEqualTo(4)
+  }
+
+  @Test
+  fun `should return correct number of not recorded when AM and PM selected`() {
+    val service = buildAttendanceStatistics()
+
+    whenever(attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(prisonId, from, to, setOf(TimePeriod.AM, TimePeriod.PM)))
+            .thenReturn(attendances)
+
+    // Return the same booking ids for AM and PM. These booking ids have attendances in the AM
+    // but not in the PM. We expect the not recorded count to take into account the missing PM data
+    // as it is meant to be cumulative
+    whenever(elite2ApiService
+            .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.AM, from, to))
+            .thenReturn(listOf(1, 2))
+
+    whenever(elite2ApiService
+            .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.PM, from, to))
+            .thenReturn(listOf(1, 2))
+
+    val stats = service.getStats(prisonId, null, from, to)
+
+    assertThat(stats).extracting("notRecorded").isEqualTo(2)
   }
 
 
