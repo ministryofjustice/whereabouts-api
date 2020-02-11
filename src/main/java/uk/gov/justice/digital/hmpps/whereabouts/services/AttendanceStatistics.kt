@@ -29,25 +29,19 @@ open class AttendanceStatistics(private val attendanceRepository: AttendanceRepo
 
     val attendancesBookingIdsCount = attendances.groupingBy { it.bookingId }.eachCount()
 
-    var notRecorded = 0
-
     // Iterate over the scheduled booking ids grouping
     // and check whether the number of times that booking
     // id appears in the schedules matches the number of times
     // it appears in the attendances. If not, the difference
     // is added
-
-    scheduledBookingIdsCount.keys.forEach {
-      if(!attendancesBookingIdsCount.containsKey(it)) {
-        notRecorded += scheduledBookingIdsCount.getValue(it)
-      } else if(scheduledBookingIdsCount.getValue(it) != attendancesBookingIdsCount.getValue(it)) {
-        notRecorded += scheduledBookingIdsCount.getValue(it) - attendancesBookingIdsCount.getValue(it)
-      }
+    var notRecordedCount = 0
+    for (key in scheduledBookingIdsCount.keys) {
+      notRecordedCount += if (!attendancesBookingIdsCount.containsKey(key)) scheduledBookingIdsCount.getValue(key) else scheduledBookingIdsCount.getValue(key) - attendancesBookingIdsCount.getValue(key)
     }
 
     return Stats(
         scheduleActivities = offendersScheduledForActivity.count(),
-        notRecorded = notRecorded,
+        notRecorded = notRecordedCount,
         paidReasons = PaidReasons(
             attended = attendances.count { it.attended },
             acceptableAbsence = attendances.count { it.absentReason == AbsentReason.AcceptableAbsence },
