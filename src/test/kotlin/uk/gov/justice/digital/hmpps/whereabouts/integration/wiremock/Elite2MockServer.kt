@@ -121,8 +121,8 @@ class Elite2MockServer : WireMockRule(8999) {
         "locationType" to this.locationType,
         "operationalCapacity" to "${this.operationalCapacity}",
         "internalLocationCode" to this.internalLocationCode)
-    if (this.userDescription != null) locationMap["userDescription"] = "${this.userDescription}"
-    if (this.locationUsage != null) locationMap["locationUsage"] = "${this.locationUsage}"
+    if (this.userDescription != null) locationMap["userDescription"] = this.userDescription as String
+    if (this.locationUsage != null) locationMap["locationUsage"] = this.locationUsage as String
     if (this.parentLocationId != null) locationMap["parentLocationId"] = "${this.parentLocationId}"
     return locationMap.toMap()
   }
