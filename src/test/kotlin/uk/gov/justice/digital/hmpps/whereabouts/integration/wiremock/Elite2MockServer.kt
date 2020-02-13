@@ -69,7 +69,7 @@ class Elite2MockServer : WireMockRule(8999) {
         .willReturn(aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(listOf(
-                LocationGroup(key="A", name="Block A")
+                LocationGroup(key = "A", name = "Block A")
             )))
             .withStatus(200)
         )
@@ -104,10 +104,27 @@ class Elite2MockServer : WireMockRule(8999) {
     stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/type/$locationType"))
         .willReturn(aResponse()
             .withHeader("Content-type", "application/json")
-            .withBody(gson.toJson(locations))
+            .withBody(gson.toJson(locations.map { it.toMap() }))
             .withStatus(200)
         )
     )
+  }
+
+  // This ignores the nullables which are not included in the JSON response
+  private fun Location.toMap(): Map<String, String> {
+    val locationMap = mutableMapOf(
+        "agencyId" to this.agencyId,
+        "currentOccupancy" to "${this.currentOccupancy}",
+        "description" to this.description,
+        "locationId" to "${this.locationId}",
+        "locationPrefix" to this.locationPrefix,
+        "locationType" to this.locationType,
+        "operationalCapacity" to "${this.operationalCapacity}",
+        "internalLocationCode" to this.internalLocationCode)
+    if (this.userDescription != null) locationMap["userDescription"] = "${this.userDescription}"
+    if (this.locationUsage != null) locationMap["locationUsage"] = "${this.locationUsage}"
+    if (this.parentLocationId != null) locationMap["parentLocationId"] = "${this.parentLocationId}"
+    return locationMap.toMap()
   }
 
   fun stubGetAgencyLocationsByTypeNotFound(agencyId: String, locationType: String) {

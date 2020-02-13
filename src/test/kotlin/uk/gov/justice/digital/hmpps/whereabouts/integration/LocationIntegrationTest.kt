@@ -17,7 +17,7 @@ class LocationIntegrationTest: IntegrationTest() {
     val response: ResponseEntity<String> =
         restTemplate.exchange("/locations/groups/RNI/House block 7", HttpMethod.GET, createHeaderEntity(""))
 
-    assertThatJsonFileAndStatus(response, 200, "RNI_location_groups_agency_locname.json");
+    assertThatJsonFileAndStatus(response, 200, "RNI_location_groups_agency_locname.json")
   }
 
   @Test
@@ -27,7 +27,7 @@ class LocationIntegrationTest: IntegrationTest() {
     val response: ResponseEntity<String> =
         restTemplate.exchange("/locations/groups/LEI/House_block_7", HttpMethod.GET, createHeaderEntity(""))
 
-    assertThatJsonFileAndStatus(response, 200, "LEI_location_groups_agency_locname.json");
+    assertThatJsonFileAndStatus(response, 200, "LEI_location_groups_agency_locname.json")
   }
 
   @Test
@@ -79,7 +79,7 @@ class LocationIntegrationTest: IntegrationTest() {
           operationalCapacity = 0,
           userDescription = "",
           internalLocationCode = "",
-          locationUsage = "",
+          locationUsage = null,
           parentLocationId = null
       )
 }

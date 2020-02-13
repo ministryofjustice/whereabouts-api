@@ -19,7 +19,7 @@ data class Location (
   @ApiModelProperty(required = true, value = "Location description.", example = "MDI-RES-HB1-ALE")
   val description: String,
   @ApiModelProperty(value = "What events this room can be used for.", example = "APP")
-  val locationUsage: String,
+  val locationUsage: String?,
   @ApiModelProperty(required = true, value = "Identifier of Agency this location is associated with.", example = "MDI")
   val agencyId: String,
   @ApiModelProperty(value = "Identifier of this location's parent location.", example = "26960")
