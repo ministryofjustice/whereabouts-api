@@ -78,8 +78,6 @@ class LocationIntegrationTest: IntegrationTest() {
           locationPrefix = locationPrefix,
           operationalCapacity = 0,
           userDescription = "",
-          internalLocationCode = "",
-          locationUsage = null,
-          parentLocationId = null
+          internalLocationCode = ""
       )
 }

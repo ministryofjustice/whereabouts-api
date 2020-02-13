@@ -110,7 +110,7 @@ class Elite2MockServer : WireMockRule(8999) {
     )
   }
 
-  // This ignores the nullables which are not included in the JSON response
+  // Null values are included by gson marshalled to JSON, so use a map to emulate to omit them
   private fun Location.toMap(): Map<String, String> {
     val locationMap = mutableMapOf(
         "agencyId" to this.agencyId,
