@@ -65,7 +65,7 @@ class Elite2MockServer : WireMockRule(8999) {
   }
 
   fun stubGetAgencyLocationGroups(agencyId: String) {
-    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groupsNew"))
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groups"))
         .willReturn(aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(listOf(
@@ -77,7 +77,7 @@ class Elite2MockServer : WireMockRule(8999) {
   }
 
   fun stubGetAgencyLocationGroupsNotFound(agencyId: String) {
-    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groupsNew"))
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groups"))
         .willReturn(aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(
@@ -89,7 +89,7 @@ class Elite2MockServer : WireMockRule(8999) {
   }
 
   fun stubGetAgencyLocationGroupsServerError(agencyId: String) {
-    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groupsNew"))
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groups"))
         .willReturn(aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(
