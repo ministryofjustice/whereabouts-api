@@ -39,8 +39,8 @@ class CourtServiceTest {
         appointmentType = "VLB",
         locationId = 1,
         comment = "test",
-        startTime = "2019-10-10T10:00:00",
-        endTime = "2019-10-10T11:00:00"
+        startTime = "2019-10-10T10:00",
+        endTime = "2019-10-10T11:00"
     ))
   }
 

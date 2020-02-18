@@ -88,4 +88,19 @@ class CourtIntegrationTest : IntegrationTest() {
 
     assertThat(response.statusCode.value()).isEqualTo(400)
   }
+
+  @Test
+  fun `Validate date format for start and time`() {
+    val response: ResponseEntity<String> =
+        restTemplate.exchange("/court/add-video-link-appointment", HttpMethod.POST, createHeaderEntity(mapOf(
+            "bookingId" to 1,
+            "court" to "Test Court 1",
+            "startTime" to "10-10-2029T10:00:00",
+            "endTime" to "10-10-2019T10:00:00",
+            "locationId" to 1,
+            "comment" to "test"
+        )))
+
+    assertThat(response.statusCode.value()).isEqualTo(400)
+  }
 }
