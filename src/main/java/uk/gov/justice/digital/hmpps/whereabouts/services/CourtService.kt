@@ -26,8 +26,8 @@ class CourtService(
         appointmentType = "VLB",
         locationId = createVideoLinkAppointment.locationId,
         comment = createVideoLinkAppointment.comment,
-        startTime = createVideoLinkAppointment.startTime,
-        endTime = createVideoLinkAppointment.endTime
+        startTime = createVideoLinkAppointment.startTime.toString(),
+        endTime = createVideoLinkAppointment.endTime.toString()
     ))
 
     videoLinkAppointmentRepository.save(VideoLinkAppointment(

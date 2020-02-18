@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
+import java.time.LocalDateTime
 
 class CourtServiceTest {
 
@@ -29,8 +30,8 @@ class CourtServiceTest {
         bookingId = bookingId,
         locationId = 1,
         comment = "test",
-        startTime = "2019-10-10T10:00:00",
-        endTime = "2019-10-10T11:00:00",
+        startTime = LocalDateTime.of(2019,10,10,10,0),
+        endTime =  LocalDateTime.of(2019,10,10,11,0),
         court = "York Crown Court"
     ))
 
@@ -54,8 +55,8 @@ class CourtServiceTest {
         bookingId = bookingId,
         locationId = 1,
         comment = "test",
-        startTime = "2019-10-10T10:00:00",
-        endTime = "2019-10-10T11:00:00",
+        startTime = LocalDateTime.of(2019,10,10,10,0),
+        endTime =  LocalDateTime.of(2019,10,10,11,0),
         court = "York Crown Court"
     ))
 
@@ -106,8 +107,8 @@ class CourtServiceTest {
           locationId = 1,
           court = "Mars",
           hearingType = HearingType.PRE,
-          startTime = "2019-10-10T10:00:00",
-          endTime = "2019-10-10T11:00:00"
+          startTime = LocalDateTime.of(2019,10,10,10,0),
+          endTime =  LocalDateTime.of(2019,10,10,11,0)
       ))
     }.isInstanceOf(InvalidCourtLocation::class.java)
         .hasMessageContaining("Invalid court location")

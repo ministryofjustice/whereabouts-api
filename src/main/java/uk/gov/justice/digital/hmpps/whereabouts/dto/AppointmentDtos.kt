@@ -3,7 +3,9 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
+import org.springframework.format.annotation.DateTimeFormat
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
+import java.time.LocalDateTime
 import javax.validation.constraints.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -49,11 +51,13 @@ data class CreateVideoLinkAppointment(
 
     @NotNull
     @ApiModelProperty(required = true, value = "Start time of the appointment", example = "2020-12-23T:09:00:00")
-    val startTime: String,
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    val startTime: LocalDateTime,
 
     @NotNull
     @ApiModelProperty(required = true, value = "End time of the appointment", example = "2020-12-23T:09:00:00")
-    val endTime: String,
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    val endTime: LocalDateTime,
 
     @NotNull
     @ApiModelProperty(required = true, value = "The location of the court that requires the appointment", example = "York Crown Court")
