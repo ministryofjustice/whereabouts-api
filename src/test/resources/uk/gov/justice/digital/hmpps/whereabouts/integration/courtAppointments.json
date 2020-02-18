@@ -1,0 +1,11 @@
+{
+  "appointments": [
+    {
+      "id": 1,
+      "bookingId": 1,
+      "appointmentId": 1,
+      "court": "York",
+      "hearingType": "PRE"
+    }
+  ]
+}

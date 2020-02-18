@@ -1,14 +1,14 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.*;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
@@ -143,5 +143,12 @@ public class Elite2ApiService {
         return locations;
     }
 
+    public Long postAppointment(final long bookingId, @NotNull CreateBookingAppointment createbookingAppointment) {
+        final var url  = "/bookings/{bookingId}/appointments";
+        final var responseType = new ParameterizedTypeReference<Event>() {};
+        final var response = restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(createbookingAppointment, null), responseType, bookingId);
+
+        return Objects.requireNonNull(response.getBody()).getEventId();
+    }
 }
 

@@ -35,3 +35,6 @@ sqs:
   endpoint.url: http://localhost:4576
   queue.name: whereabouts_api_queue
   dlq.name: whereabouts_api_dlq
+
+
+courts: Test Court 1,Test Court 2
