@@ -66,11 +66,11 @@ class Elite2MockServer : WireMockRule(8999) {
   }
 
   fun stubGetAgencyLocationGroups(agencyId: String) {
-    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groupsNew"))
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groups"))
         .willReturn(aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(listOf(
-                LocationGroup(key="A", name="Block A")
+                LocationGroup(key = "A", name = "Block A")
             )))
             .withStatus(200)
         )
@@ -78,7 +78,7 @@ class Elite2MockServer : WireMockRule(8999) {
   }
 
   fun stubGetAgencyLocationGroupsNotFound(agencyId: String) {
-    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groupsNew"))
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groups"))
         .willReturn(aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(
@@ -90,7 +90,7 @@ class Elite2MockServer : WireMockRule(8999) {
   }
 
   fun stubGetAgencyLocationGroupsServerError(agencyId: String) {
-    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groupsNew"))
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/groups"))
         .willReturn(aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(
@@ -105,10 +105,27 @@ class Elite2MockServer : WireMockRule(8999) {
     stubFor(get(urlEqualTo("/api/agencies/$agencyId/locations/type/$locationType"))
         .willReturn(aResponse()
             .withHeader("Content-type", "application/json")
-            .withBody(gson.toJson(locations))
+            .withBody(gson.toJson(locations.map { it.toMap() }))
             .withStatus(200)
         )
     )
+  }
+
+  // Null values are included by gson marshalled to JSON, so use a map to emulate to omit them
+  private fun Location.toMap(): Map<String, String> {
+    val locationMap = mutableMapOf(
+        "agencyId" to this.agencyId,
+        "currentOccupancy" to "${this.currentOccupancy}",
+        "description" to this.description,
+        "locationId" to "${this.locationId}",
+        "locationPrefix" to this.locationPrefix,
+        "locationType" to this.locationType,
+        "operationalCapacity" to "${this.operationalCapacity}",
+        "internalLocationCode" to this.internalLocationCode)
+    if (this.userDescription != null) locationMap["userDescription"] = this.userDescription as String
+    if (this.locationUsage != null) locationMap["locationUsage"] = this.locationUsage as String
+    if (this.parentLocationId != null) locationMap["parentLocationId"] = "${this.parentLocationId}"
+    return locationMap.toMap()
   }
 
   fun stubGetAgencyLocationsByTypeNotFound(agencyId: String, locationType: String) {
