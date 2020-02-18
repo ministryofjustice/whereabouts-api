@@ -65,7 +65,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(Exception e) {
-        log.error("Unexpected exception", e);
+        log.error("Validation exception", e);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse
