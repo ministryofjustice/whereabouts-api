@@ -112,7 +112,7 @@ public class Elite2ApiService {
     }
 
     List<LocationGroup> getLocationGroups(final String agencyId) {
-        final var url = "/agencies/{agencyId}/locations/groupsNew";
+        final var url = "/agencies/{agencyId}/locations/groups";
 
         final var responseType = new ParameterizedTypeReference<List<LocationGroup>>() {};
         final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, agencyId);
