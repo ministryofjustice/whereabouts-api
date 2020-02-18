@@ -9,22 +9,22 @@ import org.assertj.core.groups.Tuple
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyLong
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateCourtAppointment
-import uk.gov.justice.digital.hmpps.whereabouts.model.CourtAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
-import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtAppointmentRepository
+import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 
 class CourtServiceTest {
 
   private val elite2ApiService: Elite2ApiService = mock()
-  private val courtAppointmentRepository: CourtAppointmentRepository = mock()
+  private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
 
   @Test
   fun `should push an appointment to elite2`() {
-    val service = CourtService(elite2ApiService, courtAppointmentRepository)
+    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository)
     val bookingId: Long = 1
 
-    service.addCourtAppointment(CreateCourtAppointment(
+    service.createVideoLinkAppointment(CreateVideoLinkAppointment(
         bookingId = bookingId,
         locationId = 1,
         comment = "test",
@@ -44,12 +44,12 @@ class CourtServiceTest {
 
   @Test
   fun `should create court appointment using the event id returned from elite2`() {
-    val service = CourtService(elite2ApiService, courtAppointmentRepository)
+    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository)
     val bookingId: Long = 1
 
     whenever(elite2ApiService.postAppointment(anyLong(), any())).thenReturn(1L)
 
-    service.addCourtAppointment(CreateCourtAppointment(
+    service.createVideoLinkAppointment(CreateVideoLinkAppointment(
         bookingId = bookingId,
         locationId = 1,
         comment = "test",
@@ -58,8 +58,8 @@ class CourtServiceTest {
         court = "York Crown Court"
     ))
 
-    verify(courtAppointmentRepository).save(
-        CourtAppointment(
+    verify(videoLinkAppointmentRepository).save(
+        VideoLinkAppointment(
             appointmentId = 1,
             court = "York Crown Court",
             bookingId = bookingId,
@@ -69,23 +69,23 @@ class CourtServiceTest {
 
   @Test
   fun `should return NO court appointments`() {
-    val service = CourtService(elite2ApiService, courtAppointmentRepository)
-    val appointments = service.getCourtAppointments(setOf(1, 2))
+    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository)
+    val appointments = service.getVideoLinkAppointments(setOf(1, 2))
 
-    verify(courtAppointmentRepository).findCourtAppointmentByAppointmentIdIn(setOf(1, 2))
+    verify(videoLinkAppointmentRepository).findVideoLinkAppointmentByAppointmentIdIn(setOf(1, 2))
     assertThat(appointments).isEmpty()
   }
 
   @Test
   fun `should return and map court appointments`() {
-    whenever(courtAppointmentRepository.findCourtAppointmentByAppointmentIdIn(setOf(3, 4))).thenReturn(
+    whenever(videoLinkAppointmentRepository.findVideoLinkAppointmentByAppointmentIdIn(setOf(3, 4))).thenReturn(
         setOf(
-            CourtAppointment(id = 1, bookingId = 2, appointmentId = 3, hearingType = HearingType.MAIN, court = "YORK"),
-            CourtAppointment(id = 2, bookingId = 3, appointmentId = 4, hearingType = HearingType.PRE, court = "YORK"
+            VideoLinkAppointment(id = 1, bookingId = 2, appointmentId = 3, hearingType = HearingType.MAIN, court = "YORK"),
+            VideoLinkAppointment(id = 2, bookingId = 3, appointmentId = 4, hearingType = HearingType.PRE, court = "YORK"
             ))
     )
-    val service = CourtService(elite2ApiService, courtAppointmentRepository)
-    val appointments = service.getCourtAppointments(setOf(3, 4))
+    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository)
+    val appointments = service.getVideoLinkAppointments(setOf(3, 4))
 
     assertThat(appointments)
         .extracting("id", "bookingId", "appointmentId", "hearingType", "court")

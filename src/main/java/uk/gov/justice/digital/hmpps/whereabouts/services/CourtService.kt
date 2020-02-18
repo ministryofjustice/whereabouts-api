@@ -1,40 +1,40 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateCourtAppointment
-import uk.gov.justice.digital.hmpps.whereabouts.model.CourtAppointment
-import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtAppointmentRepository
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import javax.transaction.Transactional
 
 @Service
-class CourtService(private val elite2ApiService: Elite2ApiService, private val courtAppointmentRepository: CourtAppointmentRepository) {
+class CourtService(private val elite2ApiService: Elite2ApiService, private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository) {
 
   @Transactional
-  fun addCourtAppointment(createCourtAppointment: CreateCourtAppointment) {
-    val eventId = elite2ApiService.postAppointment(createCourtAppointment.bookingId, CreateBookingAppointment(
+  fun createVideoLinkAppointment(createVideoLinkAppointment: CreateVideoLinkAppointment) {
+    val eventId = elite2ApiService.postAppointment(createVideoLinkAppointment.bookingId, CreateBookingAppointment(
         appointmentType = "VLB",
-        locationId = createCourtAppointment.locationId,
-        comment = createCourtAppointment.comment,
-        startTime = createCourtAppointment.startTime,
-        endTime = createCourtAppointment.endTime
+        locationId = createVideoLinkAppointment.locationId,
+        comment = createVideoLinkAppointment.comment,
+        startTime = createVideoLinkAppointment.startTime,
+        endTime = createVideoLinkAppointment.endTime
     ))
 
-    courtAppointmentRepository.save(CourtAppointment(
+    videoLinkAppointmentRepository.save(VideoLinkAppointment(
         appointmentId = eventId,
-        bookingId = createCourtAppointment.bookingId,
-        court = createCourtAppointment.court,
-        hearingType = createCourtAppointment.hearingType
+        bookingId = createVideoLinkAppointment.bookingId,
+        court = createVideoLinkAppointment.court,
+        hearingType = createVideoLinkAppointment.hearingType
     ))
   }
 
-  fun getCourtAppointments(appointmentIds: Set<Long>): Set<CourtAppointmentDto> {
-    return courtAppointmentRepository
-        .findCourtAppointmentByAppointmentIdIn(appointmentIds)
+  fun getVideoLinkAppointments(appointmentIds: Set<Long>): Set<VideoLinkAppointmentDto> {
+    return videoLinkAppointmentRepository
+        .findVideoLinkAppointmentByAppointmentIdIn(appointmentIds)
         .asSequence()
         .map {
-          CourtAppointmentDto(
+          VideoLinkAppointmentDto(
               id = it.id,
               bookingId = it.bookingId,
               appointmentId = it.appointmentId,

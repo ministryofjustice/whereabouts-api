@@ -10,10 +10,18 @@ import javax.validation.constraints.NotNull
 data class CourtLocationResponse(val courtLocations: Set<String>? = emptySet())
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class CourtAppointmentsResponse(val appointments: Set<CourtAppointmentDto>? = emptySet())
+data class VideoLinkAppointmentsResponse(val appointments: Set<VideoLinkAppointmentDto>? = emptySet())
 
-@ApiModel(description = "Court appointment details")
-data class CourtAppointmentDto (
+data class CreateBookingAppointment (
+    val appointmentType: String,
+    val locationId: Long,
+    val comment: String? = null,
+    val startTime: String,
+    val endTime: String
+)
+
+@ApiModel(description = "Video link appointment details")
+data class VideoLinkAppointmentDto (
     @ApiModelProperty(required = true, value = "Court appointment id", example = "1")
     val id: Long? = null,
     @ApiModelProperty(required = true, value = "Offender booking id", example = "1")
@@ -26,16 +34,8 @@ data class CourtAppointmentDto (
     val hearingType: HearingType? = null
 )
 
-
-data class CreateBookingAppointment (
-    val appointmentType: String,
-    val locationId: Long,
-    val comment: String? = null,
-    val startTime: String,
-    val endTime: String
-)
-@ApiModel(description = "Information required to create a court appointment")
-data class CreateCourtAppointment(
+@ApiModel(description = "Information required to create a video link appointment")
+data class CreateVideoLinkAppointment(
     @NotNull
     @ApiModelProperty(required = true, value = "Offender booking id", example = "1")
     val bookingId: Long,

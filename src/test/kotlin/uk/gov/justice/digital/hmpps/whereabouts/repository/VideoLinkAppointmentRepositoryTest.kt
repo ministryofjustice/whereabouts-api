@@ -10,20 +10,20 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.digital.hmpps.whereabouts.model.CourtAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 
 @RunWith(SpringRunner::class)
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @Transactional
-class CourtAppointmentRepositoryTest {
+class VideoLinkAppointmentRepositoryTest {
   @Autowired
-  lateinit var courtAppointmentRepository: CourtAppointmentRepository
+  lateinit var videoLinkAppointmentRepository: VideoLinkAppointmentRepository
 
   @Test
   fun `should return all court appointments`() {
-    courtAppointmentRepository.save(CourtAppointment(
+    videoLinkAppointmentRepository.save(VideoLinkAppointment(
         appointmentId = 1,
         bookingId = 2,
         court = "York",
@@ -33,7 +33,7 @@ class CourtAppointmentRepositoryTest {
     TestTransaction.flagForCommit()
     TestTransaction.end()
 
-    val appointments = courtAppointmentRepository.findAll()
+    val appointments = videoLinkAppointmentRepository.findAll()
 
     assertThat(appointments).extracting("appointmentId", "bookingId", "court").contains(Tuple.tuple( 1L,2L,"York"))
   }

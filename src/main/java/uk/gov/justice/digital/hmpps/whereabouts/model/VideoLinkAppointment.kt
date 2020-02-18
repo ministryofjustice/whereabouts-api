@@ -9,8 +9,8 @@ enum class HearingType {
 }
 
 @Entity
-@Table(name = "COURT_APPOINTMENT")
-data class CourtAppointment(
+@Table(name = "VIDEO_LINK_APPOINTMENT")
+data class VideoLinkAppointment(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
     val bookingId: Long,

@@ -8,15 +8,15 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.web.client.exchange
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateCourtAppointment
-import uk.gov.justice.digital.hmpps.whereabouts.model.CourtAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
-import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtAppointmentRepository
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 
-class CourtAppointmentIntegrationTest : IntegrationTest() {
+class CourtIntegrationTest : IntegrationTest() {
 
   @MockBean
-  lateinit var courtAppointmentRepository: CourtAppointmentRepository
+  lateinit var videoLinkAppointmentRepository: VideoLinkAppointmentRepository
 
   @Test
   fun `should list all courts`() {
@@ -33,7 +33,7 @@ class CourtAppointmentIntegrationTest : IntegrationTest() {
     elite2MockServer.stubAddAppointment(bookingId, eventId = 1)
 
     val response: ResponseEntity<String> =
-        restTemplate.exchange("/court/add-court-appointment", HttpMethod.POST, createHeaderEntity(CreateCourtAppointment(
+        restTemplate.exchange("/court/add-video-link-appointment", HttpMethod.POST, createHeaderEntity(CreateVideoLinkAppointment(
             bookingId = bookingId,
             court = "York Crown Court",
             startTime = "2019-10-10T10:00:00",
@@ -56,9 +56,9 @@ class CourtAppointmentIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return court appointment by appointment id`() {
-    whenever(courtAppointmentRepository.findCourtAppointmentByAppointmentIdIn(setOf(1L)))
+    whenever(videoLinkAppointmentRepository.findVideoLinkAppointmentByAppointmentIdIn(setOf(1L)))
         .thenReturn(setOf (
-            CourtAppointment(
+            VideoLinkAppointment(
                 id = 1L,
                 bookingId = 1L,
                 appointmentId = 1L,
@@ -68,7 +68,7 @@ class CourtAppointmentIntegrationTest : IntegrationTest() {
         ))
 
     val response: ResponseEntity<String> =
-        restTemplate.exchange("/court/court-appointments", HttpMethod.POST,
+        restTemplate.exchange("/court/video-link-appointments", HttpMethod.POST,
             createHeaderEntity(setOf(1L))
         )
 
