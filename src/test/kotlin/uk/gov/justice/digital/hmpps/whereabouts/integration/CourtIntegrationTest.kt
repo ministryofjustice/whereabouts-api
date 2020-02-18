@@ -35,7 +35,7 @@ class CourtIntegrationTest : IntegrationTest() {
     val response: ResponseEntity<String> =
         restTemplate.exchange("/court/add-video-link-appointment", HttpMethod.POST, createHeaderEntity(CreateVideoLinkAppointment(
             bookingId = bookingId,
-            court = "York Crown Court",
+            court = "Test Court 1",
             startTime = "2019-10-10T10:00:00",
             endTime = "2019-10-10T10:00:00",
             locationId = 1,
@@ -73,5 +73,20 @@ class CourtIntegrationTest : IntegrationTest() {
         )
 
     assertThatJsonFileAndStatus(response, 200, "courtAppointments.json")
+  }
+
+  @Test
+  fun `should return a bad request on invalid court`() {
+    val response: ResponseEntity<String> =
+        restTemplate.exchange("/court/add-video-link-appointment", HttpMethod.POST, createHeaderEntity(CreateVideoLinkAppointment(
+            bookingId = 1L,
+            court = "Mars",
+            startTime = "2019-10-10T10:00:00",
+            endTime = "2019-10-10T10:00:00",
+            locationId = 1,
+            comment = "test"
+        )))
+
+    assertThat(response.statusCode.value()).isEqualTo(400)
   }
 }

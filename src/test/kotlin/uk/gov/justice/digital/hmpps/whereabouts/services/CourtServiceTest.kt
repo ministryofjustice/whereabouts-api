@@ -5,6 +5,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.groups.Tuple
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyLong
@@ -21,7 +22,7 @@ class CourtServiceTest {
 
   @Test
   fun `should push an appointment to elite2`() {
-    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository)
+    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
     service.createVideoLinkAppointment(CreateVideoLinkAppointment(
@@ -44,7 +45,7 @@ class CourtServiceTest {
 
   @Test
   fun `should create video link appointment using the event id returned from elite2`() {
-    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository)
+    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
     whenever(elite2ApiService.postAppointment(anyLong(), any())).thenReturn(1L)
@@ -69,7 +70,7 @@ class CourtServiceTest {
 
   @Test
   fun `should return NO video link appointments`() {
-    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository)
+    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository, "")
     val appointments = service.getVideoLinkAppointments(setOf(1, 2))
 
     verify(videoLinkAppointmentRepository).findVideoLinkAppointmentByAppointmentIdIn(setOf(1, 2))
@@ -84,7 +85,7 @@ class CourtServiceTest {
             VideoLinkAppointment(id = 2, bookingId = 3, appointmentId = 4, hearingType = HearingType.PRE, court = "YORK"
             ))
     )
-    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository)
+    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository, "")
     val appointments = service.getVideoLinkAppointments(setOf(3, 4))
 
     assertThat(appointments)
@@ -93,5 +94,23 @@ class CourtServiceTest {
             Tuple.tuple(1L, 2L, 3L, HearingType.MAIN, "YORK"),
             Tuple.tuple(2L, 3L, 4L, HearingType.PRE, "YORK")
         )
+  }
+
+  @Test
+  fun `should validate the court location`() {
+    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository, "York, London")
+
+    assertThatThrownBy {
+      service.createVideoLinkAppointment(CreateVideoLinkAppointment(
+          bookingId = 1,
+          locationId = 1,
+          court = "Mars",
+          hearingType = HearingType.PRE,
+          startTime = "2019-10-10T10:00:00",
+          endTime = "2019-10-10T11:00:00"
+      ))
+    }.isInstanceOf(InvalidCourtLocation::class.java)
+        .hasMessageContaining("Invalid court location")
+
   }
 }

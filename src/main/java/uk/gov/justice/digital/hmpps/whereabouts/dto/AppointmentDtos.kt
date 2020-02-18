@@ -23,15 +23,15 @@ data class CreateBookingAppointment (
 @ApiModel(description = "Video link appointment details")
 data class VideoLinkAppointmentDto (
     @ApiModelProperty(required = true, value = "Court appointment id", example = "1")
-    val id: Long? = null,
+    val id: Long,
     @ApiModelProperty(required = true, value = "Offender booking id", example = "1")
-    val bookingId: Long? = null,
+    val bookingId: Long,
     @ApiModelProperty(required = true, value = "Appointment id, maps to nomis event id", example = "1")
-    val appointmentId: Long? = null,
+    val appointmentId: Long,
     @ApiModelProperty(required = true, value = "The location of the court that requires the appointment", example = "York Crown Court")
-    val court: String? = null,
+    val court: String,
     @ApiModelProperty(required = true, value = "Type of court hearing", example = "MAIN, PRE , POST")
-    val hearingType: HearingType? = null
+    val hearingType: HearingType
 )
 
 @ApiModel(description = "Information required to create a video link appointment")
