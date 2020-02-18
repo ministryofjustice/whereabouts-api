@@ -22,7 +22,7 @@ class VideoLinkAppointmentRepositoryTest {
   lateinit var videoLinkAppointmentRepository: VideoLinkAppointmentRepository
 
   @Test
-  fun `should return all court appointments`() {
+  fun `should return all video link appointments`() {
     videoLinkAppointmentRepository.save(VideoLinkAppointment(
         appointmentId = 1,
         bookingId = 2,

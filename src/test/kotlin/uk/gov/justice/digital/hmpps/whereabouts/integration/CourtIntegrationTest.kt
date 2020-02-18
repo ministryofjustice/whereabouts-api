@@ -55,7 +55,7 @@ class CourtIntegrationTest : IntegrationTest() {
   }
 
   @Test
-  fun `should return court appointment by appointment id`() {
+  fun `should return video link appointment by appointment id`() {
     whenever(videoLinkAppointmentRepository.findVideoLinkAppointmentByAppointmentIdIn(setOf(1L)))
         .thenReturn(setOf (
             VideoLinkAppointment(

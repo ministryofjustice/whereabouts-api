@@ -10,8 +10,8 @@ import org.junit.Test
 import org.mockito.ArgumentMatchers.anyLong
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 
 class CourtServiceTest {
@@ -43,7 +43,7 @@ class CourtServiceTest {
   }
 
   @Test
-  fun `should create court appointment using the event id returned from elite2`() {
+  fun `should create video link appointment using the event id returned from elite2`() {
     val service = CourtService(elite2ApiService, videoLinkAppointmentRepository)
     val bookingId: Long = 1
 
@@ -68,7 +68,7 @@ class CourtServiceTest {
   }
 
   @Test
-  fun `should return NO court appointments`() {
+  fun `should return NO video link appointments`() {
     val service = CourtService(elite2ApiService, videoLinkAppointmentRepository)
     val appointments = service.getVideoLinkAppointments(setOf(1, 2))
 
@@ -77,7 +77,7 @@ class CourtServiceTest {
   }
 
   @Test
-  fun `should return and map court appointments`() {
+  fun `should return and map video link appointments`() {
     whenever(videoLinkAppointmentRepository.findVideoLinkAppointmentByAppointmentIdIn(setOf(3, 4))).thenReturn(
         setOf(
             VideoLinkAppointment(id = 1, bookingId = 2, appointmentId = 3, hearingType = HearingType.MAIN, court = "YORK"),
