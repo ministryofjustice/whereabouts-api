@@ -3,7 +3,9 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
+import org.springframework.format.annotation.DateTimeFormat
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
+import java.time.LocalDateTime
 import javax.validation.constraints.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -23,15 +25,15 @@ data class CreateBookingAppointment (
 @ApiModel(description = "Video link appointment details")
 data class VideoLinkAppointmentDto (
     @ApiModelProperty(required = true, value = "Court appointment id", example = "1")
-    val id: Long? = null,
+    val id: Long,
     @ApiModelProperty(required = true, value = "Offender booking id", example = "1")
-    val bookingId: Long? = null,
+    val bookingId: Long,
     @ApiModelProperty(required = true, value = "Appointment id, maps to nomis event id", example = "1")
-    val appointmentId: Long? = null,
+    val appointmentId: Long,
     @ApiModelProperty(required = true, value = "The location of the court that requires the appointment", example = "York Crown Court")
-    val court: String? = null,
+    val court: String,
     @ApiModelProperty(required = true, value = "Type of court hearing", example = "MAIN, PRE , POST")
-    val hearingType: HearingType? = null
+    val hearingType: HearingType
 )
 
 @ApiModel(description = "Information required to create a video link appointment")
@@ -49,11 +51,13 @@ data class CreateVideoLinkAppointment(
 
     @NotNull
     @ApiModelProperty(required = true, value = "Start time of the appointment", example = "2020-12-23T:09:00:00")
-    val startTime: String,
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    val startTime: LocalDateTime,
 
     @NotNull
     @ApiModelProperty(required = true, value = "End time of the appointment", example = "2020-12-23T:09:00:00")
-    val endTime: String,
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    val endTime: LocalDateTime,
 
     @NotNull
     @ApiModelProperty(required = true, value = "The location of the court that requires the appointment", example = "York Crown Court")

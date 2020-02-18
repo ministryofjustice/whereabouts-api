@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
@@ -16,13 +15,10 @@ import javax.validation.Valid
 @RestController
 @RequestMapping(value = ["court"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class CourtController(private val courtService: CourtService) {
-  @Value("\${courts}")
-  val courts: String? = null
-
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/all-courts"])
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation(value = "All court locations", response = CourtLocationResponse::class, notes = "Return all court locations")
-  fun getCourtLocations() = CourtLocationResponse(courtLocations = courts?.split(",")!!.toSet())
+  fun getCourtLocations() = CourtLocationResponse(courtLocations = courtService.getCourtLocations())
 
   @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/add-video-link-appointment"])
   @ResponseStatus(HttpStatus.CREATED)

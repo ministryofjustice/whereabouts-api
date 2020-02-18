@@ -8,7 +8,6 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.web.client.exchange
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
@@ -33,13 +32,13 @@ class CourtIntegrationTest : IntegrationTest() {
     elite2MockServer.stubAddAppointment(bookingId, eventId = 1)
 
     val response: ResponseEntity<String> =
-        restTemplate.exchange("/court/add-video-link-appointment", HttpMethod.POST, createHeaderEntity(CreateVideoLinkAppointment(
-            bookingId = bookingId,
-            court = "York Crown Court",
-            startTime = "2019-10-10T10:00:00",
-            endTime = "2019-10-10T10:00:00",
-            locationId = 1,
-            comment = "test"
+        restTemplate.exchange("/court/add-video-link-appointment", HttpMethod.POST, createHeaderEntity(mapOf(
+            "bookingId" to bookingId,
+            "court" to "Test Court 1",
+            "locationId" to 1,
+            "comment" to "test",
+            "startTime" to "2019-10-10T10:00:00",
+            "endTime" to "2019-10-10T10:00:00"
         )))
 
     assertThat(response.statusCode.value()).isEqualTo(201)
@@ -47,10 +46,10 @@ class CourtIntegrationTest : IntegrationTest() {
     elite2MockServer.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/api/bookings/$bookingId/appointments"))
         .withRequestBody(WireMock.equalToJson(gson.toJson(mapOf(
             "appointmentType" to "VLB",
-            "startTime" to "2019-10-10T10:00:00",
-            "endTime" to "2019-10-10T10:00:00",
             "locationId" to 1,
-            "comment" to "test"
+            "comment" to "test",
+            "startTime" to "2019-10-10T10:00",
+            "endTime" to "2019-10-10T10:00"
         )))))
   }
 
@@ -73,5 +72,35 @@ class CourtIntegrationTest : IntegrationTest() {
         )
 
     assertThatJsonFileAndStatus(response, 200, "courtAppointments.json")
+  }
+
+  @Test
+  fun `should return a bad request on invalid court`() {
+    val response: ResponseEntity<String> =
+        restTemplate.exchange("/court/add-video-link-appointment", HttpMethod.POST, createHeaderEntity(mapOf(
+            "bookingId" to 1,
+            "court" to "Marks",
+            "startTime" to "2019-10-10T10:00:00",
+            "endTime" to "2019-10-10T10:00:00",
+            "locationId" to 1,
+            "comment" to "test"
+        )))
+
+    assertThat(response.statusCode.value()).isEqualTo(400)
+  }
+
+  @Test
+  fun `Validate date format for start and time`() {
+    val response: ResponseEntity<String> =
+        restTemplate.exchange("/court/add-video-link-appointment", HttpMethod.POST, createHeaderEntity(mapOf(
+            "bookingId" to 1,
+            "court" to "Test Court 1",
+            "startTime" to "10-10-2029T10:00:00",
+            "endTime" to "10-10-2019T10:00:00",
+            "locationId" to 1,
+            "comment" to "test"
+        )))
+
+    assertThat(response.statusCode.value()).isEqualTo(400)
   }
 }

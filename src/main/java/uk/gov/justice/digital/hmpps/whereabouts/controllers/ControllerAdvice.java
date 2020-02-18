@@ -9,11 +9,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse;
+import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService;
+import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException;
 
 import javax.persistence.EntityNotFoundException;
 
 @RestControllerAdvice(
-        basePackageClasses = {AttendanceController.class, AttendanceStatisticsController.class, AttendancesController.class}
+        basePackageClasses = {AttendanceController.class, AttendanceStatisticsController.class, AttendancesController.class, CourtService.class}
 )
 @Slf4j
 public class ControllerAdvice {
@@ -52,6 +54,18 @@ public class ControllerAdvice {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         log.error("Unexpected exception", e);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse
+                        .builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(Exception e) {
+        log.error("Validation exception", e);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse
