@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -149,5 +150,16 @@ class Elite2MockServer : WireMockRule(8999) {
             .withStatus(500)
         )
     )
+  }
+
+  fun stubAddAppointment(bookingId: Long, eventId: Long = 1) {
+    stubFor(post(urlEqualTo("/api/bookings/$bookingId/appointments"))
+        .willReturn(aResponse()
+            .withHeader("Content-type", "application/json")
+            .withBody(gson.toJson(
+                Event(eventId = eventId)
+            ))
+            .withStatus(201)
+        ))
   }
 }
