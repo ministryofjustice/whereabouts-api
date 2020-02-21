@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 
@@ -22,21 +21,23 @@ import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.text.ParseException;
 import java.util.Optional;
 
 @Slf4j
 @Configuration
 public class ClientTrackingTelemetryModule implements WebTelemetryModule, TelemetryModule {
-    private final String jwtPublicKey;
+    private String jwtPublicKey = null;
+    private final JwkClient jwkClient;
 
     @Autowired
-    public ClientTrackingTelemetryModule(
-            @Value("${jwt.public.key}") final String jwtPublicKey) {
-        this.jwtPublicKey = jwtPublicKey;
+    public ClientTrackingTelemetryModule(JwkClient jwkClient) {
+        this.jwkClient = jwkClient;
     }
 
     @Override
     public void onBeginRequest(final ServletRequest req, final ServletResponse res) {
+
 
         HttpServletRequest httpServletRequest = (HttpServletRequest) req;
         final var token = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
@@ -62,6 +63,15 @@ public class ClientTrackingTelemetryModule implements WebTelemetryModule, Teleme
     }
 
     private Claims getClaimsFromJWT(final String token) throws ExpiredJwtException, GeneralSecurityException {
+
+        if (jwtPublicKey == null) {
+            try {
+                jwtPublicKey = jwkClient.findJwkSet();
+            } catch (ParseException e) {
+                e.printStackTrace();
+                log.error(String.format("Unable to extract claims for jwt token %s", token), e);
+            }
+        }
 
         return Jwts.parser()
                 .setSigningKey(getPublicKeyFromString(jwtPublicKey))

@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.config
 
 import com.microsoft.applicationinsights.web.internal.RequestTelemetryContext
 import com.microsoft.applicationinsights.web.internal.ThreadContext
+import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -9,6 +10,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders
 import org.springframework.mock.web.MockHttpServletRequest
@@ -21,7 +23,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.JwtParameters
 import java.time.Duration
 
 @RunWith(SpringRunner::class)
-@Import(JwtAuthenticationHelper::class, ClientTrackingTelemetryModule::class)
+@Import(JwtAuthenticationHelper::class, ClientTrackingTelemetryModule::class, JwkClient::class)
 @ContextConfiguration(initializers = [ConfigFileApplicationContextInitializer::class])
 @ActiveProfiles("test")
 class ClientTrackingTelemetryModuleTest {
@@ -32,9 +34,15 @@ class ClientTrackingTelemetryModuleTest {
     @Autowired
     lateinit var jwtAuthenticationHelper: JwtAuthenticationHelper
 
+    @MockBean
+    lateinit var jwkClient: JwkClient
+
+    @ExperimentalStdlibApi
     @Before
     fun setup() {
         ThreadContext.setRequestTelemetryContext(RequestTelemetryContext(1L))
+        val publicKey = "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0NCk1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBc09QQXRzUUFEZGJSdS9FSDZMUDUNCkJNMS9tRjQwVkRCbjEyaEpTWFBQZDVXWUswSExZMjBWTTdBeHhSOW1uWUNGNlNvMVd0N2ZHTnFVeC9XeWVtQnANCklKTnJzLzdEendnM3V3aVF1Tmg0ektSK0VHeFdiTHdpM3l3N2xYUFV6eFV5QzV4dDg4ZS83dk8rbHoxb0NuaXoNCmpoNG14TkFtczZaWUY3cWZuaEpFOVd2V1B3TExrb2prWnUxSmR1c0xhVm93TjdHVEdOcE1FOGR6ZUprYW0wZ3ANCjRveEhRR2hNTjg3SzZqcVgzY0V3TzZEdmhlbWc4d2hzOTZuelFsOG4yTEZ2QUsydXA5UHJyOUdpMkxGZ1R0N0sNCnFYQTA2a0M0S2d3MklSMWVGZ3pjQmxUT0V3bXpqcmU2NUhvTmFKQnI5dU5aelY1c0lMUE1jenpoUWovZk1oejMNCi9RSURBUUFCDQotLS0tLUVORCBQVUJMSUMgS0VZLS0tLS0="
+        whenever(jwkClient.findJwkSet()).thenReturn(publicKey)
     }
 
     @After
