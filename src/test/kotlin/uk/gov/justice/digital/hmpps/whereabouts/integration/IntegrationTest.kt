@@ -66,6 +66,7 @@ abstract class IntegrationTest {
     caseNotesMockServer.resetAll()
 
     oauthMockServer.stubGrantToken()
+    oauthMockServer.stubJwkServer()
   }
 
   internal fun createHeaderEntity(entity: Any): HttpEntity<*> {

@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.config;
 
 
-import org.apache.commons.codec.binary.Base64;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -19,8 +19,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.security.oauth2.provider.token.store.jwk.JwkTokenStore;
 import org.springframework.web.context.annotation.RequestScope;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -36,16 +35,21 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
+@Slf4j
 @Configuration
 @EnableSwagger2
 @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-    @Value("${jwt.public.key}")
-    private String jwtPublicKey;
-
-    @Autowired(required = false)
+    private String keySetUri;
     private BuildProperties buildProperties;
+
+    public ResourceServerConfiguration(
+            @Value("${security.oauth2.resource.jwk.key-set-uri}") final String keySetUri,
+            @Autowired final BuildProperties buildProperties) {
+        this.keySetUri = keySetUri;
+        this.buildProperties = buildProperties;
+    }
 
     @Override
     public void configure(final HttpSecurity http) throws Exception {
@@ -73,14 +77,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
     @Bean
     public TokenStore tokenStore() {
-        return new JwtTokenStore(accessTokenConverter());
-    }
-
-    @Bean
-    public JwtAccessTokenConverter accessTokenConverter() {
-        final var converter = new JwtAccessTokenConverter();
-        converter.setVerifierKey(new String(Base64.decodeBase64(jwtPublicKey)));
-        return converter;
+        return new JwkTokenStore(keySetUri);
     }
 
     @Bean

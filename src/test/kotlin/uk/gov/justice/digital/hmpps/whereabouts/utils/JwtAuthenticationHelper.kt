@@ -14,14 +14,17 @@ import java.util.*
 @Component
 class JwtAuthenticationHelper(@Value("\${jwt.signing.key.pair}") privateKeyPair: String,
                               @Value("\${jwt.keystore.password}") keystorePassword: String,
-                              @Value("\${jwt.keystore.alias:elite2api}") keystoreAlias: String) {
+                              @Value("\${jwt.keystore.alias:elite2api}") keystoreAlias: String,
+                              @Value("\${jwt.jwk.key.id}") keyId: String) {
     private val keyPair: KeyPair
+    private val keyId: String
 
     init {
 
         val keyStoreKeyFactory = KeyStoreKeyFactory(ByteArrayResource(Base64.decodeBase64(privateKeyPair)),
                 keystorePassword.toCharArray())
         keyPair = keyStoreKeyFactory.getKeyPair(keystoreAlias)
+        this.keyId = keyId
     }
 
     fun createJwt(parameters: JwtParameters): String {
@@ -37,6 +40,7 @@ class JwtAuthenticationHelper(@Value("\${jwt.signing.key.pair}") privateKeyPair:
         if (parameters.scope.isNotEmpty()) claims["scope"] = parameters.scope
 
         return Jwts.builder()
+                .setHeaderParam("kid", keyId)
                 .setId(UUID.randomUUID().toString())
                 .setSubject(parameters.username)
                 .addClaims(claims)
