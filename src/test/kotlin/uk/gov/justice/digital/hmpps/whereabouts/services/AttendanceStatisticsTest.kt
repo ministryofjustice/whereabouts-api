@@ -96,6 +96,14 @@ class AttendanceStatisticsTest {
           .id(11)
           .bookingId(9)
           .attended(false)
+          .absentReason(AbsentReason.RestDay)
+          .paid(false)
+          .period(TimePeriod.AM)
+          .build(),
+      Attendance.builder()
+          .id(11)
+          .bookingId(9)
+          .attended(false)
           .absentReason(AbsentReason.RefusedIncentiveLevelWarning)
           .paid(false)
           .period(TimePeriod.AM)
@@ -225,6 +233,17 @@ class AttendanceStatisticsTest {
     assertThat(stats).extracting("unpaidReasons").extracting("restInCellOrSick").isEqualTo(1)
   }
 
+  @Test
+  fun `count rest day`() {
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
+            .thenReturn(attendances)
+
+    val service = buildAttendanceStatistics()
+
+    val stats = service.getStats(prisonId, period, from, to)
+
+    assertThat(stats).extracting("unpaidReasons").extracting("restDay").isEqualTo(1)
+  }
 
   @Test
   fun `count refusedIncentiveLevelWarning`() {
