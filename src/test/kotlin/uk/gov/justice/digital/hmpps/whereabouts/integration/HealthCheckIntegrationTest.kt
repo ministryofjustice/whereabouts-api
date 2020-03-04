@@ -21,7 +21,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.health.DlqStatus
 import uk.gov.justice.digital.hmpps.whereabouts.services.health.QueueAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.services.health.QueueHealth
 
-@ActiveProfiles("localstack")
 class HealthCheckIntegrationTest : IntegrationTest() {
 
   @SpyBean
