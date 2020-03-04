@@ -82,8 +82,6 @@ jobs:
             - gradle-{{ checksum "build.gradle" }}
             - gradle-
       - run:
-          environment:
-            SQS_PROVIDER: 'localstack'
           command: ./gradlew build
       - run:
           name: Record the Application Version
