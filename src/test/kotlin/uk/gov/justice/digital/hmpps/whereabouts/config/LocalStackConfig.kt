@@ -11,13 +11,13 @@ import org.testcontainers.containers.localstack.LocalStackContainer
 
 @Configuration
 @ConditionalOnProperty(name = ["sqs.provider"], havingValue = "embedded-localstack")
-open class LocalStackConfig {
+class LocalStackConfig {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
   @Bean
-  open fun localStackContainer(): LocalStackContainer {
+  fun localStackContainer(): LocalStackContainer {
     log.info("Starting embedded localstack...")
     val localStackContainer: LocalStackContainer = LocalStackContainer()
         .withServices(LocalStackContainer.Service.SQS)
@@ -30,8 +30,8 @@ open class LocalStackConfig {
 
   @Bean
   @Suppress("SpringJavaInjectionPointsAutowiringInspection")
-  open fun queueUrl(@Autowired awsSqsClient: AmazonSQS,
-                    @Value("\${sqs.queue.name}") queueName: String,
-                    @Value("\${sqs.dlq.name}") dlqName: String): String =
+  fun queueUrl(@Autowired awsSqsClient: AmazonSQS,
+               @Value("\${sqs.queue.name}") queueName: String,
+               @Value("\${sqs.dlq.name}") dlqName: String): String =
       JmsConfig().queueUrl(awsSqsClient, queueName, dlqName)
 }

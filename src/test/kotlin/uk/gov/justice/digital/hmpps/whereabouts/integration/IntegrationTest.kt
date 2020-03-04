@@ -1,14 +1,17 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
+import com.amazonaws.services.sqs.AmazonSQS
 import com.google.gson.Gson
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.ClassRule
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.json.JsonContent
+import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.core.ResolvableType
 import org.springframework.http.HttpEntity

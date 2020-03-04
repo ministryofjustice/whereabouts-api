@@ -31,10 +31,10 @@ enum class QueueAttributes(val awsName: String, val healthName: String) {
 
 @Component
 @ConditionalOnProperty("sqs.provider")
-open class QueueHealth(@Autowired @Qualifier("awsSqsClient") private val awsSqsClient: AmazonSQS,
-                       @Autowired @Qualifier("awsSqsDlqClient") private val awsSqsDlqClient: AmazonSQS,
-                       @Value("\${sqs.queue.name}") private val queueName: String,
-                       @Value("\${sqs.dlq.name}") private val dlqName: String) : HealthIndicator {
+class QueueHealth(@Autowired @Qualifier("awsSqsClient") private val awsSqsClient: AmazonSQS,
+                  @Autowired @Qualifier("awsSqsDlqClient") private val awsSqsDlqClient: AmazonSQS,
+                  @Value("\${sqs.queue.name}") private val queueName: String,
+                  @Value("\${sqs.dlq.name}") private val dlqName: String) : HealthIndicator {
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
