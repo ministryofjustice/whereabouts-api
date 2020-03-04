@@ -8,7 +8,7 @@ import org.springframework.http.MediaType.TEXT_PLAIN_VALUE
 
 @Configuration
 @WebEndpoint(id = "ping")
-open class PingEndpoint {
+class PingEndpoint {
 
   @ReadOperation(produces = [TEXT_PLAIN_VALUE])
   fun ping(): String = "pong"

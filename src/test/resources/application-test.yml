@@ -37,4 +37,5 @@ sqs:
   dlq.name: whereabouts_api_dlq
 
 
+
 courts: Test Court 1,Test Court 2

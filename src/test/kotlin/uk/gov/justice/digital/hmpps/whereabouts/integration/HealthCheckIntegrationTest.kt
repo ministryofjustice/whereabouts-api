@@ -1,13 +1,49 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
+import com.amazonaws.services.sqs.AmazonSQS
+import com.amazonaws.services.sqs.model.GetQueueAttributesRequest
+import com.amazonaws.services.sqs.model.GetQueueAttributesResult
+import com.amazonaws.services.sqs.model.QueueAttributeName
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.nhaarman.mockito_kotlin.whenever
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.After
 import org.junit.Test
-
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.test.mock.mockito.SpyBean
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.util.ReflectionTestUtils
+import uk.gov.justice.digital.hmpps.whereabouts.services.health.DlqStatus
+import uk.gov.justice.digital.hmpps.whereabouts.services.health.QueueAttributes
+import uk.gov.justice.digital.hmpps.whereabouts.services.health.QueueHealth
 
 class HealthCheckIntegrationTest : IntegrationTest() {
+
+  @SpyBean
+  @Qualifier("awsSqsClient")
+  protected lateinit var awsSqsClient: AmazonSQS
+
+  @Autowired
+  private lateinit var queueHealth: QueueHealth
+
+  @Autowired
+  @Value("\${sqs.queue.name}")
+  private lateinit var queueName: String
+
+  @Autowired
+  @Value("\${sqs.dlq.name}")
+  private lateinit var dlqName: String
+
+  @After
+  fun tearDown() {
+    ReflectionTestUtils.setField(queueHealth, "queueName", queueName)
+    ReflectionTestUtils.setField(queueHealth, "dlqName", dlqName)
+  }
+
   @Test
   fun `Health page reports ok`() {
     subPing(200)
@@ -61,6 +97,74 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     assertThat(response.statusCodeValue).isEqualTo(503)
   }
 
+  @Test
+  fun `Queue does not exist reports down`() {
+    ReflectionTestUtils.setField(queueHealth, "queueName", "missing_queue")
+    subPing(200)
+
+    val response = restTemplate.getForEntity("/health", String::class.java)
+
+    assertThatJson(response.body).node("status").isEqualTo("DOWN")
+    assertThatJson(response.body).node("components.queueHealth.status").isEqualTo("DOWN")
+    assertThat(response.statusCodeValue).isEqualTo(503)
+  }
+
+  @Test
+  fun `Queue health ok and dlq health ok, reports everything up`() {
+    subPing(200)
+
+    val response = restTemplate.getForEntity("/health", String::class.java)
+
+    assertThatJson(response.body).node("status").isEqualTo("UP")
+    assertThatJson(response.body).node("components.queueHealth.status").isEqualTo("UP")
+    assertThatJson(response.body).node("components.queueHealth.details.dlqStatus").isEqualTo(DlqStatus.UP.description)
+    assertThat(response.statusCodeValue).isEqualTo(200)
+  }
+
+  @Test
+  fun `Dlq health reports interesting attributes`() {
+    subPing(200)
+
+    val response = restTemplate.getForEntity("/health", String::class.java)
+
+    assertThatJson(response.body).node("components.queueHealth.details.${QueueAttributes.MESSAGES_ON_DLQ.healthName}").isEqualTo(0)
+  }
+
+  @Test
+  fun `Dlq down brings main health and queue health down`() {
+    subPing(200)
+    mockQueueWithoutRedrivePolicyAttributes()
+
+    val response = restTemplate.getForEntity("/health", String::class.java)
+
+    assertThatJson(response.body).node("status").isEqualTo("DOWN")
+    assertThatJson(response.body).node("components.queueHealth.status").isEqualTo("DOWN")
+    assertThatJson(response.body).node("components.queueHealth.details.dlqStatus").isEqualTo(DlqStatus.NOT_ATTACHED.description)
+    assertThat(response.statusCodeValue).isEqualTo(503)
+  }
+
+  @Test
+  fun `Main queue has no redrive policy reports dlq down`() {
+    subPing(200)
+    mockQueueWithoutRedrivePolicyAttributes()
+
+    val response = restTemplate.getForEntity("/health", String::class.java)
+
+    assertThatJson(response.body).node("components.queueHealth.details.dlqStatus").isEqualTo(DlqStatus.NOT_ATTACHED.description)
+    assertThat(response.statusCodeValue).isEqualTo(503)
+  }
+
+  @Test
+  fun `Dlq not found reports dlq down`() {
+    subPing(200)
+    ReflectionTestUtils.setField(queueHealth, "dlqName", "missing_queue")
+
+    val response = restTemplate.getForEntity("/health", String::class.java)
+
+    assertThatJson(response.body).node("components.queueHealth.details.dlqStatus").isEqualTo(DlqStatus.NOT_FOUND.description)
+    assertThat(response.statusCodeValue).isEqualTo(503)
+  }
+
   private fun subPing(status: Int) {
     elite2MockServer.stubFor(get("/ping").willReturn(aResponse()
         .withHeader("Content-Type", "application/json")
@@ -94,5 +198,12 @@ class HealthCheckIntegrationTest : IntegrationTest() {
             .withHeader("Content-Type", "application/json")
             .withBody(if (status == 200) "pong" else "some error")
             .withStatus(status)))
+  }
+
+  private fun mockQueueWithoutRedrivePolicyAttributes() {
+    val queueName = ReflectionTestUtils.getField(queueHealth, "queueName") as String
+    val queueUrl = awsSqsClient.getQueueUrl(queueName)
+    whenever(awsSqsClient.getQueueAttributes(GetQueueAttributesRequest(queueUrl.queueUrl).withAttributeNames(listOf(QueueAttributeName.All.toString()))))
+        .thenReturn(GetQueueAttributesResult())
   }
 }
