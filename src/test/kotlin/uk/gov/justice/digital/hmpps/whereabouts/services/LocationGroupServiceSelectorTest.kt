@@ -8,7 +8,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 
-//@RunWith(StrictStubs::class)
 class LocationGroupServiceSelectorTest {
 
   private val defaultService: LocationGroupService = mock()
