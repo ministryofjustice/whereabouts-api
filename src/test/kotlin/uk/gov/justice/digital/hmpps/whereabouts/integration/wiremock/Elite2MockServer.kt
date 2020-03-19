@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock
 
+import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import com.github.tomakehurst.wiremock.junit.WireMockRule
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.time.LocalDate
 
-class Elite2MockServer : WireMockRule(8999) {
+class Elite2MockServer : WireMockServer(8999) {
   private val gson = getGson()
 
   fun stubUpdateAttendance(bookingId: Long = 1L, activityId: Long = 2L) {

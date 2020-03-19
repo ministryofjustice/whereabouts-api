@@ -192,7 +192,7 @@ open class AttendanceService(
         .collect(Collectors.toSet())
   }
 
-  open fun getAbsencesForReason(prisonId: String?, absentReason: AbsentReason?, fromDate: LocalDate, toDate: LocalDate?,
+  fun getAbsencesForReason(prisonId: String?, absentReason: AbsentReason?, fromDate: LocalDate, toDate: LocalDate?,
                            period: TimePeriod?): Set<AbsenceDto> {
 
     val periods = if (period == null) setOf(TimePeriod.AM, TimePeriod.PM) else setOf(period)
@@ -218,7 +218,7 @@ open class AttendanceService(
   }
 
   @Transactional
-  open fun deleteAttendances(offenderNo: String) {
+  fun deleteAttendances(offenderNo: String) {
     val bookingId = elite2ApiService.getOffenderBookingId(offenderNo)
     val attendances = attendanceRepository.findByBookingId(bookingId)
 
