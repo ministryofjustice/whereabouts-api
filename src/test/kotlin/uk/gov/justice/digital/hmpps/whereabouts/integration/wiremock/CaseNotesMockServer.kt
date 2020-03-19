@@ -1,11 +1,11 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock
 
+import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import com.github.tomakehurst.wiremock.junit.WireMockRule
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto
 
-class CaseNotesMockServer : WireMockRule(8093) {
+class CaseNotesMockServer : WireMockServer(8093) {
   private val gson = getGson()
 
   fun stubCreateCaseNote(offenderNo: String = "AB1234C", caseNoteId: Long = 100L) {

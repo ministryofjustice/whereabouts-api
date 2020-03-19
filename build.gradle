@@ -34,6 +34,13 @@ compileTestKotlin {
     }
 }
 
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+}
+
+
 project.sourceCompatibility = 11
 project.targetCompatibility = 11
 
@@ -149,6 +156,11 @@ dependencies {
     testImplementation 'org.testcontainers:localstack:1.12.5'
 
     compile configurations.agentDeps
+}
+
+
+test {
+    useJUnitPlatform()
 }
 
 task copyAgent(type: Copy) {

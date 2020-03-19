@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
@@ -13,7 +13,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.Stats
 import java.time.LocalDate
 
-open class AttendanceStatisticsIntegrationTest : IntegrationTest() {
+class AttendanceStatisticsIntegrationTest : IntegrationTest() {
 
   @MockBean
   lateinit var attendanceRepository: AttendanceRepository
