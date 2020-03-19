@@ -3,10 +3,10 @@ package uk.gov.justice.digital.hmpps.whereabouts.config
 import com.microsoft.applicationinsights.web.internal.RequestTelemetryContext
 import com.microsoft.applicationinsights.web.internal.ThreadContext
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.ConfigFileApplicationContextInitializer
 import org.springframework.context.annotation.Import
@@ -15,12 +15,12 @@ import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.gov.justice.digital.hmpps.whereabouts.utils.JwtAuthenticationHelper
 import uk.gov.justice.digital.hmpps.whereabouts.utils.JwtParameters
 import java.time.Duration
 
-@RunWith(SpringRunner::class)
+@ExtendWith(SpringExtension::class)
 @Import(JwtAuthenticationHelper::class, ClientTrackingTelemetryModule::class)
 @ContextConfiguration(initializers = [ConfigFileApplicationContextInitializer::class])
 @ActiveProfiles("test")
@@ -32,12 +32,12 @@ class ClientTrackingTelemetryModuleTest {
     @Autowired
     lateinit var jwtAuthenticationHelper: JwtAuthenticationHelper
 
-    @Before
+    @BeforeEach
     fun setup() {
         ThreadContext.setRequestTelemetryContext(RequestTelemetryContext(1L))
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         ThreadContext.remove()
     }

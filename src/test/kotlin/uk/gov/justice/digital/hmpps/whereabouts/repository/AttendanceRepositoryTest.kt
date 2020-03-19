@@ -2,15 +2,16 @@ package uk.gov.justice.digital.hmpps.whereabouts.repository
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.groups.Tuple
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
@@ -20,12 +21,11 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.validation.ConstraintViolationException
 
-
-@RunWith(SpringRunner::class)
+@ExtendWith(SpringExtension::class)
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @Transactional
-open class AttendanceRepositoryTest {
+class AttendanceRepositoryTest {
 
   @Autowired
   lateinit var attendanceRepository: AttendanceRepository
@@ -45,7 +45,7 @@ open class AttendanceRepositoryTest {
       .build()
 
 
-  @Before
+  @BeforeEach
   fun clearRepository() {
     SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
     attendanceRepository.deleteAll()
@@ -77,9 +77,11 @@ open class AttendanceRepositoryTest {
     assertThat(savedAttendance.createDateTime.toLocalDate()).isEqualTo(now)
   }
 
-  @Test(expected = ConstraintViolationException::class)
+  @Test
   fun `should throw error on missing fields`() {
-    attendanceRepository.save(Attendance.builder().build())
+    Assertions.assertThrows( ConstraintViolationException::class.java) {
+      attendanceRepository.save(Attendance.builder().build())
+    }
   }
 
   @Test

@@ -1,7 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import java.util.*
@@ -135,22 +136,28 @@ class LocationGroupFromPropertiesServiceTest {
     assertThat(applyPredicatesToLocations(predicates, "1", "11", "2")).containsExactly("1")
   }
 
-  @Test(expected = EntityNotFoundException::class)
+  @Test
   fun givenCriteriaDoNotMatchAgencyThenEntityNotFoundExceptionIsThrown() {
     groupsProperties.setProperty("MDI_1_A", "1")
-    service.locationGroupFilter("XXX", "1")
+    Assertions.assertThrows(EntityNotFoundException::class.java) {
+      service.locationGroupFilter("XXX", "1")
+    }
   }
 
-  @Test(expected = EntityNotFoundException::class)
+  @Test
   fun givenCriteriaDoNotMatchGroupThenEntityNotFoundExceptionIsThrown() {
     groupsProperties.setProperty("MDI_1_A", "1")
-    service.locationGroupFilter("MDI", "2")
+    Assertions.assertThrows(EntityNotFoundException::class.java) {
+      service.locationGroupFilter("MDI", "2")
+    }
   }
 
-  @Test(expected = EntityNotFoundException::class)
+  @Test
   fun givenCriteriaDoNotMatchSubGroupThenEntityNotFoundExceptionIsThrown() {
     groupsProperties.setProperty("MDI_1", "1")
-    service.locationGroupFilter("MDI", "1_A")
+    Assertions.assertThrows(EntityNotFoundException::class.java) {
+      service.locationGroupFilter("MDI", "1_A")
+    }
   }
 
   @Test
@@ -167,11 +174,14 @@ class LocationGroupFromPropertiesServiceTest {
     assertThat(applyPredicatesToLocations(predicates, "PQR", "11", "X", "XY", "1", "PQ", "Z", "")).containsExactlyInAnyOrder("1", "X", "PQR")
   }
 
-  @Test(expected = PatternSyntaxException::class)
+  @Test
   fun givenInvalidPatternThenRequestingFilterThrowsException() {
     groupsProperties.setProperty("MDI_1", "1|[")
-    service.locationGroupFilter("MDI", "1")
+    Assertions.assertThrows(PatternSyntaxException::class.java) {
+      service.locationGroupFilter("MDI", "1")
+    }
   }
+
 
   @Test
   fun givenPatternsUsedForMDIThenCellsAreMatchedCorrectly() {
