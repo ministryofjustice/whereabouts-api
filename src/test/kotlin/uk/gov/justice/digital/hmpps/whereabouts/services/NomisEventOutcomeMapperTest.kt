@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 
 class NomisEventOutcomeMapperTest {

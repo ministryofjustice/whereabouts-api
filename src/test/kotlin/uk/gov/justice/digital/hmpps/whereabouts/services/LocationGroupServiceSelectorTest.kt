@@ -5,12 +5,9 @@ import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner.StrictStubs
+import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 
-@RunWith(StrictStubs::class)
 class LocationGroupServiceSelectorTest {
 
   private val defaultService: LocationGroupService = mock()

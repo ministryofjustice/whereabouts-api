@@ -5,7 +5,8 @@ import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
@@ -38,7 +39,7 @@ class Elite2ApiServiceTest {
     assertThat(response).containsExactly(aLocation(someAgencyId, someLocationType))
   }
 
-  @Test(expected = EntityNotFoundException::class)
+  @Test
   fun `getAgencyLocationsForType - not found raises exception`() {
     whenever(restTemplate.exchange(
         anyString(),
@@ -48,7 +49,9 @@ class Elite2ApiServiceTest {
         eq("any agency"), eq("any locationType")
     )).thenThrow(HttpClientErrorException(HttpStatus.NOT_FOUND))
 
-    elite2ApiService.getAgencyLocationsForType("any agency", "any locationType")
+    Assertions.assertThrows(EntityNotFoundException::class.java) {
+      elite2ApiService.getAgencyLocationsForType("any agency", "any locationType")
+    }
   }
 
   private fun aLocation(agencyId: String, locationType: String) =

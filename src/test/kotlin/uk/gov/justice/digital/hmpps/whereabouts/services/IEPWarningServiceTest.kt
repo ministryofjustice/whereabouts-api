@@ -3,8 +3,8 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto
@@ -23,7 +23,7 @@ class IEPWarningServiceTest {
 
   private lateinit var service: IEPWarningService
 
-  @Before
+  @BeforeEach
   fun before() {
     service = IEPWarningService(caseNotesService, elite2ApiService)
   }

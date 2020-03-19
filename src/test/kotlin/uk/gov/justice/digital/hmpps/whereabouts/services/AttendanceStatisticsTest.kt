@@ -1,27 +1,25 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.any
 import org.mockito.Mockito.anyString
-import org.mockito.junit.MockitoJUnitRunner
+
+import com.nhaarman.mockito_kotlin.mock
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 
-@RunWith(MockitoJUnitRunner::class)
 class AttendanceStatisticsTest {
-  @Mock
-  private lateinit var attendanceRepository: AttendanceRepository
-
-  @Mock
-  private lateinit var elite2ApiService: Elite2ApiService
+  private val attendanceRepository: AttendanceRepository = mock()
+  private val elite2ApiService: Elite2ApiService = mock()
 
   private val prisonId = "LEI"
   private val period = TimePeriod.AM
