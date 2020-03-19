@@ -10,7 +10,7 @@ class OAuthMockServer : WireMockServer(8090) {
   private val gson = getGson()
 
   fun stubGrantToken() {
-    this.stubFor(
+    stubFor(
         WireMock.post(WireMock.urlEqualTo("/auth/oauth/token"))
             .willReturn(WireMock.aResponse()
                 .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
