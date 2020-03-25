@@ -42,7 +42,7 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
 
     elite2MockServer.verify(WireMock.getRequestedFor(
         WireMock.urlEqualTo(
-            "/api/schedules/$prisonId/activities-by-date-range?fromDate=$fromDate&toDate=$toDate&timeSlot=$period"
+            "/api/schedules/$prisonId/activities-by-date-range?fromDate=$fromDate&toDate=$toDate&timeSlot=$period&includeSuspended=true"
         )
     ))
   }
