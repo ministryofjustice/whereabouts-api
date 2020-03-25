@@ -43,10 +43,14 @@ class Elite2MockServer : WireMockServer(8999) {
     )
   }
 
-  fun stubGetScheduledActivitiesForDateRange(prisonId: String = "MDI", fromDate: LocalDate = LocalDate.now(), toDate: LocalDate = LocalDate.now(), period: TimePeriod? = TimePeriod.AM) {
+  fun stubGetScheduledActivitiesForDateRange(prisonId: String = "MDI", fromDate: LocalDate = LocalDate.now(), toDate: LocalDate = LocalDate.now(), period: TimePeriod? = TimePeriod.AM, suspended: Boolean = false) {
     val periodText = period?.toString().orEmpty()
+    var testUrl = "/api/schedules/$prisonId/activities-by-date-range?fromDate=$fromDate&toDate=$toDate&timeSlot=$periodText"
+    if (suspended) {
+      testUrl += "&includeSuspended=true"
+    }
 
-    stubFor(get(urlEqualTo("/api/schedules/$prisonId/activities-by-date-range?fromDate=$fromDate&toDate=$toDate&timeSlot=$periodText&includeSuspended=true"))
+    stubFor(get(urlEqualTo(testUrl))
         .willReturn(aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(listOf(
