@@ -3,11 +3,9 @@ package uk.gov.justice.digital.hmpps.whereabouts.services;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
@@ -15,75 +13,75 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 public class Elite2ApiService {
-    private final OAuth2RestTemplate restTemplate;
+    private final WebClient webClient;
 
-    public Elite2ApiService(@Qualifier("elite2ApiRestTemplate") final OAuth2RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public Elite2ApiService(@Qualifier("elite2WebClient") final WebClient webClient) {
+        this.webClient = webClient;
     }
 
     public void putAttendance(final Long bookingId, final long activityId, final EventOutcome eventOutcome) {
-        final var url = "/bookings/{bookingId}/activities/{activityId}/attendance";
-
-        restTemplate.put(url, eventOutcome, bookingId, activityId);
+        webClient.put()
+                .uri("/bookings/{bookingId}/activities/{activityId}/attendance", bookingId, activityId)
+                .bodyValue(eventOutcome)
+                .retrieve();
     }
 
     public void putAttendanceForMultipleBookings(final Set<BookingActivity> bookingActivities, final EventOutcome eventOutcome) {
-        final var url = "/bookings/activities/attendance";
-
-        final var body = new EventOutcomesDto(
-                eventOutcome.getEventOutcome(),
-                eventOutcome.getPerformance(),
-                eventOutcome.getOutcomeComment(),
-                bookingActivities
-        );
-
-        restTemplate.put(url, body);
+        webClient.post()
+                .uri("/bookings/activities/attendance")
+                .bodyValue(new EventOutcomesDto(
+                        eventOutcome.getEventOutcome(),
+                        eventOutcome.getPerformance(),
+                        eventOutcome.getOutcomeComment(),
+                        bookingActivities
+                ))
+                .retrieve();
     }
 
     public Set<Long> getBookingIdsForScheduleActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
-        final var url = "/schedules/{prisonId}/activities?date={date}&timeSlot={period}";
-
         final var responseType = new ParameterizedTypeReference<List<Map>>() {
         };
-        final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, prisonId, date, period);
-        final var body = response.getBody();
 
-        if (body == null)
-            return Collections.emptySet();
-
-        return body
-                .stream()
+        //TODO: Make it more reactive
+        return Objects.requireNonNull(webClient.get()
+                .uri("/schedules/{prisonId}/activities?date={date}&timeSlot={period}", prisonId, date, period)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block()).stream()
                 .filter(entry -> entry.containsKey("bookingId"))
-                .map(entry -> Long.valueOf(entry.get("bookingId").toString()))
+                .map(entry -> Long.valueOf(entry.get(Integer.parseInt("bookingId")).toString()))
                 .collect(Collectors.toSet());
-
     }
 
     public String getOffenderNoFromBookingId(final Long bookingId) {
-        final var entity = restTemplate.getForEntity("/bookings/{bookingId}?basicInfo=true", Map.class, bookingId);
-        return (String) Objects.requireNonNull(entity.getBody()).get("offenderNo");
+        return webClient.get()
+                .uri("/bookings/{bookingId}?basicInfo=true", bookingId)
+                .retrieve()
+                .bodyToMono(Map.class)
+                .map(entry -> entry.get("offenderNo"))
+                .cast(String.class)
+                .block();
     }
 
     public List<Long> getBookingIdsForScheduleActivitiesByDateRange(final String prisonId, final TimePeriod period, final LocalDate fromDate, final LocalDate toDate) {
-        final var url = "/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}";
-
         final var responseType = new ParameterizedTypeReference<List<Map>>() {
         };
-        final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, prisonId, fromDate, toDate, period);
-        final var body = response.getBody();
 
-        if (body == null)
-            return emptyList();
-
-        return body
+        return Objects.requireNonNull(webClient.get()
+                .uri("/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}", prisonId, fromDate, toDate, period)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block())
                 .stream()
                 .filter(entry -> entry.containsKey("bookingId"))
                 .map(entry -> Long.valueOf(entry.get("bookingId").toString()))
@@ -91,64 +89,62 @@ public class Elite2ApiService {
     }
 
     public List<OffenderDetails> getScheduleActivityOffenderData(final String prisonId, final LocalDate fromDate, final LocalDate toDate, final TimePeriod period) {
-        final var url = "/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}";
-
         final var responseType = new ParameterizedTypeReference<List<OffenderDetails>>() {
         };
-        final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, prisonId, fromDate, toDate, period);
-        final var body = response.getBody();
 
-        return body != null ? body : emptyList();
+        return webClient.get()
+                .uri("/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}", prisonId, fromDate, toDate, period)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
     }
 
     public Long getOffenderBookingId(final String offenderNo) {
-       final var url = "/bookings/offenderNo/{offenderNo}?fullInfo=false";
 
-        final var responseType = new ParameterizedTypeReference<OffenderDetails>() {};
-        final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, offenderNo);
-        final var body = response.getBody();
+        final var responseType = new ParameterizedTypeReference<OffenderDetails>() {
+        };
 
-        return Objects.requireNonNull(body).getBookingId();
+        return webClient.get()
+                .uri("/bookings/offenderNo/{offenderNo}?fullInfo=false", offenderNo)
+                .retrieve()
+                .bodyToMono(responseType)
+                .map(OffenderDetails::getBookingId)
+                .block();
     }
 
-    List<LocationGroup> getLocationGroups(final String agencyId) {
-        final var url = "/agencies/{agencyId}/locations/groups";
+    public List<LocationGroup> getLocationGroups(final String agencyId) {
+        final var responseType = new ParameterizedTypeReference<List<LocationGroup>>() {
+        };
 
-        final var responseType = new ParameterizedTypeReference<List<LocationGroup>>() {};
-        final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, agencyId);
-        final var body = response.getBody();
-
-        if (body == null) {
-            return emptyList();
-        }
-
-        return body;
+        return webClient.get()
+                .uri("/agencies/{agencyId}/locations/groups", agencyId)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
     }
 
     public List<Location> getAgencyLocationsForType(final String agencyId, final String locationType) {
-        final var url = "/agencies/{agencyId}/locations/type/{type}";
-        final var responseType = new ParameterizedTypeReference<List<Location>>() {};
+        final var responseType = new ParameterizedTypeReference<List<Location>>() {
+        };
 
-        List<Location> locations;
-        try {
-            final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, agencyId, locationType);
-            locations = response.getBody();
-        } catch(HttpClientErrorException e) {
-            if (e.getStatusCode().equals(NOT_FOUND)) {
-                throw new EntityNotFoundException(String.format("Locations not found for agency %s with location type %s", agencyId, locationType));
-            }
-            throw e;
-        }
-
-        return locations;
+        return webClient.get()
+                .uri("/agencies/{agencyId}/locations/type/{type}", agencyId, locationType)
+                .retrieve()
+                .onStatus(NOT_FOUND::equals, response -> Mono.error(new EntityNotFoundException(String.format("Locations not found for agency %s with location type %s", agencyId, locationType))))
+                .bodyToMono(responseType)
+                .block();
     }
 
     public Long postAppointment(final long bookingId, @NotNull CreateBookingAppointment createbookingAppointment) {
-        final var url  = "/bookings/{bookingId}/appointments";
-        final var responseType = new ParameterizedTypeReference<Event>() {};
-        final var response = restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(createbookingAppointment, null), responseType, bookingId);
-
-        return Objects.requireNonNull(response.getBody()).getEventId();
+        final var responseType = new ParameterizedTypeReference<Event>() {
+        };
+        return webClient.post()
+                .uri("/bookings/{bookingId}/appointments", bookingId)
+                .bodyValue(createbookingAppointment)
+                .retrieve()
+                .bodyToMono(responseType)
+                .map(Event::getEventId)
+                .block();
     }
 }
 

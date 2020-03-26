@@ -59,29 +59,23 @@ management:
       cache:
         time-to-live: 2000ms
 
-elite2api:
-  client:
-    clientId: ${oauth.client.id}
-    clientSecret: ${oauth.client.secret}
-    accessTokenUri: ${oauth.token.url}
-    tokenName: elite2_token
-    authenticationScheme: header
-    clientAuthenticationScheme: header
-  endpoint.url: http://localhost:8080
 
-oauth:
-  endpoint.url: http://localhost:9090/auth
-  token.url: ${oauth.endpoint.url}/oauth/token
-  client:
-    id: whereabouts-api-client
-    secret: clientsecret
-
-casenotes:
-  endpoint.url: http://localhost:8083
+  security:
+    oauth2:
+      client:
+        registration:
+          elite2-api:
+            provider: hmpps-auth
+            client-id: whereabouts-api-client
+            client-secret: clientsecret
+            authorization-grant-type: client_credentials
+            scope: read
+        provider:
+          hmpps-auth:
+            token-uri: ${auth.uri.root}/oauth/token
 
 graceful:
   shutdown.enabled: false
-
 
 sqs:
   provider: aws

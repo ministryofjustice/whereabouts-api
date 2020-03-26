@@ -1,15 +1,15 @@
 version: "3"
 services:
   oauth:
-  image: mojdigitalstudio/nomis-oauth2-server:latest
+    image: mojdigitalstudio/nomis-oauth2-server:latest
     container_name: oauth
-  ports:
-        - "9090:8080"
+    ports:
+      - "9090:8080"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/health"]
+        test: ["CMD", "curl", "-f", "http://localhost:8080/auth/health"]
     environment:
-      - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=dev
+        - SERVER_PORT=8080
+        - SPRING_PROFILES_ACTIVE=dev
 
   elite2:
     image: mojdigitalstudio/elite2-api:latest
@@ -38,23 +38,23 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
       - ELITE2_API_BASE_URL=http://elite2-api:8080
 
-  localstack:
-    # pinned to 10.4 due to https://github.com/localstack/localstack/issues/1992
-    image: localstack/localstack:0.10.4
-    container_name: localstack
-    ports:
-      - "4567-4597:4567-4597"
-      - 8999:8080
-    environment:
-      - SERVICES=sns,sqs
-      - DEBUG=${DEBUG- }
-      - DATA_DIR=${DATA_DIR- }
-      - PORT_WEB_UI=${PORT_WEB_UI- }
-      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
-      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
-      - DOCKER_HOST=unix:///var/run/docker.sock
-      - AWS_EXECUTION_ENV=True
-      - DEFAULT_REGION=eu-west-2
-    volumes:
-      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+  #  localstack:
+  #    # pinned to 10.4 due to https://github.com/localstack/localstack/issues/1992
+  #    image: localstack/localstack:0.10.4
+#    container_name: localstack
+#    ports:
+#      - "4567-4597:4567-4597"
+#      - 8999:8080
+#    environment:
+#      - SERVICES=sns,sqs
+#      - DEBUG=${DEBUG- }
+#      - DATA_DIR=${DATA_DIR- }
+#      - PORT_WEB_UI=${PORT_WEB_UI- }
+#      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
+#      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+#      - DOCKER_HOST=unix:///var/run/docker.sock
+#      - AWS_EXECUTION_ENV=True
+#      - DEFAULT_REGION=eu-west-2
+#    volumes:
+#      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
+#      - "/var/run/docker.sock:/var/run/docker.sock"

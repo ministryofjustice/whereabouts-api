@@ -13,8 +13,8 @@ env:
   - name: JAVA_OPTS
     value: "{{ .Values.env.JAVA_OPTS }}"
 
-  - name: JWT_PUBLIC_KEY
-    value: "{{ .Values.env.JWT_PUBLIC_KEY }}"
+  - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
+    value: "{{ .Values.env.SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI }}"
 
   - name: ELITE2API_ENDPOINT_URL
     value: "{{ .Values.env.ELITE2API_ENDPOINT_URL }}"
