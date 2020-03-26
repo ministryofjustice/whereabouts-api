@@ -91,7 +91,7 @@ public class Elite2ApiService {
     }
 
     public List<OffenderDetails> getScheduleActivityOffenderData(final String prisonId, final LocalDate fromDate, final LocalDate toDate, final TimePeriod period) {
-        final var url = "/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}";
+        final var url = "/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}&includeSuspended=true";
 
         final var responseType = new ParameterizedTypeReference<List<OffenderDetails>>() {
         };
