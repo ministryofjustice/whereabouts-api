@@ -11,5 +11,6 @@ data class OffenderDetails(
     val timeSlot: String? = null,
     val firstName: String? = null,
     val lastName: String? = null,
-    val comment: String? = null
+    val comment: String? = null,
+    val suspended: Boolean? = null
 )

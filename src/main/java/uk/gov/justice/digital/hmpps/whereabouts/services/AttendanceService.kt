@@ -257,7 +257,8 @@ open class AttendanceService(
         attendance.comments,
         details.cellLocation,
         details.firstName,
-        details.lastName
+        details.lastName,
+        details.suspended
     )
   }
 
