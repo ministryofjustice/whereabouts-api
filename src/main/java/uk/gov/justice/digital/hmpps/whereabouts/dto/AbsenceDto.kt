@@ -23,5 +23,6 @@ data class AbsenceDto(
     val comments: String? = null,
     val cellLocation: String? = null,
     val firstName: String? = null,
-    val lastName: String? = null
+    val lastName: String? = null,
+    val suspended: Boolean? = null
 )

@@ -974,13 +974,13 @@ class AttendanceServiceTest {
     val prison = "MDI"
 
     whenever(elite2ApiService.getScheduleActivityOffenderData(prison, eventDate, eventDate, TimePeriod.AM)).thenReturn(listOf(
-        OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 2, cellLocation = "cell1", eventDate = eventDate, timeSlot = "AM", comment = "Gym", firstName = "john", lastName = "doe"),
-        OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 3, cellLocation = "cell2", eventDate = eventDate, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe")
+        OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 2, cellLocation = "cell1", eventDate = eventDate, timeSlot = "AM", comment = "Gym", firstName = "john", lastName = "doe", suspended = true),
+        OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 3, cellLocation = "cell2", eventDate = eventDate, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false)
     ))
 
     whenever(elite2ApiService.getScheduleActivityOffenderData(prison, eventDate, eventDate, TimePeriod.PM)).thenReturn(listOf(
-        OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 4, eventDate = eventDate, timeSlot = "PM", firstName = "dave", lastName = "doe1"),
-        OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 5, cellLocation = "cell4", eventDate = eventDate, timeSlot = "PM", firstName = "dave", lastName = "doe1")
+        OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 4, eventDate = eventDate, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = true),
+        OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 5, cellLocation = "cell4", eventDate = eventDate, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = false)
     ))
 
     whenever(attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(any(), any(), any(), any(), any())).thenReturn(setOf(
@@ -1041,13 +1041,13 @@ class AttendanceServiceTest {
     val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, null)
 
     assertThat(attendances).extracting("attendanceId", "bookingId", "offenderNo", "eventId", "eventLocationId",
-        "eventDate", "period", "reason", "eventDescription", "comments", "cellLocation", "firstName", "lastName")
+        "eventDate", "period", "reason", "eventDescription", "comments", "cellLocation", "firstName", "lastName", "suspended")
         .containsExactlyInAnyOrder(
-            Tuple.tuple(1L, 1L, "A12345", 2L, 1L, eventDate, TimePeriod.AM, AbsentReason.Refused, "Gym", "comment1", "cell1", "john", "doe"),
-            Tuple.tuple(2L, 1L, "A12345", 3L, 1L, eventDate, TimePeriod.AM, AbsentReason.Refused, "Workshop 1", "comment2", "cell2", "john", "doe"),
+            Tuple.tuple(1L, 1L, "A12345", 2L, 1L, eventDate, TimePeriod.AM, AbsentReason.Refused, "Gym", "comment1", "cell1", "john", "doe", true),
+            Tuple.tuple(2L, 1L, "A12345", 3L, 1L, eventDate, TimePeriod.AM, AbsentReason.Refused, "Workshop 1", "comment2", "cell2", "john", "doe", false),
 
-            Tuple.tuple(3L, 2L, "A12346", 4L, 1L, eventDate, TimePeriod.PM, AbsentReason.Refused, null, "comment3", null, "dave", "doe1"),
-            Tuple.tuple(4L, 2L, "A12346", 5L, 1L, eventDate, TimePeriod.PM, AbsentReason.Refused, null, "comment4", "cell4", "dave", "doe1")
+            Tuple.tuple(3L, 2L, "A12346", 4L, 1L, eventDate, TimePeriod.PM, AbsentReason.Refused, null, "comment3", null, "dave", "doe1", true),
+            Tuple.tuple(4L, 2L, "A12346", 5L, 1L, eventDate, TimePeriod.PM, AbsentReason.Refused, null, "comment4", "cell4", "dave", "doe1", false)
         )
   }
 
