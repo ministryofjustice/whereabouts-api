@@ -239,7 +239,8 @@ open class AttendanceService(
         period.toString(),
         details.firstName,
         details.lastName,
-        details.comment
+        details.comment,
+        details.suspended
     )
   }
 
