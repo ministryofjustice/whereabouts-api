@@ -72,24 +72,6 @@ public class Elite2ApiService {
         return (String) Objects.requireNonNull(entity.getBody()).get("offenderNo");
     }
 
-    public List<Long> getBookingIdsForScheduleActivitiesByDateRange(final String prisonId, final TimePeriod period, final LocalDate fromDate, final LocalDate toDate) {
-        final var url = "/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}&includeSuspended=true";
-
-        final var responseType = new ParameterizedTypeReference<List<Map>>() {
-        };
-        final var response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, prisonId, fromDate, toDate, period);
-        final var body = response.getBody();
-
-        if (body == null)
-            return emptyList();
-
-        return body
-                .stream()
-                .filter(entry -> entry.containsKey("bookingId"))
-                .map(entry -> Long.valueOf(entry.get("bookingId").toString()))
-                .collect(Collectors.toList());
-    }
-
     public List<OffenderDetails> getScheduleActivityOffenderData(final String prisonId, final LocalDate fromDate, final LocalDate toDate, final TimePeriod period) {
         final var url = "/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}&includeSuspended=true";
 
