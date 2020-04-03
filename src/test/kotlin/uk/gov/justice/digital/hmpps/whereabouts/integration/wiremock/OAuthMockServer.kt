@@ -11,7 +11,7 @@ class OAuthMockServer : WireMockServer(8090) {
 
   fun stubGrantToken() {
     stubFor(
-        WireMock.post(WireMock.urlEqualTo("/auth/oauth/token?username=ITAG_USER"))
+        WireMock.post(WireMock.urlEqualTo("/auth/oauth/token"))
             .willReturn(WireMock.aResponse()
                 .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
                 .withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer"))))

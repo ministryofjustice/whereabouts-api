@@ -29,14 +29,16 @@ services:
     container_name: offender-case-notes
     depends_on:
       - elite2
+      - localstack
     ports:
       - "8083:8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
     environment:
       - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=dev
-      - ELITE2_API_BASE_URL=http://elite2-api:8080
+      - SPRING_PROFILES_ACTIVE=stdout,localstack
+      - ELITE2_API_BASE_URL=http://elite2:8080
+      - SQS_ENDPOINT_URL=http://localstack:4576
 
   localstack:
     # pinned to 10.4 due to https://github.com/localstack/localstack/issues/1992
@@ -46,6 +48,7 @@ services:
       - "4567-4597:4567-4597"
       - 8999:8080
     environment:
+      - HOSTNAME_EXTERNAL=localstack
       - SERVICES=sns,sqs
       - DEBUG=${DEBUG- }
       - DATA_DIR=${DATA_DIR- }

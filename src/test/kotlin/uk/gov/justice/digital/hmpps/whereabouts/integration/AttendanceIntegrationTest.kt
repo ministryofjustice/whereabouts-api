@@ -422,7 +422,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
     postAttendance()
     postAttendance(2)
 
-    oauthMockServer.verify(2, postRequestedFor(urlEqualTo("/auth/oauth/token?username=ITAG_USER")))
+    oauthMockServer.verify(2, postRequestedFor(urlEqualTo("/auth/oauth/token")))
   }
 
   private fun postAttendance(bookingId: Long = 1) {
