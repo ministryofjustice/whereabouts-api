@@ -13,16 +13,11 @@ public class CustomOAuth2ClientCredentialsGrantRequestEntityConverter extends OA
     public RequestEntity<?> enhanceWithUsername(final OAuth2ClientCredentialsGrantRequest grantRequest, final String username) {
         final var request = super.convert(grantRequest);
         final var body = Objects.requireNonNull(request).getBody();
+        final var headers = request.getHeaders();
+        final var formParameters = (MultiValueMap) body;
 
-        if(body instanceof MultiValueMap) {
-            final var headers = request.getHeaders();
-            final var formParameters = (MultiValueMap<String, Object>) body;
+        formParameters.add("username", username);
 
-            formParameters.add("username", username);
-
-            return new RequestEntity<>(formParameters, headers, HttpMethod.POST, request.getUrl());
-        }
-
-        return request;
+        return new RequestEntity<>(formParameters, headers, HttpMethod.POST, request.getUrl());
     }
 }
