@@ -10,18 +10,18 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
 import uk.gov.justice.digital.hmpps.whereabouts.services.Elite2ApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.IEPWarningService
 import uk.gov.justice.digital.hmpps.whereabouts.services.NomisEventOutcomeMapper
-//
-//@Configuration
-//class AttendanceServiceForAppScope {
-//  @Bean(name = ["attendanceServiceAppScope"])
-//  fun getAttendanceServiceForAppScope(
-//      @Qualifier("elite2WebClientAppScope") restTemplate: WebClient,
-//      attendanceRepository: AttendanceRepository,
-//      iepWarningService: IEPWarningService,
-//      nomisEventOutcomeMapper: NomisEventOutcomeMapper,
-//      telemetryClient: TelemetryClient
-//  ): AttendanceService {
-//
-//    return AttendanceService(attendanceRepository, Elite2ApiService(restTemplate), iepWarningService, nomisEventOutcomeMapper, telemetryClient)
-//  }
-//}
+
+@Configuration
+class AttendanceServiceForAppScope {
+  @Bean(name = ["attendanceServiceAppScope"])
+  fun getAttendanceServiceForAppScope(
+      @Qualifier("elite2WebClientAppScope") restTemplate: WebClient,
+      attendanceRepository: AttendanceRepository,
+      iepWarningService: IEPWarningService,
+      nomisEventOutcomeMapper: NomisEventOutcomeMapper,
+      telemetryClient: TelemetryClient
+  ): AttendanceService {
+
+    return AttendanceService(attendanceRepository, Elite2ApiService(restTemplate), iepWarningService, nomisEventOutcomeMapper, telemetryClient)
+  }
+}

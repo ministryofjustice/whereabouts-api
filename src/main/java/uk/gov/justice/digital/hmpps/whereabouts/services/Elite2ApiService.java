@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
@@ -33,11 +33,13 @@ public class Elite2ApiService {
         webClient.put()
                 .uri("/bookings/{bookingId}/activities/{activityId}/attendance", bookingId, activityId)
                 .bodyValue(eventOutcome)
-                .retrieve();
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
     }
 
     public void putAttendanceForMultipleBookings(final Set<BookingActivity> bookingActivities, final EventOutcome eventOutcome) {
-        webClient.post()
+        webClient.put()
                 .uri("/bookings/activities/attendance")
                 .bodyValue(new EventOutcomesDto(
                         eventOutcome.getEventOutcome(),
@@ -45,21 +47,21 @@ public class Elite2ApiService {
                         eventOutcome.getOutcomeComment(),
                         bookingActivities
                 ))
-                .retrieve();
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
     }
 
     public Set<Long> getBookingIdsForScheduleActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
-        final var responseType = new ParameterizedTypeReference<List<Map>>() {
-        };
+        final var responseType = new ParameterizedTypeReference<List<Map>>() {};
 
-        //TODO: Make it more reactive
         return Objects.requireNonNull(webClient.get()
                 .uri("/schedules/{prisonId}/activities?date={date}&timeSlot={period}", prisonId, date, period)
                 .retrieve()
                 .bodyToMono(responseType)
-                .block()).stream()
-                .filter(entry -> entry.containsKey("bookingId"))
-                .map(entry -> Long.valueOf(entry.get(Integer.parseInt("bookingId")).toString()))
+                .block())
+                .stream()
+                .map(entry -> Long.parseLong(entry.get("bookingId").toString()))
                 .collect(Collectors.toSet());
     }
 
@@ -116,23 +118,38 @@ public class Elite2ApiService {
         final var responseType = new ParameterizedTypeReference<List<LocationGroup>>() {
         };
 
-        return webClient.get()
-                .uri("/agencies/{agencyId}/locations/groups", agencyId)
-                .retrieve()
-                .bodyToMono(responseType)
-                .block();
+        try {
+            return webClient.get()
+                    .uri("/agencies/{agencyId}/locations/groups", agencyId)
+                    .retrieve()
+                    .bodyToMono(responseType)
+                    .block();
+        }
+        catch(WebClientResponseException e){
+            if (e.getStatusCode().equals(NOT_FOUND)) {
+                throw new EntityNotFoundException(String.format("Locations not found for agency %s", agencyId));
+            }
+            throw e;
+        }
     }
 
     public List<Location> getAgencyLocationsForType(final String agencyId, final String locationType) {
         final var responseType = new ParameterizedTypeReference<List<Location>>() {
         };
 
-        return webClient.get()
-                .uri("/agencies/{agencyId}/locations/type/{type}", agencyId, locationType)
-                .retrieve()
-                .onStatus(NOT_FOUND::equals, response -> Mono.error(new EntityNotFoundException(String.format("Locations not found for agency %s with location type %s", agencyId, locationType))))
-                .bodyToMono(responseType)
-                .block();
+        try {
+            return webClient.get()
+                    .uri("/agencies/{agencyId}/locations/type/{type}", agencyId, locationType)
+                    .retrieve()
+                    .bodyToMono(responseType)
+                    .block();
+        }
+        catch (WebClientResponseException e) {
+            if (e.getStatusCode().equals(NOT_FOUND)) {
+                throw new EntityNotFoundException(String.format("Locations not found for agency %s with location type %s", agencyId, locationType));
+            }
+            throw e;
+        }
     }
 
     public Long postAppointment(final long bookingId, @NotNull CreateBookingAppointment createbookingAppointment) {

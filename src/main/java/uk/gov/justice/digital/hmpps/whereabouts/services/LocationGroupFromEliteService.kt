@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
-import lombok.extern.slf4j.Slf4j
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup

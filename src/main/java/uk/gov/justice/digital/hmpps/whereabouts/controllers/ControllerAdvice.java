@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse;
 import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService;
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException;
@@ -15,7 +16,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException;
 import javax.persistence.EntityNotFoundException;
 
 @RestControllerAdvice(
-        basePackageClasses = {AttendanceController.class, AttendanceStatisticsController.class, AttendancesController.class, CourtService.class}
+        basePackageClasses = {AttendanceController.class, AttendanceStatisticsController.class, AttendancesController.class, CourtService.class, AgencyController.class, LocationController.class}
 )
 @Slf4j
 public class ControllerAdvice {
@@ -30,6 +31,18 @@ public class ControllerAdvice {
 
     @ExceptionHandler(RestClientException.class)
     public ResponseEntity<ErrorResponse> handleException(RestClientException e) {
+        log.error("Unexpected exception", e);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse
+                        .builder()
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(WebClientResponseException.class)
+    public ResponseEntity<ErrorResponse> handleException(WebClientResponseException e) {
         log.error("Unexpected exception", e);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)

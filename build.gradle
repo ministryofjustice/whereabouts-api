@@ -162,6 +162,8 @@ dependencies {
     testImplementation 'com.nhaarman:mockito-kotlin-kt1.1:1.6.0'
     testImplementation 'org.testcontainers:localstack:1.12.5'
 
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+
     compile configurations.agentDeps
 }
 

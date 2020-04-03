@@ -16,7 +16,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.justice.digital.hmpps.whereabouts.utils.JwtAuthenticationHelper;
-import uk.gov.justice.digital.hmpps.whereabouts.utils.JwtAuthenticationHelper.JwtParameters;
 
 import java.time.Duration;
 import java.util.List;
@@ -99,7 +98,7 @@ class ClientTrackingTelemetryModuleTest {
     }
 
     private String createJwt(final String user, final List<String> roles, final Long duration) {
-        return jwtAuthenticationHelper.createJwt(JwtParameters.builder()
+        return jwtAuthenticationHelper.createJwt(JwtAuthenticationHelper.JwtParameters.builder()
                 .username(user)
                 .roles(roles)
                 .scope(List.of("read", "write"))

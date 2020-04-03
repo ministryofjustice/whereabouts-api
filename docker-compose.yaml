@@ -35,8 +35,9 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
     environment:
       - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=dev
-      - ELITE2_API_BASE_URL=http://elite2-api:8080
+      - SPRING_PROFILES_ACTIVE=dev,noqueue
+      - ELITE2_API_BASE_URL=http://elite2:8080
+
 
   #  localstack:
   #    # pinned to 10.4 due to https://github.com/localstack/localstack/issues/1992

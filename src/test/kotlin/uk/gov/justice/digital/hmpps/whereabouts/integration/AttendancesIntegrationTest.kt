@@ -255,7 +255,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
             "eventOutcome" to "ATT"
         )))))
 
-    verify(attendanceRepository).saveAll<Attendance>(anySet())
+    verify(attendanceRepository).saveAll(anySet())
   }
 
   @Test

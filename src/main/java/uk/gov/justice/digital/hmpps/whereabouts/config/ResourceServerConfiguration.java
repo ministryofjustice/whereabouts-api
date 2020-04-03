@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -26,10 +27,9 @@ import java.util.Optional;
 
 @Configuration
 @EnableSwagger2
-//@EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 public class ResourceServerConfiguration extends WebSecurityConfigurerAdapter {
-
 
     private BuildProperties buildProperties;
 
@@ -47,38 +47,15 @@ public class ResourceServerConfiguration extends WebSecurityConfigurerAdapter {
                 .and().csrf().disable()
                 .authorizeRequests(auth ->
                         auth.antMatchers("/webjars/**", "/favicon.ico", "/csrf",
-                                "/health","/health/ping", "/info", "/ping",
+                                "/health", "/health/ping", "/info", "/ping","/h2-console/**",
                                 "/v2/api-docs",
                                 "/swagger-ui.html", "/swagger-resources", "/swagger-resources/configuration/ui",
                                 "/swagger-resources/configuration/security")
-                                .permitAll().anyRequest().authenticated())
+                                .permitAll().anyRequest().authenticated()
+                )
                 .oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
-    }
 
-//    @Override
-//    public void configure(final ResourceServerSecurityConfigurer config) {
-//        config.tokenServices(tokenServices());
-//    }
-//
-//    @Bean
-//    public TokenStore tokenStore() {
-//        return new JwtTokenStore(accessTokenConverter());
-//    }
-//
-//    @Bean
-//    public JwtAccessTokenConverter accessTokenConverter() {
-//        final var converter = new JwtAccessTokenConverter();
-//        converter.setVerifierKey(new String(Base64.decodeBase64(jwtPublicKey)));
-//        return converter;
-//    }
-//
-//    @Bean
-//    @Primary
-//    public DefaultTokenServices tokenServices() {
-//        final var defaultTokenServices = new DefaultTokenServices();
-//        defaultTokenServices.setTokenStore(tokenStore());
-//        return defaultTokenServices;
-//    }
+    }
 
     @Bean
     public Docket api() {
@@ -117,27 +94,4 @@ public class ResourceServerConfiguration extends WebSecurityConfigurerAdapter {
                 "",
                 "feedback@digital.justice.gov.uk");
     }
-
-//    @Bean
-//    @ConfigurationProperties("elite2api.client")
-//    public ClientCredentialsResourceDetails elite2apiClientCredentials() {
-//        return new ClientCredentialsResourceDetails();
-//    }
-//
-//    @Bean
-//    @Primary
-//    @RequestScope
-//    public OAuth2ClientContext oAuth2ClientContext() {
-//        return new DefaultOAuth2ClientContext();
-//    }
-//
-//    @Bean(name = "oauth2ClientContextAppScope")
-//    public OAuth2ClientContext oauth2ClientContextSingleton() {
-//        return new DefaultOAuth2ClientContext();
-//    }
-//
-//    @Bean
-//    public OAuth2ClientContext oAuth2ClientContextNoneRequestScope() {
-//        return new DefaultOAuth2ClientContext();
-//    }
 }

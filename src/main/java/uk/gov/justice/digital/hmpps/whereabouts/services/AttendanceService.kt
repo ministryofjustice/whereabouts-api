@@ -16,7 +16,7 @@ import java.util.stream.Collectors
 import javax.transaction.Transactional
 
 @Service
-open class AttendanceService(
+class AttendanceService(
     private val attendanceRepository: AttendanceRepository,
     private val elite2ApiService: Elite2ApiService,
     private val iepWarningService: IEPWarningService,
@@ -27,7 +27,7 @@ open class AttendanceService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  open fun getAttendanceForEventLocation(prisonId: String?, eventLocationId: Long?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
+  fun getAttendanceForEventLocation(prisonId: String?, eventLocationId: Long?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
     val attendance = attendanceRepository
         .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(prisonId, eventLocationId, date, period)
 
@@ -36,7 +36,7 @@ open class AttendanceService(
         .toSet()
   }
 
-  open fun getAbsencesForReason(prisonId: String?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
+  fun getAbsencesForReason(prisonId: String?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
     val attendance = attendanceRepository
         .findByPrisonIdAndEventDateAndPeriodAndAbsentReasonNotNull(prisonId, date, period)
 
@@ -45,7 +45,7 @@ open class AttendanceService(
         .toSet()
   }
 
-  open fun getAttendanceForBookings(prisonId: String?, bookings: Set<Long?>?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
+  fun getAttendanceForBookings(prisonId: String?, bookings: Set<Long?>?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
     val attendance = attendanceRepository
         .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookings, date, period)
 
@@ -54,7 +54,7 @@ open class AttendanceService(
 
   @Transactional
   @Throws(AttendanceExists::class)
-  open fun createAttendance(attendanceDto: CreateAttendanceDto): AttendanceDto {
+  fun createAttendance(attendanceDto: CreateAttendanceDto): AttendanceDto {
     val provisionalAttendance = toAttendance(attendanceDto)
     val existing = attendanceRepository.findByPrisonIdAndBookingIdAndEventIdAndEventDateAndPeriod(
         provisionalAttendance.prisonId,
@@ -84,7 +84,7 @@ open class AttendanceService(
 
   @Transactional
   @Throws(AttendanceNotFound::class, AttendanceLocked::class)
-  open fun updateAttendance(id: Long, newAttendanceDetails: UpdateAttendanceDto) {
+  fun updateAttendance(id: Long, newAttendanceDetails: UpdateAttendanceDto) {
     val attendance = attendanceRepository.findById(id).orElseThrow { AttendanceNotFound() }
     if (isAttendanceLocked(attendance)) {
       log.info("Update attempted on locked attendance, attendance id {}", id)
@@ -104,7 +104,7 @@ open class AttendanceService(
   }
 
   @Transactional
-  open fun attendAll(attendAll: AttendAllDto): Set<AttendanceDto> {
+  fun attendAll(attendAll: AttendAllDto): Set<AttendanceDto> {
     val eventOutcome = nomisEventOutcomeMapper.getEventOutcome(null, true, true, "")
 
     elite2ApiService.putAttendanceForMultipleBookings(attendAll.bookingActivities, eventOutcome)
@@ -151,14 +151,14 @@ open class AttendanceService(
     return if (attendance.paid) dateDifference >= 1 else dateDifference >= 7
   }
 
-  open fun getAttendanceForOffendersThatHaveScheduledActivity(prisonId: String?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
+  fun getAttendanceForOffendersThatHaveScheduledActivity(prisonId: String?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
     val bookingIds = elite2ApiService.getBookingIdsForScheduleActivities(prisonId, date, period)
     val attendances = attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookingIds, date, period)
     return attendances.stream().map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }.collect(Collectors.toSet())
   }
 
   @Transactional
-  open fun createAttendances(attendancesDto: AttendancesDto): Set<AttendanceDto> {
+  fun createAttendances(attendancesDto: AttendancesDto): Set<AttendanceDto> {
     val attendances = attendancesDto.bookingActivities
         .map { (bookingId, activityId) ->
           Attendance.builder()

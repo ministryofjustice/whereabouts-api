@@ -39,7 +39,7 @@ class AgencyIntegrationTest: IntegrationTest() {
         restTemplate.exchange("/agencies/$notAnAgencyId/locations/groups", HttpMethod.GET, createHeaderEntity(""))
 
     assertThat(response.statusCodeValue).isEqualTo(404)
-    assertThat(response.body.userMessage).contains(notAnAgencyId).contains("not found")
+    assertThat(response.body.developerMessage).contains("Locations not found for agency NON")
   }
 
   @Test
