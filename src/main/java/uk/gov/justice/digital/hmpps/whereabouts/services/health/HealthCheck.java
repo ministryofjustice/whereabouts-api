@@ -11,7 +11,6 @@ import java.time.Duration;
 
 import static lombok.AccessLevel.PROTECTED;
 
-// @Value("${api.health-timeout-ms}") final Duration healthTimeout
 @AllArgsConstructor(access = PROTECTED)
 public abstract class HealthCheck implements HealthIndicator {
     private final WebClient webClient;

@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
@@ -16,7 +17,7 @@ import java.util.Base64;
 import static java.lang.String.format;
 
 @Component
-//@ConditionalOnProperty("spring.security.oauth2.resourceserver.jwt.public-key-location")
+@ConditionalOnProperty("spring.security.oauth2.resourceserver.jwt.public-key-location")
 @Slf4j
 public class PublicKeyClient implements PublicKeySupplier {
 
