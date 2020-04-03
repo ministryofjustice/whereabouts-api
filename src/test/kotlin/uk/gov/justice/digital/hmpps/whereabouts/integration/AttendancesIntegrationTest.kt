@@ -301,7 +301,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
     val period = TimePeriod.AM
     val reason = AbsentReason.Refused
 
-    elite2MockServer.stubGetScheduledActivitiesForDateRange(prisonId, date, date, period)
+    elite2MockServer.stubGetScheduledActivitiesForDateRange(prisonId, date, date, period, true)
 
     whenever(attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(any(), any(), any(), anySet(), any()))
         .thenReturn(setOf(

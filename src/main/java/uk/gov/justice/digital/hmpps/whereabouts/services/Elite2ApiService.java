@@ -63,6 +63,7 @@ public class Elite2ApiService {
                 .stream()
                 .map(entry -> Long.parseLong(entry.get("bookingId").toString()))
                 .collect(Collectors.toSet());
+
     }
 
     public String getOffenderNoFromBookingId(final Long bookingId) {
@@ -75,36 +76,18 @@ public class Elite2ApiService {
                 .block();
     }
 
-    public List<Long> getBookingIdsForScheduleActivitiesByDateRange(final String prisonId, final TimePeriod period, final LocalDate fromDate, final LocalDate toDate) {
-        final var responseType = new ParameterizedTypeReference<List<Map>>() {
-        };
-
-        return Objects.requireNonNull(webClient.get()
-                .uri("/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}", prisonId, fromDate, toDate, period)
-                .retrieve()
-                .bodyToMono(responseType)
-                .block())
-                .stream()
-                .filter(entry -> entry.containsKey("bookingId"))
-                .map(entry -> Long.valueOf(entry.get("bookingId").toString()))
-                .collect(Collectors.toList());
-    }
-
     public List<OffenderDetails> getScheduleActivityOffenderData(final String prisonId, final LocalDate fromDate, final LocalDate toDate, final TimePeriod period) {
-        final var responseType = new ParameterizedTypeReference<List<OffenderDetails>>() {
-        };
+        final var responseType = new ParameterizedTypeReference<List<OffenderDetails>>() {};
 
         return webClient.get()
-                .uri("/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}", prisonId, fromDate, toDate, period)
+                .uri("/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}&includeSuspended=true", prisonId, fromDate, toDate, period)
                 .retrieve()
                 .bodyToMono(responseType)
                 .block();
     }
 
     public Long getOffenderBookingId(final String offenderNo) {
-
-        final var responseType = new ParameterizedTypeReference<OffenderDetails>() {
-        };
+        final var responseType = new ParameterizedTypeReference<OffenderDetails>() {};
 
         return webClient.get()
                 .uri("/bookings/offenderNo/{offenderNo}?fullInfo=false", offenderNo)
@@ -115,8 +98,7 @@ public class Elite2ApiService {
     }
 
     public List<LocationGroup> getLocationGroups(final String agencyId) {
-        final var responseType = new ParameterizedTypeReference<List<LocationGroup>>() {
-        };
+        final var responseType = new ParameterizedTypeReference<List<LocationGroup>>() {};
 
         try {
             return webClient.get()
@@ -134,8 +116,7 @@ public class Elite2ApiService {
     }
 
     public List<Location> getAgencyLocationsForType(final String agencyId, final String locationType) {
-        final var responseType = new ParameterizedTypeReference<List<Location>>() {
-        };
+        final var responseType = new ParameterizedTypeReference<List<Location>>() {};
 
         try {
             return webClient.get()
@@ -153,8 +134,8 @@ public class Elite2ApiService {
     }
 
     public Long postAppointment(final long bookingId, @NotNull CreateBookingAppointment createbookingAppointment) {
-        final var responseType = new ParameterizedTypeReference<Event>() {
-        };
+        final var responseType = new ParameterizedTypeReference<Event>() {};
+
         return webClient.post()
                 .uri("/bookings/{bookingId}/appointments", bookingId)
                 .bodyValue(createbookingAppointment)

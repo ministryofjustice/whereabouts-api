@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -9,14 +10,15 @@ import java.time.LocalDate
 
 data class PaidReasons(val attended: Int? = 0, val acceptableAbsence: Int? = 0, val approvedCourse: Int? = 0, val notRequired: Int? = 0)
 data class UnpaidReasons(val refused: Int? = 0, val refusedIncentiveLevelWarning: Int?, val sessionCancelled: Int? = 0, val unacceptableAbsence: Int? = 0, val restDay: Int? = 0, val restInCellOrSick: Int? = 0)
-data class Stats(val scheduleActivities: Int? = 0, val notRecorded: Int? = 0, val paidReasons: PaidReasons?, val unpaidReasons: UnpaidReasons?)
+data class Stats(val scheduleActivities: Int? = 0, val notRecorded: Int? = 0, val paidReasons: PaidReasons?, val unpaidReasons: UnpaidReasons?, val suspended: Int? = 0)
 
 @Service
 open class AttendanceStatistics(private val attendanceRepository: AttendanceRepository, private val elite2ApiService: Elite2ApiService) {
   fun getStats(prisonId: String, period: TimePeriod?, from: LocalDate, to: LocalDate): Stats {
 
     val periods = period?.let { setOf(it) } ?: setOf(TimePeriod.PM, TimePeriod.AM)
-    val offendersScheduledForActivity = getScheduleActivityForPeriods(prisonId, from, to, periods)
+    val scheduledActivity = getScheduleActivityForPeriods(prisonId, from, to, periods)
+    val offendersScheduledForActivity = scheduledActivity.map { it.bookingId }
 
     val attendances = when (periods.size) {
       in 2..3 -> attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(prisonId, from, to, periods)
@@ -39,14 +41,15 @@ open class AttendanceStatistics(private val attendanceRepository: AttendanceRepo
             unacceptableAbsence = attendances.count { it.absentReason == AbsentReason.UnacceptableAbsence },
             restDay = attendances.count { it.absentReason == AbsentReason.RestDay },
             restInCellOrSick = attendances.count { it.absentReason == AbsentReason.RestInCellOrSick }
-        )
+        ),
+        suspended = scheduledActivity.count { it.suspended?.equals(true) ?: false }
     )
   }
 
-  private fun getScheduleActivityForPeriods(prisonId: String, from: LocalDate, to: LocalDate, periods: Set<TimePeriod>): List<Long> =
-      periods.map { elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(prisonId, it, from, to) }.flatten()
+  private fun getScheduleActivityForPeriods(prisonId: String, from: LocalDate, to: LocalDate, periods: Set<TimePeriod>): List<OffenderDetails> =
+      periods.map { elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, it) }.flatten()
 
-  private fun calculateNotRecorded(scheduledBookingIds: List<Long>, attendedBookingIds: Set<Attendance>): Int {
+  private fun calculateNotRecorded(scheduledBookingIds: List<Long?>, attendedBookingIds: Set<Attendance>): Int {
     // This creates a Grouping that looks like {1=2, 2=2}
     // Where the key is the booking id and the value is the
     // number of times that booking id appears

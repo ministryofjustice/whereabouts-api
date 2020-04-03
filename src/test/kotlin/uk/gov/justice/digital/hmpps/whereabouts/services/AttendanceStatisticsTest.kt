@@ -11,6 +11,7 @@ import org.mockito.Mockito.any
 import org.mockito.Mockito.anyString
 
 import com.nhaarman.mockito_kotlin.mock
+import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -194,8 +195,13 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count not recorded`() {
-    whenever(elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(anyString(), any(), any(), any()))
-        .thenReturn(listOf(1, 2, 3, 100, 102))
+    whenever(elite2ApiService.getScheduleActivityOffenderData(anyString(), any(), any(), any())).thenReturn(listOf(
+            OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 2, cellLocation = "cell1", eventDate = from, timeSlot = "AM", comment = "Gym", firstName = "john", lastName = "doe", suspended = true),
+            OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 3, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false),
+            OffenderDetails(bookingId = 3, offenderNo = "A12347", eventId = 4, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false),
+            OffenderDetails(bookingId = 100, offenderNo = "A12348", eventId = 5, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false),
+            OffenderDetails(bookingId = 102, offenderNo = "A12349", eventId = 6, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false)
+    ))
 
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
         .thenReturn(attendances)
@@ -209,8 +215,16 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count offender schedules`() {
-    whenever(elite2ApiService.getBookingIdsForScheduleActivitiesByDateRange(anyString(), any(), any(), any()))
-        .thenReturn(listOf(1, 2, 3, 100, 102, 100, 100, 100))
+    whenever(elite2ApiService.getScheduleActivityOffenderData(anyString(), any(), any(), any())).thenReturn(listOf(
+            OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 2, cellLocation = "cell1", eventDate = from, timeSlot = "AM", comment = "Gym", firstName = "john", lastName = "doe", suspended = true),
+            OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 3, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false),
+            OffenderDetails(bookingId = 3, offenderNo = "A12347", eventId = 4, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false),
+            OffenderDetails(bookingId = 4, offenderNo = "A12348", eventId = 5, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false),
+            OffenderDetails(bookingId = 5, offenderNo = "A12349", eventId = 6, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false),
+            OffenderDetails(bookingId = 6, offenderNo = "A12340", eventId = 7, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false),
+            OffenderDetails(bookingId = 7, offenderNo = "A12341", eventId = 8, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false),
+            OffenderDetails(bookingId = 8, offenderNo = "A12342", eventId = 9, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false)
+    ))
 
     val service = buildAttendanceStatistics()
 
@@ -270,21 +284,23 @@ class AttendanceStatisticsTest {
   fun `should call the elite2 schedule api twice, once for AM and then for PM`() {
     val service = buildAttendanceStatistics()
 
-    whenever(elite2ApiService
-        .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.AM, from, to))
-        .thenReturn(listOf(1, 2))
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)).thenReturn(listOf(
+            OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 2, cellLocation = "cell1", eventDate = from, timeSlot = "AM", comment = "Gym", firstName = "john", lastName = "doe", suspended = true),
+            OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 3, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false)
+    ))
 
-    whenever(elite2ApiService
-        .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.PM, from, to))
-        .thenReturn(listOf(1, 2))
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)).thenReturn(listOf(
+            OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 4, eventDate = from, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = true),
+            OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 5, cellLocation = "cell4", eventDate = from, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = false)
+    ))
 
     val stats = service.getStats(prisonId, null, from, to)
 
     verify(elite2ApiService)
-        .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.AM, from, to)
+        .getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)
 
     verify(elite2ApiService)
-        .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.PM, from, to)
+        .getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)
 
     assertThat(stats).extracting("notRecorded").isEqualTo(4)
   }
@@ -299,17 +315,41 @@ class AttendanceStatisticsTest {
     // Return the same booking ids for AM and PM. These booking ids have attendances in the AM
     // but not in the PM. We expect the not recorded count to take into account the missing PM data
     // as it is meant to be cumulative
-    whenever(elite2ApiService
-            .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.AM, from, to))
-            .thenReturn(listOf(1, 2))
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)).thenReturn(listOf(
+            OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 2, cellLocation = "cell1", eventDate = from, timeSlot = "AM", comment = "Gym", firstName = "john", lastName = "doe", suspended = true),
+            OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 3, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false)
+    ))
 
-    whenever(elite2ApiService
-            .getBookingIdsForScheduleActivitiesByDateRange(prisonId, TimePeriod.PM, from, to))
-            .thenReturn(listOf(1, 2))
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)).thenReturn(listOf(
+            OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 4, eventDate = from, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = true),
+            OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 5, cellLocation = "cell4", eventDate = from, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = false)
+    ))
 
     val stats = service.getStats(prisonId, null, from, to)
 
     assertThat(stats).extracting("notRecorded").isEqualTo(2)
+  }
+
+  @Test
+  fun `should return the correct number of suspended`() {
+    val service = buildAttendanceStatistics()
+
+    whenever(attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(prisonId, from, to, setOf(TimePeriod.AM, TimePeriod.PM)))
+            .thenReturn(attendances)
+
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)).thenReturn(listOf(
+            OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 2, cellLocation = "cell1", eventDate = from, timeSlot = "AM", comment = "Gym", firstName = "john", lastName = "doe", suspended = true),
+            OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 3, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false)
+    ))
+
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)).thenReturn(listOf(
+            OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 4, eventDate = from, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = true),
+            OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 5, cellLocation = "cell4", eventDate = from, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = false)
+    ))
+
+    val stats = service.getStats(prisonId, null, from, to)
+
+    assertThat(stats).extracting("suspended").isEqualTo(2)
   }
 
 

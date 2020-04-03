@@ -25,7 +25,7 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should request schedules by date range`() {
-    elite2MockServer.stubGetScheduledActivitiesForDateRange(prisonId, fromDate, toDate, period)
+    elite2MockServer.stubGetScheduledActivitiesForDateRange(prisonId, fromDate, toDate, period, true)
 
     val response =
         restTemplate.exchange(
@@ -42,14 +42,14 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
 
     elite2MockServer.verify(WireMock.getRequestedFor(
         WireMock.urlEqualTo(
-            "/api/schedules/$prisonId/activities-by-date-range?fromDate=$fromDate&toDate=$toDate&timeSlot=$period"
+            "/api/schedules/$prisonId/activities-by-date-range?fromDate=$fromDate&toDate=$toDate&timeSlot=$period&includeSuspended=true"
         )
     ))
   }
 
   @Test
   fun `should populate stats with data`() {
-    elite2MockServer.stubGetScheduledActivitiesForDateRange(prisonId, fromDate, toDate, period)
+    elite2MockServer.stubGetScheduledActivitiesForDateRange(prisonId, fromDate, toDate, period, true)
 
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(any(), any(), any(), any())).thenReturn(
         setOf(

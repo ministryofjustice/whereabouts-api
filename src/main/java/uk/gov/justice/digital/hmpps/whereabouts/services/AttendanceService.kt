@@ -239,7 +239,8 @@ class AttendanceService(
         period.toString(),
         details.firstName,
         details.lastName,
-        details.comment
+        details.comment,
+        details.suspended
     )
   }
 
@@ -257,7 +258,8 @@ class AttendanceService(
         attendance.comments,
         details.cellLocation,
         details.firstName,
-        details.lastName
+        details.lastName,
+        details.suspended
     )
   }
 
