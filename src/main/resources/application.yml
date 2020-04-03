@@ -28,60 +28,60 @@ spring:
     console:
       enabled: true
 
-server:
-  port: 8082
-  servlet:
-    context-path: /
-  use-forward-headers: true
-  tomcat:
-    remote-ip-header: x-forwarded-for
-    protocol_header: x-forwarded-proto
+  server:
+    port: 8082
+    servlet:
+      context-path: /
+    use-forward-headers: true
+    tomcat:
+      remote-ip-header: x-forwarded-for
+      protocol_header: x-forwarded-proto
 
-logging:
-  level:
-    org.springframework: INFO
-    org.springframework.security: INFO
-    uk.gov.justice.digital: DEBUG
+  logging:
+    level:
+      org.springframework: INFO
+      org.springframework.security: INFO
+      uk.gov.justice.digital: DEBUG
 
-management:
-  endpoints:
-    web:
-      base-path: /
-      exposure:
-        include: 'info, health, ping'
-  endpoint:
-    health:
-      cache:
-        time-to-live: 2000ms
-      show-components: always
-      show-details: always
-    info:
-      cache:
-        time-to-live: 2000ms
+  management:
+    endpoints:
+      web:
+        base-path: /
+        exposure:
+          include: 'info, health, ping'
+    endpoint:
+      health:
+        cache:
+          time-to-live: 2000ms
+        show-components: always
+        show-details: always
+      info:
+        cache:
+          time-to-live: 2000ms
 
+
+  security:
+    oauth2:
+      client:
+        registration:
+          elite2-api:
+            provider: hmpps-auth
+            client-id: ${elite2api.client.clientId}
+            client-secret: ${elite2api.client.clientSecret}
+            authorization-grant-type: client_credentials
+            scope: write
+        provider:
+          hmpps-auth:
+            token-uri: ${auth.endpoint.url}/oauth/token
+
+# These are needed for running locally - should be overridden by secrets when deployed with Kubernetes
 elite2api:
   client:
-    clientId: ${oauth.client.id}
-    clientSecret: ${oauth.client.secret}
-    accessTokenUri: ${oauth.token.url}
-    tokenName: elite2_token
-    authenticationScheme: header
-    clientAuthenticationScheme: header
-  endpoint.url: http://localhost:8080
-
-oauth:
-  endpoint.url: http://localhost:9090/auth
-  token.url: ${oauth.endpoint.url}/oauth/token
-  client:
-    id: whereabouts-api-client
-    secret: clientsecret
-
-casenotes:
-  endpoint.url: http://localhost:8083
+    clientId: whereabouts-api-client
+    clientSecret: clientsecret
 
 graceful:
   shutdown.enabled: false
-
 
 sqs:
   provider: aws

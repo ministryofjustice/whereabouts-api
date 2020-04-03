@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
@@ -19,10 +20,11 @@ public class UserContextFilter implements Filter {
 
 
         final var httpServletRequest = (HttpServletRequest) servletRequest;
-
         final var authToken = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+        final var authentication =  SecurityContextHolder.getContext().getAuthentication();
 
         UserContext.setAuthToken(authToken);
+        UserContext.setAuthentication(authentication);
 
         filterChain.doFilter(httpServletRequest, servletResponse);
     }

@@ -10,15 +10,15 @@ import org.springframework.stereotype.Service
 
 @Service
 @ConditionalOnProperty("sqs.provider")
-open class EventListener(@Qualifier("attendanceServiceAppScope") private val attendanceService: AttendanceService, private val gson: Gson) {
+class EventListener(@Qualifier("attendanceServiceAppScope") private val attendanceService: AttendanceService, private val gson: Gson) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
   @JmsListener(destination = "\${sqs.queue.name}")
-  open fun handleEvents(requestJson: String?) {
+  fun handleEvents(requestJson: String?) {
     val (Message, MessageAttributes) = gson.fromJson<Message>(requestJson, Message::class.java)
-    val (offenderIdDisplay) = gson.fromJson<EventMessage>(Message, EventMessage::class.java)
+    val (offenderIdDisplay) = gson.fromJson(Message, EventMessage::class.java)
 
     val eventType = MessageAttributes.eventType.Value
     log.info("Processing message of type {}", eventType)

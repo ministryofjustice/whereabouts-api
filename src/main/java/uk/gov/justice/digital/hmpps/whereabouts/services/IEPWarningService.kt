@@ -11,12 +11,12 @@ import java.time.LocalDate
 import java.util.*
 
 @Service
-open class IEPWarningService(private val caseNotesService: CaseNotesService, private val elite2ApiService: Elite2ApiService) {
+class IEPWarningService(private val caseNotesService: CaseNotesService, private val elite2ApiService: Elite2ApiService) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  open fun handleIEPWarningScenarios(attendance: Attendance, newAttendanceDetails: UpdateAttendanceDto): Optional<Long> {
+  fun handleIEPWarningScenarios(attendance: Attendance, newAttendanceDetails: UpdateAttendanceDto): Optional<Long> {
     val alreadyTriggeredIEPWarning = attendance.absentReason != null &&
         AbsentReason.getIepTriggers().contains(attendance.absentReason)
     val shouldTriggerIEPWarning = newAttendanceDetails.absentReason != null &&
@@ -56,7 +56,6 @@ open class IEPWarningService(private val caseNotesService: CaseNotesService, pri
 
   open fun postIEPWarningIfRequired(bookingId: Long?, caseNoteId: Long?, reason: AbsentReason?, text: String?, eventDate: LocalDate): Optional<Long> {
     if (caseNoteId == null && reason != null && AbsentReason.getIepTriggers().contains(reason)) {
-      log.info("IEP Warning created for bookingId {}", bookingId)
       val offenderNo = elite2ApiService.getOffenderNoFromBookingId(bookingId)
       val modifiedTextWithReason = formatReasonAndComment(reason, text)
       val caseNote = caseNotesService.postCaseNote(
@@ -65,6 +64,8 @@ open class IEPWarningService(private val caseNotesService: CaseNotesService, pri
           "IEP_WARN",  //"IEP Warning",
           modifiedTextWithReason,
           eventDate.atStartOfDay())
+
+      log.info("IEP Warning created for bookingId {}", bookingId)
       return Optional.of(caseNote.caseNoteId)
     }
     return Optional.empty()

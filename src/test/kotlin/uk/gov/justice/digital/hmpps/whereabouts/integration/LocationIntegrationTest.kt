@@ -45,11 +45,11 @@ class LocationIntegrationTest: IntegrationTest() {
   fun `location groups for agency by location name - server error from elite2 - server error passed to client`() {
     elite2MockServer.stubGetAgencyLocationsByTypeServerError("any_agency", "CELL")
 
-    val response: ResponseEntity<String> =
+    val response: ResponseEntity<ErrorResponse> =
         restTemplate.exchange("/locations/groups/any_agency/any_location_type", HttpMethod.GET, createHeaderEntity(""))
 
     assertThat(response.statusCodeValue).isEqualTo(500)
-    assertThat(response.body).contains("Server error")
+    assertThat(response.body.developerMessage).contains("Server Error")
   }
 
   private fun getRniHb7Locations() =

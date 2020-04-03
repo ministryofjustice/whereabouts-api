@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto;
 
 import java.time.LocalDateTime;
@@ -10,31 +10,32 @@ import java.util.Map;
 
 @Service
 public class CaseNotesService {
-    private final OAuth2RestTemplate restTemplate;
+    private final WebClient webClient;
 
-    public CaseNotesService(@Qualifier("caseNotesApiRestTemplate") final OAuth2RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public CaseNotesService(@Qualifier("caseNoteWebClient") final WebClient webClient) {
+        this.webClient = webClient;
     }
 
     public CaseNoteDto postCaseNote(final String offenderNo, final String type, final String subType, final String text, final LocalDateTime occurrence) {
-        final var url = "/case-notes/{offenderNo}";
-
-        final var response = restTemplate.postForEntity(
-                url,
-                Map.of(
+        return webClient.post()
+                .uri("/case-notes/{offenderNo}", offenderNo)
+                .bodyValue(Map.of(
                         "type", type,
                         "subType", subType,
                         "text", text,
-                        "occurrenceDateTime", occurrence.toString()),
-                CaseNoteDto.class, offenderNo);
-
-        return response.getBody();
+                        "occurrenceDateTime", occurrence.toString()))
+                .retrieve()
+                .bodyToMono(CaseNoteDto.class)
+                .block();
     }
 
     public void putCaseNoteAmendment(final String offenderNo, final long caseNoteId, final String text) {
-        final var url = "/case-notes/{offenderNo}/{caseNoteId}";
-
-        restTemplate.put(url, Map.of("text", text), offenderNo, caseNoteId);
+        webClient.put()
+                .uri("/case-notes/{offenderNo}/{caseNoteId}", offenderNo, caseNoteId)
+                .bodyValue(Map.of("text", text))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
     }
 }
 
