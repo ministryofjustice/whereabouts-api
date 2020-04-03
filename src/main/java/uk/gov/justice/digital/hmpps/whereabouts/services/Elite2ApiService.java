@@ -25,7 +25,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class Elite2ApiService {
     private final WebClient webClient;
 
-    public Elite2ApiService(@Qualifier("elite2WebClient") final WebClient webClient) {
+    public  Elite2ApiService(@Qualifier("elite2WebClient") final WebClient webClient) {
         this.webClient = webClient;
     }
 
