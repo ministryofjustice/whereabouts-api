@@ -32,9 +32,9 @@ public class WebClientConfiguration {
 
     public WebClientConfiguration(
             @Value("${elite2.api.uri.root}") final String elite2ApiRootUri,
-            @Value("${elite2.uri.root}") final String eliteHealthRootUri,
+            @Value("${elite2api.endpoint.url}") final String eliteHealthRootUri,
             @Value("${casenotes.endpoint.url}") final String caseNotesRootUri,
-            @Value("${auth.endpoint.url}") final String oauthRootUri) {
+            @Value("${oauth.endpoint.url}") final String oauthRootUri) {
 
         this.elite2ApiRootUri = elite2ApiRootUri;
         this.eliteHealthRootUri = eliteHealthRootUri;
