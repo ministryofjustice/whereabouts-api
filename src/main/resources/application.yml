@@ -80,6 +80,9 @@ elite2api:
     clientId: whereabouts-api-client
     clientSecret: clientsecret
 
+codec:
+  max-in-memory-size: 10MB
+
 graceful:
   shutdown.enabled: false
 
