@@ -66,18 +66,13 @@ spring:
         registration:
           elite2-api:
             provider: hmpps-auth
-            client-id: ${oauth.client.clientId}
-            client-secret: ${oauth.client.clientSecret}
+            client-id: ${oauth.client.id}
+            client-secret: ${oauth.client.secret}
             authorization-grant-type: client_credentials
             scope: write
         provider:
           hmpps-auth:
             token-uri: ${oauth.endpoint.url}/oauth/token
-
-oauth:
-  client:
-    clientId: whereabouts-api-client
-    clientSecret: clientsecret
 
 codec:
   max-in-memory-size: 10MB
