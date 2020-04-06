@@ -66,16 +66,15 @@ spring:
         registration:
           elite2-api:
             provider: hmpps-auth
-            client-id: ${elite2api.client.clientId}
-            client-secret: ${elite2api.client.clientSecret}
+            client-id: ${oauth.client.clientId}
+            client-secret: ${oauth.client.clientSecret}
             authorization-grant-type: client_credentials
             scope: write
         provider:
           hmpps-auth:
             token-uri: ${oauth.endpoint.url}/oauth/token
 
-# These are needed for running locally - should be overridden by secrets when deployed with Kubernetes
-elite2api:
+oauth:
   client:
     clientId: whereabouts-api-client
     clientSecret: clientsecret
