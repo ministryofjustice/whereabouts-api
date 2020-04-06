@@ -72,7 +72,7 @@ spring:
             scope: write
         provider:
           hmpps-auth:
-            token-uri: ${auth.endpoint.url}/oauth/token
+            token-uri: ${oauth.endpoint.url}/oauth/token
 
 # These are needed for running locally - should be overridden by secrets when deployed with Kubernetes
 elite2api:
