@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.utils;
 
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Builder;
@@ -28,7 +29,7 @@ public class JwtAuthenticationHelper {
 
     public JwtAuthenticationHelper(@Value("${jwt.signing.key.pair}") final String privateKeyPair,
                                    @Value("${jwt.keystore.password}") final String keystorePassword,
-                                   @Value("${jwt.keystore.alias:keyworkerApi}") final String keystoreAlias) {
+                                   @Value("${jwt.keystore.alias:whereabouts-api}") final String keystoreAlias) {
 
         keyPair = getKeyPair(new ByteArrayResource(Base64.decodeBase64(privateKeyPair)), keystoreAlias, keystorePassword.toCharArray());
     }
@@ -39,7 +40,7 @@ public class JwtAuthenticationHelper {
 
         claims.put("user_name", parameters.getUsername());
         claims.put("user_id", parameters.getUserId());
-        claims.put("client_id", "keyworkerApiClient");
+        claims.put("client_id", "whereabouts-api");
 
         if (parameters.getRoles() != null && !parameters.getRoles().isEmpty())
             claims.put("authorities", parameters.getRoles());
@@ -65,7 +66,7 @@ public class JwtAuthenticationHelper {
         private List<String> roles;
         private Duration expiryTime;
         @Builder.Default
-        private String clientId = "keyworkerApiClient";
+        private String clientId = "whereabouts-api";
         @Builder.Default
         private boolean internalUser = true;
     }
