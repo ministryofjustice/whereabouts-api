@@ -10,13 +10,10 @@ elite2api:
   host: localhost
   port: 8999
 
-elite2api:
-  endpoint.url: http://localhost:8999
-
 casenotes:
   endpoint.url: http://localhost:8093
 
-auth:
+oauth:
   endpoint:
     url: http://localhost:8090/auth
 
