@@ -1,5 +1,5 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
-open class ValidationException(message: String?) : Exception(message)
+open class ValidationException(message: String?) : RuntimeException(message)
 
-class InvalidCourtLocation(message: String?) : ValidationException(message)
+open class InvalidCourtLocation(message: String?) : ValidationException(message)

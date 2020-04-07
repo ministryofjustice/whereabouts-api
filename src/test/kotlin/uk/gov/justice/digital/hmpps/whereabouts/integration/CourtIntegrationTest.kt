@@ -2,6 +2,8 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.nhaarman.mockito_kotlin.whenever
+import net.javacrumbs.jsonunit.assertj.JsonAssertions
+import net.javacrumbs.jsonunit.assertj.JsonAssertions.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -87,6 +89,7 @@ class CourtIntegrationTest : IntegrationTest() {
         )))
 
     assertThat(response.statusCode.value()).isEqualTo(400)
+    assertThatJson(response.body).node("userMessage").isEqualTo("Invalid court location")
   }
 
   @Test

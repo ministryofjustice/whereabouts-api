@@ -7,10 +7,12 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
+import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 import javax.transaction.Transactional
 
 @Service
 class CourtService(
+    private val authenticationFacade: AuthenticationFacade,
     private val elite2ApiService: Elite2ApiService,
     private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
     @Value("\${courts}") private val courts: String) {
@@ -34,7 +36,8 @@ class CourtService(
         appointmentId = eventId,
         bookingId = createVideoLinkAppointment.bookingId,
         court = createVideoLinkAppointment.court,
-        hearingType = createVideoLinkAppointment.hearingType
+        hearingType = createVideoLinkAppointment.hearingType,
+        createdByUsername = authenticationFacade.currentUsername
     ))
   }
 
@@ -48,7 +51,8 @@ class CourtService(
               bookingId = it.bookingId,
               appointmentId = it.appointmentId,
               hearingType = it.hearingType,
-              court = it.court
+              court = it.court,
+              createdByUsername = it.createdByUsername
           )
         }.toSet()
   }
