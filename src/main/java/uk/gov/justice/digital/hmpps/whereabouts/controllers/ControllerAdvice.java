@@ -10,13 +10,13 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse;
-import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService;
+import uk.gov.justice.digital.hmpps.whereabouts.services.InvalidCourtLocation;
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException;
 
 import javax.persistence.EntityNotFoundException;
 
 @RestControllerAdvice(
-        basePackageClasses = {AttendanceController.class, AttendanceStatisticsController.class, AttendancesController.class, CourtService.class, AgencyController.class, LocationController.class}
+        basePackageClasses = {AttendanceController.class, AttendanceStatisticsController.class, AttendancesController.class, CourtController.class, AgencyController.class, LocationController.class}
 )
 @Slf4j
 public class ControllerAdvice {
@@ -84,6 +84,20 @@ public class ControllerAdvice {
                 .body(ErrorResponse
                         .builder()
                         .status(HttpStatus.BAD_REQUEST.value())
+                        .userMessage(e.getMessage())
+                        .developerMessage(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(InvalidCourtLocation.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(InvalidCourtLocation e) {
+        log.error("InvalidCourtLocation exception", e);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse
+                        .builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .userMessage(e.getMessage())
                         .developerMessage(e.getMessage())
                         .build());
     }

@@ -14,16 +14,18 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
+import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 import java.time.LocalDateTime
 
 class CourtServiceTest {
 
   private val elite2ApiService: Elite2ApiService = mock()
+  private val authenticationFacade: AuthenticationFacade = mock()
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
 
   @Test
   fun `should push an appointment to elite2`() {
-    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository, "York Crown Court")
+    val service = CourtService(authenticationFacade,elite2ApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
     service.createVideoLinkAppointment(CreateVideoLinkAppointment(
@@ -46,10 +48,11 @@ class CourtServiceTest {
 
   @Test
   fun `should create video link appointment using the event id returned from elite2`() {
-    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository, "York Crown Court")
+    val service = CourtService(authenticationFacade, elite2ApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
     whenever(elite2ApiService.postAppointment(anyLong(), any())).thenReturn(1L)
+    whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
     service.createVideoLinkAppointment(CreateVideoLinkAppointment(
         bookingId = bookingId,
@@ -65,13 +68,14 @@ class CourtServiceTest {
             appointmentId = 1,
             court = "York Crown Court",
             bookingId = bookingId,
-            hearingType = HearingType.MAIN
+            hearingType = HearingType.MAIN,
+            createdByUsername = "username1"
         ))
   }
 
   @Test
   fun `should return NO video link appointments`() {
-    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository, "")
+    val service = CourtService(authenticationFacade, elite2ApiService, videoLinkAppointmentRepository, "")
     val appointments = service.getVideoLinkAppointments(setOf(1, 2))
 
     verify(videoLinkAppointmentRepository).findVideoLinkAppointmentByAppointmentIdIn(setOf(1, 2))
@@ -86,7 +90,7 @@ class CourtServiceTest {
             VideoLinkAppointment(id = 2, bookingId = 3, appointmentId = 4, hearingType = HearingType.PRE, court = "YORK"
             ))
     )
-    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository, "")
+    val service = CourtService(authenticationFacade, elite2ApiService, videoLinkAppointmentRepository, "")
     val appointments = service.getVideoLinkAppointments(setOf(3, 4))
 
     assertThat(appointments)
@@ -99,7 +103,7 @@ class CourtServiceTest {
 
   @Test
   fun `should validate the court location`() {
-    val service = CourtService(elite2ApiService, videoLinkAppointmentRepository, "York, London")
+    val service = CourtService(authenticationFacade, elite2ApiService, videoLinkAppointmentRepository, "York, London")
 
     assertThatThrownBy {
       service.createVideoLinkAppointment(CreateVideoLinkAppointment(
@@ -107,11 +111,10 @@ class CourtServiceTest {
           locationId = 1,
           court = "Mars",
           hearingType = HearingType.PRE,
-          startTime = LocalDateTime.of(2019,10,10,10,0),
-          endTime =  LocalDateTime.of(2019,10,10,11,0)
+          startTime = LocalDateTime.of(2019, 10, 10, 10, 0),
+          endTime = LocalDateTime.of(2019, 10, 10, 11, 0)
       ))
     }.isInstanceOf(InvalidCourtLocation::class.java)
         .hasMessageContaining("Invalid court location")
-
   }
 }
