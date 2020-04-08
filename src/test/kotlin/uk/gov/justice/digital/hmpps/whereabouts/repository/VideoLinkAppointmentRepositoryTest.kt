@@ -41,7 +41,7 @@ class VideoLinkAppointmentRepositoryTest {
 
     val appointments = videoLinkAppointmentRepository.findAll()
 
-    assertThat(appointments).extracting("appointmentId", "bookingId", "court", "createdByUsername","courtVideoLinkBooking").containsExactlyInAnyOrder(
+    assertThat(appointments).extracting("appointmentId", "bookingId", "court", "createdByUsername","madeByTheCourt").containsExactlyInAnyOrder(
         Tuple.tuple( 1L,2L,"York", null, true),
         Tuple.tuple( 2L,3L,"York 2","username1", false)
     )
