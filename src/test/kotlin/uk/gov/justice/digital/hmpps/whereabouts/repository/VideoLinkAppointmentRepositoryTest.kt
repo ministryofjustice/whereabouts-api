@@ -32,7 +32,8 @@ class VideoLinkAppointmentRepositoryTest {
         bookingId = 3,
         court = "York 2",
         hearingType = HearingType.MAIN,
-        createdByUsername = "username1"
+        createdByUsername = "username1",
+        madeByTheCourt = false
     ))
 
     TestTransaction.flagForCommit()
@@ -40,9 +41,9 @@ class VideoLinkAppointmentRepositoryTest {
 
     val appointments = videoLinkAppointmentRepository.findAll()
 
-    assertThat(appointments).extracting("appointmentId", "bookingId", "court", "createdByUsername").containsExactlyInAnyOrder(
-        Tuple.tuple( 1L,2L,"York", null),
-        Tuple.tuple( 2L,3L,"York 2","username1")
+    assertThat(appointments).extracting("appointmentId", "bookingId", "court", "createdByUsername","courtVideoLinkBooking").containsExactlyInAnyOrder(
+        Tuple.tuple( 1L,2L,"York", null, true),
+        Tuple.tuple( 2L,3L,"York 2","username1", false)
     )
   }
 }

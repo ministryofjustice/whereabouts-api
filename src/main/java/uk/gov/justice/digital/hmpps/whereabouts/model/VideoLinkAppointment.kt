@@ -17,5 +17,6 @@ data class VideoLinkAppointment(
     val appointmentId: Long,
     val court: String,
     val hearingType: HearingType,
-    val createdByUsername: String? = null
+    val createdByUsername: String? = null,
+    val madeByTheCourt: Boolean? = true
 )

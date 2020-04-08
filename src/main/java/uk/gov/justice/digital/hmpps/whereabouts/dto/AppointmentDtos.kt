@@ -66,7 +66,10 @@ data class CreateVideoLinkAppointment(
     val court: String,
 
     @ApiModelProperty(required = true, value = "Type of court hearing", example = "MAIN, PRE , POST defaults to MAIN")
-    val hearingType: HearingType = HearingType.MAIN
+    val hearingType: HearingType = HearingType.MAIN,
+
+    @ApiModelProperty(value = "Record if the appointment was created by the courts, defaults to true")
+    val madeByTheCourt: Boolean? = true
 )
 
 data class Event(val eventId: Long)
