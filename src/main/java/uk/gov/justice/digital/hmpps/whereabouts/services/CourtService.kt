@@ -53,8 +53,7 @@ class CourtService(
               appointmentId = it.appointmentId,
               hearingType = it.hearingType,
               court = it.court,
-              createdByUsername = it.createdByUsername,
-              madeByTheCourt = it.madeByTheCourt
+              createdByUsername = it.createdByUsername
           )
         }.toSet()
   }
