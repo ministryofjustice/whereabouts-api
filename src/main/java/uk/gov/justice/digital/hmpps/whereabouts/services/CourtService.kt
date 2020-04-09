@@ -37,8 +37,7 @@ class CourtService(
         bookingId = createVideoLinkAppointment.bookingId,
         court = createVideoLinkAppointment.court,
         hearingType = createVideoLinkAppointment.hearingType,
-        createdByUsername = authenticationFacade.currentUsername,
-        madeByTheCourt = createVideoLinkAppointment.madeByTheCourt
+        createdByUsername = authenticationFacade.currentUsername
     ))
   }
 
