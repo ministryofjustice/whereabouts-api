@@ -35,9 +35,7 @@ data class VideoLinkAppointmentDto (
     @ApiModelProperty(value = "Type of court hearing", example = "MAIN, PRE , POST")
     val hearingType: HearingType,
     @ApiModelProperty(value = "Username of the appointment creator", example = "john1")
-    val createdByUsername: String?,
-    @ApiModelProperty(value = "Determines if the appointment was made by the court")
-    val madeByTheCourt: Boolean? = true
+    val createdByUsername: String?
 )
 
 @ApiModel(description = "Information required to create a video link appointment")
