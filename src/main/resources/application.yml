@@ -74,8 +74,6 @@ spring:
           hmpps-auth:
             token-uri: ${oauth.endpoint.url}/oauth/token
 
-  codec:
-    max-in-memory-size: 10MB
 
 graceful:
   shutdown.enabled: false
