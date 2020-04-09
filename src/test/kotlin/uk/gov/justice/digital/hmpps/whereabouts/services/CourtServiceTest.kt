@@ -16,7 +16,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 import java.time.LocalDateTime
-
 class CourtServiceTest {
 
   private val elite2ApiService: Elite2ApiService = mock()
@@ -87,17 +86,17 @@ class CourtServiceTest {
     whenever(videoLinkAppointmentRepository.findVideoLinkAppointmentByAppointmentIdIn(setOf(3, 4))).thenReturn(
         setOf(
             VideoLinkAppointment(id = 1, bookingId = 2, appointmentId = 3, hearingType = HearingType.MAIN, court = "YORK"),
-            VideoLinkAppointment(id = 2, bookingId = 3, appointmentId = 4, hearingType = HearingType.PRE, court = "YORK"
+            VideoLinkAppointment(id = 2, bookingId = 3, appointmentId = 4, hearingType = HearingType.PRE, court = "YORK", madeByTheCourt = false
             ))
     )
     val service = CourtService(authenticationFacade, elite2ApiService, videoLinkAppointmentRepository, "")
     val appointments = service.getVideoLinkAppointments(setOf(3, 4))
 
     assertThat(appointments)
-        .extracting("id", "bookingId", "appointmentId", "hearingType", "court")
+        .extracting("id", "bookingId", "appointmentId", "hearingType", "court", "madeByTheCourt")
         .containsExactlyInAnyOrder(
-            Tuple.tuple(1L, 2L, 3L, HearingType.MAIN, "YORK"),
-            Tuple.tuple(2L, 3L, 4L, HearingType.PRE, "YORK")
+            Tuple.tuple(1L, 2L, 3L, HearingType.MAIN, "YORK", true),
+            Tuple.tuple(2L, 3L, 4L, HearingType.PRE, "YORK", false)
         )
   }
 
@@ -147,7 +146,7 @@ class CourtServiceTest {
   }
 
   @Test
-  fun `should record if the appointment was made by the prison on behave of the court`() {
+  fun `should record if the appointment was made by the prison on behalf of the court`() {
     val service = CourtService(authenticationFacade, elite2ApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
