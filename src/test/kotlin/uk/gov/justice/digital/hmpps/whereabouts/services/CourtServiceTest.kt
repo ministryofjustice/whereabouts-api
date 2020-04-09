@@ -147,7 +147,7 @@ class CourtServiceTest {
   }
 
   @Test
-  fun `should record if the appointment was made by the prison on behave of the court`() {
+  fun `should record if the appointment was made by the prison on behalf of the court`() {
     val service = CourtService(authenticationFacade, elite2ApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
