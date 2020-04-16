@@ -77,22 +77,6 @@ class CourtIntegrationTest : IntegrationTest() {
   }
 
   @Test
-  fun `should return a bad request on invalid court`() {
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/court/add-video-link-appointment", HttpMethod.POST, createHeaderEntity(mapOf(
-            "bookingId" to 1,
-            "court" to "Marks",
-            "startTime" to "2019-10-10T10:00:00",
-            "endTime" to "2019-10-10T10:00:00",
-            "locationId" to 1,
-            "comment" to "test"
-        )))
-
-    assertThat(response.statusCode.value()).isEqualTo(400)
-    assertThatJson(response.body).node("userMessage").isEqualTo("Invalid court location")
-  }
-
-  @Test
   fun `Validate date format for start and time`() {
     val response: ResponseEntity<String> =
         restTemplate.exchange("/court/add-video-link-appointment", HttpMethod.POST, createHeaderEntity(mapOf(

@@ -5,7 +5,6 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
@@ -16,6 +15,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 import java.time.LocalDateTime
+
 class CourtServiceTest {
 
   private val elite2ApiService: Elite2ApiService = mock()
@@ -98,23 +98,6 @@ class CourtServiceTest {
             Tuple.tuple(1L, 2L, 3L, HearingType.MAIN, "YORK", true),
             Tuple.tuple(2L, 3L, 4L, HearingType.PRE, "YORK", false)
         )
-  }
-
-  @Test
-  fun `should validate the court location`() {
-    val service = CourtService(authenticationFacade, elite2ApiService, videoLinkAppointmentRepository, "York, London")
-
-    assertThatThrownBy {
-      service.createVideoLinkAppointment(CreateVideoLinkAppointment(
-          bookingId = 1,
-          locationId = 1,
-          court = "Mars",
-          hearingType = HearingType.PRE,
-          startTime = LocalDateTime.of(2019, 10, 10, 10, 0),
-          endTime = LocalDateTime.of(2019, 10, 10, 11, 0)
-      ))
-    }.isInstanceOf(InvalidCourtLocation::class.java)
-        .hasMessageContaining("Invalid court location")
   }
 
   @Test
