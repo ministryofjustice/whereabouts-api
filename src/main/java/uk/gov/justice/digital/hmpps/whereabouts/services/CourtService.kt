@@ -22,8 +22,6 @@ class CourtService(
   @Transactional
   fun createVideoLinkAppointment(createVideoLinkAppointment: CreateVideoLinkAppointment) {
 
-    if (!getCourtLocations().contains(createVideoLinkAppointment.court)) throw InvalidCourtLocation("Invalid court location")
-
     val eventId = elite2ApiService.postAppointment(createVideoLinkAppointment.bookingId, CreateBookingAppointment(
         appointmentType = "VLB",
         locationId = createVideoLinkAppointment.locationId,
