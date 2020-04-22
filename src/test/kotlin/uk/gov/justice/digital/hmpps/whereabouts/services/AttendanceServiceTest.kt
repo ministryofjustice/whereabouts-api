@@ -1067,26 +1067,16 @@ class AttendanceServiceTest {
   }
 
   @Test
-  fun `should make a request to get the booking id for a delete event`() {
-    val offenderNo = "A12345"
-
-    service.deleteAttendances(offenderNo)
-
-    verify(elite2ApiService).getOffenderBookingId(offenderNo)
-  }
-
-  @Test
   fun `should attempt to delete two attendance records and raise telemetry event`() {
     val offenderNo = "A12345"
 
-    whenever(elite2ApiService.getOffenderBookingId(offenderNo)).thenReturn(1)
     whenever(attendanceRepository.findByBookingId(1)).thenReturn(setOf(
         Attendance.builder().id(1).bookingId(1).build(),
         Attendance.builder().id(2).bookingId(1).build(),
         Attendance.builder().id(3).bookingId(1).build()
     ))
 
-    service.deleteAttendances(offenderNo)
+    service.deleteAttendancesForOffenderDeleteEvent(offenderNo, listOf(1L))
 
     verify(attendanceRepository).findByBookingId(eq(1))
     verify(attendanceRepository).deleteAll(eq(setOf(
@@ -1094,6 +1084,6 @@ class AttendanceServiceTest {
         Attendance.builder().id(2).bookingId(1).build(),
         Attendance.builder().id(3).bookingId(1).build()
     )))
-    verify(telemetryClient).trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to  "3"), null)
+    verify(telemetryClient).trackEvent("OffenderDelete", mapOf("offenderNo" to "A12345", "count" to  "3"), null)
   }
 }
