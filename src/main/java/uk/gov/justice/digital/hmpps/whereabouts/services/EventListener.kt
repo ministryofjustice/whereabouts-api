@@ -18,18 +18,22 @@ class EventListener(@Qualifier("attendanceServiceAppScope") private val attendan
   @JmsListener(destination = "\${sqs.queue.name}")
   fun handleEvents(requestJson: String?) {
     val (Message, MessageAttributes) = gson.fromJson<Message>(requestJson, Message::class.java)
-    val (offenderIdDisplay) = gson.fromJson(Message, EventMessage::class.java)
+    val (offenderIdDisplay, offenders) = gson.fromJson(Message, EventMessage::class.java)
+
+    val bookingIds = offenders.flatMap { offender -> offender.bookings.map { it.offenderBookId }}
 
     val eventType = MessageAttributes.eventType.Value
     log.info("Processing message of type {}", eventType)
 
     when (eventType) {
-      "DATA_COMPLIANCE_DELETE-OFFENDER" -> attendanceService.deleteAttendances(offenderIdDisplay)
+      "DATA_COMPLIANCE_DELETE-OFFENDER" -> attendanceService.deleteAttendances(bookingIds)
     }
   }
 }
 
 data class Attribute(val Type: String, val Value: String)
 data class MessageAttributes(val eventType: Attribute)
-data class EventMessage(val offenderIdDisplay: String)
+data class Booking(val offenderBookId: Long)
+data class Offender(val offenderId: Long, val bookings: List<Booking>)
+data class EventMessage(val offenderIdDisplay: String, val offenders: List<Offender>)
 data class Message(val Message: String, val MessageAttributes: MessageAttributes, val message: EventMessage)
