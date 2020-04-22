@@ -26,7 +26,7 @@ class EventListener(@Qualifier("attendanceServiceAppScope") private val attendan
     log.info("Processing message of type {}", eventType)
 
     when (eventType) {
-      "DATA_COMPLIANCE_DELETE-OFFENDER" -> attendanceService.deleteAttendances(bookingIds)
+      "DATA_COMPLIANCE_DELETE-OFFENDER" -> attendanceService.deleteAttendancesForOffenderDeleteEvent(offenderIdDisplay, bookingIds)
     }
   }
 }

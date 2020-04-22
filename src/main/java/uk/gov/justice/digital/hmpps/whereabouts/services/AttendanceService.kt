@@ -218,15 +218,16 @@ class AttendanceService(
   }
 
   @Transactional
-  fun deleteAttendances(bookingIds: List<Long>) {
+  fun deleteAttendancesForOffenderDeleteEvent(offenderNo: String, bookingIds: List<Long>) {
+    var totalAttendances = 0
     bookingIds.map { bookingId ->
       val attendances = attendanceRepository.findByBookingId(bookingId)
       log.info("Deleting the following attendance records ${attendances.map { it.id }.joinToString(",")}")
 
       attendanceRepository.deleteAll(attendances)
-
-      telemetryClient.trackEvent("OffenderDelete", mapOf("bookingId" to bookingId.toString(), "count" to  attendances.size.toString()), null)
+      totalAttendances += attendances.size
     }
+    telemetryClient.trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to  totalAttendances.toString()), null)
   }
 
   private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails {

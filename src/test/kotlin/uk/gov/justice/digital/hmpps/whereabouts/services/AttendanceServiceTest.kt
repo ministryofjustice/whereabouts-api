@@ -1068,13 +1068,15 @@ class AttendanceServiceTest {
 
   @Test
   fun `should attempt to delete two attendance records and raise telemetry event`() {
+    val offenderNo = "A12345"
+
     whenever(attendanceRepository.findByBookingId(1)).thenReturn(setOf(
         Attendance.builder().id(1).bookingId(1).build(),
         Attendance.builder().id(2).bookingId(1).build(),
         Attendance.builder().id(3).bookingId(1).build()
     ))
 
-    service.deleteAttendances(listOf(1L))
+    service.deleteAttendancesForOffenderDeleteEvent(offenderNo, listOf(1L))
 
     verify(attendanceRepository).findByBookingId(eq(1))
     verify(attendanceRepository).deleteAll(eq(setOf(
@@ -1082,6 +1084,6 @@ class AttendanceServiceTest {
         Attendance.builder().id(2).bookingId(1).build(),
         Attendance.builder().id(3).bookingId(1).build()
     )))
-    verify(telemetryClient).trackEvent("OffenderDelete", mapOf("bookingId" to "1", "count" to  "3"), null)
+    verify(telemetryClient).trackEvent("OffenderDelete", mapOf("offenderNo" to "A12345", "count" to  "3"), null)
   }
 }
