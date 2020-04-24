@@ -3,6 +3,8 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.*
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.Companion.paidReasons
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.Companion.unpaidReasons
 
 
 @Service
@@ -31,8 +33,8 @@ open class NomisEventOutcomeMapper {
     if (attended && paid)
       return EventOutcome("ATT", "STANDARD", comment)
 
-    val isNotValidPaidReason = paid && !getPaidReasons().contains(reason)
-    val isNotValidUnPaidReason = !paid && !getUnpaidReasons().contains(reason)
+    val isNotValidPaidReason = paid && !paidReasons.contains(reason)
+    val isNotValidUnPaidReason = !paid && !unpaidReasons.contains(reason)
 
     requireTrue(isNotValidPaidReason) { String.format("%s is not a valid paid reason", reason) }
     requireTrue(isNotValidUnPaidReason) { String.format("%s is not a valid unpaid reason", reason) }

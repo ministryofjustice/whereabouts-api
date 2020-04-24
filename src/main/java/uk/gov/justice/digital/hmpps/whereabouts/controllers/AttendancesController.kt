@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsencesResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceChangesResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesResponse
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
@@ -107,4 +108,12 @@ class AttendancesController(private val attendanceService: AttendanceService) {
   ): AbsencesResponse = AbsencesResponse(
       absences = attendanceService.getAbsencesForReason(prisonId, absentReason, fromDate, toDate, period)
   )
+
+  @GetMapping("/changes")
+  @ApiOperation(value = "Return all changes relating to an attendance")
+  fun getAttendanceChanges() : AttendanceChangesResponse {
+      return AttendanceChangesResponse(
+          changes = attendanceService.getAttendanceChanges()
+      )
+  }
 }

@@ -5,9 +5,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*
-import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
-import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
-import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
+import uk.gov.justice.digital.hmpps.whereabouts.model.*
+import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -18,6 +17,7 @@ import javax.transaction.Transactional
 @Service
 class AttendanceService(
     private val attendanceRepository: AttendanceRepository,
+    private val attendanceChangesRepository: AttendanceChangesRepository,
     private val elite2ApiService: Elite2ApiService,
     private val iepWarningService: IEPWarningService,
     private val nomisEventOutcomeMapper: NomisEventOutcomeMapper,
@@ -49,7 +49,7 @@ class AttendanceService(
     val attendance = attendanceRepository
         .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookings, date, period)
 
-    return attendance.map {  toAttendanceDto(it) }.toSet()
+    return attendance.map { toAttendanceDto(it) }.toSet()
   }
 
   @Transactional
@@ -94,6 +94,14 @@ class AttendanceService(
     iepWarningService.handleIEPWarningScenarios(attendance, newAttendanceDetails)
         .ifPresent { caseNoteId: Long? -> attendance.caseNoteId = caseNoteId }
 
+    val changedFrom = if (attendance.attended) {
+      AttendanceChangeValues.Attended
+    } else AttendanceChangeValues.valueOf(attendance.absentReason.toString())
+
+    val changedTo = if (newAttendanceDetails.absentReason != null) {
+      AttendanceChangeValues.valueOf(newAttendanceDetails.absentReason.toString())
+    } else AttendanceChangeValues.Attended
+
     attendance.comments = newAttendanceDetails.comments
     attendance.attended = newAttendanceDetails.attended
     attendance.paid = newAttendanceDetails.paid
@@ -101,6 +109,12 @@ class AttendanceService(
 
     attendanceRepository.save(attendance)
     postNomisAttendance(attendance)
+
+    attendanceChangesRepository.save(AttendanceChange(
+        attendanceId = attendance.id,
+        changedFrom = changedFrom,
+        changedTo = changedTo
+    ))
   }
 
   @Transactional
@@ -226,7 +240,37 @@ class AttendanceService(
 
     attendanceRepository.deleteAll(attendances)
 
-    telemetryClient.trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to  attendances.size.toString()), null)
+    telemetryClient.trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to attendances.size.toString()), null)
+  }
+
+  fun getAttendanceChanges(): Set<AttendanceChangeDto> {
+    val changes = attendanceChangesRepository
+        .findAll()
+        .toSet()
+
+    val attendanceIds = changes
+        .map { it.attendanceId }
+        .toSet()
+
+    val attendancesMap = attendanceRepository
+        .findAllById(attendanceIds)
+        .associate { Pair(it.id, it) }
+
+    return changes.map {
+      val attendance = attendancesMap.get(it.attendanceId)!!
+
+      AttendanceChangeDto(
+          id = it.id!!,
+          attendanceId = it.attendanceId,
+          bookingId = attendance.bookingId,
+          eventId = attendance.eventId,
+          eventLocationId = attendance.eventLocationId,
+          changedFrom = it.changedFrom,
+          changedTo = it.changedTo,
+          changedOn = it?.createDateTime,
+          changedBy = it?.createUserId
+      )
+    }.toSet()
   }
 
   private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails {
@@ -262,6 +306,7 @@ class AttendanceService(
         details.suspended
     )
   }
+
 
   private fun findAttendance(bookingId: Long, eventId: Long?, period: TimePeriod): Predicate<in OffenderDetails> {
     return Predicate { (bookingId1, _, eventId1, _, _, timeSlot) ->
@@ -307,4 +352,5 @@ class AttendanceService(
         .modifyUserId(attendanceData.modifyUserId)
         .build()
   }
+
 }

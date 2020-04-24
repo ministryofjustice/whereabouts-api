@@ -19,6 +19,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.CaseNotesMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.Elite2MockServer
@@ -29,8 +30,13 @@ import java.util.*
 @ActiveProfiles("test")
 @ContextConfiguration
 abstract class IntegrationTest {
+
     @Autowired
+    @Deprecated(message = "Use webTestClient")
     lateinit var restTemplate: TestRestTemplate
+
+    @Autowired
+    lateinit var webTestClient: WebTestClient
 
     internal val gson: Gson = getGson()
 
@@ -86,7 +92,14 @@ abstract class IntegrationTest {
         return HttpEntity(entity, headers)
     }
 
-    fun <T> assertThatStatus(response: ResponseEntity<T>, status: Int) {
+  internal fun setHeaders(): (HttpHeaders) -> Unit {
+    return {
+      it.setBearerAuth(token)
+      it.setContentType(MediaType.APPLICATION_JSON)
+    }
+  }
+
+  fun <T> assertThatStatus(response: ResponseEntity<T>, status: Int) {
         Assertions.assertThat(response.statusCodeValue).withFailMessage("Expecting status code value <%s> to be equal to <%s> but it was not.\nBody was\n%s", response.statusCodeValue, status, response.body).isEqualTo(status)
     }
 

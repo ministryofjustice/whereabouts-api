@@ -2,11 +2,11 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.web.client.exchange
-import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
@@ -17,10 +17,63 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class AttendanceIntegrationTest : IntegrationTest() {
 
   @Autowired
   lateinit var attendanceRepository: AttendanceRepository
+
+  @Test
+  @Order(0)
+  fun `should return all changes made to an attendance record`() {
+    val activityId = 2L
+
+    elite2MockServer.stubUpdateAttendance(5)
+
+    val attendance = CreateAttendanceDto
+        .builder()
+        .prisonId("LEI")
+        .bookingId(5)
+        .eventId(activityId)
+        .eventLocationId(2)
+        .eventDate(LocalDate.of(2010, 10, 10))
+        .period(TimePeriod.AM)
+        .attended(false)
+        .paid(false)
+        .absentReason(AbsentReason.Refused)
+        .build()
+
+    val response = webTestClient.post()
+        .uri("/attendance")
+        .headers(setHeaders())
+        .bodyValue(attendance)
+        .exchange()
+        .returnResult(AttendanceDto::class.java)
+
+    val createdAttendance = response.responseBody.blockFirst()
+    val updateAttendance = UpdateAttendanceDto( attended = false, paid = true, absentReason = AbsentReason.AcceptableAbsence)
+
+    webTestClient.put()
+        .uri("/attendance/${createdAttendance.id}")
+        .headers(setHeaders())
+        .bodyValue(updateAttendance)
+        .exchange()
+        .expectStatus()
+        .isNoContent()
+
+    webTestClient.get()
+        .uri("/attendances/changes")
+        .headers(setHeaders())
+        .exchange()
+        .expectBody()
+        .jsonPath("$.changes[0].attendanceId").isEqualTo(createdAttendance.id)
+        .jsonPath("$.changes[0].eventId").isEqualTo(activityId)
+        .jsonPath("$.changes[0].eventLocationId").isEqualTo(2L)
+        .jsonPath("$.changes[0].bookingId").isEqualTo(5L)
+        .jsonPath("$.changes[0].changedFrom").isEqualTo(AbsentReason.Refused.toString())
+        .jsonPath("$.changes[0].changedTo").isEqualTo(AbsentReason.AcceptableAbsence.toString())
+        .jsonPath("$.changes[0].changedBy").isEqualTo("ITAG_USER")
+  }
 
   @Test
   fun `should make an elite api request to update an offenders attendance`() {
@@ -43,11 +96,13 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .paid(true)
         .build()
 
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendance))
-
-    assertThat(response.statusCodeValue).isEqualTo(201)
-
+    webTestClient.post()
+        .uri("/attendance")
+        .bodyValue(attendance)
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isCreated()
 
     elite2MockServer.verify(putRequestedFor(urlEqualTo(updateAttendanceUrl))
         .withRequestBody(equalToJson(gson.toJson(mapOf(
@@ -82,10 +137,13 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .comments(comments)
         .build()
 
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendance))
-
-    assertThat(response.statusCodeValue).isEqualTo(201)
+    webTestClient.post()
+        .uri("/attendance")
+        .bodyValue(attendance)
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isCreated()
 
     elite2MockServer.verify(putRequestedFor(urlEqualTo(updateAttendanceUrl)).withRequestBody(
         equalToJson(gson.toJson(mapOf(
@@ -104,121 +162,122 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return a bad request when the 'bookingId' is missing`() {
-
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/attendance", HttpMethod.POST,
-            createHeaderEntity(CreateAttendanceDto
-                .builder()
-                .prisonId("LEI")
-                .eventId(2)
-                .eventLocationId(2)
-                .eventDate(LocalDate.of(2010, 10, 10))
-                .period(TimePeriod.AM)
-                .attended(true)
-                .paid(true)
-                .build()))
-
-    assertThat(response.statusCodeValue).isEqualTo(400)
+    webTestClient.post()
+        .uri("/attendance")
+        .bodyValue(CreateAttendanceDto
+            .builder()
+            .prisonId("LEI")
+            .eventId(2)
+            .eventLocationId(2)
+            .eventDate(LocalDate.of(2010, 10, 10))
+            .period(TimePeriod.AM)
+            .attended(true)
+            .paid(true)
+            .build())
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isBadRequest()
   }
 
   @Test
   fun `should return a bad request when the 'prisonId' is missing`() {
-
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/attendance", HttpMethod.POST,
-            createHeaderEntity(CreateAttendanceDto
-                .builder()
-                .bookingId(1)
-                .eventId(2)
-                .eventLocationId(2)
-                .eventDate(LocalDate.of(2010, 10, 10))
-                .period(TimePeriod.AM)
-                .attended(true)
-                .paid(true)
-                .build()))
-
-    assertThat(response.statusCodeValue).isEqualTo(400)
-
+    webTestClient.post()
+        .uri("/attendance")
+        .bodyValue(CreateAttendanceDto
+            .builder()
+            .bookingId(1)
+            .eventId(2)
+            .eventLocationId(2)
+            .eventDate(LocalDate.of(2010, 10, 10))
+            .period(TimePeriod.AM)
+            .attended(true)
+            .paid(true)
+            .build())
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isBadRequest()
   }
 
   @Test
   fun `should return a bad request when the 'eventId' is missing`() {
-
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/attendance", HttpMethod.POST,
-            createHeaderEntity(CreateAttendanceDto
-                .builder()
-                .bookingId(1)
-                .prisonId("LEI")
-                .eventLocationId(2)
-                .eventDate(LocalDate.of(2010, 10, 10))
-                .period(TimePeriod.AM)
-                .attended(true)
-                .paid(true)
-                .build()))
-
-    assertThat(response.statusCodeValue).isEqualTo(400)
-
+    webTestClient.post()
+        .uri("/attendance")
+        .bodyValue(CreateAttendanceDto
+            .builder()
+            .bookingId(1)
+            .prisonId("LEI")
+            .eventLocationId(2)
+            .eventDate(LocalDate.of(2010, 10, 10))
+            .period(TimePeriod.AM)
+            .attended(true)
+            .paid(true)
+            .build())
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isBadRequest()
   }
 
   @Test
   fun `should return a bad request when the 'eventLocationId' is missing`() {
-
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/attendance", HttpMethod.POST,
-            createHeaderEntity(CreateAttendanceDto
-                .builder()
-                .bookingId(1)
-                .prisonId("LEI")
-                .eventId(1)
-                .eventDate(LocalDate.of(2010, 10, 10))
-                .period(TimePeriod.AM)
-                .attended(true)
-                .paid(true)
-                .build()))
-
-    assertThat(response.statusCodeValue).isEqualTo(400)
-
+    webTestClient.post()
+        .uri("/attendance")
+        .bodyValue(CreateAttendanceDto
+            .builder()
+            .bookingId(1)
+            .prisonId("LEI")
+            .eventId(1)
+            .eventDate(LocalDate.of(2010, 10, 10))
+            .period(TimePeriod.AM)
+            .attended(true)
+            .paid(true)
+            .build())
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isBadRequest()
   }
 
   @Test
   fun `should return a bad request when the 'eventDate' is missing`() {
-
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/attendance", HttpMethod.POST,
-            createHeaderEntity(CreateAttendanceDto
-                .builder()
-                .bookingId(1)
-                .prisonId("LEI")
-                .eventId(1)
-                .eventLocationId(1)
-                .period(TimePeriod.AM)
-                .attended(true)
-                .paid(true)
-                .build()))
-
-    assertThat(response.statusCodeValue).isEqualTo(400)
-
+    webTestClient.post()
+        .uri("/attendance")
+        .bodyValue(CreateAttendanceDto
+            .builder()
+            .bookingId(1)
+            .prisonId("LEI")
+            .eventId(1)
+            .eventLocationId(1)
+            .period(TimePeriod.AM)
+            .attended(true)
+            .paid(true)
+            .build())
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isBadRequest()
   }
 
   @Test
   fun `should return a bad request when the 'period' is missing`() {
-
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/attendance", HttpMethod.POST,
-            createHeaderEntity(CreateAttendanceDto
-                .builder()
-                .bookingId(1)
-                .prisonId("LEI")
-                .eventId(1)
-                .eventLocationId(1)
-                .eventDate(LocalDate.of(2019, 10, 10))
-                .attended(true)
-                .paid(true)
-                .build()))
-
-    assertThat(response.statusCodeValue).isEqualTo(400)
-
+    webTestClient.post()
+        .uri("/attendance")
+        .bodyValue(CreateAttendanceDto
+            .builder()
+            .bookingId(1)
+            .prisonId("LEI")
+            .eventId(1)
+            .eventLocationId(1)
+            .eventDate(LocalDate.of(2019, 10, 10))
+            .attended(true)
+            .paid(true)
+            .build())
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isBadRequest()
   }
 
   @Test
@@ -240,58 +299,24 @@ class AttendanceIntegrationTest : IntegrationTest() {
             .eventLocationId(2)
             .build())
 
-    val response =
-        restTemplate.exchange(
-            "/attendance/${persistedAttendance.id}",
-            HttpMethod.PUT,
-            createHeaderEntity(UpdateAttendanceDto.builder().attended(true).paid(true).build()),
-            String::class.java,
-            LocalDate.of(2019, 10, 10),
-            TimePeriod.AM)
-
-    assertThat(response.statusCodeValue).isEqualTo(204)
+    webTestClient.put()
+        .uri("/attendance/${persistedAttendance.id}")
+        .bodyValue(UpdateAttendanceDto(attended =true,paid =true))
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isNoContent()
   }
 
   @Test
   fun `should return a 404 when attempting to update non existent attendance`() {
-    val response =
-        restTemplate.exchange(
-            "/attendance/100",
-            HttpMethod.PUT,
-            createHeaderEntity(UpdateAttendanceDto.builder().attended(true).paid(true).build()),
-            String::class.java,
-            LocalDate.of(2019, 10, 10),
-            TimePeriod.AM)
-
-    assertThat(response.statusCodeValue).isEqualTo(404)
-  }
-
-  @Test
-  fun `should return a 400 bad request when 'attended' is null`() {
-    val response =
-        restTemplate.exchange(
-            "/attendance/100",
-            HttpMethod.PUT,
-            createHeaderEntity(UpdateAttendanceDto.builder().paid(true).build()),
-            String::class.java,
-            LocalDate.of(2019, 10, 10),
-            TimePeriod.AM)
-
-    assertThat(response.statusCodeValue).isEqualTo(400)
-  }
-
-  @Test
-  fun `should return a 400 bad request when 'paid' is null`() {
-    val response =
-        restTemplate.exchange(
-            "/attendance/100",
-            HttpMethod.PUT,
-            createHeaderEntity(UpdateAttendanceDto.builder().attended(true).build()),
-            String::class.java,
-            LocalDate.of(2019, 10, 10),
-            TimePeriod.AM)
-
-    assertThat(response.statusCodeValue).isEqualTo(400)
+    webTestClient.put()
+        .uri("/attendance/100")
+        .bodyValue(UpdateAttendanceDto(attended=true,paid=true))
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isNotFound()
   }
 
   @Test
@@ -326,11 +351,18 @@ class AttendanceIntegrationTest : IntegrationTest() {
                     .eventDate(LocalDate.now())
                     .build()
 
-    val errorResponse: ResponseEntity<String> =
-            restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendanceDto))
+    val response = webTestClient.post()
+        .uri("/attendance")
+        .bodyValue(attendanceDto)
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isEqualTo(409)
+        .returnResult(String::class.java)
 
-    assertThat(errorResponse.statusCodeValue).isEqualTo(409)
-    assertThat(errorResponse.body).contains("Attendance already exists")
+    val body = response.responseBody.blockFirst()
+
+    assertThat(body).isEqualTo("Attendance already exists")
   }
 
   @Test
@@ -345,21 +377,23 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .bookingId(5)
         .eventId(activityId)
         .eventLocationId(2)
-        .eventDate(LocalDate.of(2010, 10, 10))
+        .eventDate(LocalDate.of(2010, 11, 11))
         .period(TimePeriod.AM)
         .attended(true)
         .paid(true)
         .build()
 
-    val response: ResponseEntity<AttendanceDto> =
-        restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendance))
-
-    val savedAttendance = response.body!!
-
-    assertThat(response.statusCodeValue).isEqualTo(201)
-    assertThat(savedAttendance.id).isGreaterThan(0)
-    assertThat(savedAttendance.createUserId).isEqualTo("ITAG_USER")
-    assertThat(savedAttendance.locked).isEqualTo(false)
+    webTestClient.post()
+        .uri("/attendance")
+        .bodyValue(attendance)
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isCreated()
+        .expectBody()
+        .jsonPath("$.id").isNotEmpty()
+        .jsonPath("$.createUserId").isEqualTo("ITAG_USER")
+        .jsonPath("$.locked").isEqualTo(false)
   }
 
   @Test
@@ -401,10 +435,13 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .paid(true)
         .build()
 
-    val response: ResponseEntity<AttendanceDto> =
-        restTemplate.exchange("/attendance/${savedAttendance.id}", HttpMethod.PUT, createHeaderEntity(attendance))
-
-    assertThat(response.statusCodeValue).isEqualTo(204)
+    webTestClient.put()
+        .uri("/attendance/${savedAttendance.id.toString()}")
+        .bodyValue(attendance)
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isNoContent()
 
     caseNotesMockServer.verify(putRequestedFor(urlEqualTo("/case-notes/$offenderNo/$caseNoteId"))
         .withRequestBody(matchingJsonPath("$[?(@.text == 'Incentive Level warning rescinded: attended')]"))
@@ -425,6 +462,8 @@ class AttendanceIntegrationTest : IntegrationTest() {
     oauthMockServer.verify(2, postRequestedFor(urlEqualTo("/auth/oauth/token")))
   }
 
+
+
   private fun postAttendance(bookingId: Long = 1) {
     val attendanceDto =
         CreateAttendanceDto
@@ -439,9 +478,12 @@ class AttendanceIntegrationTest : IntegrationTest() {
             .eventDate(LocalDate.now())
             .build()
 
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/attendance", HttpMethod.POST, createHeaderEntity(attendanceDto))
-
-    assertThat(response.statusCodeValue).isEqualTo(201)
+    webTestClient.post()
+        .uri("/attendance")
+        .headers(setHeaders())
+        .bodyValue(attendanceDto)
+        .exchange()
+        .expectStatus()
+        .isCreated()
   }
 }

@@ -16,8 +16,8 @@ class AbsentReasonsController {
   @GetMapping
   fun reasons(): AbsentReasonsDto =
       AbsentReasonsDto(
-        AbsentReason.getPaidReasons(),
-        AbsentReason.getUnpaidReasons(),
-        AbsentReason.getIepTriggers()
+        AbsentReason.paidReasons,
+        AbsentReason.unpaidReasons,
+        AbsentReason.iepTriggers
       )
 }

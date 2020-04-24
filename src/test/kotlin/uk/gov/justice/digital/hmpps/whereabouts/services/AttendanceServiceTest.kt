@@ -8,13 +8,13 @@ import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.anyObject
 import org.mockito.ArgumentMatchers.anySet
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*
-import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
-import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
-import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
+import uk.gov.justice.digital.hmpps.whereabouts.model.*
+import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -23,6 +23,7 @@ import java.util.stream.Collectors
 
 class AttendanceServiceTest {
   private val attendanceRepository: AttendanceRepository = spy()
+  private val attendanceChangesRepository: AttendanceChangesRepository = spy()
   private val iepWarningService: IEPWarningService = mock()
   private val elite2ApiService: Elite2ApiService = mock()
   private val nomisEventOutcomeMapper: NomisEventOutcomeMapper = mock()
@@ -54,7 +55,7 @@ class AttendanceServiceTest {
   fun before() {
     // return the attendance entity on save
     doAnswer { it.getArgument(0) as Attendance }.whenever(attendanceRepository).save(ArgumentMatchers.any(Attendance::class.java))
-    service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper, telemetryClient)
+    service = AttendanceService(attendanceRepository, attendanceChangesRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper, telemetryClient)
   }
 
   @Test
@@ -328,7 +329,7 @@ class AttendanceServiceTest {
     whenever(attendanceRepository.findById(1)).thenReturn(Optional.empty())
 
     assertThatThrownBy {
-      service.updateAttendance(1, UpdateAttendanceDto.builder().build())
+      service.updateAttendance(1, UpdateAttendanceDto(attended = false, paid = false))
     }.isExactlyInstanceOf(AttendanceNotFound::class.java)
   }
 
@@ -383,13 +384,11 @@ class AttendanceServiceTest {
             .period(TimePeriod.AM)
             .build()))
 
-    service.updateAttendance(1, UpdateAttendanceDto
-        .builder()
-        .absentReason(AbsentReason.SessionCancelled)
-        .attended(false)
-        .paid(false)
-        .comments("Session cancelled due to riot")
-        .build()
+    service.updateAttendance(1, UpdateAttendanceDto(
+        absentReason = AbsentReason.SessionCancelled,
+        attended = false,
+        paid = false,
+        comments = "Session cancelled due to riot")
     )
 
     verify(attendanceRepository).save(
@@ -431,12 +430,10 @@ class AttendanceServiceTest {
             .period(TimePeriod.AM)
             .build()))
 
-    service.updateAttendance(1, UpdateAttendanceDto
-        .builder()
-        .attended(true)
-        .paid(true)
-        .build()
-    )
+    service.updateAttendance(1, UpdateAttendanceDto(
+        attended = true,
+        paid = true
+    ))
 
     verify(attendanceRepository).save(
         Attendance
@@ -481,7 +478,7 @@ class AttendanceServiceTest {
             .build()))
 
     assertThatThrownBy {
-      service.updateAttendance(1, UpdateAttendanceDto.builder().paid(false).attended(false).build())
+      service.updateAttendance(1, UpdateAttendanceDto(paid=false,attended=false))
     }.isExactlyInstanceOf(AttendanceLocked::class.java)
   }
 
@@ -506,7 +503,7 @@ class AttendanceServiceTest {
             .build()))
 
     assertThatThrownBy {
-      service.updateAttendance(1, UpdateAttendanceDto.builder().paid(false).attended(false).build())
+      service.updateAttendance(1, UpdateAttendanceDto(paid=false,attended=false))
     }.isExactlyInstanceOf(AttendanceLocked::class.java)
   }
 
@@ -531,7 +528,8 @@ class AttendanceServiceTest {
             .build()))
 
     service.updateAttendance(1,
-        UpdateAttendanceDto.builder().paid(true).attended(false).absentReason(AbsentReason.ApprovedCourse).build())
+        UpdateAttendanceDto(paid=true,attended=false,absentReason=AbsentReason.ApprovedCourse)
+    )
   }
 
   @Test
@@ -587,15 +585,13 @@ class AttendanceServiceTest {
         .absentReason(AbsentReason.Refused)
         .build()
 
-    whenever(attendanceRepository.findById(1)).thenReturn(Optional.of(attendanceEntity.toBuilder().build()))
+    whenever(attendanceRepository.findById(1)).thenReturn(Optional.of(attendanceEntity.toBuilder().id(1).build()))
 
-    service.updateAttendance(1, UpdateAttendanceDto.builder()
-        .attended(true)
-        .paid(true)
-        .build())
+    service.updateAttendance(1, UpdateAttendanceDto(attended=true, paid=true))
 
     verify(attendanceRepository).save(attendanceEntity
         .toBuilder()
+        .id(1)
         .comments(null)
         .absentReason(null)
         .attended(true)
@@ -892,7 +888,6 @@ class AttendanceServiceTest {
 
   @Test
   fun `should make a request for schedule activity over a date range`() {
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper, telemetryClient)
     val prison = "MDI"
     val fromDate = LocalDate.now()
     val toDate = LocalDate.now().plusDays(20)
@@ -907,7 +902,6 @@ class AttendanceServiceTest {
 
   @Test
   fun `should make requests for schedule activity over a date range, one request for each period`() {
-    val service = AttendanceService(attendanceRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper, telemetryClient)
     val prison = "MDI"
     val fromDate = LocalDate.now()
     val toDate = LocalDate.now().plusDays(20)
@@ -1094,6 +1088,60 @@ class AttendanceServiceTest {
         Attendance.builder().id(2).bookingId(1).build(),
         Attendance.builder().id(3).bookingId(1).build()
     )))
-    verify(telemetryClient).trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to  "3"), null)
+    verify(telemetryClient).trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to "3"), null)
+  }
+
+  @Test
+  fun `should record changes made to attendance record when absent`() {
+    val attendance = Attendance.builder()
+        .id(1)
+        .absentReason(AbsentReason.Refused)
+        .attended(false)
+        .paid(false)
+        .eventId(2)
+        .eventLocationId(3)
+        .period(TimePeriod.AM)
+        .prisonId("LEI")
+        .bookingId(100)
+        .createUserId("user")
+        .caseNoteId(1)
+        .build()
+
+    whenever(attendanceRepository.findById(1L)).thenReturn(Optional.of(attendance))
+
+    service.updateAttendance(1L, UpdateAttendanceDto(absentReason = AbsentReason.NotRequired, attended = false, paid = false))
+
+   verify(attendanceChangesRepository).save(AttendanceChange(
+       attendanceId = 1,
+       changedFrom = AttendanceChangeValues.Refused,
+       changedTo = AttendanceChangeValues.NotRequired
+   ))
+  }
+
+  @Test
+  fun `should record changes made to attendance record going from absent to attended`() {
+    val attendance = Attendance.builder()
+        .id(1)
+        .absentReason(AbsentReason.Refused)
+        .attended(false)
+        .paid(false)
+        .eventId(2)
+        .eventLocationId(3)
+        .period(TimePeriod.AM)
+        .prisonId("LEI")
+        .bookingId(100)
+        .createUserId("user")
+        .caseNoteId(1)
+        .build()
+
+    whenever(attendanceRepository.findById(1L)).thenReturn(Optional.of(attendance))
+
+    service.updateAttendance(1L, UpdateAttendanceDto(attended = true, paid = true))
+
+    verify(attendanceChangesRepository).save(AttendanceChange(
+        attendanceId = 1,
+        changedFrom = AttendanceChangeValues.Refused,
+        changedTo = AttendanceChangeValues.Attended
+    ))
   }
 }

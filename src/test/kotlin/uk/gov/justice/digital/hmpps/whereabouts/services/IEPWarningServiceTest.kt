@@ -64,12 +64,12 @@ class IEPWarningServiceTest {
         .caseNoteId(1)
         .build()
 
-    val updateAttendance =  UpdateAttendanceDto.builder()
-        .attended(false)
-        .paid(false)
-        .absentReason(AbsentReason.UnacceptableAbsence)
-        .comments("Unacceptable absence - No show.")
-        .build()
+    val updateAttendance =  UpdateAttendanceDto(
+        attended=false,
+        paid=false,
+        absentReason=AbsentReason.UnacceptableAbsence,
+        comments="Unacceptable absence - No show."
+    )
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
@@ -93,12 +93,12 @@ class IEPWarningServiceTest {
         .eventDate(today)
         .build()
 
-    val updateAttendance = UpdateAttendanceDto.builder()
-        .attended(false)
-        .paid(false)
-        .absentReason(AbsentReason.RefusedIncentiveLevelWarning)
-        .comments("Refused!")
-        .build()
+    val updateAttendance = UpdateAttendanceDto(
+        attended=false,
+        paid=false,
+        absentReason=AbsentReason.RefusedIncentiveLevelWarning,
+        comments="Refused!"
+    )
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
@@ -121,12 +121,12 @@ class IEPWarningServiceTest {
         .eventDate(today)
         .build()
 
-    val updateAttendance =  UpdateAttendanceDto.builder()
-        .attended(false)
-        .paid(true)
-        .absentReason(AbsentReason.NotRequired)
-        .comments("not required to work today")
-        .build()
+    val updateAttendance =  UpdateAttendanceDto(
+        attended=false,
+        paid=true,
+        absentReason=AbsentReason.NotRequired,
+        comments="not required to work today"
+    )
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
@@ -146,12 +146,12 @@ class IEPWarningServiceTest {
         .attended(true)
         .build()
 
-    val updateAttendance = UpdateAttendanceDto.builder()
-        .attended(false)
-        .comments("test")
-        .absentReason(AbsentReason.Refused)
-        .paid(true)
-        .build()
+    val updateAttendance = UpdateAttendanceDto(
+        attended=false,
+        comments="test",
+        absentReason=AbsentReason.Refused,
+        paid=true
+    )
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
@@ -172,12 +172,12 @@ class IEPWarningServiceTest {
         .attended(false)
         .build()
 
-    val updateAttendance = UpdateAttendanceDto.builder()
-        .attended(false)
-        .absentReason(AbsentReason.NotRequired)
-        .comments("test")
-        .paid(true)
-        .build()
+    val updateAttendance = UpdateAttendanceDto(
+        attended=false,
+        absentReason=AbsentReason.NotRequired,
+        comments="test",
+        paid=true
+    )
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
@@ -200,12 +200,12 @@ class IEPWarningServiceTest {
         .absentReason(AbsentReason.Refused)
         .build()
 
-    val updateAttendance = UpdateAttendanceDto.builder()
-        .attended(false)
-        .absentReason(AbsentReason.Refused)
-        .comments("Never turned up")
-        .paid(false)
-        .build()
+    val updateAttendance = UpdateAttendanceDto(
+        attended=false,
+        absentReason=AbsentReason.Refused,
+        comments="Never turned up",
+        paid=false
+    )
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
@@ -230,7 +230,7 @@ class IEPWarningServiceTest {
         .build()
 
     val updateAttendance =
-        UpdateAttendanceDto.builder().attended(true).paid(true).build()
+        UpdateAttendanceDto(attended=true, paid=true)
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
