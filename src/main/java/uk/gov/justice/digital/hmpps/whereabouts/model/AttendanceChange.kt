@@ -19,9 +19,9 @@ data class AttendanceChange(
     val id: Long? = null,
     val attendanceId: Long,
     @Enumerated(EnumType.STRING)
-    val changedFrom: AttendanceChangeValues?,
+    val changedFrom: AttendanceChangeValues,
     @Enumerated(EnumType.STRING)
-    val changedTo: AttendanceChangeValues?,
+    val changedTo: AttendanceChangeValues,
     @CreatedDate @Column(name = "CREATE_DATETIME", nullable = false)
     var createDateTime: LocalDateTime? = null,
     @CreatedBy

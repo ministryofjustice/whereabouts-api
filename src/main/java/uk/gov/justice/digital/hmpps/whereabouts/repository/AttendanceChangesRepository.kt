@@ -7,5 +7,4 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.AttendanceChange
 
 @Repository
 interface AttendanceChangesRepository : CrudRepository<AttendanceChange,Long> {
-  fun findByChangedFromOrChangedTo(changedFrom: AbsentReason?, changedTo: AbsentReason?): Set<AttendanceChange>
 }

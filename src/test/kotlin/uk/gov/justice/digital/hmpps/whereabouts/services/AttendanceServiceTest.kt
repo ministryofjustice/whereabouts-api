@@ -8,12 +8,13 @@ import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.anyObject
 import org.mockito.ArgumentMatchers.anySet
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*
-import uk.gov.justice.digital.hmpps.whereabouts.model.*
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
+import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
+import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
@@ -329,7 +330,7 @@ class AttendanceServiceTest {
     whenever(attendanceRepository.findById(1)).thenReturn(Optional.empty())
 
     assertThatThrownBy {
-      service.updateAttendance(1, UpdateAttendanceDto.builder().build())
+      service.updateAttendance(1, UpdateAttendanceDto(attended = false, paid = false))
     }.isExactlyInstanceOf(AttendanceNotFound::class.java)
   }
 
@@ -384,14 +385,12 @@ class AttendanceServiceTest {
             .period(TimePeriod.AM)
             .build()))
 
-    service.updateAttendance(1, UpdateAttendanceDto
-        .builder()
-        .absentReason(AbsentReason.SessionCancelled)
-        .attended(false)
-        .paid(false)
-        .comments("Session cancelled due to riot")
-        .build()
-    )
+    service.updateAttendance(1, UpdateAttendanceDto(
+        absentReason=AbsentReason.SessionCancelled,
+        attended=false,
+        paid=false,
+        comments="Session cancelled due to riot"
+    ))
 
     verify(attendanceRepository).save(
         Attendance
@@ -432,12 +431,10 @@ class AttendanceServiceTest {
             .period(TimePeriod.AM)
             .build()))
 
-    service.updateAttendance(1, UpdateAttendanceDto
-        .builder()
-        .attended(true)
-        .paid(true)
-        .build()
-    )
+    service.updateAttendance(1, UpdateAttendanceDto(
+        attended=true,
+        paid=true
+    ))
 
     verify(attendanceRepository).save(
         Attendance
@@ -482,7 +479,7 @@ class AttendanceServiceTest {
             .build()))
 
     assertThatThrownBy {
-      service.updateAttendance(1, UpdateAttendanceDto.builder().paid(false).attended(false).build())
+      service.updateAttendance(1, UpdateAttendanceDto(paid=false,attended=false))
     }.isExactlyInstanceOf(AttendanceLocked::class.java)
   }
 

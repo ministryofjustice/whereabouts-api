@@ -32,9 +32,9 @@ data class AttendanceChangeDto (
     @ApiModelProperty("Booking id")
     val bookingId: Long,
     @ApiModelProperty(value = "Previous attendance reason")
-    val changedFrom: AttendanceChangeValues?,
+    val changedFrom: AttendanceChangeValues,
     @ApiModelProperty(value = "New attendance reason")
-    val changedTo: AttendanceChangeValues?,
+    val changedTo: AttendanceChangeValues,
     @ApiModelProperty("Date and time when the changed occurred")
     val changedOn: LocalDateTime?,
     val changedBy: String?
