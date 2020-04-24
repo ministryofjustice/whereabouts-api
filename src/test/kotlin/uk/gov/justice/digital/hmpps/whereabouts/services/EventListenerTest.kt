@@ -14,7 +14,7 @@ class EventListenerTest {
   fun `should call delete with the correct offenderNo`() {
     val eventListener = EventListener(attendanceService, Gson())
     eventListener.handleEvents(getJson("/services/offender-deletion-request.json"))
-    verify(attendanceService).deleteAttendances("A1234AA")
+    verify(attendanceService).deleteAttendancesForOffenderDeleteEvent("A1234AA", listOf(321L, 322L))
   }
 
   private fun getJson(filename: String): String {

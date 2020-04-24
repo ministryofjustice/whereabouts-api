@@ -232,15 +232,16 @@ class AttendanceService(
   }
 
   @Transactional
-  fun deleteAttendances(offenderNo: String) {
-    val bookingId = elite2ApiService.getOffenderBookingId(offenderNo)
-    val attendances = attendanceRepository.findByBookingId(bookingId)
+  fun deleteAttendancesForOffenderDeleteEvent(offenderNo: String, bookingIds: List<Long>) {
+    var totalAttendances = 0
+    bookingIds.map { bookingId ->
+      val attendances = attendanceRepository.findByBookingId(bookingId)
+      log.info("Deleting the following attendance records ${attendances.map { it.id }.joinToString(",")}")
 
-    log.info("Deleting the following attendance records ${attendances.map { it.id }.joinToString(",")}")
-
-    attendanceRepository.deleteAll(attendances)
-
-    telemetryClient.trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to attendances.size.toString()), null)
+      attendanceRepository.deleteAll(attendances)
+      totalAttendances += attendances.size
+    }
+    telemetryClient.trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to  totalAttendances.toString()), null)
   }
 
   fun getAttendanceChanges(): Set<AttendanceChangeDto> {

@@ -329,7 +329,7 @@ class AttendanceServiceTest {
     whenever(attendanceRepository.findById(1)).thenReturn(Optional.empty())
 
     assertThatThrownBy {
-      service.updateAttendance(1, UpdateAttendanceDto(attended = false, paid = false))
+      service.updateAttendance(1, UpdateAttendanceDto.builder().build())
     }.isExactlyInstanceOf(AttendanceNotFound::class.java)
   }
 
@@ -384,11 +384,13 @@ class AttendanceServiceTest {
             .period(TimePeriod.AM)
             .build()))
 
-    service.updateAttendance(1, UpdateAttendanceDto(
-        absentReason = AbsentReason.SessionCancelled,
-        attended = false,
-        paid = false,
-        comments = "Session cancelled due to riot")
+    service.updateAttendance(1, UpdateAttendanceDto
+        .builder()
+        .absentReason(AbsentReason.SessionCancelled)
+        .attended(false)
+        .paid(false)
+        .comments("Session cancelled due to riot")
+        .build()
     )
 
     verify(attendanceRepository).save(
@@ -430,10 +432,12 @@ class AttendanceServiceTest {
             .period(TimePeriod.AM)
             .build()))
 
-    service.updateAttendance(1, UpdateAttendanceDto(
-        attended = true,
-        paid = true
-    ))
+    service.updateAttendance(1, UpdateAttendanceDto
+        .builder()
+        .attended(true)
+        .paid(true)
+        .build()
+    )
 
     verify(attendanceRepository).save(
         Attendance
@@ -478,7 +482,7 @@ class AttendanceServiceTest {
             .build()))
 
     assertThatThrownBy {
-      service.updateAttendance(1, UpdateAttendanceDto(paid=false,attended=false))
+      service.updateAttendance(1, UpdateAttendanceDto.builder().paid(false).attended(false).build())
     }.isExactlyInstanceOf(AttendanceLocked::class.java)
   }
 
@@ -1061,26 +1065,16 @@ class AttendanceServiceTest {
   }
 
   @Test
-  fun `should make a request to get the booking id for a delete event`() {
-    val offenderNo = "A12345"
-
-    service.deleteAttendances(offenderNo)
-
-    verify(elite2ApiService).getOffenderBookingId(offenderNo)
-  }
-
-  @Test
   fun `should attempt to delete two attendance records and raise telemetry event`() {
     val offenderNo = "A12345"
 
-    whenever(elite2ApiService.getOffenderBookingId(offenderNo)).thenReturn(1)
     whenever(attendanceRepository.findByBookingId(1)).thenReturn(setOf(
         Attendance.builder().id(1).bookingId(1).build(),
         Attendance.builder().id(2).bookingId(1).build(),
         Attendance.builder().id(3).bookingId(1).build()
     ))
 
-    service.deleteAttendances(offenderNo)
+    service.deleteAttendancesForOffenderDeleteEvent(offenderNo, listOf(1L))
 
     verify(attendanceRepository).findByBookingId(eq(1))
     verify(attendanceRepository).deleteAll(eq(setOf(
@@ -1088,60 +1082,6 @@ class AttendanceServiceTest {
         Attendance.builder().id(2).bookingId(1).build(),
         Attendance.builder().id(3).bookingId(1).build()
     )))
-    verify(telemetryClient).trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to "3"), null)
-  }
-
-  @Test
-  fun `should record changes made to attendance record when absent`() {
-    val attendance = Attendance.builder()
-        .id(1)
-        .absentReason(AbsentReason.Refused)
-        .attended(false)
-        .paid(false)
-        .eventId(2)
-        .eventLocationId(3)
-        .period(TimePeriod.AM)
-        .prisonId("LEI")
-        .bookingId(100)
-        .createUserId("user")
-        .caseNoteId(1)
-        .build()
-
-    whenever(attendanceRepository.findById(1L)).thenReturn(Optional.of(attendance))
-
-    service.updateAttendance(1L, UpdateAttendanceDto(absentReason = AbsentReason.NotRequired, attended = false, paid = false))
-
-   verify(attendanceChangesRepository).save(AttendanceChange(
-       attendanceId = 1,
-       changedFrom = AttendanceChangeValues.Refused,
-       changedTo = AttendanceChangeValues.NotRequired
-   ))
-  }
-
-  @Test
-  fun `should record changes made to attendance record going from absent to attended`() {
-    val attendance = Attendance.builder()
-        .id(1)
-        .absentReason(AbsentReason.Refused)
-        .attended(false)
-        .paid(false)
-        .eventId(2)
-        .eventLocationId(3)
-        .period(TimePeriod.AM)
-        .prisonId("LEI")
-        .bookingId(100)
-        .createUserId("user")
-        .caseNoteId(1)
-        .build()
-
-    whenever(attendanceRepository.findById(1L)).thenReturn(Optional.of(attendance))
-
-    service.updateAttendance(1L, UpdateAttendanceDto(attended = true, paid = true))
-
-    verify(attendanceChangesRepository).save(AttendanceChange(
-        attendanceId = 1,
-        changedFrom = AttendanceChangeValues.Refused,
-        changedTo = AttendanceChangeValues.Attended
-    ))
+    verify(telemetryClient).trackEvent("OffenderDelete", mapOf("offenderNo" to "A12345", "count" to  "3"), null)
   }
 }
