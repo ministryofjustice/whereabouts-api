@@ -10,7 +10,7 @@ class NomisEventOutcomeMapperTest {
 
   @Test
   fun `should throw an exception when a unpaid reason is used for a paid attendance`() {
-    val unpaidReasons = AbsentReason.getUnpaidReasons()
+    val unpaidReasons = AbsentReason.unpaidReasons
 
     unpaidReasons.forEach {
       val reason = it
@@ -24,7 +24,7 @@ class NomisEventOutcomeMapperTest {
   @Test
   fun `should throw an exception when a paid reason is used for an unpaid attendance`() {
 
-    val unpaidReasons = AbsentReason.getPaidReasons()
+    val unpaidReasons = AbsentReason.paidReasons
 
     unpaidReasons.forEach {
       val reason = it

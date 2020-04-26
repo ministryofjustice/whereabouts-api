@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.repository
 
+import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.Assertions
@@ -7,9 +8,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.security.authentication.TestingAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.context.transaction.TestTransaction
@@ -17,15 +18,21 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
+import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.validation.ConstraintViolationException
 
+
 @ExtendWith(SpringExtension::class)
 @ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@Import(TestAuditConfiguration::class)
+@DataJpaTest
 @Transactional
 class AttendanceRepositoryTest {
+
+  @MockBean
+  lateinit var authenticationFacade: AuthenticationFacade
 
   @Autowired
   lateinit var attendanceRepository: AttendanceRepository
@@ -47,7 +54,8 @@ class AttendanceRepositoryTest {
 
   @BeforeEach
   fun clearRepository() {
-    SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
+    whenever(authenticationFacade.currentUsername).thenReturn("user")
+
     attendanceRepository.deleteAll()
 
     TestTransaction.flagForCommit()

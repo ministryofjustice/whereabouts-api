@@ -18,9 +18,9 @@ class IEPWarningService(private val caseNotesService: CaseNotesService, private 
 
   fun handleIEPWarningScenarios(attendance: Attendance, newAttendanceDetails: UpdateAttendanceDto): Optional<Long> {
     val alreadyTriggeredIEPWarning = attendance.absentReason != null &&
-        AbsentReason.getIepTriggers().contains(attendance.absentReason)
+        AbsentReason.iepTriggers.contains(attendance.absentReason)
     val shouldTriggerIEPWarning = newAttendanceDetails.absentReason != null &&
-        AbsentReason.getIepTriggers().contains(newAttendanceDetails.absentReason)
+        AbsentReason.iepTriggers.contains(newAttendanceDetails.absentReason)
 
     if (alreadyTriggeredIEPWarning && shouldTriggerIEPWarning) return Optional.empty()
 
@@ -55,7 +55,7 @@ class IEPWarningService(private val caseNotesService: CaseNotesService, private 
   }
 
   open fun postIEPWarningIfRequired(bookingId: Long?, caseNoteId: Long?, reason: AbsentReason?, text: String?, eventDate: LocalDate): Optional<Long> {
-    if (caseNoteId == null && reason != null && AbsentReason.getIepTriggers().contains(reason)) {
+    if (caseNoteId == null && reason != null && AbsentReason.iepTriggers.contains(reason)) {
       val offenderNo = elite2ApiService.getOffenderNoFromBookingId(bookingId)
       val modifiedTextWithReason = formatReasonAndComment(reason, text)
       val caseNote = caseNotesService.postCaseNote(
