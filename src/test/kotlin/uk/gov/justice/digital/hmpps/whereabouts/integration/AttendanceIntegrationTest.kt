@@ -81,7 +81,6 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .jsonPath("$.changes[0].eventId").isEqualTo(activityId)
         .jsonPath("$.changes[0].eventLocationId").isEqualTo(2L)
         .jsonPath("$.changes[0].bookingId").isEqualTo(5L)
-        .jsonPath("$.changes[0].timePeriod").isEqualTo(TimePeriod.AM.toString())
         .jsonPath("$.changes[0].changedFrom").isEqualTo(AbsentReason.Refused.toString())
         .jsonPath("$.changes[0].changedTo").isEqualTo(AbsentReason.AcceptableAbsence.toString())
         .jsonPath("$.changes[0].changedBy").isEqualTo("ITAG_USER")
