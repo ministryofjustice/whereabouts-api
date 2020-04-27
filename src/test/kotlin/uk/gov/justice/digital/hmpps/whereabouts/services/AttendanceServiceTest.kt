@@ -12,9 +12,7 @@ import org.mockito.ArgumentMatchers.anySet
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*
-import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
-import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
-import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
+import uk.gov.justice.digital.hmpps.whereabouts.model.*
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
@@ -1080,5 +1078,119 @@ class AttendanceServiceTest {
         Attendance.builder().id(3).bookingId(1).build()
     )))
     verify(telemetryClient).trackEvent("OffenderDelete", mapOf("offenderNo" to "A12345", "count" to  "3"), null)
+  }
+
+  @Test
+  fun `should record changes made to attendance record when absent`() {
+    val attendance = Attendance.builder()
+        .id(1)
+        .absentReason(AbsentReason.Refused)
+        .attended(false)
+        .paid(false)
+        .eventId(2)
+        .eventLocationId(3)
+        .period(TimePeriod.AM)
+        .prisonId("LEI")
+        .bookingId(100)
+        .createUserId("user")
+        .caseNoteId(1)
+        .build()
+
+    whenever(attendanceRepository.findById(1L)).thenReturn(Optional.of(attendance))
+
+    service.updateAttendance(1L, UpdateAttendanceDto(absentReason = AbsentReason.NotRequired, attended = false, paid = false))
+
+    verify(attendanceChangesRepository).save(AttendanceChange(
+        attendance = attendance,
+        changedFrom = AttendanceChangeValues.Refused,
+        changedTo = AttendanceChangeValues.NotRequired
+    ))
+  }
+
+  @Test
+  fun `should record changes made to attendance record going from absent to attended`() {
+    val attendance = Attendance.builder()
+        .id(1)
+        .absentReason(AbsentReason.Refused)
+        .attended(false)
+        .paid(false)
+        .eventId(2)
+        .eventLocationId(3)
+        .period(TimePeriod.AM)
+        .prisonId("LEI")
+        .bookingId(100)
+        .createUserId("user")
+        .caseNoteId(1)
+        .build()
+
+    whenever(attendanceRepository.findById(1L)).thenReturn(Optional.of(attendance))
+
+    service.updateAttendance(1L, UpdateAttendanceDto(attended = true, paid = true))
+
+    verify(attendanceChangesRepository).save(AttendanceChange(
+        attendance=attendance,
+        changedFrom = AttendanceChangeValues.Refused,
+        changedTo = AttendanceChangeValues.Attended
+    ))
+  }
+
+  @Test
+  fun `should call findAttendanceChangeByCreateDateTime when toDateTime is null`() {
+    val fromDateTime = LocalDateTime.now()
+
+    service.getAttendanceChanges(fromDateTime, null)
+
+    verify(attendanceChangesRepository).findAttendanceChangeByCreateDateTime(fromDateTime)
+  }
+
+  @Test
+  fun `should call findAttendanceChangeByCreateDateTimeBetween when fromDateTime and toDateTime are present`() {
+    val fromDateTime = LocalDateTime.now()
+    val toDateTime = LocalDateTime.now()
+
+    service.getAttendanceChanges(fromDateTime, toDateTime)
+
+    verify(attendanceChangesRepository).findAttendanceChangeByCreateDateTimeBetween(fromDateTime, toDateTime)
+  }
+
+  @Test
+  fun `should map to attendance change to correctly`() {
+    val createdDateTime = LocalDateTime.now()
+    val attendance = Attendance.builder()
+        .id(1)
+        .absentReason(AbsentReason.Refused)
+        .attended(false)
+        .paid(false)
+        .eventId(2)
+        .eventLocationId(3)
+        .period(TimePeriod.AM)
+        .prisonId("LEI")
+        .bookingId(100)
+        .createUserId("user")
+        .caseNoteId(1)
+        .build()
+
+    val attendanceChange = AttendanceChange(
+        id = 1,
+        attendance = attendance,
+        changedFrom = AttendanceChangeValues.Attended,
+        changedTo = AttendanceChangeValues.Refused,
+        createDateTime = createdDateTime,
+        createUserId = "ITAG_USER"
+    )
+
+    whenever(attendanceRepository.findById(1L)).thenReturn(Optional.of(attendance))
+    whenever(attendanceChangesRepository.findAttendanceChangeByCreateDateTime(any())).thenReturn(setOf(attendanceChange))
+
+    val change = service.getAttendanceChanges(createdDateTime, null).asSequence().first()
+
+    assertThat(change.changedOn).isEqualTo(createdDateTime)
+    assertThat(change.attendanceId).isEqualTo(1)
+    assertThat(change.bookingId).isEqualTo(100)
+    assertThat(change.changedFrom).isEqualTo(AttendanceChangeValues.Attended)
+    assertThat(change.changedTo).isEqualTo(AttendanceChangeValues.Refused)
+    assertThat(change.eventId).isEqualTo(2)
+    assertThat(change.eventLocationId).isEqualTo(3)
+    assertThat(change.changedBy).isEqualTo("ITAG_USER")
   }
 }

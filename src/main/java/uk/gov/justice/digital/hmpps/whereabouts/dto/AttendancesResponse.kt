@@ -2,8 +2,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
-import org.joda.time.DateTime
-import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.AttendanceChangeValues
 import java.time.LocalDateTime
 
@@ -37,5 +35,6 @@ data class AttendanceChangeDto (
     val changedTo: AttendanceChangeValues,
     @ApiModelProperty("Date and time when the changed occurred")
     val changedOn: LocalDateTime?,
+    @ApiModelProperty("Changed by username")
     val changedBy: String?
 )

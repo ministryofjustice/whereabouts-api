@@ -57,10 +57,10 @@ class AttendanceChangesRepositoryTest {
     val attendanceId = attendanceRepository.save(attendance).id
 
     val change = AttendanceChange(
-         attendanceId = attendanceId,
-         changedFrom = AttendanceChangeValues.Refused,
-         changedTo = AttendanceChangeValues.NotRequired
-     )
+        attendance = attendance,
+        changedFrom = AttendanceChangeValues.Refused,
+        changedTo = AttendanceChangeValues.NotRequired
+    )
 
     val id = attendanceChangesRepository.save(change).id
     TestTransaction.flagForCommit()
@@ -68,7 +68,7 @@ class AttendanceChangesRepositoryTest {
 
     val recordedChanges = attendanceChangesRepository.findById(id).get()
 
-    assertThat(recordedChanges.attendanceId).isEqualTo(attendanceId)
+    assertThat(recordedChanges.attendance?.id).isEqualTo(attendanceId)
     assertThat(recordedChanges.changedFrom).isEqualTo(AttendanceChangeValues.Refused)
     assertThat(recordedChanges.changedTo).isEqualTo(AttendanceChangeValues.NotRequired)
     assertThat(recordedChanges.createUserId).isEqualTo("user")

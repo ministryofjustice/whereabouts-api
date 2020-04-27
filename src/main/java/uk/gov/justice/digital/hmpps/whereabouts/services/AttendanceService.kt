@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.*
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.function.Predicate
 import java.util.stream.Collectors
@@ -111,7 +112,7 @@ class AttendanceService(
     postNomisAttendance(attendance)
 
     attendanceChangesRepository.save(AttendanceChange(
-        attendanceId = attendance.id,
+        attendance = attendance,
         changedFrom = changedFrom,
         changedTo = changedTo
     ))
@@ -241,37 +242,30 @@ class AttendanceService(
       attendanceRepository.deleteAll(attendances)
       totalAttendances += attendances.size
     }
-    telemetryClient.trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to  totalAttendances.toString()), null)
+    telemetryClient.trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to totalAttendances.toString()), null)
   }
 
-  fun getAttendanceChanges(): Set<AttendanceChangeDto> {
-    val changes = attendanceChangesRepository
-        .findAll()
-        .toSet()
+  fun getAttendanceChanges(fromDateTime: LocalDateTime, toDateTime: LocalDateTime?): Set<AttendanceChangeDto> {
+    val changes =
+        if (toDateTime == null) {
+          attendanceChangesRepository.findAttendanceChangeByCreateDateTime(fromDateTime)
+        } else
+        attendanceChangesRepository.findAttendanceChangeByCreateDateTimeBetween(fromDateTime, toDateTime)
 
-    val attendanceIds = changes
-        .map { it.attendanceId }
-        .toSet()
-
-    val attendancesMap = attendanceRepository
-        .findAllById(attendanceIds)
-        .associate { Pair(it.id, it) }
-
-    return changes.map {
-      val attendance = attendancesMap.get(it.attendanceId)!!
-
-      AttendanceChangeDto(
-          id = it.id!!,
-          attendanceId = it.attendanceId,
-          bookingId = attendance.bookingId,
-          eventId = attendance.eventId,
-          eventLocationId = attendance.eventLocationId,
-          changedFrom = it.changedFrom,
-          changedTo = it.changedTo,
-          changedOn = it?.createDateTime,
-          changedBy = it?.createUserId
-      )
-    }.toSet()
+    return changes
+        .map {
+          AttendanceChangeDto(
+              id = it.id!!,
+              attendanceId = it.attendance.id,
+              bookingId = it.attendance.bookingId,
+              eventId = it.attendance.eventId,
+              eventLocationId = it.attendance.eventLocationId,
+              changedFrom = it.changedFrom,
+              changedTo = it.changedTo,
+              changedOn = it.createDateTime,
+              changedBy = it.createUserId
+          )
+        }.toSet()
   }
 
   private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails {
