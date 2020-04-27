@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam
 import lombok.extern.slf4j.Slf4j
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.format.annotation.DateTimeFormat.ISO.DATE
+import org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
@@ -17,6 +18,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.validation.Valid
 
 @Api(tags = ["attendances"])
@@ -111,9 +113,12 @@ class AttendancesController(private val attendanceService: AttendanceService) {
 
   @GetMapping("/changes")
   @ApiOperation(value = "Return all changes relating to an attendance")
-  fun getAttendanceChanges() : AttendanceChangesResponse {
-      return AttendanceChangesResponse(
-          changes = attendanceService.getAttendanceChanges()
-      )
+  fun getAttendanceChanges(
+      @ApiParam(value = "Date and Time of change in format YYYY-MM-DDT09:10", required = true) @RequestParam(name = "fromDateTime") @DateTimeFormat(iso = DATE_TIME) fromDateTime: LocalDateTime,
+      @ApiParam(value = "Date and Time of the change in format YYYY-MM-DDT:09:45") @RequestParam(name = "toDateTime") @DateTimeFormat(iso = DATE_TIME) toDateTime: LocalDateTime?
+  ): AttendanceChangesResponse {
+    return AttendanceChangesResponse(
+        changes = attendanceService.getAttendanceChanges(fromDateTime, toDateTime)
+    )
   }
 }

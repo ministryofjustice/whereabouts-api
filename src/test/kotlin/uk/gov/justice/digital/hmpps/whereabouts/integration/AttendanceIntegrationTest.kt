@@ -51,7 +51,8 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .returnResult(AttendanceDto::class.java)
 
     val createdAttendance = response.responseBody.blockFirst()
-    val updateAttendance = UpdateAttendanceDto( attended = false, paid = true, absentReason = AbsentReason.AcceptableAbsence)
+    val updateAttendance = UpdateAttendanceDto(attended = false, paid = true, absentReason = AbsentReason.AcceptableAbsence)
+
 
     webTestClient.put()
         .uri("/attendance/${createdAttendance.id}")
@@ -61,15 +62,26 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .expectStatus()
         .isNoContent()
 
+
+    val from = LocalDateTime.now().minusHours(1)
+    val to = LocalDateTime.now().plusHours(1)
+
     webTestClient.get()
-        .uri("/attendances/changes")
+        .uri({
+          it.path("/attendances/changes")
+              .queryParam("fromDateTime", from)
+              .queryParam("toDateTime", to)
+              .build()
+        })
         .headers(setHeaders())
         .exchange()
+        .expectStatus().isOk()
         .expectBody()
         .jsonPath("$.changes[0].attendanceId").isEqualTo(createdAttendance.id)
         .jsonPath("$.changes[0].eventId").isEqualTo(activityId)
         .jsonPath("$.changes[0].eventLocationId").isEqualTo(2L)
         .jsonPath("$.changes[0].bookingId").isEqualTo(5L)
+        .jsonPath("$.changes[0].timePeriod").isEqualTo(TimePeriod.AM.toString())
         .jsonPath("$.changes[0].changedFrom").isEqualTo(AbsentReason.Refused.toString())
         .jsonPath("$.changes[0].changedTo").isEqualTo(AbsentReason.AcceptableAbsence.toString())
         .jsonPath("$.changes[0].changedBy").isEqualTo("ITAG_USER")
@@ -301,7 +313,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
     webTestClient.put()
         .uri("/attendance/${persistedAttendance.id}")
-        .bodyValue(UpdateAttendanceDto(attended =true,paid =true))
+        .bodyValue(UpdateAttendanceDto(attended = true, paid = true))
         .headers(setHeaders())
         .exchange()
         .expectStatus()
@@ -312,7 +324,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
   fun `should return a 404 when attempting to update non existent attendance`() {
     webTestClient.put()
         .uri("/attendance/100")
-        .bodyValue(UpdateAttendanceDto(attended=true,paid=true))
+        .bodyValue(UpdateAttendanceDto(attended = true, paid = true))
         .headers(setHeaders())
         .exchange()
         .expectStatus()
@@ -324,32 +336,32 @@ class AttendanceIntegrationTest : IntegrationTest() {
     elite2MockServer.stubUpdateAttendance()
 
     attendanceRepository.save(
-            Attendance.builder()
-                    .absentReason(AbsentReason.Refused)
-                    .bookingId(1)
-                    .comments("Refused to turn up")
-                    .attended(false)
-                    .paid(false)
-                    .createDateTime(LocalDateTime.now())
-                    .eventDate(LocalDate.now())
-                    .eventId(2)
-                    .prisonId("LEI")
-                    .period(TimePeriod.AM)
-                    .eventLocationId(2)
-                    .build())
+        Attendance.builder()
+            .absentReason(AbsentReason.Refused)
+            .bookingId(1)
+            .comments("Refused to turn up")
+            .attended(false)
+            .paid(false)
+            .createDateTime(LocalDateTime.now())
+            .eventDate(LocalDate.now())
+            .eventId(2)
+            .prisonId("LEI")
+            .period(TimePeriod.AM)
+            .eventLocationId(2)
+            .build())
 
     val attendanceDto =
-            CreateAttendanceDto
-                    .builder()
-                    .prisonId("LEI")
-                    .attended(true)
-                    .paid(true)
-                    .bookingId(1)
-                    .eventId(2)
-                    .eventLocationId(1)
-                    .period(TimePeriod.AM)
-                    .eventDate(LocalDate.now())
-                    .build()
+        CreateAttendanceDto
+            .builder()
+            .prisonId("LEI")
+            .attended(true)
+            .paid(true)
+            .bookingId(1)
+            .eventId(2)
+            .eventLocationId(1)
+            .period(TimePeriod.AM)
+            .eventDate(LocalDate.now())
+            .build()
 
     val response = webTestClient.post()
         .uri("/attendance")
@@ -463,7 +475,6 @@ class AttendanceIntegrationTest : IntegrationTest() {
   }
 
 
-
   private fun postAttendance(bookingId: Long = 1) {
     val attendanceDto =
         CreateAttendanceDto
@@ -486,4 +497,5 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .expectStatus()
         .isCreated()
   }
+
 }
