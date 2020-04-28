@@ -45,35 +45,30 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .bookingId(1)
             .build()))
 
-    val response =
-        restTemplate.exchange(
-            "/attendances/LEI/2?date={0}&period={1}",
-            HttpMethod.GET,
-            createHeaderEntity(""),
-            AttendancesResponse::class.java,
-            LocalDate.of(2019, 10, 10),
-            TimePeriod.PM)
-
-    val result = response.body?.attendances
-
-    assertThat(response.statusCodeValue).isEqualTo(200)
-    assertThat(result)
-        .containsExactlyInAnyOrder(
-            AttendanceDto
-                .builder()
-                .id(1)
-                .absentReason(AbsentReason.Refused)
-                .period(TimePeriod.PM)
-                .prisonId("LEI")
-                .eventLocationId(2)
-                .eventId(1)
-                .eventDate(LocalDate.of(2019, 10, 10))
-                .comments("hello world")
-                .attended(false)
-                .paid(false)
-                .bookingId(1)
-                .locked(false)
-                .build())
+    webTestClient
+            .get()
+            .uri {
+              it.path("/attendances/LEI/2")
+                      .queryParam("date", LocalDate.of(2019, 10, 10))
+                      .queryParam("period", TimePeriod.PM)
+                      .build()
+            }
+            .headers(setHeaders())
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath(".attendances[0].id").isEqualTo(1)
+            .jsonPath(".attendances[0].absentReason").isEqualTo("Refused")
+            .jsonPath(".attendances[0].period").isEqualTo("PM")
+            .jsonPath(".attendances[0].prisonId").isEqualTo("LEI")
+            .jsonPath(".attendances[0].eventLocationId").isEqualTo(2)
+            .jsonPath(".attendances[0].eventId").isEqualTo(1)
+            .jsonPath(".attendances[0].eventDate").isEqualTo("2019-10-10")
+            .jsonPath(".attendances[0].comments").isEqualTo("hello world")
+            .jsonPath(".attendances[0].attended").isEqualTo(false)
+            .jsonPath(".attendances[0].paid").isEqualTo(false)
+            .jsonPath(".attendances[0].bookingId").isEqualTo(1)
+            .jsonPath(".attendances[0].locked").isEqualTo(false)
 
   }
 
@@ -81,6 +76,8 @@ class AttendancesIntegrationTest : IntegrationTest() {
   @Test
   fun `should return modified by and modified on`() {
     elite2MockServer.stubUpdateAttendance()
+
+    val date = LocalDateTime.now()
 
     whenever(attendanceRepository.findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(any(), any(), any(), any()))
         .thenReturn(setOf(
@@ -96,25 +93,27 @@ class AttendancesIntegrationTest : IntegrationTest() {
                 .eventLocationId(2)
                 .prisonId("LEI")
                 .period(TimePeriod.AM)
-                .createDateTime(LocalDateTime.now())
+                .createDateTime(date)
                 .createUserId("user")
+                .modifyDateTime(date)
+                .modifyUserId("user")
                 .build()))
 
-
-    val response =
-        restTemplate.exchange(
-            "/attendances/LEI/2?date={0}&period={1}",
-            HttpMethod.GET,
-            createHeaderEntity(""),
-            AttendancesResponse::class.java,
-            LocalDate.of(2019, 10, 10),
-            TimePeriod.AM)
-
-
-    val savedAttendance = response?.body?.attendances?.first()
-
-    assertThat(savedAttendance?.id).isGreaterThan(0)
-    assertThat(response.statusCodeValue).isEqualTo(200)
+    webTestClient
+        .get()
+        .uri {
+          it.path("/attendances/LEI/2")
+          .queryParam("date", LocalDate.of(2019, 10, 10))
+          .queryParam("period", TimePeriod.PM)
+          .build()
+        }
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody()
+        .jsonPath(".attendances[0].id").isEqualTo(1)
+        .jsonPath(".attendances[0].modifyDateTime").isNotEmpty()
+        .jsonPath(".attendances[0].modifyUserId").isEqualTo("user")
   }
 
   @Test
@@ -152,17 +151,21 @@ class AttendancesIntegrationTest : IntegrationTest() {
                 .bookingId(2)
                 .build()))
 
-    val response =
-        restTemplate.exchange(
-            "/attendances/LEI?date={0}&period={1}&bookings=${1}&bookings=${2}",
-            HttpMethod.GET,
-            createHeaderEntity(""),
-            AttendancesResponse::class.java,
-            LocalDate.of(2019, 10, 10),
-            TimePeriod.PM)
-
-    assertThat(response.statusCodeValue).isEqualTo(200)
-    assertThat(response.body?.attendances).extracting("bookingId").contains(1L, 2L)
+    webTestClient
+      .get()
+      .uri({ it.path("/attendances/LEI")
+              .queryParam("date", LocalDate.of(2019, 10, 10))
+              .queryParam("period", TimePeriod.PM)
+              .queryParam("bookings", setOf(1,2))
+              .build()})
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk()
+      .expectBody()
+      .jsonPath(".attendances[0].id").isEqualTo(1)
+      .jsonPath(".attendances[1].id").isEqualTo(2)
+      .jsonPath(".attendances[0].bookingId").isEqualTo(1)
+      .jsonPath(".attendances[1].bookingId").isEqualTo(2)
   }
 
   @Test
@@ -203,17 +206,77 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     val bookings = setOf(1, 2)
 
-    val response =
-        restTemplate.exchange(
-            "/attendances/LEI?date={0}&period={1}",
-            HttpMethod.POST,
-            createHeaderEntity(bookings),
-            AttendancesResponse::class.java,
-            LocalDate.of(2019, 10, 10),
-            TimePeriod.PM)
+    webTestClient
+      .post()
+      .uri({ it.path("/attendances/LEI")
+              .queryParam("date", LocalDate.of(2019, 10, 10))
+              .queryParam("period", TimePeriod.PM)
+              .build()
+      })
+      .headers(setHeaders())
+      .bodyValue(bookings)
+      .exchange()
+      .expectBody()
+      .jsonPath(".attendances[0].id").isEqualTo(1)
+      .jsonPath(".attendances[1].id").isEqualTo(2)
+      .jsonPath(".attendances[0].bookingId").isEqualTo(1)
+      .jsonPath(".attendances[1].bookingId").isEqualTo(2)
+  }
 
-    assertThat(response.statusCodeValue).isEqualTo(200)
-    assertThat(response.body?.attendances).extracting("bookingId").contains(1L, 2L)
+  @Test
+  fun `should return attendance information for set of bookings ids over date range by post`() {
+    elite2MockServer.stubUpdateAttendance()
+
+    whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn(any(), any(), any(), any(), any()))
+            .thenReturn(setOf(
+                    Attendance
+                            .builder()
+                            .id(1)
+                            .absentReason(AbsentReason.Refused)
+                            .period(TimePeriod.PM)
+                            .prisonId("LEI")
+                            .eventLocationId(2)
+                            .eventId(1)
+                            .eventDate(LocalDate.of(2019, 10, 10))
+                            .comments("hello world")
+                            .attended(true)
+                            .paid(true)
+                            .bookingId(1)
+                            .build(),
+                    Attendance
+                            .builder()
+                            .id(2)
+                            .absentReason(AbsentReason.Refused)
+                            .period(TimePeriod.PM)
+                            .prisonId("LEI")
+                            .eventLocationId(2)
+                            .eventId(1)
+                            .eventDate(LocalDate.of(2019, 10, 11))
+                            .comments("hello world")
+                            .attended(true)
+                            .paid(true)
+                            .bookingId(2)
+                            .build()
+            ))
+
+    val bookings = setOf(1, 2)
+
+    webTestClient
+            .post()
+            .uri({it.path("/attendances/LEI/attendance-over-date-range")
+                    .queryParam("fromDate", LocalDate.of(2019, 10, 10))
+                    .queryParam("toDate", LocalDate.of(2019, 10, 11))
+                    .queryParam("period", TimePeriod.PM)
+                    .build()
+            })
+            .headers(setHeaders())
+            .bodyValue(bookings)
+            .exchange()
+            .expectBody()
+            .jsonPath(".attendances[0].id").isEqualTo(1)
+            .jsonPath(".attendances[1].id").isEqualTo(2)
+            .jsonPath(".attendances[0].bookingId").isEqualTo(1)
+            .jsonPath(".attendances[1].bookingId").isEqualTo(2)
   }
 
   @Test
@@ -238,15 +301,13 @@ class AttendancesIntegrationTest : IntegrationTest() {
         .paid(true)
         .build()
 
-    val response =
-        restTemplate.exchange(
-            "/attendances",
-            HttpMethod.POST,
-            createHeaderEntity(attendAll),
-            AttendancesResponse::class.java
-        )
-
-    assertThat(response.statusCodeValue).isEqualTo(201)
+    webTestClient
+      .post()
+      .uri("/attendances")
+      .headers(setHeaders())
+      .bodyValue(attendAll)
+      .exchange()
+      .expectStatus().isCreated()
 
     elite2MockServer.verify(WireMock.putRequestedFor(WireMock.urlEqualTo("/api/bookings/activities/attendance"))
         .withRequestBody(WireMock.equalToJson(gson.toJson(mapOf(
@@ -282,14 +343,17 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .caseNoteId(1)
             .build()))
 
-    val response = restTemplate.exchange(
-        "/attendances/$prisonId/attendance-for-scheduled-activities?date=$date&period=$period",
-        HttpMethod.GET,
-        createHeaderEntity(""),
-        AttendancesResponse::class.java)
-
-    assertThat(response.statusCodeValue).isEqualTo(200)
-    assertThat(response.body?.attendances).hasSize(1)
+    webTestClient
+      .get()
+      .uri({it.path("/attendances/$prisonId/attendance-for-scheduled-activities")
+              .queryParam("date", date)
+              .queryParam("period", period)
+              .build()})
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk()
+      .expectBody()
+      .jsonPath(".attendances[0].id").isEqualTo(1)
 
     elite2MockServer.verify(WireMock.getRequestedFor(WireMock.urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period")))
   }
@@ -320,13 +384,17 @@ class AttendancesIntegrationTest : IntegrationTest() {
                 .caseNoteId(1)
                 .build()))
 
-    val response = restTemplate.exchange(
-        "/attendances/${prisonId}/absences-for-scheduled-activities/${reason}?fromDate=$date&period=$period",
-        HttpMethod.GET,
-        createHeaderEntity(""),
-        AbsencesResponse::class.java)
+    webTestClient
+      .get()
+      .uri({it.path("/attendances/${prisonId}/absences-for-scheduled-activities/${reason}")
+              .queryParam("fromDate", date)
+              .queryParam("period", period)
+              .build()})
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk()
+      .expectBody()
+      .jsonPath(".absences[0].attendanceId").isEqualTo(1)
 
-    assertThat(response.statusCodeValue).isEqualTo(200)
-    assertThat(response.body?.absences).hasSize(1)
   }
 }
