@@ -53,7 +53,7 @@ class AttendanceService(
     return attendance.map { toAttendanceDto(it) }.toSet()
   }
 
-  fun getAttendanceForBookingsOverDateRange(prisonId: String?,  bookings: Set<Long?>?, fromDate: LocalDate, toDate: LocalDate?,
+  fun getAttendanceForBookingsOverDateRange(prisonId: String,  bookings: Set<Long?>, fromDate: LocalDate, toDate: LocalDate?,
                                         period: TimePeriod?): Set<AttendanceDto> {
 
     val periods = if (period == null) setOf(TimePeriod.AM, TimePeriod.PM) else setOf(period)
