@@ -1060,6 +1060,30 @@ class AttendanceServiceTest {
   }
 
   @Test
+  fun `should substitute toDate with fromDate when toDate is null for attendance over date range`() {
+    val date = LocalDate.now().atStartOfDay().toLocalDate()
+
+    val prison = "MDI"
+    val period = TimePeriod.AM
+
+
+    service.getAttendanceForBookingsOverDateRange(prison, setOf(1,2), date, null, period)
+
+    verify(attendanceRepository).findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn(prison, setOf(1,2), date, date, setOf(period))
+  }
+
+  @Test
+  fun `should substitute empty period with a set of AM and PM for attendance over date range`() {
+    val date = LocalDate.now().atStartOfDay().toLocalDate()
+
+    val prison = "MDI"
+
+    service.getAttendanceForBookingsOverDateRange(prison, setOf(1,2), date, null, null)
+
+    verify(attendanceRepository).findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn(prison, setOf(1,2), date, date, setOf(TimePeriod.AM, TimePeriod.PM))
+  }
+
+  @Test
   fun `should attempt to delete two attendance records and raise telemetry event`() {
     val offenderNo = "A12345"
 

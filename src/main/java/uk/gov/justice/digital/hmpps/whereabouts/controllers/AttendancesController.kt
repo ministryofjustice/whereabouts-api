@@ -88,6 +88,19 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     )
   }
 
+  @PostMapping("/{prison}/attendance-over-date-range")
+  @ApiOperation(value = "Returns set of attendance details for set of booking ids", response = AttendancesResponse::class, notes = "Request attendance details")
+  fun getAttendanceForBookingsOverDateRangeByPost(@ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+                                                  @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
+                                                  @ApiParam(value = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate?,
+                                                  @ApiParam(value = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
+                                                  @ApiParam(value = "Booking ids (bookings=1&bookings=2)", required = true) @RequestBody bookings: Set<Long>): AttendancesResponse {
+
+    return AttendancesResponse(
+            attendances = attendanceService.getAttendanceForBookingsOverDateRange(prisonId, bookings, fromDate, toDate, period)
+    )
+  }
+
   @GetMapping("/{prison}/attendance-for-scheduled-activities")
   @ApiOperation(value = "Return a set of attendance details for all offenders that have scheduled activity", response = AttendancesResponse::class, notes = "Request attendance details")
   fun getAttendanceForOffendersThatHaveScheduleActivity(@ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,

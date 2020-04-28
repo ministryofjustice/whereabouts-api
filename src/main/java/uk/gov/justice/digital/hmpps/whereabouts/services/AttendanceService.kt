@@ -53,6 +53,18 @@ class AttendanceService(
     return attendance.map { toAttendanceDto(it) }.toSet()
   }
 
+  fun getAttendanceForBookingsOverDateRange(prisonId: String?,  bookings: Set<Long?>?, fromDate: LocalDate, toDate: LocalDate?,
+                                        period: TimePeriod?): Set<AttendanceDto> {
+
+    val periods = if (period == null) setOf(TimePeriod.AM, TimePeriod.PM) else setOf(period)
+    val endDate = toDate ?: fromDate
+
+    val attendances = attendanceRepository
+            .findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn(prisonId, bookings, fromDate, endDate, periods)
+
+    return attendances.map { toAttendanceDto(it) }.toSet()
+  }
+
   @Transactional
   @Throws(AttendanceExists::class)
   fun createAttendance(attendanceDto: CreateAttendanceDto): AttendanceDto {
