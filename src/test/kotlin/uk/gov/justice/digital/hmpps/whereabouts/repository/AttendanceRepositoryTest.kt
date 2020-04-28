@@ -37,6 +37,9 @@ class AttendanceRepositoryTest {
   @Autowired
   lateinit var attendanceRepository: AttendanceRepository
 
+  @Autowired
+  lateinit var attendanceChangesRepository: AttendanceChangesRepository
+
   private val now = LocalDate.now()
 
   private val attendance = Attendance.builder()
@@ -56,6 +59,7 @@ class AttendanceRepositoryTest {
   fun clearRepository() {
     whenever(authenticationFacade.currentUsername).thenReturn("user")
 
+    attendanceChangesRepository.deleteAll()
     attendanceRepository.deleteAll()
 
     TestTransaction.flagForCommit()
