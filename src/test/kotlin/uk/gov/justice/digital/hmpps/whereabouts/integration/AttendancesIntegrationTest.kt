@@ -100,21 +100,19 @@ class AttendancesIntegrationTest : IntegrationTest() {
                 .createUserId("user")
                 .build()))
 
-
-    val response =
-        restTemplate.exchange(
-            "/attendances/LEI/2?date={0}&period={1}",
-            HttpMethod.GET,
-            createHeaderEntity(""),
-            AttendancesResponse::class.java,
-            LocalDate.of(2019, 10, 10),
-            TimePeriod.AM)
-
-
-    val savedAttendance = response?.body?.attendances?.first()
-
-    assertThat(savedAttendance?.id).isGreaterThan(0)
-    assertThat(response.statusCodeValue).isEqualTo(200)
+    webTestClient
+        .get()
+        .uri {
+          it.path("/attendances/LEI/2")
+          .queryParam("date", LocalDate.of(2019, 10, 10))
+          .queryParam("period", TimePeriod.PM)
+           .build()
+        }
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody()
+        .jsonPath(".attendances[0].id").isEqualTo(1)
   }
 
   @Test
