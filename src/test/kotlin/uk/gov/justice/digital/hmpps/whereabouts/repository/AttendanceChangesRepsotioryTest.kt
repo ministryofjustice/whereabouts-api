@@ -35,6 +35,8 @@ class AttendanceChangesRepositoryTest {
   fun clearRepository() {
     whenever(authenticationFacade.currentUsername).thenReturn("user")
 
+    attendanceChangesRepository.deleteAll()
+
     TestTransaction.flagForCommit()
     TestTransaction.end()
     TestTransaction.start()

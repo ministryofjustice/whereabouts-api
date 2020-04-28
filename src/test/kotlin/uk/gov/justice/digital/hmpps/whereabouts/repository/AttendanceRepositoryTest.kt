@@ -37,6 +37,9 @@ class AttendanceRepositoryTest {
   @Autowired
   lateinit var attendanceRepository: AttendanceRepository
 
+  @Autowired
+  lateinit var attendanceChangesRepository: AttendanceChangesRepository
+
   private val now = LocalDate.now()
 
   private val attendance = Attendance.builder()
@@ -56,6 +59,7 @@ class AttendanceRepositoryTest {
   fun clearRepository() {
     whenever(authenticationFacade.currentUsername).thenReturn("user")
 
+    attendanceChangesRepository.deleteAll()
     attendanceRepository.deleteAll()
 
     TestTransaction.flagForCommit()
@@ -278,5 +282,78 @@ class AttendanceRepositoryTest {
             LocalDate.now().plusMonths(12), setOf(TimePeriod.AM), AbsentReason.Refused)
 
     assertThat(result).extracting("bookingId", "eventId").containsExactlyInAnyOrder(Tuple.tuple(1L, 2L), Tuple.tuple(1L, 1L))
+  }
+
+  @Test
+  fun `should match on date range, period and booking ids`() {
+    val attendances = setOf(
+            Attendance.builder()
+                    .bookingId(1)
+                    .eventId(1)
+                    .eventLocationId(1)
+                    .eventDate(LocalDate.now().atStartOfDay().toLocalDate())
+                    .prisonId("MDI")
+                    .period(TimePeriod.AM)
+                    .attended(false)
+                    .paid(true)
+                    .absentReason(AbsentReason.Refused)
+                    .build(),
+            Attendance.builder()
+                    .bookingId(1)
+                    .eventId(2)
+                    .eventLocationId(1)
+                    .eventDate(LocalDate.now().plusMonths(1))
+                    .prisonId("MDI")
+                    .period(TimePeriod.AM)
+                    .attended(false)
+                    .paid(true)
+                    .absentReason(AbsentReason.Refused)
+                    .build(),
+            Attendance.builder()
+                    .bookingId(1)
+                    .eventId(3)
+                    .eventLocationId(1)
+                    .eventDate(LocalDate.now().plusMonths(13))
+                    .prisonId("MDI")
+                    .period(TimePeriod.AM)
+                    .attended(false)
+                    .paid(true)
+                    .absentReason(AbsentReason.SessionCancelled)
+                    .build(),
+            Attendance.builder()
+                    .bookingId(2)
+                    .eventId(3)
+                    .eventLocationId(1)
+                    .eventDate(LocalDate.now().plusMonths(1))
+                    .prisonId("MDI")
+                    .period(TimePeriod.AM)
+                    .attended(false)
+                    .paid(true)
+                    .absentReason(AbsentReason.SessionCancelled)
+                    .build(),
+            Attendance.builder()
+                    .bookingId(3)
+                    .eventId(3)
+                    .eventLocationId(1)
+                    .eventDate(LocalDate.now().plusMonths(1))
+                    .prisonId("MDI")
+                    .period(TimePeriod.PM)
+                    .attended(false)
+                    .paid(true)
+                    .absentReason(AbsentReason.SessionCancelled)
+                    .build()
+
+    )
+
+    attendanceRepository.saveAll(attendances)
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+
+    val result = attendanceRepository
+            .findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn("MDI", setOf(1,2), LocalDate.now(),
+                    LocalDate.now().plusMonths(12), setOf(TimePeriod.AM, TimePeriod.PM))
+
+    assertThat(result).extracting("bookingId", "eventId").containsExactlyInAnyOrder(Tuple.tuple(1L, 2L), Tuple.tuple(1L, 1L), Tuple.tuple(2L, 3L))
   }
 }

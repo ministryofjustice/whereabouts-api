@@ -81,10 +81,23 @@ class AttendancesController(private val attendanceService: AttendanceService) {
   fun getAttendanceForBookingsByPost(@ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
                                      @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
                                      @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod,
-                                     @ApiParam(value = "Booking ids (bookings=1&bookings=2)", required = true) @RequestBody bookings: Set<Long>): AttendancesResponse {
+                                     @ApiParam(value = "Set of booking ids, for example [1,2]", required = true) @RequestBody bookings: Set<Long>): AttendancesResponse {
 
     return AttendancesResponse(
         attendances = attendanceService.getAttendanceForBookings(prisonId, bookings, date, period)
+    )
+  }
+
+  @PostMapping("/{prison}/attendance-over-date-range")
+  @ApiOperation(value = "Returns set of attendance details for set of booking ids", response = AttendancesResponse::class, notes = "Request attendance details")
+  fun getAttendanceForBookingsOverDateRangeByPost(@ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+                                                  @ApiParam(value = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
+                                                  @ApiParam(value = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate?,
+                                                  @ApiParam(value = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
+                                                  @ApiParam(value = "Set of booking ids, for example [1,2]", required = true) @RequestBody bookings: Set<Long>): AttendancesResponse {
+
+    return AttendancesResponse(
+            attendances = attendanceService.getAttendanceForBookingsOverDateRange(prisonId, bookings, fromDate, toDate, period)
     )
   }
 
