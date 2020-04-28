@@ -216,6 +216,60 @@ class AttendancesIntegrationTest : IntegrationTest() {
   }
 
   @Test
+  fun `should return attendance information for set of bookings ids over date range by post`() {
+    elite2MockServer.stubUpdateAttendance()
+
+    whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn(any(), any(), any(), any(), any()))
+            .thenReturn(setOf(
+                    Attendance
+                            .builder()
+                            .id(1)
+                            .absentReason(AbsentReason.Refused)
+                            .period(TimePeriod.PM)
+                            .prisonId("LEI")
+                            .eventLocationId(2)
+                            .eventId(1)
+                            .eventDate(LocalDate.of(2019, 10, 10))
+                            .comments("hello world")
+                            .attended(true)
+                            .paid(true)
+                            .bookingId(1)
+                            .build(),
+                    Attendance
+                            .builder()
+                            .id(2)
+                            .absentReason(AbsentReason.Refused)
+                            .period(TimePeriod.PM)
+                            .prisonId("LEI")
+                            .eventLocationId(2)
+                            .eventId(1)
+                            .eventDate(LocalDate.of(2019, 10, 11))
+                            .comments("hello world")
+                            .attended(true)
+                            .paid(true)
+                            .bookingId(2)
+                            .build()
+            ))
+
+    val bookings = setOf(1, 2)
+
+    webTestClient
+            .post()
+            .uri("/attendances/LEI/attendance-over-date-range?fromDate={0}&toDate={1}&period={2}",
+                    LocalDate.of(2019, 10, 10),
+                    LocalDate.of(2019, 10, 11),
+                    TimePeriod.PM)
+            .headers(setHeaders())
+            .bodyValue(bookings)
+            .exchange()
+            .expectBody()
+            .jsonPath(".attendances[0].id").isEqualTo(1)
+            .jsonPath(".attendances[1].id").isEqualTo(2)
+            .jsonPath(".attendances[0].bookingId").isEqualTo(1)
+            .jsonPath(".attendances[1].bookingId").isEqualTo(2)
+  }
+
+  @Test
   fun `should create multiple attendances`() {
     val bookingIds = setOf(1L, 2L)
 
