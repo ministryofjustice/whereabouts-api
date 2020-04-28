@@ -105,14 +105,14 @@ class AttendancesIntegrationTest : IntegrationTest() {
           it.path("/attendances/LEI/2")
           .queryParam("date", LocalDate.of(2019, 10, 10))
           .queryParam("period", TimePeriod.PM)
-           .build()
+          .build()
         }
         .headers(setHeaders())
         .exchange()
         .expectStatus().isOk()
         .expectBody()
         .jsonPath(".attendances[0].id").isEqualTo(1)
-        .jsonPath(".attendances[0].modifyDateTime").isEqualTo(date.toString())
+        .jsonPath(".attendances[0].modifyDateTime").isNotEmpty()
         .jsonPath(".attendances[0].modifyUserId").isEqualTo("user")
   }
 
@@ -153,7 +153,11 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     webTestClient
       .get()
-      .uri("/attendances/LEI?date={0}&period={1}&bookings=${1}&bookings=${2}", LocalDate.of(2019, 10, 10), TimePeriod.PM)
+      .uri({ it.path("/attendances/LEI")
+              .queryParam("date", LocalDate.of(2019, 10, 10))
+              .queryParam("period", TimePeriod.PM)
+              .queryParam("bookings", setOf(1,2))
+              .build()})
       .headers(setHeaders())
       .exchange()
       .expectStatus().isOk()
@@ -204,7 +208,11 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     webTestClient
       .post()
-      .uri("/attendances/LEI?date={0}&period={1}", LocalDate.of(2019, 10, 10), TimePeriod.PM)
+      .uri({ it.path("/attendances/LEI")
+              .queryParam("date", LocalDate.of(2019, 10, 10))
+              .queryParam("period", TimePeriod.PM)
+              .build()
+      })
       .headers(setHeaders())
       .bodyValue(bookings)
       .exchange()
@@ -255,10 +263,12 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     webTestClient
             .post()
-            .uri("/attendances/LEI/attendance-over-date-range?fromDate={0}&toDate={1}&period={2}",
-                    LocalDate.of(2019, 10, 10),
-                    LocalDate.of(2019, 10, 11),
-                    TimePeriod.PM)
+            .uri({it.path("/attendances/LEI/attendance-over-date-range")
+                    .queryParam("fromDate", LocalDate.of(2019, 10, 10))
+                    .queryParam("toDate", LocalDate.of(2019, 10, 11))
+                    .queryParam("period", TimePeriod.PM)
+                    .build()
+            })
             .headers(setHeaders())
             .bodyValue(bookings)
             .exchange()
@@ -335,7 +345,10 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     webTestClient
       .get()
-      .uri("/attendances/$prisonId/attendance-for-scheduled-activities?date=$date&period=$period")
+      .uri({it.path("/attendances/$prisonId/attendance-for-scheduled-activities")
+              .queryParam("date", date)
+              .queryParam("period", period)
+              .build()})
       .headers(setHeaders())
       .exchange()
       .expectStatus().isOk()
@@ -373,7 +386,10 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     webTestClient
       .get()
-      .uri("/attendances/${prisonId}/absences-for-scheduled-activities/${reason}?fromDate=$date&period=$period")
+      .uri({it.path("/attendances/${prisonId}/absences-for-scheduled-activities/${reason}")
+              .queryParam("fromDate", date)
+              .queryParam("period", period)
+              .build()})
       .headers(setHeaders())
       .exchange()
       .expectStatus().isOk()
