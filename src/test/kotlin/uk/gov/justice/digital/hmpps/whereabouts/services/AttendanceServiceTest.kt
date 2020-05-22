@@ -1216,5 +1216,6 @@ class AttendanceServiceTest {
     assertThat(change.eventId).isEqualTo(2)
     assertThat(change.eventLocationId).isEqualTo(3)
     assertThat(change.changedBy).isEqualTo("ITAG_USER")
+    assertThat(change.prisonId).isEqualTo("LEI")
   }
 }

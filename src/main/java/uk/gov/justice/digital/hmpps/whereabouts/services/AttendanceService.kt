@@ -275,7 +275,9 @@ class AttendanceService(
               changedFrom = it.changedFrom,
               changedTo = it.changedTo,
               changedOn = it.createDateTime,
-              changedBy = it.createUserId
+              changedBy = it.createUserId,
+              prisonId = it.attendance.prisonId
+
           )
         }.toSet()
   }
