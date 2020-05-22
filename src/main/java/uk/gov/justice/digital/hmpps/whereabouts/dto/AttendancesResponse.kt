@@ -36,5 +36,7 @@ data class AttendanceChangeDto (
     @ApiModelProperty("Date and time when the changed occurred")
     val changedOn: LocalDateTime?,
     @ApiModelProperty("Changed by username")
-    val changedBy: String?
+    val changedBy: String?,
+    @ApiModelProperty("Id of the prison example", example = "MDI")
+    val prisonId: String?
 )
