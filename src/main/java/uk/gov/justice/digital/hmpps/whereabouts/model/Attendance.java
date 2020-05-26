@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model;
 
-import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -9,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -37,7 +37,7 @@ public class Attendance {
     private TimePeriod period;
 
     @NotNull
-    @Length(max = 6)
+    @Size(max = 6)
     private String prisonId;
 
     private Boolean paid;
@@ -46,7 +46,7 @@ public class Attendance {
     @Enumerated(EnumType.STRING)
     private AbsentReason absentReason;
 
-    @Length(max = 240)
+    @Size(max = 240)
     private String comments;
 
     private Long caseNoteId;
@@ -67,7 +67,7 @@ public class Attendance {
     @Column(name = "MODIFY_USER_ID")
     private String modifyUserId;
 
-    public Attendance(Long id, @NotNull Long bookingId, @NotNull Long eventId, @NotNull Long eventLocationId, @NotNull LocalDate eventDate, @NotNull TimePeriod period, @NotNull @Length(max = 6) String prisonId, Boolean paid, Boolean attended, AbsentReason absentReason, @Length(max = 240) String comments, Long caseNoteId, LocalDateTime createDateTime, String createUserId, LocalDateTime modifyDateTime, String modifyUserId) {
+    public Attendance(Long id, @NotNull Long bookingId, @NotNull Long eventId, @NotNull Long eventLocationId, @NotNull LocalDate eventDate, @NotNull TimePeriod period, @NotNull @Size(max = 6) String prisonId, Boolean paid, Boolean attended, AbsentReason absentReason, @Size(max = 240) String comments, Long caseNoteId, LocalDateTime createDateTime, String createUserId, LocalDateTime modifyDateTime, String modifyUserId) {
         this.id = id;
         this.bookingId = bookingId;
         this.eventId = eventId;
@@ -141,11 +141,11 @@ public class Attendance {
         this.period = period;
     }
 
-    public @NotNull @Length(max = 6) String getPrisonId() {
+    public @NotNull @Size(max = 6) String getPrisonId() {
         return this.prisonId;
     }
 
-    public void setPrisonId(@NotNull @Length(max = 6) String prisonId) {
+    public void setPrisonId(@NotNull @Size(max = 6) String prisonId) {
         this.prisonId = prisonId;
     }
 
@@ -173,11 +173,11 @@ public class Attendance {
         this.absentReason = absentReason;
     }
 
-    public @Length(max = 240) String getComments() {
+    public @Size(max = 240) String getComments() {
         return this.comments;
     }
 
-    public void setComments(@Length(max = 240) String comments) {
+    public void setComments(@Size(max = 240) String comments) {
         this.comments = comments;
     }
 
@@ -341,11 +341,11 @@ public class Attendance {
         private @NotNull Long eventLocationId;
         private @NotNull LocalDate eventDate;
         private @NotNull TimePeriod period;
-        private @NotNull @Length(max = 6) String prisonId;
+        private @NotNull @Size(max = 6) String prisonId;
         private Boolean paid;
         private Boolean attended;
         private AbsentReason absentReason;
-        private @Length(max = 240) String comments;
+        private @Size(max = 240) String comments;
         private Long caseNoteId;
         private LocalDateTime createDateTime;
         private String createUserId;
@@ -385,7 +385,7 @@ public class Attendance {
             return this;
         }
 
-        public Attendance.AttendanceBuilder prisonId(@NotNull @Length(max = 6) String prisonId) {
+        public Attendance.AttendanceBuilder prisonId(@NotNull @Size(max = 6) String prisonId) {
             this.prisonId = prisonId;
             return this;
         }
@@ -405,7 +405,7 @@ public class Attendance {
             return this;
         }
 
-        public Attendance.AttendanceBuilder comments(@Length(max = 240) String comments) {
+        public Attendance.AttendanceBuilder comments(@Size(max = 240) String comments) {
             this.comments = comments;
             return this;
         }
