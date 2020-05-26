@@ -77,8 +77,9 @@ spring:
   codec:
     max-in-memory-size: 10MB
 
-graceful:
-  shutdown.enabled: false
+server:
+  shutdown:
+    grace-period: 0s
 
 sqs:
   provider: aws
