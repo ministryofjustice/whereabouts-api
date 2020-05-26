@@ -95,7 +95,7 @@ dependencyManagement {
     }
 }
 
-ext ['spring-security.version'] = '5.3.2.RELEASE' // Pinned to resolve CVE-2019-17195 and CVE-2020-5407/8
+ext ['spring-security.version'] = '5.3.2.RELEASE' // Pinned to resolve CVE-2018-1258
 
 dependencies {
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
