@@ -78,8 +78,7 @@ spring:
     max-in-memory-size: 10MB
 
 server:
-  shutdown:
-    grace-period: 0s
+  shutdown: graceful
 
 sqs:
   provider: aws

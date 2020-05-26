@@ -48,5 +48,4 @@ sqs:
 courts: Test Court 1,Test Court 2
 
 server:
-  shutdown:
-    grace-period: 0s
+  shutdown: immediate
