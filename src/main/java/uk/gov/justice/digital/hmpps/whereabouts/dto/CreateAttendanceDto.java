@@ -3,11 +3,11 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.hibernate.validator.constraints.Length;
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @ApiModel(description = "Attendance details to create")
@@ -48,11 +48,11 @@ public class CreateAttendanceDto {
     @NotNull
     private LocalDate eventDate;
 
-    @Length(max = 240)
+    @Size(max = 240)
     @ApiModelProperty(value = "Comments about non attendance. This also gets used for the IEP warning text ")
     private String comments;
 
-    public CreateAttendanceDto(@NotNull Long bookingId, @NotNull Long eventId, @NotNull Long eventLocationId, @NotNull TimePeriod period, @NotNull String prisonId, @NotNull Boolean attended, @NotNull Boolean paid, AbsentReason absentReason, @NotNull LocalDate eventDate, @Length(max = 240) String comments) {
+    public CreateAttendanceDto(@NotNull Long bookingId, @NotNull Long eventId, @NotNull Long eventLocationId, @NotNull TimePeriod period, @NotNull String prisonId, @NotNull Boolean attended, @NotNull Boolean paid, AbsentReason absentReason, @NotNull LocalDate eventDate, @Size(max = 240) String comments) {
         this.bookingId = bookingId;
         this.eventId = eventId;
         this.eventLocationId = eventLocationId;
@@ -108,7 +108,7 @@ public class CreateAttendanceDto {
         return this.eventDate;
     }
 
-    public @Length(max = 240) String getComments() {
+    public @Size(max = 240) String getComments() {
         return this.comments;
     }
 
@@ -148,7 +148,7 @@ public class CreateAttendanceDto {
         this.eventDate = eventDate;
     }
 
-    public void setComments(@Length(max = 240) String comments) {
+    public void setComments(@Size(max = 240) String comments) {
         this.comments = comments;
     }
 
@@ -240,7 +240,7 @@ public class CreateAttendanceDto {
         private @NotNull Boolean paid;
         private AbsentReason absentReason;
         private @NotNull LocalDate eventDate;
-        private @Length(max = 240) String comments;
+        private @Size(max = 240) String comments;
 
         CreateAttendanceDtoBuilder() {
         }
@@ -290,7 +290,7 @@ public class CreateAttendanceDto {
             return this;
         }
 
-        public CreateAttendanceDto.CreateAttendanceDtoBuilder comments(@Length(max = 240) String comments) {
+        public CreateAttendanceDto.CreateAttendanceDtoBuilder comments(@Size(max = 240) String comments) {
             this.comments = comments;
             return this;
         }

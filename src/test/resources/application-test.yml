@@ -47,6 +47,5 @@ sqs:
 
 courts: Test Court 1,Test Court 2
 
-graceful:
-  shutdown:
-    enabled: false
+server:
+  shutdown: immediate

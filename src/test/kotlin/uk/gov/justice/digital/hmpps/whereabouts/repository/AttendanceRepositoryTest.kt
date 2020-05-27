@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.context.transaction.TestTransaction
@@ -21,7 +22,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.validation.ConstraintViolationException
 
 
 @ExtendWith(SpringExtension::class)
@@ -91,7 +91,7 @@ class AttendanceRepositoryTest {
 
   @Test
   fun `should throw error on missing fields`() {
-    Assertions.assertThrows( ConstraintViolationException::class.java) {
+    Assertions.assertThrows( DataIntegrityViolationException::class.java) {
       attendanceRepository.save(Attendance.builder().build())
     }
   }

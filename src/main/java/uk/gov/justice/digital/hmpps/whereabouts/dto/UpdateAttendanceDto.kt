@@ -2,9 +2,9 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
-import org.hibernate.validator.constraints.Length
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import javax.validation.constraints.NotNull
+import javax.validation.constraints.Size
 
 @ApiModel(description = "Attendance update details")
 data class UpdateAttendanceDto(
@@ -18,5 +18,5 @@ data class UpdateAttendanceDto(
   val absentReason: AbsentReason? = null,
 
   @ApiModelProperty(value = "Comments about non attendance. This also gets used for the IEP warning text ")
-  val comments: @Length(max = 240) String? = null
+  val comments: @Size(max = 240) String? = null
 )
