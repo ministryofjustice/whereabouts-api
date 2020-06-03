@@ -6,7 +6,6 @@ replicaCount: 4
 image:
   repository: docker.io/mojdigitalstudio/whereabouts-api
   tag: latest
-  pullPolicy: Always
   port: 8080
 
 ingress:
