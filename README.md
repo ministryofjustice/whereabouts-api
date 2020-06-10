@@ -1,7 +1,6 @@
 # whereabouts-api
 
 [![CircleCI](https://circleci.com/gh/ministryofjustice/whereabouts-api/tree/master.svg?style=svg)](https://circleci.com/gh/ministryofjustice/whereabouts-api)
-[![Docker Repository on Quay](https://quay.io/repository/hmpps/whereabouts-api/status)](https://quay.io/repository/hmpps/whereabouts-api)
 
 A Spring Boot app to manage the location (whereabouts) of prisoners for the Digital Prison Services.  Backend services for https://github.com/ministryofjustice/prisonstaffhub/.
 
