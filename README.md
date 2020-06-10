@@ -38,6 +38,6 @@ Whereabouts api is best tested by the front end (https://whereabouts-preprod.pri
    1. Click attended - select no reason and choose unacceptable so that IEP functionality triggered
 1. Choose activity / appointment and click continue
    1. Click not attended - select yes reason and enter case note
-1. Click View all appointments and check page loads with data
-1. Click View prisoners accounted for and check page loads with data
-1. Click View attendance reason statistics and check page loads with data (generated from yes / no above)
+1. Click [View all appointments](https://whereabouts-preprod.prison.service.justice.gov.uk/appointments) and check page loads with data
+1. Click [View prisoners unaccounted for](https://whereabouts-preprod.prison.service.justice.gov.uk/manage-prisoner-whereabouts/prisoners-unaccounted-for) and check page loads with data
+1. Click [View attendance reason statistics](https://whereabouts-preprod.prison.service.justice.gov.uk/manage-prisoner-whereabouts/attendance-reason-statistics) and check page loads with data (generated from yes / no above)
