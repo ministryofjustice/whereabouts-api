@@ -2,8 +2,8 @@ package uk.gov.justice.digital.hmpps.whereabouts.repository
 
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.groups.Tuple
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.context.transaction.TestTransaction
@@ -22,6 +21,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 import java.time.LocalDate
 import java.time.LocalDateTime
+import javax.validation.ConstraintViolationException
 
 
 @ExtendWith(SpringExtension::class)
@@ -91,9 +91,9 @@ class AttendanceRepositoryTest {
 
   @Test
   fun `should throw error on missing fields`() {
-    Assertions.assertThrows( DataIntegrityViolationException::class.java) {
+    assertThatThrownBy {
       attendanceRepository.save(Attendance.builder().build())
-    }
+    }.isInstanceOf(ConstraintViolationException::class.java)
   }
 
   @Test
