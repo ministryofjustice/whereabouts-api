@@ -71,6 +71,9 @@ management:
     info:
       cache:
         time-to-live: 2000ms
+  health.:
+    probes:
+      enabled: true
 
 sqs:
   provider: aws
