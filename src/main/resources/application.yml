@@ -71,7 +71,7 @@ management:
     info:
       cache:
         time-to-live: 2000ms
-  health.:
+  health:
     probes:
       enabled: true
 
