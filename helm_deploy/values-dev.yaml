@@ -4,7 +4,7 @@
 replicaCount: 2
 
 image:
-  repository: quay.io/hmppswhereabouts-api
+  repository: quay.io/hmpps/whereabouts-api
   tag: latest
   port: 8080
 
