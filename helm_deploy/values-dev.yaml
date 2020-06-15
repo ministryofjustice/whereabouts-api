@@ -4,7 +4,7 @@
 replicaCount: 2
 
 image:
-  repository: docker.io/mojdigitalstudio/whereabouts-api
+  repository: quay.io/hmpps/whereabouts-api
   tag: latest
   port: 8080
 

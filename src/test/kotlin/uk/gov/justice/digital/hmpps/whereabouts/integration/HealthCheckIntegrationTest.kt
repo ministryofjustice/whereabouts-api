@@ -179,38 +179,38 @@ class HealthCheckIntegrationTest : IntegrationTest() {
   }
 
   private fun subPing(status: Int) {
-    elite2MockServer.stubFor(get("/ping").willReturn(aResponse()
+    elite2MockServer.stubFor(get("/health/ping").willReturn(aResponse()
         .withHeader("Content-Type", "application/json")
         .withBody(if (status == 200) "pong" else "some error")
         .withStatus(status)))
 
-    oauthMockServer.stubFor(get("/auth/ping").willReturn(aResponse()
+    oauthMockServer.stubFor(get("/auth/health/ping").willReturn(aResponse()
         .withHeader("Content-Type", "application/json")
         .withBody(if (status == 200) "pong" else "some error")
         .withStatus(status)))
 
-    caseNotesMockServer.stubFor(get("/ping").willReturn(aResponse()
+    caseNotesMockServer.stubFor(get("/health/ping").willReturn(aResponse()
         .withHeader("Content-Type", "application/json")
         .withBody(if (status == 200) "pong" else "some error")
         .withStatus(status)))
   }
 
   private fun subPingWithDelay(status: Int) {
-    elite2MockServer.stubFor(get("/ping").willReturn(aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withBody(if (status == 200) "pong" else "some error")
-            .withStatus(status)
-            .withFixedDelay(1000)))
+    elite2MockServer.stubFor(get("/health/ping").willReturn(aResponse()
+        .withHeader("Content-Type", "application/json")
+        .withBody(if (status == 200) "pong" else "some error")
+        .withStatus(status)
+        .withFixedDelay(1000)))
 
-    oauthMockServer.stubFor(get("/auth/ping").willReturn(aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withBody(if (status == 200) "pong" else "some error")
-            .withStatus(status)))
+    oauthMockServer.stubFor(get("/auth/health/ping").willReturn(aResponse()
+        .withHeader("Content-Type", "application/json")
+        .withBody(if (status == 200) "pong" else "some error")
+        .withStatus(status)))
 
-    caseNotesMockServer.stubFor(get("/ping").willReturn(aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withBody(if (status == 200) "pong" else "some error")
-            .withStatus(status)))
+    caseNotesMockServer.stubFor(get("/health/ping").willReturn(aResponse()
+        .withHeader("Content-Type", "application/json")
+        .withBody(if (status == 200) "pong" else "some error")
+        .withStatus(status)))
   }
 
   private fun mockQueueWithoutRedrivePolicyAttributes() {
