@@ -28,38 +28,6 @@ spring:
     console:
       enabled: true
 
-  server:
-    port: 8082
-    servlet:
-      context-path: /
-    use-forward-headers: true
-    tomcat:
-      remote-ip-header: x-forwarded-for
-      protocol_header: x-forwarded-proto
-
-  logging:
-    level:
-      org.springframework: INFO
-      org.springframework.security: INFO
-      uk.gov.justice.digital: DEBUG
-
-  management:
-    endpoints:
-      web:
-        base-path: /
-        exposure:
-          include: 'info, health, ping'
-    endpoint:
-      health:
-        cache:
-          time-to-live: 2000ms
-        show-components: always
-        show-details: always
-      info:
-        cache:
-          time-to-live: 2000ms
-
-
   security:
     oauth2:
       client:
@@ -78,7 +46,31 @@ spring:
     max-in-memory-size: 10MB
 
 server:
+  port: 8082
+  servlet:
+    context-path: /
+  forward-headers-strategy: native
+  tomcat:
+    remoteip:
+      remote-ip-header: x-forwarded-for
+      protocol-header: x-forwarded-proto
   shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: 'info, health, ping'
+  endpoint:
+    health:
+      cache:
+        time-to-live: 2000ms
+      show-components: always
+      show-details: always
+    info:
+      cache:
+        time-to-live: 2000ms
 
 sqs:
   provider: aws
