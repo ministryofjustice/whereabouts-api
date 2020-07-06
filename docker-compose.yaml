@@ -12,7 +12,7 @@ services:
         - SPRING_PROFILES_ACTIVE=dev
 
   elite2:
-    image: quay.io/hmpps/elite2-api:latest
+    image: quay.io/hmpps/prison-api:latest
     container_name: elite2
     depends_on:
       - oauth
