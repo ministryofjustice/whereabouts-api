@@ -17,12 +17,12 @@ ingress:
   path: /
 
 env:
-  ELITE2API_ENDPOINT_URL: "https://gateway.t3.nomis-api.hmpps.dsd.io/elite2api"
-  OAUTH_ENDPOINT_URL: "https://gateway.t3-alt.nomis-api.hmpps.dsd.io/auth"
+  ELITE2API_ENDPOINT_URL: "https://api-dev.prison.service.justice.gov.uk"
+  OAUTH_ENDPOINT_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
   CASENOTES_ENDPOINT_URL: "https://dev.offender-case-notes.service.justice.gov.uk"
   JAVA_OPTS: "-Xmx512m"
   OAUTH_CLIENT_ID: "whereabouts-api-client"
-  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://gateway.t3.nomis-api.hmpps.dsd.io/auth/.well-known/jwks.json"
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
 
 whitelist:
   office: "217.33.148.210/32"
