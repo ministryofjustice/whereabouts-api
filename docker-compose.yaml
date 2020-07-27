@@ -1,7 +1,7 @@
 version: "3"
 services:
   oauth:
-    image: quay.io/hmpps/nomis-oauth2-server:latest
+    image: quay.io/hmpps/hmpps-auth:latest
     container_name: oauth
     ports:
       - "9090:8080"
@@ -12,7 +12,7 @@ services:
         - SPRING_PROFILES_ACTIVE=dev
 
   elite2:
-    image: quay.io/hmpps/elite2-api:latest
+    image: quay.io/hmpps/prison-api:latest
     container_name: elite2
     depends_on:
       - oauth
@@ -25,7 +25,7 @@ services:
       - SPRING_PROFILES_ACTIVE=nomis-hsqldb
 
   offender-case-notes:
-    image: mojdigitalstudio/offender-case-notes:latest
+    image: quay.io/hmpps/offender-case-notes:latest
     container_name: offender-case-notes
     depends_on:
       - elite2
