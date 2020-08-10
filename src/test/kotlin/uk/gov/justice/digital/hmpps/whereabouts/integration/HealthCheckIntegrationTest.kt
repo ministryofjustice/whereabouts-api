@@ -178,6 +178,23 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     assertThat(response.statusCodeValue).isEqualTo(503)
   }
 
+  @Test
+  fun `Health liveness page is accessible`() {
+    val response = restTemplate.getForEntity("/health/liveness", String::class.java)
+
+    assertThatJson(response.body).node("status").isEqualTo("UP")
+    assertThat(response.statusCodeValue).isEqualTo(200)
+  }
+
+  @Test
+  fun `Health readiness page is accessible`() {
+    val response = restTemplate.getForEntity("/health/readiness", String::class.java)
+
+    assertThatJson(response.body).node("status").isEqualTo("UP")
+    assertThat(response.statusCodeValue).isEqualTo(200)
+  }
+
+
   private fun subPing(status: Int) {
     elite2MockServer.stubFor(get("/health/ping").willReturn(aResponse()
         .withHeader("Content-Type", "application/json")
