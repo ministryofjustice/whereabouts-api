@@ -12,17 +12,17 @@ import javax.transaction.Transactional
 
 @Service
 class CourtService(
-    private val authenticationFacade: AuthenticationFacade,
-    private val elite2ApiService: Elite2ApiService,
-    private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
-    @Value("\${courts}") private val courts: String) {
+        private val authenticationFacade: AuthenticationFacade,
+        private val prisonApiService: PrisonApiService,
+        private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
+        @Value("\${courts}") private val courts: String) {
 
   fun getCourtLocations() = courts.split(",").toSet()
 
   @Transactional
   fun createVideoLinkAppointment(createVideoLinkAppointment: CreateVideoLinkAppointment) {
 
-    val eventId = elite2ApiService.postAppointment(createVideoLinkAppointment.bookingId, CreateBookingAppointment(
+    val eventId = prisonApiService.postAppointment(createVideoLinkAppointment.bookingId, CreateBookingAppointment(
         appointmentType = "VLB",
         locationId = createVideoLinkAppointment.locationId,
         comment = createVideoLinkAppointment.comment,

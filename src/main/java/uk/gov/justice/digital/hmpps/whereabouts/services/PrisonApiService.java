@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
-public class Elite2ApiService {
+public class PrisonApiService {
     private final WebClient webClient;
 
-    public  Elite2ApiService(@Qualifier("elite2WebClient") final WebClient webClient) {
+    public PrisonApiService(@Qualifier("elite2WebClient") final WebClient webClient) {
         this.webClient = webClient;
     }
 

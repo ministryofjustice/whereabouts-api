@@ -13,7 +13,7 @@ data class UnpaidReasons(val refused: Int? = 0, val refusedIncentiveLevelWarning
 data class Stats(val scheduleActivities: Int? = 0, val notRecorded: Int? = 0, val paidReasons: PaidReasons?, val unpaidReasons: UnpaidReasons?, val suspended: Int? = 0)
 
 @Service
-open class AttendanceStatistics(private val attendanceRepository: AttendanceRepository, private val elite2ApiService: Elite2ApiService) {
+open class AttendanceStatistics(private val attendanceRepository: AttendanceRepository, private val prisonApiService: PrisonApiService) {
   fun getStats(prisonId: String, period: TimePeriod?, from: LocalDate, to: LocalDate): Stats {
 
     val periods = period?.let { setOf(it) } ?: setOf(TimePeriod.PM, TimePeriod.AM)
@@ -47,7 +47,7 @@ open class AttendanceStatistics(private val attendanceRepository: AttendanceRepo
   }
 
   private fun getScheduleActivityForPeriods(prisonId: String, from: LocalDate, to: LocalDate, periods: Set<TimePeriod>): List<OffenderDetails> =
-      periods.map { elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, it) }.flatten()
+      periods.map { prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, it) }.flatten()
 
   private fun calculateNotRecorded(scheduledBookingIds: List<Long?>, attendedBookingIds: Set<Attendance>): Int {
     // This creates a Grouping that looks like {1=2, 2=2}
