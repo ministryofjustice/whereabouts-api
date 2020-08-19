@@ -8,8 +8,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 
 @Service
 class LocationService(
-        private val elite2ApiService: Elite2ApiService,
-        @Qualifier("locationGroupServiceSelector") private val locationGroupService: LocationGroupService) {
+    private val elite2ApiService: Elite2ApiService,
+    @Qualifier("locationGroupServiceSelector") private val locationGroupService: LocationGroupService) {
 
   fun getCellLocationsForGroup(agencyId: String, groupName: String): List<Location> =
       elite2ApiService.getAgencyLocationsForType(agencyId, "CELL")

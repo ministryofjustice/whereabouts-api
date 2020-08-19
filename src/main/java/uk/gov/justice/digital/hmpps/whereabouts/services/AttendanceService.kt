@@ -17,12 +17,12 @@ import javax.transaction.Transactional
 
 @Service
 class AttendanceService(
-        private val attendanceRepository: AttendanceRepository,
-        private val attendanceChangesRepository: AttendanceChangesRepository,
-        private val elite2ApiService: Elite2ApiService,
-        private val iepWarningService: IEPWarningService,
-        private val nomisEventOutcomeMapper: NomisEventOutcomeMapper,
-        private val telemetryClient: TelemetryClient) {
+    private val attendanceRepository: AttendanceRepository,
+    private val attendanceChangesRepository: AttendanceChangesRepository,
+    private val elite2ApiService: Elite2ApiService,
+    private val iepWarningService: IEPWarningService,
+    private val nomisEventOutcomeMapper: NomisEventOutcomeMapper,
+    private val telemetryClient: TelemetryClient) {
 
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
