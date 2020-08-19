@@ -25,9 +25,9 @@ class LocationController(private val locationService: LocationService) {
   @ApiOperation(value = "List of cell locations by group at agency location.", notes = "List of cell locations by group at agency location.", nickname = "getLocationGroup")
   @ApiResponses(value = [
     ApiResponse(code = 200, message = "OK", response = Location::class, responseContainer = "List"),
-    ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class, responseContainer = "List"),
-    ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse::class, responseContainer = "List"),
-    ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse::class, responseContainer = "List")
+    ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class),
+    ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse::class),
+    ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse::class)
   ])
   fun getLocationGroup(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
                        @ApiParam(value = "The group name", required = true) @PathVariable("name") name: String): List<Location>
@@ -37,9 +37,9 @@ class LocationController(private val locationService: LocationService) {
   @ApiOperation(value = "List of cells by group at agency location which have capacity.", notes = "List of cells  by group at agency location which have capacity.", nickname = "getCellsWithCapacityForGroup")
   @ApiResponses(value = [
     ApiResponse(code = 200, message = "OK", response = CellWithAttributes::class, responseContainer = "List"),
-    ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class, responseContainer = "List"),
-    ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse::class, responseContainer = "List"),
-    ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse::class, responseContainer = "List")
+    ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class),
+    ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse::class),
+    ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse::class)
   ])
   fun getCellsWithCapacityForGroup(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
                        @ApiParam(value = "The group name", required = true) @PathVariable("group") group: String,
