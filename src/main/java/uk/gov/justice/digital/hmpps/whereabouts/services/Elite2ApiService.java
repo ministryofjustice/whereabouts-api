@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*;
+import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
@@ -25,7 +26,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class Elite2ApiService {
     private final WebClient webClient;
 
-    public  Elite2ApiService(@Qualifier("elite2WebClient") final WebClient webClient) {
+    public Elite2ApiService(@Qualifier("elite2WebClient") final WebClient webClient) {
         this.webClient = webClient;
     }
 
@@ -128,6 +129,24 @@ public class Elite2ApiService {
         catch (WebClientResponseException e) {
             if (e.getStatusCode().equals(NOT_FOUND)) {
                 throw new EntityNotFoundException(String.format("Locations not found for agency %s with location type %s", agencyId, locationType));
+            }
+            throw e;
+        }
+    }
+
+    public List<CellWithAttributes> getCellsWithCapacity(final String agencyId, final String attribute) {
+        final var responseType = new ParameterizedTypeReference<List<CellWithAttributes>>() {};
+
+        try {
+            return webClient.get()
+                    .uri("/agencies/{agencyId}/cellsWithCapacity?attribute={attribute}", agencyId, attribute)
+                    .retrieve()
+                    .bodyToMono(responseType)
+                    .block();
+        }
+        catch (WebClientResponseException e) {
+            if (e.getStatusCode().equals(NOT_FOUND)) {
+                throw new EntityNotFoundException(String.format("No cells with capacity for agency %s and attribute %s", agencyId, attribute));
             }
             throw e;
         }

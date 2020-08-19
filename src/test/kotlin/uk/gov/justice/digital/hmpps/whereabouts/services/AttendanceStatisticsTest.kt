@@ -5,12 +5,9 @@ import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
 import org.mockito.Mockito.any
 import org.mockito.Mockito.anyString
 
-import com.nhaarman.mockito_kotlin.mock
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
