@@ -1,11 +1,20 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.post
+import com.github.tomakehurst.wiremock.client.WireMock.put
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
-import uk.gov.justice.digital.hmpps.whereabouts.model.*
+import uk.gov.justice.digital.hmpps.whereabouts.model.CellAttribute
+import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
+import uk.gov.justice.digital.hmpps.whereabouts.model.Location
+import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
+import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.time.LocalDate
 
 class Elite2MockServer : WireMockServer(8999) {
