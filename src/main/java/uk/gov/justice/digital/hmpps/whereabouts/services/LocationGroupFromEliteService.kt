@@ -6,11 +6,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import java.util.function.Predicate
 
 @Service("defaultLocationGroupService")
-class LocationGroupFromEliteService (private val prisonApiService: PrisonApiService) : LocationGroupService {
+class LocationGroupFromEliteService (private val elite2ApiService: Elite2ApiService) : LocationGroupService {
 
   override fun getLocationGroupsForAgency(agencyId: String): List<LocationGroup> =getLocationGroups(agencyId)
 
-  override fun getLocationGroups(agencyId: String): List<LocationGroup> = prisonApiService.getLocationGroups(agencyId)
+  override fun getLocationGroups(agencyId: String): List<LocationGroup> = elite2ApiService.getLocationGroups(agencyId)
 
   override fun locationGroupFilter(agencyId: String, groupName: String): Predicate<Location> {
     val prefixToMatch = "$agencyId-${groupName.replace('_', '-')}-"

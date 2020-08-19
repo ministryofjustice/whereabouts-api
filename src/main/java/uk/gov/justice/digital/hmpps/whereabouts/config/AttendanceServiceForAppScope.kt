@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
-import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
+import uk.gov.justice.digital.hmpps.whereabouts.services.Elite2ApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.IEPWarningService
 import uk.gov.justice.digital.hmpps.whereabouts.services.NomisEventOutcomeMapper
 
@@ -24,6 +24,6 @@ class AttendanceServiceForAppScope {
       telemetryClient: TelemetryClient
   ): AttendanceService {
 
-    return AttendanceService(attendanceRepository,attendanceChangesRepository,PrisonApiService(webClient), iepWarningService, nomisEventOutcomeMapper, telemetryClient)
+    return AttendanceService(attendanceRepository,attendanceChangesRepository,Elite2ApiService(webClient), iepWarningService, nomisEventOutcomeMapper, telemetryClient)
   }
 }

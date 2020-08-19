@@ -4,14 +4,15 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import java.util.function.Predicate
 
 class LocationServiceTest {
 
-  private val prisonApiService: PrisonApiService = mock()
+  private val elite2ApiService: Elite2ApiService = mock()
   private val locationGroupService: LocationGroupService = mock()
-  private val locationService = LocationService(prisonApiService, locationGroupService)
+  private val locationService = LocationService(elite2ApiService, locationGroupService)
 
   private val cell1 = aLocation(locationPrefix = "cell1")
   private val cell2 = aLocation(locationPrefix = "cell2")
@@ -20,7 +21,7 @@ class LocationServiceTest {
 
   @Test
   fun `getCellLocationsForGroup - cells match predicate - returns cells`() {
-    whenever(prisonApiService.getAgencyLocationsForType("LEI", "CELL"))
+    whenever(elite2ApiService.getAgencyLocationsForType("LEI", "CELL"))
         .thenReturn(listOf(cell1, cell2, cell3, cell4))
     whenever(locationGroupService.locationGroupFilter("LEI", "mylist"))
         .thenReturn(locationPrefixPredicate("cell4", "cell1", "cell3"))
@@ -35,7 +36,7 @@ class LocationServiceTest {
     val cell5 = aLocation(locationPrefix = "cell5", description = "yoi something")
     val cell6 = aLocation(locationPrefix = "cell6", description = "hmp something")
 
-    whenever(prisonApiService.getAgencyLocationsForType("LEI", "CELL"))
+    whenever(elite2ApiService.getAgencyLocationsForType("LEI", "CELL"))
         .thenReturn(listOf(cell5, cell6))
     whenever(locationGroupService.locationGroupFilter("LEI", "mylist"))
         .thenReturn(Predicate { true })
@@ -47,12 +48,38 @@ class LocationServiceTest {
 
   @Test
   fun `getCellLocationsForGroup - no cells match predicate - returns nothing`() {
-    whenever(prisonApiService.getAgencyLocationsForType("LEI", "CELL"))
+    whenever(elite2ApiService.getAgencyLocationsForType("LEI", "CELL"))
         .thenReturn(listOf(cell1, cell2, cell3, cell4))
     whenever(locationGroupService.locationGroupFilter("LEI", "mylist"))
         .thenReturn(Predicate { false })
 
     val group = locationService.getCellLocationsForGroup("LEI", "mylist");
+
+    assertThat(group).isEmpty()
+  }
+
+  @Test
+  fun `getCellsWithCapacityForGroup - cells match predicate`() {
+    whenever(elite2ApiService.getCellsWithCapacity("LEI", null))
+            .thenReturn(listOf(CellWithAttributes(id = 1L, description = "LEI-1-1", userDescription = "Dormitory", noOfOccupants = 1, capacity = 2),
+                    CellWithAttributes(id = 2L, description = "LEI-1-2", userDescription = "Dormitory", noOfOccupants = 1, capacity = 2)))
+    whenever(locationGroupService.locationGroupFilter("LEI", "myList"))
+            .thenReturn(locationPrefixPredicate("LEI-1-1", "LEI-1-2"))
+
+    val group = locationService.getCellsWithCapacityForGroup("LEI", "myList", null);
+
+    assertThat(group).extracting("description").containsExactlyInAnyOrder("LEI-1-1", "LEI-1-2")
+  }
+
+  @Test
+  fun `getCellsWithCapacityForGroup - no cells match predicate`() {
+    whenever(elite2ApiService.getCellsWithCapacity("LEI", null))
+            .thenReturn(listOf(CellWithAttributes(id = 1L, description = "LEI-1-1", userDescription = "Dormitory", noOfOccupants = 1, capacity = 2),
+                    CellWithAttributes(id = 2L, description = "LEI-1-2", userDescription = "Dormitory", noOfOccupants = 1, capacity = 2)))
+    whenever(locationGroupService.locationGroupFilter("LEI", "myList"))
+            .thenReturn(Predicate { false })
+
+    val group = locationService.getCellsWithCapacityForGroup("LEI", "myList", null);
 
     assertThat(group).isEmpty()
   }

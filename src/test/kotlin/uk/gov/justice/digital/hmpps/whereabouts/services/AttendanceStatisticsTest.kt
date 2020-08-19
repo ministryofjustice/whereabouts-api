@@ -17,7 +17,7 @@ import java.time.LocalDate
 
 class AttendanceStatisticsTest {
   private val attendanceRepository: AttendanceRepository = mock()
-  private val prisonApiService: PrisonApiService = mock()
+  private val elite2ApiService: Elite2ApiService = mock()
 
   private val prisonId = "LEI"
   private val period = TimePeriod.AM
@@ -192,7 +192,7 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count not recorded`() {
-    whenever(prisonApiService.getScheduleActivityOffenderData(anyString(), any(), any(), any())).thenReturn(listOf(
+    whenever(elite2ApiService.getScheduleActivityOffenderData(anyString(), any(), any(), any())).thenReturn(listOf(
             OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 2, cellLocation = "cell1", eventDate = from, timeSlot = "AM", comment = "Gym", firstName = "john", lastName = "doe", suspended = true),
             OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 3, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false),
             OffenderDetails(bookingId = 3, offenderNo = "A12347", eventId = 4, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false),
@@ -212,7 +212,7 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `count offender schedules`() {
-    whenever(prisonApiService.getScheduleActivityOffenderData(anyString(), any(), any(), any())).thenReturn(listOf(
+    whenever(elite2ApiService.getScheduleActivityOffenderData(anyString(), any(), any(), any())).thenReturn(listOf(
             OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 2, cellLocation = "cell1", eventDate = from, timeSlot = "AM", comment = "Gym", firstName = "john", lastName = "doe", suspended = true),
             OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 3, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false),
             OffenderDetails(bookingId = 3, offenderNo = "A12347", eventId = 4, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false),
@@ -281,22 +281,22 @@ class AttendanceStatisticsTest {
   fun `should call the elite2 schedule api twice, once for AM and then for PM`() {
     val service = buildAttendanceStatistics()
 
-    whenever(prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)).thenReturn(listOf(
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)).thenReturn(listOf(
             OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 2, cellLocation = "cell1", eventDate = from, timeSlot = "AM", comment = "Gym", firstName = "john", lastName = "doe", suspended = true),
             OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 3, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false)
     ))
 
-    whenever(prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)).thenReturn(listOf(
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)).thenReturn(listOf(
             OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 4, eventDate = from, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = true),
             OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 5, cellLocation = "cell4", eventDate = from, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = false)
     ))
 
     val stats = service.getStats(prisonId, null, from, to)
 
-    verify(prisonApiService)
+    verify(elite2ApiService)
         .getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)
 
-    verify(prisonApiService)
+    verify(elite2ApiService)
         .getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)
 
     assertThat(stats).extracting("notRecorded").isEqualTo(4)
@@ -312,12 +312,12 @@ class AttendanceStatisticsTest {
     // Return the same booking ids for AM and PM. These booking ids have attendances in the AM
     // but not in the PM. We expect the not recorded count to take into account the missing PM data
     // as it is meant to be cumulative
-    whenever(prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)).thenReturn(listOf(
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)).thenReturn(listOf(
             OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 2, cellLocation = "cell1", eventDate = from, timeSlot = "AM", comment = "Gym", firstName = "john", lastName = "doe", suspended = true),
             OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 3, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false)
     ))
 
-    whenever(prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)).thenReturn(listOf(
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)).thenReturn(listOf(
             OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 4, eventDate = from, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = true),
             OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 5, cellLocation = "cell4", eventDate = from, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = false)
     ))
@@ -334,12 +334,12 @@ class AttendanceStatisticsTest {
     whenever(attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(prisonId, from, to, setOf(TimePeriod.AM, TimePeriod.PM)))
             .thenReturn(attendances)
 
-    whenever(prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)).thenReturn(listOf(
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)).thenReturn(listOf(
             OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 2, cellLocation = "cell1", eventDate = from, timeSlot = "AM", comment = "Gym", firstName = "john", lastName = "doe", suspended = true),
             OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 3, cellLocation = "cell2", eventDate = from, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false)
     ))
 
-    whenever(prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)).thenReturn(listOf(
+    whenever(elite2ApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)).thenReturn(listOf(
             OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 4, eventDate = from, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = true),
             OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 5, cellLocation = "cell4", eventDate = from, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = false)
     ))
@@ -350,5 +350,5 @@ class AttendanceStatisticsTest {
   }
 
 
-  private fun buildAttendanceStatistics() = AttendanceStatistics(attendanceRepository, prisonApiService)
+  private fun buildAttendanceStatistics() = AttendanceStatistics(attendanceRepository, elite2ApiService)
 }

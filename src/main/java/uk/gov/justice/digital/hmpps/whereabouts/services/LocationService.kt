@@ -8,19 +8,19 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 
 @Service
 class LocationService(
-        private val prisonApiService: PrisonApiService,
+        private val elite2ApiService: Elite2ApiService,
         @Qualifier("locationGroupServiceSelector") private val locationGroupService: LocationGroupService) {
 
   fun getCellLocationsForGroup(agencyId: String, groupName: String): List<Location> =
-      prisonApiService.getAgencyLocationsForType(agencyId, "CELL")
+      elite2ApiService.getAgencyLocationsForType(agencyId, "CELL")
           .filter(locationGroupService.locationGroupFilter(agencyId, groupName)::test)
           .toMutableList()
           .map { it.copy(description = it.description.formatLocation()) }
           .toList()
 
   fun getCellsWithCapacityForGroup(agencyId: String, groupName: String, attribute: String?): List<CellWithAttributes> =
-          prisonApiService.getCellsWithCapacity(agencyId, attribute)
-                  .filter{ locationGroupService.locationGroupFilter(agencyId, groupName).test(it.mapToLocation(agencyId)) }
+          elite2ApiService.getCellsWithCapacity(agencyId, attribute)
+                  .filter{ (locationGroupService.locationGroupFilter(agencyId, groupName)::test)(it.mapToLocation(agencyId)) }
                   .toMutableList()
                   .toList()
 

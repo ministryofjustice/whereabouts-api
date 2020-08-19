@@ -19,7 +19,7 @@ import javax.transaction.Transactional
 class AttendanceService(
         private val attendanceRepository: AttendanceRepository,
         private val attendanceChangesRepository: AttendanceChangesRepository,
-        private val prisonApiService: PrisonApiService,
+        private val elite2ApiService: Elite2ApiService,
         private val iepWarningService: IEPWarningService,
         private val nomisEventOutcomeMapper: NomisEventOutcomeMapper,
         private val telemetryClient: TelemetryClient) {
@@ -134,7 +134,7 @@ class AttendanceService(
   fun attendAll(attendAll: AttendAllDto): Set<AttendanceDto> {
     val eventOutcome = nomisEventOutcomeMapper.getEventOutcome(null, true, true, "")
 
-    prisonApiService.putAttendanceForMultipleBookings(attendAll.bookingActivities, eventOutcome)
+    elite2ApiService.putAttendanceForMultipleBookings(attendAll.bookingActivities, eventOutcome)
 
     val attendances = attendAll.bookingActivities
         .stream()
@@ -168,7 +168,7 @@ class AttendanceService(
         attendance.comments)
 
     log.info("Updating attendance on NOMIS {} {}", attendance.toBuilder().comments(null).build(), eventOutcome)
-    prisonApiService.putAttendance(attendance.bookingId, attendance.eventId, eventOutcome)
+    elite2ApiService.putAttendance(attendance.bookingId, attendance.eventId, eventOutcome)
   }
 
   private fun isAttendanceLocked(attendance: Attendance): Boolean {
@@ -179,7 +179,7 @@ class AttendanceService(
   }
 
   fun getAttendanceForOffendersThatHaveScheduledActivity(prisonId: String?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
-    val bookingIds = prisonApiService.getBookingIdsForScheduleActivities(prisonId, date, period)
+    val bookingIds = elite2ApiService.getBookingIdsForScheduleActivities(prisonId, date, period)
     val attendances = attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookingIds, date, period)
     return attendances.stream().map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }.collect(Collectors.toSet())
   }
@@ -211,7 +211,7 @@ class AttendanceService(
         attendancesDto.paid,
         attendancesDto.comments)
 
-    prisonApiService.putAttendanceForMultipleBookings(attendancesDto.bookingActivities, eventOutcome)
+    elite2ApiService.putAttendanceForMultipleBookings(attendancesDto.bookingActivities, eventOutcome)
 
     return attendances
         .stream()
@@ -226,7 +226,7 @@ class AttendanceService(
     val endDate = toDate ?: fromDate
 
     val offenderDetails = periods.flatMap { timePeriod ->
-      prisonApiService.getScheduleActivityOffenderData(prisonId, fromDate, endDate, timePeriod)
+      elite2ApiService.getScheduleActivityOffenderData(prisonId, fromDate, endDate, timePeriod)
           .map { offenderDetailsWithPeriod(it, timePeriod) }.toSet()
     }
 

@@ -18,13 +18,13 @@ import java.time.LocalDateTime
 
 class CourtServiceTest {
 
-  private val prisonApiService: PrisonApiService = mock()
+  private val elite2ApiService: Elite2ApiService = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
 
   @Test
   fun `should push an appointment to elite2`() {
-    val service = CourtService(authenticationFacade,prisonApiService, videoLinkAppointmentRepository, "York Crown Court")
+    val service = CourtService(authenticationFacade,elite2ApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
     service.createVideoLinkAppointment(CreateVideoLinkAppointment(
@@ -36,7 +36,7 @@ class CourtServiceTest {
         court = "York Crown Court"
     ))
 
-    verify(prisonApiService).postAppointment(bookingId, CreateBookingAppointment(
+    verify(elite2ApiService).postAppointment(bookingId, CreateBookingAppointment(
         appointmentType = "VLB",
         locationId = 1,
         comment = "test",
@@ -47,10 +47,10 @@ class CourtServiceTest {
 
   @Test
   fun `should create video link appointment using the event id returned from elite2`() {
-    val service = CourtService(authenticationFacade, prisonApiService, videoLinkAppointmentRepository, "York Crown Court")
+    val service = CourtService(authenticationFacade, elite2ApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
-    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(1L)
+    whenever(elite2ApiService.postAppointment(anyLong(), any())).thenReturn(1L)
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
     service.createVideoLinkAppointment(CreateVideoLinkAppointment(
@@ -74,7 +74,7 @@ class CourtServiceTest {
 
   @Test
   fun `should return NO video link appointments`() {
-    val service = CourtService(authenticationFacade, prisonApiService, videoLinkAppointmentRepository, "")
+    val service = CourtService(authenticationFacade, elite2ApiService, videoLinkAppointmentRepository, "")
     val appointments = service.getVideoLinkAppointments(setOf(1, 2))
 
     verify(videoLinkAppointmentRepository).findVideoLinkAppointmentByAppointmentIdIn(setOf(1, 2))
@@ -89,7 +89,7 @@ class CourtServiceTest {
             VideoLinkAppointment(id = 2, bookingId = 3, appointmentId = 4, hearingType = HearingType.PRE, court = "YORK", madeByTheCourt = false
             ))
     )
-    val service = CourtService(authenticationFacade, prisonApiService, videoLinkAppointmentRepository, "")
+    val service = CourtService(authenticationFacade, elite2ApiService, videoLinkAppointmentRepository, "")
     val appointments = service.getVideoLinkAppointments(setOf(3, 4))
 
     assertThat(appointments)
@@ -102,10 +102,10 @@ class CourtServiceTest {
 
   @Test
   fun `should record if the appointment was made by the court`() {
-    val service = CourtService(authenticationFacade, prisonApiService, videoLinkAppointmentRepository, "York Crown Court")
+    val service = CourtService(authenticationFacade, elite2ApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
-    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(1L)
+    whenever(elite2ApiService.postAppointment(anyLong(), any())).thenReturn(1L)
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
     service.createVideoLinkAppointment(CreateVideoLinkAppointment(
@@ -130,10 +130,10 @@ class CourtServiceTest {
 
   @Test
   fun `should record if the appointment was made by the prison on behalf of the court`() {
-    val service = CourtService(authenticationFacade, prisonApiService, videoLinkAppointmentRepository, "York Crown Court")
+    val service = CourtService(authenticationFacade, elite2ApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
-    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(1L)
+    whenever(elite2ApiService.postAppointment(anyLong(), any())).thenReturn(1L)
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
     service.createVideoLinkAppointment(CreateVideoLinkAppointment(

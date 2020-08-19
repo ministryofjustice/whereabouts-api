@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 class IEPWarningServiceTest {
 
 
-  private val prisonApiService: PrisonApiService = mock()
+  private val elite2ApiService: Elite2ApiService = mock()
   private val caseNotesService: CaseNotesService = mock()
 
   private val today: LocalDate = LocalDate.now()
@@ -25,7 +25,7 @@ class IEPWarningServiceTest {
 
   @BeforeEach
   fun before() {
-    service = IEPWarningService(caseNotesService, prisonApiService)
+    service = IEPWarningService(caseNotesService, elite2ApiService)
   }
 
   @Test
@@ -36,7 +36,7 @@ class IEPWarningServiceTest {
     whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
         .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
-    whenever(prisonApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     service.postIEPWarningIfRequired(1, null, AbsentReason.RefusedIncentiveLevelWarning, "test comment", date)
 
@@ -52,7 +52,7 @@ class IEPWarningServiceTest {
 
   @Test
   fun `should post IEP reinstated case note amendment if going from unpaid (IEP warning) to paid attendance (IEP rescinded) to unpaid absent unacceptable`() {
-    whenever(prisonApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     val attendance = Attendance.builder()
         .bookingId(1)
@@ -82,7 +82,7 @@ class IEPWarningServiceTest {
 
     whenever(caseNotesService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any(LocalDateTime::class.java)))
         .thenReturn(CaseNoteDto.builder().caseNoteId(1).build())
-    whenever(prisonApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     val attendance = Attendance.builder()
         .bookingId(1)
@@ -108,7 +108,7 @@ class IEPWarningServiceTest {
 
   @Test
   fun `should sentence case absent reasons`() {
-    whenever(prisonApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     val attendance = Attendance.builder()
         .bookingId(1)
@@ -215,7 +215,7 @@ class IEPWarningServiceTest {
 
   @Test
   fun `should post case note amendment going from unpaid absent refused to paid attendance`() {
-    whenever(prisonApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+    whenever(elite2ApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     val attendance =   Attendance.builder()
         .bookingId(1)
