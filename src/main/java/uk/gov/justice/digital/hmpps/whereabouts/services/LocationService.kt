@@ -21,7 +21,6 @@ class LocationService(
   fun getCellsWithCapacityForGroup(agencyId: String, groupName: String, attribute: String?): List<CellWithAttributes> =
           elite2ApiService.getCellsWithCapacity(agencyId, attribute)
                   .filter{ (locationGroupService.locationGroupFilter(agencyId, groupName)::test)(it.mapToLocation(agencyId)) }
-                  .toMutableList()
                   .toList()
 
   private fun String.formatLocation(): String =
