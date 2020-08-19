@@ -114,7 +114,7 @@ class Elite2MockServer : WireMockServer(8999) {
   }
 
   fun stubCellsWithCapacity(agencyId: String, cells: List<CellWithAttributes>) {
-    stubFor(get(urlEqualTo("/api/agencies/$agencyId/cellsWithCapacity"))
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/cellsWithCapacity?attribute="))
             .willReturn(aResponse()
                     .withHeader("Content-type", "application/json")
                     .withBody(gson.toJson(cells.map { it.toMap() }))

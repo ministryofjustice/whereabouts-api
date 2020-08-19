@@ -26,7 +26,7 @@ class LocationController(private val locationService: LocationService) {
                        @ApiParam(value = "The group name", required = true) @PathVariable("name") name: String): List<Location>
     = locationService.getCellLocationsForGroup(agencyId, name)
 
-  @GetMapping("/groups/{agencyId}/{name}/cellsWithCapacity")
+  @GetMapping("/cellsWithCapacity/{agencyId}/{group}")
   @ApiOperation(value = "List of cells by group at agency location which have capacity.", notes = "List of cells  by group at agency location which have capacity.", nickname = "getCellsWithCapacityForGroup")
   @ApiResponses(value = [
     ApiResponse(code = 200, message = "OK", response = CellWithAttributes::class, responseContainer = "List"),
@@ -35,8 +35,8 @@ class LocationController(private val locationService: LocationService) {
     ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse::class, responseContainer = "List")
   ])
   fun getCellsWithCapacityForGroup(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
-                       @ApiParam(value = "The group name", required = true) @PathVariable("name") name: String,
+                       @ApiParam(value = "The group name", required = true) @PathVariable("group") group: String,
                        @ApiParam(value = "Cell attribute") @RequestParam(name = "attribute") attribute: String?): List<CellWithAttributes>
-          = locationService.getCellsWithCapacityForGroup(agencyId, name, attribute)
+          = locationService.getCellsWithCapacityForGroup(agencyId, group, attribute)
 
 }

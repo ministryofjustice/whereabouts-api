@@ -58,9 +58,9 @@ class LocationIntegrationTest: IntegrationTest() {
     elite2MockServer.stubCellsWithCapacity("RNI", getRniHb7Cells())
 
     val response: ResponseEntity<String> =
-            restTemplate.exchange("/locations/groups/RNI/House block 7/cellsWithCapacity", HttpMethod.GET, createHeaderEntity(""))
+            restTemplate.exchange("/locations/cellsWithCapacity/RNI/House block 7", HttpMethod.GET, createHeaderEntity(""))
 
-    assertThatJsonFileAndStatus(response, 200, "RNI_cells_with_cacity.json")
+    assertThatJsonFileAndStatus(response, 200, "RNI_cells_with_capacity.json")
   }
 
   private fun getRniHb7Locations() =
@@ -81,10 +81,10 @@ class LocationIntegrationTest: IntegrationTest() {
 
   private fun getRniHb7Cells() =
           listOf(
-                  CellWithAttributes(id = 507011, description = "Hb7-1-002", noOfOccupants = 1, capacity = 2),
-                  CellWithAttributes(id = 507031, description = "Hb7-1-021", noOfOccupants = 1, capacity = 2),
-                  CellWithAttributes(id = 108582, description = "S-1-001", noOfOccupants = 1, capacity = 2),
-                  CellWithAttributes(id = 108583, description = "S-1-002", noOfOccupants = 1, capacity = 2)
+                  CellWithAttributes(id = 507011, description = "RNI-HB7-1-002", noOfOccupants = 1, capacity = 2),
+                  CellWithAttributes(id = 507031, description = "RNI-HB7-1-021", noOfOccupants = 1, capacity = 2),
+                  CellWithAttributes(id = 108582, description = "RNI-S-1-001", noOfOccupants = 1, capacity = 2),
+                  CellWithAttributes(id = 108583, description = "RNI-S-1-002", noOfOccupants = 1, capacity = 2)
           )
 
   private fun aLocation(locationId: Long, description: String, agencyId: String, locationPrefix: String) =
