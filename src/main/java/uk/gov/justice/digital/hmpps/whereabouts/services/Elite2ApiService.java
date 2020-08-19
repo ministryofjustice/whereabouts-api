@@ -136,10 +136,11 @@ public class Elite2ApiService {
 
     public List<CellWithAttributes> getCellsWithCapacity(final String agencyId, final String attribute) {
         final var responseType = new ParameterizedTypeReference<List<CellWithAttributes>>() {};
+        final var uri = attribute != null ? "/agencies/{agencyId}/cellsWithCapacity?attribute={attribute}" : "/agencies/{agencyId}/cellsWithCapacity";
 
         try {
             return webClient.get()
-                    .uri("/agencies/{agencyId}/cellsWithCapacity?attribute={attribute}", agencyId, attribute)
+                    .uri(uri, agencyId, attribute)
                     .retrieve()
                     .bodyToMono(responseType)
                     .block();

@@ -54,11 +54,21 @@ class LocationIntegrationTest: IntegrationTest() {
   }
 
   @Test
-  fun `cells with capacity`() {
-    elite2MockServer.stubCellsWithCapacity("RNI", getRniHb7Cells())
+  fun `cells with capacity - no attribute`() {
+    elite2MockServer.stubCellsWithCapacityNoAttribute("RNI", getRniHb7Cells())
 
     val response: ResponseEntity<String> =
             restTemplate.exchange("/locations/cellsWithCapacity/RNI/House block 7", HttpMethod.GET, createHeaderEntity(""))
+
+    assertThatJsonFileAndStatus(response, 200, "RNI_cells_with_capacity.json")
+  }
+
+  @Test
+  fun `cells with capacity - passes attribute`() {
+    elite2MockServer.stubCellsWithCapacityWithAttribute("RNI", getRniHb7Cells(), "LC")
+
+    val response: ResponseEntity<String> =
+            restTemplate.exchange("/locations/cellsWithCapacity/RNI/House block 7?attribute=LC", HttpMethod.GET, createHeaderEntity(""))
 
     assertThatJsonFileAndStatus(response, 200, "RNI_cells_with_capacity.json")
   }

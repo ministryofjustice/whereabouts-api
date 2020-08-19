@@ -122,8 +122,18 @@ class Elite2MockServer : WireMockServer(8999) {
     )
   }
 
-  fun stubCellsWithCapacity(agencyId: String, cells: List<CellWithAttributes>) {
-    stubFor(get(urlEqualTo("/api/agencies/$agencyId/cellsWithCapacity?attribute="))
+  fun stubCellsWithCapacityNoAttribute(agencyId: String, cells: List<CellWithAttributes>) {
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/cellsWithCapacity"))
+            .willReturn(aResponse()
+                    .withHeader("Content-type", "application/json")
+                    .withBody(gson.toJson(cells.map { it.toMap() }))
+                    .withStatus(200)
+            )
+    )
+  }
+
+  fun stubCellsWithCapacityWithAttribute(agencyId: String, cells: List<CellWithAttributes>, attribute: String) {
+    stubFor(get(urlEqualTo("/api/agencies/$agencyId/cellsWithCapacity?attribute=$attribute"))
             .willReturn(aResponse()
                     .withHeader("Content-type", "application/json")
                     .withBody(gson.toJson(cells.map { it.toMap() }))
