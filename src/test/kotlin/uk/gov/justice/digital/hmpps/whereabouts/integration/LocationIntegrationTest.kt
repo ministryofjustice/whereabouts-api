@@ -6,6 +6,7 @@ import org.springframework.boot.test.web.client.exchange
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
+import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 
 class LocationIntegrationTest: IntegrationTest() {
@@ -52,6 +53,16 @@ class LocationIntegrationTest: IntegrationTest() {
     assertThat(response.body.developerMessage).contains("Server Error")
   }
 
+  @Test
+  fun `cells with capacity`() {
+    elite2MockServer.stubCellsWithCapacity("RNI", getRniHb7Cells())
+
+    val response: ResponseEntity<String> =
+            restTemplate.exchange("/locations/groups/RNI/House block 7/cellsWithCapacity", HttpMethod.GET, createHeaderEntity(""))
+
+    assertThatJsonFileAndStatus(response, 200, "RNI_cells_with_cacity.json")
+  }
+
   private fun getRniHb7Locations() =
       listOf(
           aLocation(locationId = 507011, description = "Hb7-1-002", agencyId = "RNI", locationPrefix = "RNI-HB7-1-002"),
@@ -67,6 +78,14 @@ class LocationIntegrationTest: IntegrationTest() {
           aLocation(locationId = 108582, description = "S-1-001",   agencyId = "LEI", locationPrefix = "LEI-S-1-001"),
           aLocation(locationId = 108583, description = "S-1-002",   agencyId = "LEI", locationPrefix = "LEI-S-1-002")
       )
+
+  private fun getRniHb7Cells() =
+          listOf(
+                  CellWithAttributes(id = 507011, description = "Hb7-1-002", noOfOccupants = 1, capacity = 2),
+                  CellWithAttributes(id = 507031, description = "Hb7-1-021", noOfOccupants = 1, capacity = 2),
+                  CellWithAttributes(id = 108582, description = "S-1-001", noOfOccupants = 1, capacity = 2),
+                  CellWithAttributes(id = 108583, description = "S-1-002", noOfOccupants = 1, capacity = 2)
+          )
 
   private fun aLocation(locationId: Long, description: String, agencyId: String, locationPrefix: String) =
       Location(
