@@ -4,6 +4,8 @@
 
 A Spring Boot app to manage the location (whereabouts) of prisoners for the Digital Prison Services.  Backend services for https://github.com/ministryofjustice/prisonstaffhub/.
 
+Swagger API documentation is available (here)[https://whereabouts-api-dev.service.justice.gov.uk/swagger-ui/index.html] 
+
 ### To build:
 
 ```bash
@@ -11,13 +13,9 @@ A Spring Boot app to manage the location (whereabouts) of prisoners for the Digi
 ```
 
 ### To run:
-This service requires oauth and elite2 to work. Bootstrap these services by running. 
+This service requires oauth, prison-api and the offender-case-notes to work. Bootstrap these services by running. 
 ```bash
 docker-compose up
-```
-Then run:
-```bash
-./gradlew bootRun
 ```
 
 ### Health
@@ -48,10 +46,10 @@ Localstack has been introduced for some integration tests and it is also possibl
 
 * In the root of the localstack project, run command
 ```
-sudo rm -rf /tmp/localstack && docker-compose -f docker-compose-localstack.yaml down && docker-compose -f docker-compose-localstack.yaml up
+rm -rf /tmp/localstack && docker-compose -f docker-compose-localstack.yaml down && TMPDIR=/private$TMPDIR docker-compose -f docker-compose-localstack.yaml up
 ```
 to clear down and then bring up localstack
-* Start the Spring Boot app with profile='localstack'
+* Start the Spring Boot app with profiles of 'localstack,local,dev'
 * You can now use the aws CLI to send messages to the queue
 * The queue's health status should appear at the local healthcheck: http://localhost:8082/health
 * Note that you will also need local copies of Oauth server, Case notes API and Delius API running to do anything useful
