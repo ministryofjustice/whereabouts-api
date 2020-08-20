@@ -38,8 +38,7 @@ dependencies {
   implementation("javax.transaction:javax.transaction-api:1.3")
   implementation("javax.validation:validation-api:2.0.1.Final")
 
-  implementation("io.springfox:springfox-swagger2:3.0.0")
-  implementation("io.springfox:springfox-swagger-ui:3.0.0")
+  implementation("io.springfox:springfox-boot-starter:3.0.0")
 
   implementation("net.sf.ehcache:ehcache:2.10.6")
   implementation("org.apache.commons:commons-lang3:3.11")
