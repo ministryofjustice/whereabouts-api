@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.core.io.ClassPathResource
+import org.springframework.core.io.ResourceLoader
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -18,8 +18,11 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.CaseNotesMockServer
-import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
+import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
+import wiremock.org.apache.commons.io.IOUtils
+import java.nio.charset.StandardCharsets
+
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -91,7 +94,7 @@ abstract class IntegrationTest {
   }
 
   fun loadJsonFile(jsonFile: String): String {
-    return ClassPathResource(jsonFile).file.readText()
+    return IOUtils.toString(javaClass.getResourceAsStream(jsonFile), StandardCharsets.UTF_8.toString())
   }
 
 }

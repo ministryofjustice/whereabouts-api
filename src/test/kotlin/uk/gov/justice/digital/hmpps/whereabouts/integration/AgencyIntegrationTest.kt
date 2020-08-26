@@ -15,7 +15,7 @@ class AgencyIntegrationTest: IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json(loadJsonFile("uk/gov/justice/digital/hmpps/whereabouts/integration/LEI_location_groups.json"))
+        .json(loadJsonFile("LEI_location_groups.json"))
 
   }
 
@@ -29,7 +29,7 @@ class AgencyIntegrationTest: IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json(loadJsonFile("uk/gov/justice/digital/hmpps/whereabouts/integration/MDI_location_groups.json"))
+        .json(loadJsonFile("MDI_location_groups.json"))
   }
 
   @Test

@@ -16,7 +16,7 @@ class LocationIntegrationTest: IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json(loadJsonFile("uk/gov/justice/digital/hmpps/whereabouts/integration/RNI_location_groups_agency_locname.json"))
+        .json(loadJsonFile("RNI_location_groups_agency_locname.json"))
   }
 
   @Test
@@ -29,7 +29,7 @@ class LocationIntegrationTest: IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json(loadJsonFile("uk/gov/justice/digital/hmpps/whereabouts/integration/LEI_location_groups_agency_locname.json"))
+        .json(loadJsonFile("LEI_location_groups_agency_locname.json"))
   }
 
   @Test
@@ -68,7 +68,7 @@ class LocationIntegrationTest: IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json(loadJsonFile("uk/gov/justice/digital/hmpps/whereabouts/integration/RNI_cells_with_capacity.json"))
+        .json(loadJsonFile("RNI_cells_with_capacity.json"))
   }
 
   @Test
@@ -81,7 +81,7 @@ class LocationIntegrationTest: IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json(loadJsonFile("uk/gov/justice/digital/hmpps/whereabouts/integration/RNI_cells_with_capacity.json"))
+        .json(loadJsonFile("RNI_cells_with_capacity.json"))
   }
 
   private fun getRniHb7Locations() =

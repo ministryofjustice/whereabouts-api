@@ -21,7 +21,7 @@ class CourtIntegrationTest : IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json(loadJsonFile("uk/gov/justice/digital/hmpps/whereabouts/integration/courtLocations.json"))
+        .json(loadJsonFile("courtLocations.json"))
   }
 
   @Test
@@ -74,7 +74,7 @@ class CourtIntegrationTest : IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json(loadJsonFile("uk/gov/justice/digital/hmpps/whereabouts/integration/courtAppointments.json"))
+        .json(loadJsonFile("courtAppointments.json"))
   }
 
   @Test
