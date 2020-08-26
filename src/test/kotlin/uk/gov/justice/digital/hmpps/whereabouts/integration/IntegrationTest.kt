@@ -32,10 +32,6 @@ import java.util.*
 abstract class IntegrationTest {
 
     @Autowired
-    @Deprecated(message = "Use webTestClient")
-    lateinit var restTemplate: TestRestTemplate
-
-    @Autowired
     lateinit var webTestClient: WebTestClient
 
     internal val gson: Gson = getGson()
