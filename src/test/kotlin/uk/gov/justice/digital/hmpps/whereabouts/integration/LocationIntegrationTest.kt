@@ -16,24 +16,7 @@ class LocationIntegrationTest: IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.[0].locationId").isEqualTo(507011)
-        .jsonPath("$.[0].locationType").isEqualTo("CELL")
-        .jsonPath("$.[0].description").isEqualTo("Hb7-1-002")
-        .jsonPath("$.[0].agencyId").isEqualTo("RNI")
-        .jsonPath("$.[0].currentOccupancy").isEqualTo(0)
-        .jsonPath("$.[0].locationPrefix").isEqualTo("RNI-HB7-1-002")
-        .jsonPath("$.[0].operationalCapacity").isEqualTo(0)
-        .jsonPath("$.[0].userDescription").isEmpty
-        .jsonPath("$.[0].internalLocationCode").isEmpty
-        .jsonPath("$.[1].locationId").isEqualTo(507031)
-        .jsonPath("$.[1].locationType").isEqualTo("CELL")
-        .jsonPath("$.[1].description").isEqualTo("Hb7-1-021")
-        .jsonPath("$.[1].agencyId").isEqualTo("RNI")
-        .jsonPath("$.[1].currentOccupancy").isEqualTo(0)
-        .jsonPath("$.[1].locationPrefix").isEqualTo("RNI-HB7-1-021")
-        .jsonPath("$.[1].operationalCapacity").isEqualTo(0)
-        .jsonPath("$.[1].userDescription").isEmpty
-        .jsonPath("$.[1].internalLocationCode").isEmpty
+        .json(loadJsonFile("RNI_location_groups_agency_locname.json"))
   }
 
   @Test
@@ -46,24 +29,7 @@ class LocationIntegrationTest: IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.[0].locationId").isEqualTo(507011)
-        .jsonPath("$.[0].locationType").isEqualTo("CELL")
-        .jsonPath("$.[0].description").isEqualTo("House_block_7-1-002")
-        .jsonPath("$.[0].agencyId").isEqualTo("LEI")
-        .jsonPath("$.[0].currentOccupancy").isEqualTo(0)
-        .jsonPath("$.[0].locationPrefix").isEqualTo("LEI-House-block-7-1-002")
-        .jsonPath("$.[0].operationalCapacity").isEqualTo(0)
-        .jsonPath("$.[0].userDescription").isEmpty
-        .jsonPath("$.[0].internalLocationCode").isEmpty
-        .jsonPath("$.[1].locationId").isEqualTo(507031)
-        .jsonPath("$.[1].locationType").isEqualTo("CELL")
-        .jsonPath("$.[1].description").isEqualTo("House_block_7-1-021")
-        .jsonPath("$.[1].agencyId").isEqualTo("LEI")
-        .jsonPath("$.[1].currentOccupancy").isEqualTo(0)
-        .jsonPath("$.[1].locationPrefix").isEqualTo("LEI-House-block-7-1-021")
-        .jsonPath("$.[1].operationalCapacity").isEqualTo(0)
-        .jsonPath("$.[1].userDescription").isEmpty
-        .jsonPath("$.[1].internalLocationCode").isEmpty
+        .json(loadJsonFile("LEI_location_groups_agency_locname.json"))
   }
 
   @Test
@@ -102,15 +68,7 @@ class LocationIntegrationTest: IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.[0].id").isEqualTo(507011)
-        .jsonPath("$.[0].description").isEqualTo("RNI-HB7-1-002")
-        .jsonPath("$.[0].noOfOccupants").isEqualTo(1)
-        .jsonPath("$.[0].capacity").isEqualTo(2)
-        .jsonPath("$.[1].id").isEqualTo(507031)
-        .jsonPath("$.[1].description").isEqualTo("RNI-HB7-1-021")
-        .jsonPath("$.[1].noOfOccupants").isEqualTo(1)
-        .jsonPath("$.[1].capacity").isEqualTo(2)
-        .jsonPath("$.[1].attributes").isEmpty
+        .json(loadJsonFile("RNI_cells_with_capacity.json"))
   }
 
   @Test
@@ -123,15 +81,7 @@ class LocationIntegrationTest: IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.[0].id").isEqualTo(507011)
-        .jsonPath("$.[0].description").isEqualTo("RNI-HB7-1-002")
-        .jsonPath("$.[0].noOfOccupants").isEqualTo(1)
-        .jsonPath("$.[0].capacity").isEqualTo(2)
-        .jsonPath("$.[1].id").isEqualTo(507031)
-        .jsonPath("$.[1].description").isEqualTo("RNI-HB7-1-021")
-        .jsonPath("$.[1].noOfOccupants").isEqualTo(1)
-        .jsonPath("$.[1].capacity").isEqualTo(2)
-        .jsonPath("$.[1].attributes").isEmpty
+        .json(loadJsonFile("RNI_cells_with_capacity.json"))
   }
 
   private fun getRniHb7Locations() =
