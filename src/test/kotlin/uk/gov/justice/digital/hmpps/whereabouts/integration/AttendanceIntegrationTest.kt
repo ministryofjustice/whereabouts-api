@@ -1,6 +1,10 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
-import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
+import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -67,12 +71,12 @@ class AttendanceIntegrationTest : IntegrationTest() {
     val to = LocalDateTime.now().plusHours(1)
 
     webTestClient.get()
-        .uri({
+        .uri {
           it.path("/attendances/changes")
               .queryParam("fromDateTime", from)
               .queryParam("toDateTime", to)
               .build()
-        })
+        }
         .headers(setHeaders())
         .exchange()
         .expectStatus().isOk()

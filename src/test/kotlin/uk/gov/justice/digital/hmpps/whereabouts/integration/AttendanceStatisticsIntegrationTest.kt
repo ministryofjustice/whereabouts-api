@@ -3,14 +3,11 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.whenever
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.HttpMethod
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
-import uk.gov.justice.digital.hmpps.whereabouts.services.Stats
 import java.time.LocalDate
 
 class AttendanceStatisticsIntegrationTest : IntegrationTest() {
@@ -27,18 +24,11 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
   fun `should request schedules by date range`() {
     prisonApiMockServer.stubGetScheduledActivitiesForDateRange(prisonId, fromDate, toDate, period, true)
 
-    val response =
-        restTemplate.exchange(
-            "/attendance-statistics/$prisonId/over-date-range?fromDate={0}&toDate={1}&period={2}",
-            HttpMethod.GET,
-            createHeaderEntity(""),
-            Any::class.java,
-            fromDate,
-            toDate,
-            period
-        )
-
-    assertThat(response.statusCodeValue).isEqualTo(200)
+    webTestClient.get()
+        .uri("/attendance-statistics/$prisonId/over-date-range?fromDate=$fromDate&toDate=$toDate&period=$period")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
 
     prisonApiMockServer.verify(WireMock.getRequestedFor(
         WireMock.urlEqualTo(
@@ -65,18 +55,13 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
             .build()
         ))
 
-    val response =
-        restTemplate.exchange(
-            "/attendance-statistics/$prisonId/over-date-range?fromDate={0}&toDate={1}&period={2}",
-            HttpMethod.GET,
-            createHeaderEntity(""),
-            Stats::class.java,
-            fromDate,
-            toDate,
-            period
-        )
+    webTestClient.get()
+        .uri("/attendance-statistics/$prisonId/over-date-range?fromDate=$fromDate&toDate=$toDate&period=$period")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.paidReasons.attended").isEqualTo(1)
 
-    assertThat(response.body?.paidReasons?.attended).isEqualTo(1)
-    assertThat(response.statusCodeValue).isEqualTo(200)
   }
 }

@@ -1,33 +1,102 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.web.client.exchange
-import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
-import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 
 class AgencyIntegrationTest: IntegrationTest() {
 
   @Test
-  fun `location groups - none in properties - should retrieve groups from elite2api`() {
+  fun `location groups - none in properties - should retrieve groups from prison API`() {
     val agencyId = "LEI"
     prisonApiMockServer.stubGetAgencyLocationGroups(agencyId)
 
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/agencies/$agencyId/locations/groups", HttpMethod.GET, createHeaderEntity(""))
+    webTestClient.get()
+        .uri("/agencies/$agencyId/locations/groups")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[0].name").isEqualTo("Block A")
+        .jsonPath("$.[0].key").isEqualTo("A")
+        .jsonPath("$.[0].children").isEmpty
 
-    assertThatJsonFileAndStatus(response, 200, "LEI_location_groups.json");
   }
 
   @Test
   fun `location groups - exist in properties - should retrieve groups from properties`() {
     val agencyId = "MDI"
 
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/agencies/$agencyId/locations/groups", HttpMethod.GET, createHeaderEntity(""))
-
-    assertThatJsonFileAndStatus(response, 200, "MDI_location_groups.json");
+    webTestClient.get()
+        .uri("/agencies/$agencyId/locations/groups")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[0].name").isEqualTo("Casu")
+        .jsonPath("$.[0].key").isEqualTo("Casu")
+        .jsonPath("$.[0].children").isEmpty
+        .jsonPath("$.[1].name").isEqualTo("Houseblock 1")
+        .jsonPath("$.[1].key").isEqualTo("Houseblock 1")
+        .jsonPath("$.[1].children.[0].name").isEqualTo("A-Wing")
+        .jsonPath("$.[1].children.[0].key").isEqualTo("A-Wing")
+        .jsonPath("$.[1].children.[0].children").isEmpty
+        .jsonPath("$.[1].children.[1].name").isEqualTo("B-Wing")
+        .jsonPath("$.[1].children.[1].key").isEqualTo("B-Wing")
+        .jsonPath("$.[1].children.[1].children").isEmpty
+        .jsonPath("$.[1].children.[2].name").isEqualTo("C-Wing")
+        .jsonPath("$.[1].children.[2].key").isEqualTo("C-Wing")
+        .jsonPath("$.[1].children.[2].children").isEmpty
+        .jsonPath("$.[2].name").isEqualTo("Houseblock 2")
+        .jsonPath("$.[2].key").isEqualTo("Houseblock 2")
+        .jsonPath("$.[2].children.[0].name").isEqualTo("A-Wing")
+        .jsonPath("$.[2].children.[0].key").isEqualTo("A-Wing")
+        .jsonPath("$.[2].children.[0].children").isEmpty
+        .jsonPath("$.[2].children.[1].name").isEqualTo("B-Wing")
+        .jsonPath("$.[2].children.[1].key").isEqualTo("B-Wing")
+        .jsonPath("$.[2].children.[1].children").isEmpty
+        .jsonPath("$.[2].children.[2].name").isEqualTo("C-Wing")
+        .jsonPath("$.[2].children.[2].key").isEqualTo("C-Wing")
+        .jsonPath("$.[2].children.[2].children").isEmpty
+        .jsonPath("$.[3].name").isEqualTo("Houseblock 3")
+        .jsonPath("$.[3].key").isEqualTo("Houseblock 3")
+        .jsonPath("$.[3].children.[0].name").isEqualTo("A-Wing")
+        .jsonPath("$.[3].children.[0].key").isEqualTo("A-Wing")
+        .jsonPath("$.[3].children.[0].children").isEmpty
+        .jsonPath("$.[3].children.[1].name").isEqualTo("B-Wing")
+        .jsonPath("$.[3].children.[1].key").isEqualTo("B-Wing")
+        .jsonPath("$.[3].children.[1].children").isEmpty
+        .jsonPath("$.[3].children.[2].name").isEqualTo("C-Wing")
+        .jsonPath("$.[3].children.[2].key").isEqualTo("C-Wing")
+        .jsonPath("$.[3].children.[2].children").isEmpty
+        .jsonPath("$.[4].name").isEqualTo("Houseblock 4")
+        .jsonPath("$.[4].key").isEqualTo("Houseblock 4")
+        .jsonPath("$.[4].children.[0].name").isEqualTo("A-Wing")
+        .jsonPath("$.[4].children.[0].key").isEqualTo("A-Wing")
+        .jsonPath("$.[4].children.[0].children").isEmpty
+        .jsonPath("$.[4].children.[1].name").isEqualTo("B-Wing")
+        .jsonPath("$.[4].children.[1].key").isEqualTo("B-Wing")
+        .jsonPath("$.[4].children.[1].children").isEmpty
+        .jsonPath("$.[4].children.[2].name").isEqualTo("C-Wing")
+        .jsonPath("$.[4].children.[2].key").isEqualTo("C-Wing")
+        .jsonPath("$.[4].children.[2].children").isEmpty
+        .jsonPath("$.[5].name").isEqualTo("Houseblock 5")
+        .jsonPath("$.[5].key").isEqualTo("Houseblock 5")
+        .jsonPath("$.[5].children.[0].name").isEqualTo("A-Wing")
+        .jsonPath("$.[5].children.[0].key").isEqualTo("A-Wing")
+        .jsonPath("$.[5].children.[0].children").isEmpty
+        .jsonPath("$.[5].children.[1].name").isEqualTo("B-Wing")
+        .jsonPath("$.[5].children.[1].key").isEqualTo("B-Wing")
+        .jsonPath("$.[5].children.[1].children").isEmpty
+        .jsonPath("$.[6].name").isEqualTo("Houseblock 6")
+        .jsonPath("$.[6].key").isEqualTo("Houseblock 6")
+        .jsonPath("$.[6].children.[0].name").isEqualTo("A-Wing")
+        .jsonPath("$.[6].children.[0].key").isEqualTo("A-Wing")
+        .jsonPath("$.[6].children.[0].children").isEmpty
+        .jsonPath("$.[6].children.[1].name").isEqualTo("B-Wing")
+        .jsonPath("$.[6].children.[1].key").isEqualTo("B-Wing")
+        .jsonPath("$.[6].children.[1].children").isEmpty
+        .jsonPath("$.[7].name").isEqualTo("Houseblock 7")
+        .jsonPath("$.[7].key").isEqualTo("Houseblock 7")
+        .jsonPath("$.[7].children").isEmpty
   }
 
   @Test
@@ -35,20 +104,25 @@ class AgencyIntegrationTest: IntegrationTest() {
     val notAnAgencyId = "NON"
     prisonApiMockServer.stubGetAgencyLocationGroupsNotFound(notAnAgencyId)
 
-    val response: ResponseEntity<ErrorResponse> =
-        restTemplate.exchange("/agencies/$notAnAgencyId/locations/groups", HttpMethod.GET, createHeaderEntity(""))
-
-    assertThat(response.statusCodeValue).isEqualTo(404)
-    assertThat(response.body.developerMessage).contains("Locations not found for agency NON")
+    webTestClient.get()
+        .uri("/agencies/$notAnAgencyId/locations/groups")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .isNotFound
+        .expectBody()
+        .jsonPath("$.developerMessage").isEqualTo("Locations not found for agency NON")
   }
 
   @Test
-  fun `location groups - elite server error - should be returned to caller`() {
+  fun `location groups - prison API server error - should be returned to caller`() {
     prisonApiMockServer.stubGetAgencyLocationGroupsServerError("LEI")
 
-    val response: ResponseEntity<ErrorResponse> =
-        restTemplate.exchange("/agencies/LEI/locations/groups", HttpMethod.GET, createHeaderEntity(""))
-
-    assertThat(response.statusCodeValue).isEqualTo(500)
+    webTestClient.get()
+        .uri("/agencies/LEI/locations/groups")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus()
+        .is5xxServerError
   }
 }

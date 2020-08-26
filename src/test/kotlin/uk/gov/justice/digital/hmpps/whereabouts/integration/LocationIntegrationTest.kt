@@ -15,62 +15,128 @@ class LocationIntegrationTest: IntegrationTest() {
   fun `location groups for agency by location name - defined in properties - selects relevant locations only`() {
     prisonApiMockServer.stubAgencyLocationsByType("RNI", "CELL", getRniHb7Locations())
 
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/locations/groups/RNI/House block 7", HttpMethod.GET, createHeaderEntity(""))
-
-    assertThatJsonFileAndStatus(response, 200, "RNI_location_groups_agency_locname.json")
+    webTestClient.get()
+        .uri("/locations/groups/RNI/House block 7")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[0].locationId").isEqualTo(507011)
+        .jsonPath("$.[0].locationType").isEqualTo("CELL")
+        .jsonPath("$.[0].description").isEqualTo("Hb7-1-002")
+        .jsonPath("$.[0].agencyId").isEqualTo("RNI")
+        .jsonPath("$.[0].currentOccupancy").isEqualTo(0)
+        .jsonPath("$.[0].locationPrefix").isEqualTo("RNI-HB7-1-002")
+        .jsonPath("$.[0].operationalCapacity").isEqualTo(0)
+        .jsonPath("$.[0].userDescription").isEmpty
+        .jsonPath("$.[0].internalLocationCode").isEmpty
+        .jsonPath("$.[1].locationId").isEqualTo(507031)
+        .jsonPath("$.[1].locationType").isEqualTo("CELL")
+        .jsonPath("$.[1].description").isEqualTo("Hb7-1-021")
+        .jsonPath("$.[1].agencyId").isEqualTo("RNI")
+        .jsonPath("$.[1].currentOccupancy").isEqualTo(0)
+        .jsonPath("$.[1].locationPrefix").isEqualTo("RNI-HB7-1-021")
+        .jsonPath("$.[1].operationalCapacity").isEqualTo(0)
+        .jsonPath("$.[1].userDescription").isEmpty
+        .jsonPath("$.[1].internalLocationCode").isEmpty
   }
 
   @Test
-  fun `location groups for agency by location name - defined in elite2 - selects relevant locations only`() {
+  fun `location groups for agency by location name - defined in prison API - selects relevant locations only`() {
     prisonApiMockServer.stubAgencyLocationsByType("LEI", "CELL", getLeiHb7Locations())
 
-    val response: ResponseEntity<String> =
-        restTemplate.exchange("/locations/groups/LEI/House_block_7", HttpMethod.GET, createHeaderEntity(""))
-
-    assertThatJsonFileAndStatus(response, 200, "LEI_location_groups_agency_locname.json")
+    webTestClient.get()
+        .uri("/locations/groups/LEI/House_block_7")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[0].locationId").isEqualTo(507011)
+        .jsonPath("$.[0].locationType").isEqualTo("CELL")
+        .jsonPath("$.[0].description").isEqualTo("House_block_7-1-002")
+        .jsonPath("$.[0].agencyId").isEqualTo("LEI")
+        .jsonPath("$.[0].currentOccupancy").isEqualTo(0)
+        .jsonPath("$.[0].locationPrefix").isEqualTo("LEI-House-block-7-1-002")
+        .jsonPath("$.[0].operationalCapacity").isEqualTo(0)
+        .jsonPath("$.[0].userDescription").isEmpty
+        .jsonPath("$.[0].internalLocationCode").isEmpty
+        .jsonPath("$.[1].locationId").isEqualTo(507031)
+        .jsonPath("$.[1].locationType").isEqualTo("CELL")
+        .jsonPath("$.[1].description").isEqualTo("House_block_7-1-021")
+        .jsonPath("$.[1].agencyId").isEqualTo("LEI")
+        .jsonPath("$.[1].currentOccupancy").isEqualTo(0)
+        .jsonPath("$.[1].locationPrefix").isEqualTo("LEI-House-block-7-1-021")
+        .jsonPath("$.[1].operationalCapacity").isEqualTo(0)
+        .jsonPath("$.[1].userDescription").isEmpty
+        .jsonPath("$.[1].internalLocationCode").isEmpty
   }
 
   @Test
   fun `location groups for agency by location name - agency locations not found - returns not found`() {
     prisonApiMockServer.stubGetAgencyLocationsByTypeNotFound("not_an_agency", "CELL")
 
-    val response: ResponseEntity<ErrorResponse> =
-        restTemplate.exchange("/locations/groups/not_an_agency/House block 7", HttpMethod.GET, createHeaderEntity(""))
-
-    assertThat(response.statusCodeValue).isEqualTo(404)
-    assertThat(response.body.developerMessage).contains("not found").contains("not_an_agency").contains("CELL")
+    webTestClient.get()
+        .uri("/locations/groups/not_an_agency/House block 7")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .jsonPath("$.developerMessage").isEqualTo("Locations not found for agency not_an_agency with location type CELL")
   }
 
   @Test
-  fun `location groups for agency by location name - server error from elite2 - server error passed to client`() {
+  fun `location groups for agency by location name - server error from prison API - server error passed to client`() {
     prisonApiMockServer.stubGetAgencyLocationsByTypeServerError("any_agency", "CELL")
 
-    val response: ResponseEntity<ErrorResponse> =
-        restTemplate.exchange("/locations/groups/any_agency/any_location_type", HttpMethod.GET, createHeaderEntity(""))
-
-    assertThat(response.statusCodeValue).isEqualTo(500)
-    assertThat(response.body.developerMessage).contains("Server Error")
+    webTestClient.get()
+        .uri("/locations/groups/any_agency/any_location_type")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().is5xxServerError
+        .expectBody()
+        .jsonPath("$.developerMessage").isEqualTo("500 Internal Server Error from GET http://localhost:8999/api/agencies/any_agency/locations/type/CELL")
   }
 
   @Test
   fun `cells with capacity - no attribute`() {
     prisonApiMockServer.stubCellsWithCapacityNoAttribute("RNI", getRniHb7Cells())
 
-    val response: ResponseEntity<String> =
-            restTemplate.exchange("/locations/cellsWithCapacity/RNI/House block 7", HttpMethod.GET, createHeaderEntity(""))
-
-    assertThatJsonFileAndStatus(response, 200, "RNI_cells_with_capacity.json")
+    webTestClient.get()
+        .uri("/locations/cellsWithCapacity/RNI/House block 7")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[0].id").isEqualTo(507011)
+        .jsonPath("$.[0].description").isEqualTo("RNI-HB7-1-002")
+        .jsonPath("$.[0].noOfOccupants").isEqualTo(1)
+        .jsonPath("$.[0].capacity").isEqualTo(2)
+        .jsonPath("$.[1].id").isEqualTo(507031)
+        .jsonPath("$.[1].description").isEqualTo("RNI-HB7-1-021")
+        .jsonPath("$.[1].noOfOccupants").isEqualTo(1)
+        .jsonPath("$.[1].capacity").isEqualTo(2)
+        .jsonPath("$.[1].attributes").isEmpty
   }
 
   @Test
   fun `cells with capacity - passes attribute`() {
     prisonApiMockServer.stubCellsWithCapacityWithAttribute("RNI", getRniHb7Cells(), "LC")
 
-    val response: ResponseEntity<String> =
-            restTemplate.exchange("/locations/cellsWithCapacity/RNI/House block 7?attribute=LC", HttpMethod.GET, createHeaderEntity(""))
-
-    assertThatJsonFileAndStatus(response, 200, "RNI_cells_with_capacity.json")
+    webTestClient.get()
+        .uri("/locations/cellsWithCapacity/RNI/House block 7?attribute=LC")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[0].id").isEqualTo(507011)
+        .jsonPath("$.[0].description").isEqualTo("RNI-HB7-1-002")
+        .jsonPath("$.[0].noOfOccupants").isEqualTo(1)
+        .jsonPath("$.[0].capacity").isEqualTo(2)
+        .jsonPath("$.[1].id").isEqualTo(507031)
+        .jsonPath("$.[1].description").isEqualTo("RNI-HB7-1-021")
+        .jsonPath("$.[1].noOfOccupants").isEqualTo(1)
+        .jsonPath("$.[1].capacity").isEqualTo(2)
+        .jsonPath("$.[1].attributes").isEmpty
   }
 
   private fun getRniHb7Locations() =

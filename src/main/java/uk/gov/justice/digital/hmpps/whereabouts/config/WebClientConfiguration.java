@@ -25,26 +25,26 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.UserContext;
 @Configuration
 public class WebClientConfiguration {
 
-    private String elite2ApiRootUri;
-    private String eliteHealthRootUri;
+    private String prisonApiRootUri;
+    private String prisonApiHealthRootUri;
     private String caseNotesRootUri;
     private String oauthRootUri;
 
     public WebClientConfiguration(
-            @Value("${elite2.api.uri.root}") final String elite2ApiRootUri,
-            @Value("${elite2api.endpoint.url}") final String eliteHealthRootUri,
+            @Value("${elite2.api.uri.root}") final String prisonApiRootUri,
+            @Value("${elite2api.endpoint.url}") final String prisonApiHealthRootUri,
             @Value("${casenotes.endpoint.url}") final String caseNotesRootUri,
             @Value("${oauth.endpoint.url}") final String oauthRootUri) {
 
-        this.elite2ApiRootUri = elite2ApiRootUri;
-        this.eliteHealthRootUri = eliteHealthRootUri;
+        this.prisonApiRootUri = prisonApiRootUri;
+        this.prisonApiHealthRootUri = prisonApiHealthRootUri;
         this.caseNotesRootUri = caseNotesRootUri;
         this.oauthRootUri = oauthRootUri;
     }
 
     @Bean
-    public WebClient elite2HealthWebClient(final WebClient.Builder builder) {
-        return builder.baseUrl(eliteHealthRootUri)
+    public WebClient prisonApiHealthWebClient(final WebClient.Builder builder) {
+        return builder.baseUrl(prisonApiHealthRootUri)
                 .filter(addAuthHeaderFilterFunction())
                 .build();
     }
@@ -81,7 +81,7 @@ public class WebClientConfiguration {
     public WebClient elite2WebClient(final ClientRegistrationRepository clientRegistrationRepository,
                                      final OAuth2AuthorizedClientRepository authorizedClientRepository,
                                      final WebClient.Builder builder) {
-        return getOAuthWebClient(authorizedClientManager(clientRegistrationRepository, authorizedClientRepository), builder, elite2ApiRootUri);
+        return getOAuthWebClient(authorizedClientManager(clientRegistrationRepository, authorizedClientRepository), builder, prisonApiRootUri);
     }
 
     @Bean
@@ -106,7 +106,7 @@ public class WebClientConfiguration {
 
     @Bean
     public WebClient elite2WebClientAppScope(@Qualifier(value = "authorizedClientManagerAppScope") final OAuth2AuthorizedClientManager authorizedClientManager, final WebClient.Builder builder) {
-         return getOAuthWebClient(authorizedClientManager, builder, elite2ApiRootUri);
+         return getOAuthWebClient(authorizedClientManager, builder, prisonApiRootUri);
     }
 
     @Bean
