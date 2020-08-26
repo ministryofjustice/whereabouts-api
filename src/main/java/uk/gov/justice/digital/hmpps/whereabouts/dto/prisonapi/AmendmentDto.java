@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.whereabouts.dto.prisonApi;
+package uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

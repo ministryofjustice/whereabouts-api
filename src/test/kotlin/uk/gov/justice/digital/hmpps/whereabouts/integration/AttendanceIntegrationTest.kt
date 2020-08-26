@@ -28,7 +28,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
   fun `should return all changes made to an attendance record`() {
     val activityId = 2L
 
-    elite2MockServer.stubUpdateAttendance(5)
+    prisonApiMockServer.stubUpdateAttendance(5)
 
     val attendance = CreateAttendanceDto
         .builder()
@@ -93,7 +93,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
     val activityId = 2L
     val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
 
-    elite2MockServer.stubUpdateAttendance()
+    prisonApiMockServer.stubUpdateAttendance()
 
     val attendance = CreateAttendanceDto
         .builder()
@@ -115,7 +115,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .expectStatus()
         .isCreated()
 
-    elite2MockServer.verify(putRequestedFor(urlEqualTo(updateAttendanceUrl))
+    prisonApiMockServer.verify(putRequestedFor(urlEqualTo(updateAttendanceUrl))
         .withRequestBody(equalToJson(gson.toJson(mapOf(
             "eventOutcome" to "ATT",
             "performance" to "STANDARD"
@@ -130,9 +130,9 @@ class AttendanceIntegrationTest : IntegrationTest() {
     val comments = "Test comment"
     val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
 
-    elite2MockServer.stubUpdateAttendance(bookingId)
+    prisonApiMockServer.stubUpdateAttendance(bookingId)
     caseNotesMockServer.stubCreateCaseNote(offenderNo)
-    elite2MockServer.stubGetBooking(offenderNo, bookingId)
+    prisonApiMockServer.stubGetBooking(offenderNo, bookingId)
 
     val attendance = CreateAttendanceDto
         .builder()
@@ -156,7 +156,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .expectStatus()
         .isCreated()
 
-    elite2MockServer.verify(putRequestedFor(urlEqualTo(updateAttendanceUrl)).withRequestBody(
+    prisonApiMockServer.verify(putRequestedFor(urlEqualTo(updateAttendanceUrl)).withRequestBody(
         equalToJson(gson.toJson(mapOf(
             "eventOutcome" to "UNACAB",
             "outcomeComment" to "Test comment"
@@ -293,7 +293,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should update attendance`() {
-    elite2MockServer.stubUpdateAttendance()
+    prisonApiMockServer.stubUpdateAttendance()
 
     val persistedAttendance = attendanceRepository.save(
         Attendance.builder()
@@ -332,7 +332,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return a 409 bad request when attendance already exists`() {
-    elite2MockServer.stubUpdateAttendance()
+    prisonApiMockServer.stubUpdateAttendance()
 
     attendanceRepository.save(
         Attendance.builder()
@@ -380,7 +380,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
   fun `should return the attendance dto on creation`() {
     val activityId = 2L
 
-    elite2MockServer.stubUpdateAttendance(5)
+    prisonApiMockServer.stubUpdateAttendance(5)
 
     val attendance = CreateAttendanceDto
         .builder()
@@ -413,9 +413,9 @@ class AttendanceIntegrationTest : IntegrationTest() {
     val activityId = 2L
     val caseNoteId = 3L
 
-    elite2MockServer.stubUpdateAttendance()
+    prisonApiMockServer.stubUpdateAttendance()
     caseNotesMockServer.stubCaseNoteAmendment(offenderNo)
-    elite2MockServer.stubGetBooking(offenderNo)
+    prisonApiMockServer.stubGetBooking(offenderNo)
 
     val savedAttendance = attendanceRepository.save(
         Attendance.builder()
@@ -462,8 +462,8 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should request a new auth token for each new incoming request`() {
-    elite2MockServer.stubUpdateAttendance()
-    elite2MockServer.stubUpdateAttendance(2)
+    prisonApiMockServer.stubUpdateAttendance()
+    prisonApiMockServer.stubUpdateAttendance(2)
     oauthMockServer.resetAll()
     oauthMockServer.stubGrantToken()
 

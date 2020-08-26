@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonApi.CaseNoteDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import java.time.LocalDate

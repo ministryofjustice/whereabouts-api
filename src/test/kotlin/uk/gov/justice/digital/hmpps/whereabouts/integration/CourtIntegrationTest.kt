@@ -2,8 +2,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.nhaarman.mockito_kotlin.whenever
-import net.javacrumbs.jsonunit.assertj.JsonAssertions
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -31,7 +29,7 @@ class CourtIntegrationTest : IntegrationTest() {
   fun `should post an appointment to elite2`() {
     val bookingId: Long = 1
 
-    elite2MockServer.stubAddAppointment(bookingId, eventId = 1)
+    prisonApiMockServer.stubAddAppointment(bookingId, eventId = 1)
 
     val response: ResponseEntity<String> =
         restTemplate.exchange("/court/add-video-link-appointment", HttpMethod.POST, createHeaderEntity(mapOf(
@@ -45,7 +43,7 @@ class CourtIntegrationTest : IntegrationTest() {
 
     assertThat(response.statusCode.value()).isEqualTo(201)
 
-    elite2MockServer.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/api/bookings/$bookingId/appointments"))
+    prisonApiMockServer.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/api/bookings/$bookingId/appointments"))
         .withRequestBody(WireMock.equalToJson(gson.toJson(mapOf(
             "appointmentType" to "VLB",
             "locationId" to 1,
