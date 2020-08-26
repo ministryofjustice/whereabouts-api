@@ -1,7 +1,7 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "0.4.8"
-  kotlin("plugin.spring") version "1.3.72"
-  kotlin("plugin.jpa") version "1.3.72"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "1.0.0"
+  kotlin("plugin.spring") version "1.4.0"
+  kotlin("plugin.jpa") version "1.4.0"
 }
 
 
@@ -17,7 +17,7 @@ dependencies {
   compileOnly("org.projectlombok:lombok:1.18.12")
 
   runtime("com.h2database:h2:1.4.200")
-  runtime("org.flywaydb:flyway-core:6.5.3")
+  runtime("org.flywaydb:flyway-core:6.5.5")
   runtime("org.postgresql:postgresql:42.2.14")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")

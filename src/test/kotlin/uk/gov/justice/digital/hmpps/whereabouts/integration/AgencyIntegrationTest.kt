@@ -12,7 +12,7 @@ class AgencyIntegrationTest: IntegrationTest() {
   @Test
   fun `location groups - none in properties - should retrieve groups from elite2api`() {
     val agencyId = "LEI"
-    elite2MockServer.stubGetAgencyLocationGroups(agencyId)
+    prisonApiMockServer.stubGetAgencyLocationGroups(agencyId)
 
     val response: ResponseEntity<String> =
         restTemplate.exchange("/agencies/$agencyId/locations/groups", HttpMethod.GET, createHeaderEntity(""))
@@ -33,7 +33,7 @@ class AgencyIntegrationTest: IntegrationTest() {
   @Test
   fun `location groups - agency not found - should be returned to caller`() {
     val notAnAgencyId = "NON"
-    elite2MockServer.stubGetAgencyLocationGroupsNotFound(notAnAgencyId)
+    prisonApiMockServer.stubGetAgencyLocationGroupsNotFound(notAnAgencyId)
 
     val response: ResponseEntity<ErrorResponse> =
         restTemplate.exchange("/agencies/$notAnAgencyId/locations/groups", HttpMethod.GET, createHeaderEntity(""))
@@ -44,7 +44,7 @@ class AgencyIntegrationTest: IntegrationTest() {
 
   @Test
   fun `location groups - elite server error - should be returned to caller`() {
-    elite2MockServer.stubGetAgencyLocationGroupsServerError("LEI")
+    prisonApiMockServer.stubGetAgencyLocationGroupsServerError("LEI")
 
     val response: ResponseEntity<ErrorResponse> =
         restTemplate.exchange("/agencies/LEI/locations/groups", HttpMethod.GET, createHeaderEntity(""))

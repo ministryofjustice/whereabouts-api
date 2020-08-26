@@ -22,7 +22,7 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.CaseNotesMockServer
-import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.Elite2MockServer
+import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
 import java.util.*
 
@@ -45,7 +45,7 @@ abstract class IntegrationTest {
 
     companion object {
         @JvmField
-        internal val elite2MockServer = Elite2MockServer()
+        internal val prisonApiMockServer = PrisonApiMockServer()
 
         @JvmField
         internal val oauthMockServer = OAuthMockServer()
@@ -56,7 +56,7 @@ abstract class IntegrationTest {
         @BeforeAll
         @JvmStatic
         fun startMocks() {
-            elite2MockServer.start()
+            prisonApiMockServer.start()
             oauthMockServer.start()
             caseNotesMockServer.start()
         }
@@ -64,7 +64,7 @@ abstract class IntegrationTest {
         @AfterAll
         @JvmStatic
         fun stopMocks() {
-            elite2MockServer.stop()
+            prisonApiMockServer.stop()
             oauthMockServer.stop()
             caseNotesMockServer.stop()
         }
@@ -79,7 +79,7 @@ abstract class IntegrationTest {
 
     @BeforeEach
     fun resetStubs() {
-        elite2MockServer.resetAll()
+        prisonApiMockServer.resetAll()
         oauthMockServer.resetAll()
         caseNotesMockServer.resetAll()
         oauthMockServer.stubGrantToken()

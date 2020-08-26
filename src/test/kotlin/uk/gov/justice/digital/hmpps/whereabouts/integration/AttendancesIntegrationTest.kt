@@ -4,11 +4,9 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anySet
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.HttpMethod
 import uk.gov.justice.digital.hmpps.whereabouts.dto.*
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
@@ -25,8 +23,8 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
   @Test
   fun `receive a list of attendance for a prison, location, date and period`() {
-    elite2MockServer.stubUpdateAttendance()
-    elite2MockServer.stubGetBooking()
+    prisonApiMockServer.stubUpdateAttendance()
+    prisonApiMockServer.stubGetBooking()
     caseNotesMockServer.stubCreateCaseNote()
 
     whenever(attendanceRepository.findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(any(), any(), any(), any()))
@@ -75,7 +73,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return modified by and modified on`() {
-    elite2MockServer.stubUpdateAttendance()
+    prisonApiMockServer.stubUpdateAttendance()
 
     val date = LocalDateTime.now()
 
@@ -118,7 +116,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return attendance information for set of bookings ids`() {
-    elite2MockServer.stubUpdateAttendance()
+    prisonApiMockServer.stubUpdateAttendance()
 
     whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(any(), any(), any(), any()))
         .thenReturn(setOf(
@@ -170,7 +168,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return attendance information for set of bookings ids by post`() {
-    elite2MockServer.stubUpdateAttendance()
+    prisonApiMockServer.stubUpdateAttendance()
 
     whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(any(), any(), any(), any()))
         .thenReturn(setOf(
@@ -225,7 +223,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return attendance information for set of bookings ids over date range by post`() {
-    elite2MockServer.stubUpdateAttendance()
+    prisonApiMockServer.stubUpdateAttendance()
 
     whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn(any(), any(), any(), any(), any()))
             .thenReturn(setOf(
@@ -283,7 +281,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
   fun `should create multiple attendances`() {
     val bookingIds = setOf(1L, 2L)
 
-    elite2MockServer.stubUpdateAttendanceForBookingIds()
+    prisonApiMockServer.stubUpdateAttendanceForBookingIds()
 
     val bookingActivities = bookingIds
         .stream()
@@ -309,7 +307,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isCreated()
 
-    elite2MockServer.verify(WireMock.putRequestedFor(WireMock.urlEqualTo("/api/bookings/activities/attendance"))
+    prisonApiMockServer.verify(WireMock.putRequestedFor(WireMock.urlEqualTo("/api/bookings/activities/attendance"))
         .withRequestBody(WireMock.equalToJson(gson.toJson(mapOf(
             "performance" to "STANDARD",
             "bookingActivities" to bookingActivities,
@@ -321,7 +319,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return attendance information for offenders that have scheduled activity`() {
-    elite2MockServer.stubGetScheduledActivities()
+    prisonApiMockServer.stubGetScheduledActivities()
 
     val prisonId = "MDI"
     val date = LocalDate.now()
@@ -355,7 +353,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .expectBody()
       .jsonPath(".attendances[0].id").isEqualTo(1)
 
-    elite2MockServer.verify(WireMock.getRequestedFor(WireMock.urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period")))
+    prisonApiMockServer.verify(WireMock.getRequestedFor(WireMock.urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period")))
   }
 
   @Test
@@ -365,7 +363,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
     val period = TimePeriod.AM
     val reason = AbsentReason.Refused
 
-    elite2MockServer.stubGetScheduledActivitiesForDateRange(prisonId, date, date, period, true)
+    prisonApiMockServer.stubGetScheduledActivitiesForDateRange(prisonId, date, date, period, true)
 
     whenever(attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(any(), any(), any(), anySet(), any()))
         .thenReturn(setOf(

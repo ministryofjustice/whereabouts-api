@@ -196,7 +196,7 @@ class HealthCheckIntegrationTest : IntegrationTest() {
 
 
   private fun subPing(status: Int) {
-    elite2MockServer.stubFor(get("/health/ping").willReturn(aResponse()
+    prisonApiMockServer.stubFor(get("/health/ping").willReturn(aResponse()
         .withHeader("Content-Type", "application/json")
         .withBody(if (status == 200) "pong" else "some error")
         .withStatus(status)))
@@ -213,7 +213,7 @@ class HealthCheckIntegrationTest : IntegrationTest() {
   }
 
   private fun subPingWithDelay(status: Int) {
-    elite2MockServer.stubFor(get("/health/ping").willReturn(aResponse()
+    prisonApiMockServer.stubFor(get("/health/ping").willReturn(aResponse()
         .withHeader("Content-Type", "application/json")
         .withBody(if (status == 200) "pong" else "some error")
         .withStatus(status)

@@ -13,7 +13,7 @@ class LocationIntegrationTest: IntegrationTest() {
 
   @Test
   fun `location groups for agency by location name - defined in properties - selects relevant locations only`() {
-    elite2MockServer.stubAgencyLocationsByType("RNI", "CELL", getRniHb7Locations())
+    prisonApiMockServer.stubAgencyLocationsByType("RNI", "CELL", getRniHb7Locations())
 
     val response: ResponseEntity<String> =
         restTemplate.exchange("/locations/groups/RNI/House block 7", HttpMethod.GET, createHeaderEntity(""))
@@ -23,7 +23,7 @@ class LocationIntegrationTest: IntegrationTest() {
 
   @Test
   fun `location groups for agency by location name - defined in elite2 - selects relevant locations only`() {
-    elite2MockServer.stubAgencyLocationsByType("LEI", "CELL", getLeiHb7Locations())
+    prisonApiMockServer.stubAgencyLocationsByType("LEI", "CELL", getLeiHb7Locations())
 
     val response: ResponseEntity<String> =
         restTemplate.exchange("/locations/groups/LEI/House_block_7", HttpMethod.GET, createHeaderEntity(""))
@@ -33,7 +33,7 @@ class LocationIntegrationTest: IntegrationTest() {
 
   @Test
   fun `location groups for agency by location name - agency locations not found - returns not found`() {
-    elite2MockServer.stubGetAgencyLocationsByTypeNotFound("not_an_agency", "CELL")
+    prisonApiMockServer.stubGetAgencyLocationsByTypeNotFound("not_an_agency", "CELL")
 
     val response: ResponseEntity<ErrorResponse> =
         restTemplate.exchange("/locations/groups/not_an_agency/House block 7", HttpMethod.GET, createHeaderEntity(""))
@@ -44,7 +44,7 @@ class LocationIntegrationTest: IntegrationTest() {
 
   @Test
   fun `location groups for agency by location name - server error from elite2 - server error passed to client`() {
-    elite2MockServer.stubGetAgencyLocationsByTypeServerError("any_agency", "CELL")
+    prisonApiMockServer.stubGetAgencyLocationsByTypeServerError("any_agency", "CELL")
 
     val response: ResponseEntity<ErrorResponse> =
         restTemplate.exchange("/locations/groups/any_agency/any_location_type", HttpMethod.GET, createHeaderEntity(""))
@@ -55,7 +55,7 @@ class LocationIntegrationTest: IntegrationTest() {
 
   @Test
   fun `cells with capacity - no attribute`() {
-    elite2MockServer.stubCellsWithCapacityNoAttribute("RNI", getRniHb7Cells())
+    prisonApiMockServer.stubCellsWithCapacityNoAttribute("RNI", getRniHb7Cells())
 
     val response: ResponseEntity<String> =
             restTemplate.exchange("/locations/cellsWithCapacity/RNI/House block 7", HttpMethod.GET, createHeaderEntity(""))
@@ -65,7 +65,7 @@ class LocationIntegrationTest: IntegrationTest() {
 
   @Test
   fun `cells with capacity - passes attribute`() {
-    elite2MockServer.stubCellsWithCapacityWithAttribute("RNI", getRniHb7Cells(), "LC")
+    prisonApiMockServer.stubCellsWithCapacityWithAttribute("RNI", getRniHb7Cells(), "LC")
 
     val response: ResponseEntity<String> =
             restTemplate.exchange("/locations/cellsWithCapacity/RNI/House block 7?attribute=LC", HttpMethod.GET, createHeaderEntity(""))
