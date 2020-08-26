@@ -1,11 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.web.client.exchange
-import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
-import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 

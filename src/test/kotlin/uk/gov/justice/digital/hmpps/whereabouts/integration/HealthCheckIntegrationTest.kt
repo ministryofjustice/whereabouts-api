@@ -7,8 +7,6 @@ import com.amazonaws.services.sqs.model.QueueAttributeName
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.nhaarman.mockito_kotlin.whenever
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
