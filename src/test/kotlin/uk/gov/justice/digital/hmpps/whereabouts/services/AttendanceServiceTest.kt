@@ -24,7 +24,7 @@ class AttendanceServiceTest {
   private val attendanceRepository: AttendanceRepository = spy()
   private val attendanceChangesRepository: AttendanceChangesRepository = spy()
   private val iepWarningService: IEPWarningService = mock()
-  private val elite2ApiService: Elite2ApiService = mock()
+  private val prisonApiService: PrisonApiService = mock()
   private val nomisEventOutcomeMapper: NomisEventOutcomeMapper = mock()
   private val telemetryClient: TelemetryClient = mock()
 
@@ -54,7 +54,7 @@ class AttendanceServiceTest {
   fun before() {
     // return the attendance entity on save
     doAnswer { it.getArgument(0) as Attendance }.whenever(attendanceRepository).save(ArgumentMatchers.any(Attendance::class.java))
-    service = AttendanceService(attendanceRepository, attendanceChangesRepository, elite2ApiService, iepWarningService, nomisEventOutcomeMapper, telemetryClient)
+    service = AttendanceService(attendanceRepository, attendanceChangesRepository, prisonApiService, iepWarningService, nomisEventOutcomeMapper, telemetryClient)
   }
 
   @Test
@@ -720,7 +720,7 @@ class AttendanceServiceTest {
             .build())
 
     verify(attendanceRepository).saveAll(anySet())
-    verify(elite2ApiService).putAttendanceForMultipleBookings(bookingActivities,
+    verify(prisonApiService).putAttendanceForMultipleBookings(bookingActivities,
         EventOutcome("ATT", "STANDARD", ""))
   }
 
@@ -732,7 +732,7 @@ class AttendanceServiceTest {
 
     service.getAttendanceForOffendersThatHaveScheduledActivity(agencyId, date, period)
 
-    verify(elite2ApiService).getBookingIdsForScheduleActivities(agencyId, date, period)
+    verify(prisonApiService).getBookingIdsForScheduleActivities(agencyId, date, period)
   }
 
   @Test
@@ -741,7 +741,7 @@ class AttendanceServiceTest {
     val date = LocalDate.now()
     val period = TimePeriod.AM
 
-    whenever(elite2ApiService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
+    whenever(prisonApiService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
 
     service.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
     verify(attendanceRepository).findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, setOf(1L, 2L), date, period)
@@ -753,7 +753,7 @@ class AttendanceServiceTest {
     val date = LocalDate.now()
     val period = TimePeriod.AM
 
-    whenever(elite2ApiService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
+    whenever(prisonApiService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
 
     whenever(attendanceRepository
         .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, setOf(1L, 2L), date, period))
@@ -881,7 +881,7 @@ class AttendanceServiceTest {
             .build())
 
     verify(attendanceRepository).saveAll(anySet())
-    verify(elite2ApiService).putAttendanceForMultipleBookings(bookingActivities,
+    verify(prisonApiService).putAttendanceForMultipleBookings(bookingActivities,
         EventOutcome("ACCAB", null, "test"))
   }
 
@@ -895,7 +895,7 @@ class AttendanceServiceTest {
 
     service.getAbsencesForReason(prison, reason, fromDate, toDate, period)
 
-    verify(elite2ApiService).getScheduleActivityOffenderData(prison, fromDate, toDate, period)
+    verify(prisonApiService).getScheduleActivityOffenderData(prison, fromDate, toDate, period)
     verify(attendanceRepository).findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prison, fromDate, toDate, setOf(period), reason)
   }
 
@@ -908,8 +908,8 @@ class AttendanceServiceTest {
 
     service.getAbsencesForReason(prison, reason, fromDate, toDate, null)
 
-    verify(elite2ApiService).getScheduleActivityOffenderData(prison, fromDate, toDate, TimePeriod.AM)
-    verify(elite2ApiService).getScheduleActivityOffenderData(prison, fromDate, toDate, TimePeriod.PM)
+    verify(prisonApiService).getScheduleActivityOffenderData(prison, fromDate, toDate, TimePeriod.AM)
+    verify(prisonApiService).getScheduleActivityOffenderData(prison, fromDate, toDate, TimePeriod.PM)
     verify(attendanceRepository).findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prison, fromDate, toDate, setOf(TimePeriod.AM, TimePeriod.PM), reason)
   }
 
@@ -918,7 +918,7 @@ class AttendanceServiceTest {
     val eventDate = LocalDate.now()
     val prison = "MDI"
 
-    whenever(elite2ApiService.getScheduleActivityOffenderData(any(), any(), any(), any())).thenReturn(listOf(
+    whenever(prisonApiService.getScheduleActivityOffenderData(any(), any(), any(), any())).thenReturn(listOf(
         OffenderDetails(bookingId = 1, eventId = 2, cellLocation = "cell1", eventDate = eventDate, timeSlot = "AM")
     ))
 
@@ -940,11 +940,11 @@ class AttendanceServiceTest {
     val eventDate = LocalDate.now()
     val prison = "MDI"
 
-    whenever(elite2ApiService.getScheduleActivityOffenderData(prison, eventDate, eventDate, TimePeriod.AM)).thenReturn(listOf(
+    whenever(prisonApiService.getScheduleActivityOffenderData(prison, eventDate, eventDate, TimePeriod.AM)).thenReturn(listOf(
         OffenderDetails(bookingId = 1, eventId = 2, eventDate = eventDate, timeSlot = "AM")
     ))
 
-    whenever(elite2ApiService.getScheduleActivityOffenderData(prison, eventDate, eventDate, TimePeriod.PM)).thenReturn(listOf(
+    whenever(prisonApiService.getScheduleActivityOffenderData(prison, eventDate, eventDate, TimePeriod.PM)).thenReturn(listOf(
         OffenderDetails(bookingId = 1, eventId = 3, eventDate = eventDate, timeSlot = "PM")
     ))
 
@@ -966,12 +966,12 @@ class AttendanceServiceTest {
     val eventDate = LocalDate.now()
     val prison = "MDI"
 
-    whenever(elite2ApiService.getScheduleActivityOffenderData(prison, eventDate, eventDate, TimePeriod.AM)).thenReturn(listOf(
+    whenever(prisonApiService.getScheduleActivityOffenderData(prison, eventDate, eventDate, TimePeriod.AM)).thenReturn(listOf(
         OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 2, cellLocation = "cell1", eventDate = eventDate, timeSlot = "AM", comment = "Gym", firstName = "john", lastName = "doe", suspended = true),
         OffenderDetails(bookingId = 1, offenderNo = "A12345", eventId = 3, cellLocation = "cell2", eventDate = eventDate, timeSlot = "AM", comment = "Workshop 1", firstName = "john", lastName = "doe", suspended = false)
     ))
 
-    whenever(elite2ApiService.getScheduleActivityOffenderData(prison, eventDate, eventDate, TimePeriod.PM)).thenReturn(listOf(
+    whenever(prisonApiService.getScheduleActivityOffenderData(prison, eventDate, eventDate, TimePeriod.PM)).thenReturn(listOf(
         OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 4, eventDate = eventDate, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = true),
         OffenderDetails(bookingId = 2, offenderNo = "A12346", eventId = 5, cellLocation = "cell4", eventDate = eventDate, timeSlot = "PM", firstName = "dave", lastName = "doe1", suspended = false)
     ))
@@ -1056,7 +1056,7 @@ class AttendanceServiceTest {
     service.getAbsencesForReason(prison, reason, date, null, period)
 
     verify(attendanceRepository).findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prison, date, date, setOf(period), reason)
-    verify(elite2ApiService).getScheduleActivityOffenderData(prison, date, date, period)
+    verify(prisonApiService).getScheduleActivityOffenderData(prison, date, date, period)
   }
 
   @Test

@@ -11,7 +11,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Service
-class IEPWarningService(private val caseNotesService: CaseNotesService, private val elite2ApiService: Elite2ApiService) {
+class IEPWarningService(private val caseNotesService: CaseNotesService, private val prisonApiService: PrisonApiService) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
@@ -32,7 +32,7 @@ class IEPWarningService(private val caseNotesService: CaseNotesService, private 
     if (shouldRevokePreviousIEPWarning) {
       val rescindedReason = "Incentive Level warning rescinded: " + if (newAttendanceDetails.attended) "attended" else formattedAbsentReason
       log.info("{} raised for {}", rescindedReason, attendance.toBuilder().comments(null))
-      val offenderNo = elite2ApiService.getOffenderNoFromBookingId(attendance.bookingId)
+      val offenderNo = prisonApiService.getOffenderNoFromBookingId(attendance.bookingId)
       caseNotesService.putCaseNoteAmendment(offenderNo, attendance.caseNoteId, rescindedReason)
       return Optional.empty()
     }
@@ -40,7 +40,7 @@ class IEPWarningService(private val caseNotesService: CaseNotesService, private 
     if (shouldReinstatePreviousIEPWarning) {
         val reinstatedReason = "Incentive Level warning reinstated: $formattedAbsentReason"
       log.info("{} raised for {}", reinstatedReason, attendance.toBuilder().comments(null))
-      val offenderNo = elite2ApiService.getOffenderNoFromBookingId(attendance.bookingId)
+      val offenderNo = prisonApiService.getOffenderNoFromBookingId(attendance.bookingId)
       caseNotesService.putCaseNoteAmendment(offenderNo, attendance.caseNoteId, reinstatedReason)
       return Optional.empty()
     }
@@ -56,7 +56,7 @@ class IEPWarningService(private val caseNotesService: CaseNotesService, private 
 
   open fun postIEPWarningIfRequired(bookingId: Long?, caseNoteId: Long?, reason: AbsentReason?, text: String?, eventDate: LocalDate): Optional<Long> {
     if (caseNoteId == null && reason != null && AbsentReason.iepTriggers.contains(reason)) {
-      val offenderNo = elite2ApiService.getOffenderNoFromBookingId(bookingId)
+      val offenderNo = prisonApiService.getOffenderNoFromBookingId(bookingId)
       val modifiedTextWithReason = formatReasonAndComment(reason, text)
       val caseNote = caseNotesService.postCaseNote(
           offenderNo,

@@ -7,8 +7,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 
 class LocationGroupFromElite2ServiceTest {
 
-  private val elite2ApiService: Elite2ApiService = mock()
-  private val service = LocationGroupFromEliteService(elite2ApiService)
+  private val prisonApiService: PrisonApiService = mock()
+  private val service = LocationGroupFromPrisonApiService(prisonApiService)
 
   private val CELL_A_1: Location = aLocation(locationId = -320L, locationType = "CELL", description = "LEI-A-1-001", parentLocationId = -32L)
   private val CELL_AA_1: Location = aLocation(locationId = -320L, locationType = "CELL", description = "LEI-AA-1-001", parentLocationId = -32L)

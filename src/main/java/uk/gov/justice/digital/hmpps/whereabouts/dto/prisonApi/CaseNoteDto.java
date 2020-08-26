@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.whereabouts.dto.elite;
+package uk.gov.justice.digital.hmpps.whereabouts.dto.prisonApi;
 
 import java.time.LocalDateTime;
 import java.util.List;

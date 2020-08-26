@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
-import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonApi.CaseNoteDto
 
 class CaseNotesMockServer : WireMockServer(8093) {
   private val gson = getGson()

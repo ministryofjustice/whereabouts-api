@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.time.LocalDate
 
-class Elite2MockServer : WireMockServer(8999) {
+class PrisonApiMockServer : WireMockServer(8999) {
   private val gson = getGson()
 
   fun stubUpdateAttendance(bookingId: Long = 1L, activityId: Long = 2L) {

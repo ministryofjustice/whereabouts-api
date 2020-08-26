@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.elite.CaseNoteDto;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonApi.CaseNoteDto;
 
 import java.time.LocalDateTime;
 import java.util.Map;

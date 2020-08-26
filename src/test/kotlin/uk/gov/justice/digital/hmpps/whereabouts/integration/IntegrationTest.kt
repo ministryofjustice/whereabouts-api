@@ -22,7 +22,7 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.CaseNotesMockServer
-import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.Elite2MockServer
+import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
 import java.util.*
 
@@ -45,7 +45,7 @@ abstract class IntegrationTest {
 
     companion object {
         @JvmField
-        internal val elite2MockServer = Elite2MockServer()
+        internal val elite2MockServer = PrisonApiMockServer()
 
         @JvmField
         internal val oauthMockServer = OAuthMockServer()
