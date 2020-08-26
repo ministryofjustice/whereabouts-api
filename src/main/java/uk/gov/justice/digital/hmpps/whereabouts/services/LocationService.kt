@@ -8,8 +8,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 
 @Service
 class LocationService(
-        private val prisonApiService: PrisonApiService,
-        @Qualifier("locationGroupServiceSelector") private val locationGroupService: LocationGroupService) {
+    private val prisonApiService: PrisonApiService,
+    @Qualifier("locationGroupServiceSelector") private val locationGroupService: LocationGroupService) {
 
   fun getCellLocationsForGroup(agencyId: String, groupName: String): List<Location> =
       prisonApiService.getAgencyLocationsForType(agencyId, "CELL")

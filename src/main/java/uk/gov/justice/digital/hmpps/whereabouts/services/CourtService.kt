@@ -12,10 +12,10 @@ import javax.transaction.Transactional
 
 @Service
 class CourtService(
-        private val authenticationFacade: AuthenticationFacade,
-        private val prisonApiService: PrisonApiService,
-        private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
-        @Value("\${courts}") private val courts: String) {
+    private val authenticationFacade: AuthenticationFacade,
+    private val prisonApiService: PrisonApiService,
+    private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
+    @Value("\${courts}") private val courts: String) {
 
   fun getCourtLocations() = courts.split(",").toSet()
 
