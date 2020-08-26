@@ -1,20 +1,16 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.google.gson.Gson
-import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.json.JsonContent
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.core.ResolvableType
+import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.ActiveProfiles
@@ -24,7 +20,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.CaseNotesMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
-import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -95,17 +90,8 @@ abstract class IntegrationTest {
     }
   }
 
-  fun <T> assertThatStatus(response: ResponseEntity<T>, status: Int) {
-        Assertions.assertThat(response.statusCodeValue).withFailMessage("Expecting status code value <%s> to be equal to <%s> but it was not.\nBody was\n%s", response.statusCodeValue, status, response.body).isEqualTo(status)
-    }
-
-    fun assertThatJsonFileAndStatus(response: ResponseEntity<String>, status: Int, jsonFile: String?) {
-        assertThatStatus(response, status)
-        Assertions.assertThat(getBodyAsJsonContent<Any>(response)).isEqualToJson(jsonFile)
-    }
-
-    fun <T> getBodyAsJsonContent(response: ResponseEntity<String>): JsonContent<T>? {
-        return JsonContent(javaClass, ResolvableType.forType(String::class.java), Objects.requireNonNull(response.body))
-    }
+  fun loadJsonFile(jsonFile: String): String {
+    return ClassPathResource(jsonFile).file.readText()
+  }
 
 }

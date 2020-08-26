@@ -21,8 +21,7 @@ class CourtIntegrationTest : IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.courtLocations.[0]").isEqualTo("Test Court 1")
-        .jsonPath("$.courtLocations.[1]").isEqualTo("Test Court 2")
+        .json(loadJsonFile("uk/gov/justice/digital/hmpps/whereabouts/integration/courtLocations.json"))
   }
 
   @Test
@@ -75,11 +74,7 @@ class CourtIntegrationTest : IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.appointments.[0].id").isEqualTo(1)
-        .jsonPath("$.appointments.[0].bookingId").isEqualTo(1)
-        .jsonPath("$.appointments.[0].appointmentId").isEqualTo(1)
-        .jsonPath("$.appointments.[0].court").isEqualTo("York")
-        .jsonPath("$.appointments.[0].hearingType").isEqualTo("PRE")
+        .json(loadJsonFile("uk/gov/justice/digital/hmpps/whereabouts/integration/courtAppointments.json"))
   }
 
   @Test
