@@ -52,13 +52,12 @@ class LocationController(private val locationService: LocationService) {
   @GetMapping("/{agencyId}/{group}/locationPrefix")
   @ApiOperation(value = "Get location prefix by group", nickname = "getLocationPrefixFromGroup")
   @ApiResponses(value = [
-    ApiResponse(code = 200, message = "OK", response = LocationPrefixDto::class),
     ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class),
     ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse::class),
     ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse::class)
   ])
   fun getLocationPrefixFromGroup(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
-                                   @ApiParam(value = "The group name", required = true) @PathVariable("group") group: String ): LocationPrefixDto
+                                   @ApiParam(value = "The group name", required = true, example = "Houseblock 1") @PathVariable("group") group: String ): LocationPrefixDto
       = locationService.getLocationPrefixFromGroup(agencyId, group)
 
 }
