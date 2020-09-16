@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.LocationPrefixDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.services.LocationService
@@ -45,5 +46,19 @@ class LocationController(private val locationService: LocationService) {
                        @ApiParam(value = "The group name", required = true) @PathVariable("group") group: String,
                        @ApiParam(value = "Cell attribute") @RequestParam(name = "attribute") attribute: String?): List<CellWithAttributes>
           = locationService.getCellsWithCapacityForGroup(agencyId, group, attribute)
+
+
+
+  @GetMapping("/{agencyId}/{group}/locationPrefix")
+  @ApiOperation(value = "Get location prefix by group", nickname = "getLocationPrefixFromGroup")
+  @ApiResponses(value = [
+    ApiResponse(code = 200, message = "OK", response = LocationPrefixDto::class),
+    ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class),
+    ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse::class),
+    ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse::class)
+  ])
+  fun getLocationPrefixFromGroup(@ApiParam(value = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
+                                   @ApiParam(value = "The group name", required = true) @PathVariable("group") group: String ): LocationPrefixDto
+      = locationService.getLocationPrefixFromGroup(agencyId, group)
 
 }
