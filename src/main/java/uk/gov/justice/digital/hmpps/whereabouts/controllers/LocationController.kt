@@ -49,7 +49,7 @@ class LocationController(private val locationService: LocationService) {
 
 
 
-  @GetMapping("/{agencyId}/{group}/locationPrefix")
+  @GetMapping("/{agencyId}/{group}/location-prefix")
   @ApiOperation(value = "Get location prefix by group", nickname = "getLocationPrefixFromGroup")
   @ApiResponses(value = [
     ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class),

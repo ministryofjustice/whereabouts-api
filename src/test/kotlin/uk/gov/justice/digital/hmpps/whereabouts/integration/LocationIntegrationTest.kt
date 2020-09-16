@@ -87,7 +87,7 @@ class LocationIntegrationTest: IntegrationTest() {
   @Test
   fun `get location prefix by group`() {
     webTestClient.get()
-        .uri("/locations/MDI/Houseblock 1/locationPrefix")
+        .uri("/locations/MDI/Houseblock 1/location-prefix")
         .headers(setHeaders())
         .exchange()
         .expectStatus().isOk
