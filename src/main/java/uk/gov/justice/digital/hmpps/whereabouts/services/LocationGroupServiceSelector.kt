@@ -25,5 +25,4 @@ class LocationGroupServiceSelector(
       overrideService.locationGroupFilter(agencyId, groupName)
     } else defaultService.locationGroupFilter(agencyId, groupName)
   }
-
 }

@@ -84,6 +84,17 @@ class LocationIntegrationTest: IntegrationTest() {
         .json(loadJsonFile("RNI_cells_with_capacity.json"))
   }
 
+  @Test
+  fun `get location prefix by group`() {
+    webTestClient.get()
+        .uri("/locations/MDI/Houseblock 1/locationPrefix")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(loadJsonFile("MDI_location-prefix.json"))
+  }
+
   private fun getRniHb7Locations() =
       listOf(
           aLocation(locationId = 507011, description = "Hb7-1-002", agencyId = "RNI", locationPrefix = "RNI-HB7-1-002"),
