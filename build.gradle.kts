@@ -1,7 +1,7 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "1.0.2"
-  kotlin("plugin.spring") version "1.4.0"
-  kotlin("plugin.jpa") version "1.4.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "1.0.6"
+  kotlin("plugin.spring") version "1.4.10"
+  kotlin("plugin.jpa") version "1.4.10"
 }
 
 
@@ -18,7 +18,7 @@ dependencies {
 
   runtime("com.h2database:h2:1.4.200")
   runtime("org.flywaydb:flyway-core:6.5.5")
-  runtime("org.postgresql:postgresql:42.2.14")
+  runtime("org.postgresql:postgresql:42.2.16")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-cache")
@@ -55,8 +55,8 @@ dependencies {
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.18.1")
-  testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.1")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.19.0")
+  testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("com.nhaarman:mockito-kotlin-kt1.1:1.6.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.12")
