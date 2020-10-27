@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
-import java.util.*
+import java.util.Properties
 import java.util.function.Predicate
 import javax.persistence.EntityNotFoundException
 
@@ -28,11 +28,11 @@ class LocationServiceTest {
   @Test
   fun `getCellLocationsForGroup - cells match predicate - returns cells`() {
     whenever(prisonApiService.getAgencyLocationsForType("LEI", "CELL"))
-        .thenReturn(listOf(cell1, cell2, cell3, cell4))
+      .thenReturn(listOf(cell1, cell2, cell3, cell4))
     whenever(locationGroupService.locationGroupFilter("LEI", "mylist"))
-        .thenReturn(locationPrefixPredicate("cell4", "cell1", "cell3"))
+      .thenReturn(locationPrefixPredicate("cell4", "cell1", "cell3"))
 
-    val group = locationService.getCellLocationsForGroup("LEI", "mylist");
+    val group = locationService.getCellLocationsForGroup("LEI", "mylist")
 
     assertThat(group).containsExactlyInAnyOrder(cell1, cell3, cell4)
   }
@@ -43,11 +43,11 @@ class LocationServiceTest {
     val cell6 = aLocation(locationPrefix = "cell6", description = "hmp something")
 
     whenever(prisonApiService.getAgencyLocationsForType("LEI", "CELL"))
-        .thenReturn(listOf(cell5, cell6))
+      .thenReturn(listOf(cell5, cell6))
     whenever(locationGroupService.locationGroupFilter("LEI", "mylist"))
-        .thenReturn(Predicate { true })
+      .thenReturn(Predicate { true })
 
-    val group = locationService.getCellLocationsForGroup("LEI", "mylist");
+    val group = locationService.getCellLocationsForGroup("LEI", "mylist")
 
     assertThat(group).extracting("description").containsExactlyInAnyOrder("YOI Something", "HMP Something")
   }
@@ -55,11 +55,11 @@ class LocationServiceTest {
   @Test
   fun `getCellLocationsForGroup - no cells match predicate - returns nothing`() {
     whenever(prisonApiService.getAgencyLocationsForType("LEI", "CELL"))
-        .thenReturn(listOf(cell1, cell2, cell3, cell4))
+      .thenReturn(listOf(cell1, cell2, cell3, cell4))
     whenever(locationGroupService.locationGroupFilter("LEI", "mylist"))
-        .thenReturn(Predicate { false })
+      .thenReturn(Predicate { false })
 
-    val group = locationService.getCellLocationsForGroup("LEI", "mylist");
+    val group = locationService.getCellLocationsForGroup("LEI", "mylist")
 
     assertThat(group).isEmpty()
   }
@@ -67,12 +67,28 @@ class LocationServiceTest {
   @Test
   fun `getCellsWithCapacityForGroup - cells match predicate`() {
     whenever(prisonApiService.getCellsWithCapacity("LEI", null))
-            .thenReturn(listOf(CellWithAttributes(id = 1L, description = "LEI-1-1", userDescription = "Dormitory", noOfOccupants = 1, capacity = 2),
-                    CellWithAttributes(id = 2L, description = "LEI-1-2", userDescription = "Dormitory", noOfOccupants = 1, capacity = 2)))
+      .thenReturn(
+        listOf(
+          CellWithAttributes(
+            id = 1L,
+            description = "LEI-1-1",
+            userDescription = "Dormitory",
+            noOfOccupants = 1,
+            capacity = 2
+          ),
+          CellWithAttributes(
+            id = 2L,
+            description = "LEI-1-2",
+            userDescription = "Dormitory",
+            noOfOccupants = 1,
+            capacity = 2
+          )
+        )
+      )
     whenever(locationGroupService.locationGroupFilter("LEI", "myList"))
-            .thenReturn(locationPrefixPredicate("LEI-1-1", "LEI-1-2"))
+      .thenReturn(locationPrefixPredicate("LEI-1-1", "LEI-1-2"))
 
-    val group = locationService.getCellsWithCapacityForGroup("LEI", "myList", null);
+    val group = locationService.getCellsWithCapacityForGroup("LEI", "myList", null)
 
     assertThat(group).extracting("description").containsExactlyInAnyOrder("LEI-1-1", "LEI-1-2")
   }
@@ -80,12 +96,28 @@ class LocationServiceTest {
   @Test
   fun `getCellsWithCapacityForGroup - no cells match predicate`() {
     whenever(prisonApiService.getCellsWithCapacity("LEI", null))
-            .thenReturn(listOf(CellWithAttributes(id = 1L, description = "LEI-1-1", userDescription = "Dormitory", noOfOccupants = 1, capacity = 2),
-                    CellWithAttributes(id = 2L, description = "LEI-1-2", userDescription = "Dormitory", noOfOccupants = 1, capacity = 2)))
+      .thenReturn(
+        listOf(
+          CellWithAttributes(
+            id = 1L,
+            description = "LEI-1-1",
+            userDescription = "Dormitory",
+            noOfOccupants = 1,
+            capacity = 2
+          ),
+          CellWithAttributes(
+            id = 2L,
+            description = "LEI-1-2",
+            userDescription = "Dormitory",
+            noOfOccupants = 1,
+            capacity = 2
+          )
+        )
+      )
     whenever(locationGroupService.locationGroupFilter("LEI", "myList"))
-            .thenReturn(Predicate { false })
+      .thenReturn(Predicate { false })
 
-    val group = locationService.getCellsWithCapacityForGroup("LEI", "myList", null);
+    val group = locationService.getCellsWithCapacityForGroup("LEI", "myList", null)
 
     assertThat(group).isEmpty()
   }
@@ -110,25 +142,23 @@ class LocationServiceTest {
 
   private fun locationPrefixPredicate(vararg cells: String): Predicate<Location>? {
     return listOf(*cells)
-        .map { s -> Predicate { l: Location -> s == l.locationPrefix } }
-        .reduce(Predicate<Location>::or)
+      .map { s -> Predicate { l: Location -> s == l.locationPrefix } }
+      .reduce(Predicate<Location>::or)
   }
 
   private fun aLocation(locationPrefix: String, description: String = ""): Location {
     return Location(
-        locationPrefix = locationPrefix,
-        locationId = 0L,
-        description = description,
-        parentLocationId = null,
-        userDescription = null,
-        currentOccupancy = 0,
-        operationalCapacity = 0,
-        agencyId = "",
-        internalLocationCode = "",
-        locationUsage = "",
-        locationType = ""
+      locationPrefix = locationPrefix,
+      locationId = 0L,
+      description = description,
+      parentLocationId = null,
+      userDescription = null,
+      currentOccupancy = 0,
+      operationalCapacity = 0,
+      agencyId = "",
+      internalLocationCode = "",
+      locationUsage = "",
+      locationType = ""
     )
   }
-
-
 }

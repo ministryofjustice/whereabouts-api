@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
-import java.util.*
+import java.util.Properties
 import java.util.function.Predicate
 import java.util.regex.PatternSyntaxException
 import javax.persistence.EntityNotFoundException
@@ -87,15 +87,15 @@ class LocationGroupFromPropertiesServiceTest {
     groupsProperties.setProperty("LDS_1_C", "")
     groupsProperties.setProperty("LDS_1_D-D", "")
     assertThat(service.getLocationGroupsForAgency("MDI"))
-        .containsExactly(
-            group("1", "A", "B", "C", "D-D"),
-            group("2"),
-            group("3", "X", "Y", "Z")
-        )
+      .containsExactly(
+        group("1", "A", "B", "C", "D-D"),
+        group("2"),
+        group("3", "X", "Y", "Z")
+      )
     assertThat(service.getLocationGroupsForAgency("LDS"))
-        .containsExactly(
-            group("1", "B", "C", "D-D", "F")
-        )
+      .containsExactly(
+        group("1", "B", "C", "D-D", "F")
+      )
     assertThat(service.getLocationGroupsForAgency("")).isEmpty()
     assertThat(service.getLocationGroupsForAgency("XXX")).isEmpty()
   }
@@ -108,10 +108,10 @@ class LocationGroupFromPropertiesServiceTest {
     groupsProperties.setProperty("HLI_B Wing", "HLI-B-.+")
     groupsProperties.setProperty("MDI_5", "MDI-5-.-A-.+,MDI-5-.-B-.+")
     assertThat(service.getLocationGroupsForAgency("HLI"))
-        .containsExactly(
-            group("A Wing", "Landing 1", "Landing 2"),
-            group("B Wing")
-        )
+      .containsExactly(
+        group("A Wing", "Landing 1", "Landing 2"),
+        group("B Wing")
+      )
   }
 
   @Test
@@ -164,14 +164,38 @@ class LocationGroupFromPropertiesServiceTest {
   fun givenFixedPatternsThenPredicateMatchesThosePatterns() {
     groupsProperties.setProperty("MDI_1", "1|X|PQR|M")
     val predicates = service.locationGroupFilter("MDI", "1")
-    assertThat(applyPredicatesToLocations(predicates, "PQR", "11", "X", "XY", "1", "PQ", "Z", "")).containsExactly("PQR", "X", "1")
+    assertThat(
+      applyPredicatesToLocations(
+        predicates,
+        "PQR",
+        "11",
+        "X",
+        "XY",
+        "1",
+        "PQ",
+        "Z",
+        ""
+      )
+    ).containsExactly("PQR", "X", "1")
   }
 
   @Test
   fun givenASequenceOfFixedPatternsThenPredicateMatchesThosePatterns() {
     groupsProperties.setProperty("MDI_1", "1,X,PQR,M")
     val predicates = service.locationGroupFilter("MDI", "1")
-    assertThat(applyPredicatesToLocations(predicates, "PQR", "11", "X", "XY", "1", "PQ", "Z", "")).containsExactlyInAnyOrder("1", "X", "PQR")
+    assertThat(
+      applyPredicatesToLocations(
+        predicates,
+        "PQR",
+        "11",
+        "X",
+        "XY",
+        "1",
+        "PQ",
+        "Z",
+        ""
+      )
+    ).containsExactlyInAnyOrder("1", "X", "PQR")
   }
 
   @Test
@@ -182,146 +206,183 @@ class LocationGroupFromPropertiesServiceTest {
     }
   }
 
-
   @Test
   fun givenPatternsUsedForMDIThenCellsAreMatchedCorrectly() {
     groupsProperties.setProperty("MDI_1", "MDI-1-.+")
     groupsProperties.setProperty("MDI_2", "MDI-2-.+")
-    groupsProperties.setProperty("MDI_1_A", "MDI-1-1-0(0[1-9]|1[0-2]),MDI-1-2-0(0[1-9]|1[0-2]),MDI-1-3-0(0[1-9]|1[0-2])")
-    groupsProperties.setProperty("MDI_1_B", "MDI-1-1-0(1[3-9]|2[0-6]),MDI-1-2-0(1[3-9]|2[0-6]),MDI-1-3-0(1[3-9]|2[0-6])")
-    groupsProperties.setProperty("MDI_1_C", "MDI-1-1-0(2[7-9]|3[0-8]),MDI-1-2-0(2[7-9]|3[0-8]),MDI-1-3-0(2[7-9]|3[0-8])")
-    groupsProperties.setProperty("MDI_2_A", "MDI-2-1-0(0[1-9]|1[0-2]),MDI-2-2-0(0[1-9]|1[0-2]),MDI-2-3-0(0[1-9]|1[0-2])")
-    groupsProperties.setProperty("MDI_2_B", "MDI-2-1-0(1[3-9]|2[0-6]),MDI-2-2-0(1[3-9]|2[0-6]),MDI-2-3-0(1[3-9]|2[0-6])")
-    groupsProperties.setProperty("MDI_2_C", "MDI-2-1-0(2[7-9]|3[0-8]),MDI-2-2-0(2[7-9]|3[0-8]),MDI-2-3-0(2[7-9]|3[0-8])")
+    groupsProperties.setProperty(
+      "MDI_1_A",
+      "MDI-1-1-0(0[1-9]|1[0-2]),MDI-1-2-0(0[1-9]|1[0-2]),MDI-1-3-0(0[1-9]|1[0-2])"
+    )
+    groupsProperties.setProperty(
+      "MDI_1_B",
+      "MDI-1-1-0(1[3-9]|2[0-6]),MDI-1-2-0(1[3-9]|2[0-6]),MDI-1-3-0(1[3-9]|2[0-6])"
+    )
+    groupsProperties.setProperty(
+      "MDI_1_C",
+      "MDI-1-1-0(2[7-9]|3[0-8]),MDI-1-2-0(2[7-9]|3[0-8]),MDI-1-3-0(2[7-9]|3[0-8])"
+    )
+    groupsProperties.setProperty(
+      "MDI_2_A",
+      "MDI-2-1-0(0[1-9]|1[0-2]),MDI-2-2-0(0[1-9]|1[0-2]),MDI-2-3-0(0[1-9]|1[0-2])"
+    )
+    groupsProperties.setProperty(
+      "MDI_2_B",
+      "MDI-2-1-0(1[3-9]|2[0-6]),MDI-2-2-0(1[3-9]|2[0-6]),MDI-2-3-0(1[3-9]|2[0-6])"
+    )
+    groupsProperties.setProperty(
+      "MDI_2_C",
+      "MDI-2-1-0(2[7-9]|3[0-8]),MDI-2-2-0(2[7-9]|3[0-8]),MDI-2-3-0(2[7-9]|3[0-8])"
+    )
     val ONE_A_PREFIXES = arrayOf(
-        "MDI-1-1-001",
-        "MDI-1-1-002",
-        "MDI-1-1-003",
-        "MDI-1-1-004",
-        "MDI-1-1-005",
-        "MDI-1-1-006",
-        "MDI-1-1-007",
-        "MDI-1-1-008",
-        "MDI-1-1-009",
-        "MDI-1-1-010",
-        "MDI-1-1-011",
-        "MDI-1-1-012",
-        "MDI-1-2-001",
-        "MDI-1-2-002",
-        "MDI-1-2-003",
-        "MDI-1-2-004",
-        "MDI-1-2-005",
-        "MDI-1-2-006",
-        "MDI-1-2-007",
-        "MDI-1-2-008",
-        "MDI-1-2-009",
-        "MDI-1-2-010",
-        "MDI-1-2-011",
-        "MDI-1-2-012",
-        "MDI-1-3-001",
-        "MDI-1-3-002",
-        "MDI-1-3-003",
-        "MDI-1-3-004",
-        "MDI-1-3-005",
-        "MDI-1-3-006",
-        "MDI-1-3-007",
-        "MDI-1-3-008",
-        "MDI-1-3-009",
-        "MDI-1-3-010",
-        "MDI-1-3-011",
-        "MDI-1-3-012"
+      "MDI-1-1-001",
+      "MDI-1-1-002",
+      "MDI-1-1-003",
+      "MDI-1-1-004",
+      "MDI-1-1-005",
+      "MDI-1-1-006",
+      "MDI-1-1-007",
+      "MDI-1-1-008",
+      "MDI-1-1-009",
+      "MDI-1-1-010",
+      "MDI-1-1-011",
+      "MDI-1-1-012",
+      "MDI-1-2-001",
+      "MDI-1-2-002",
+      "MDI-1-2-003",
+      "MDI-1-2-004",
+      "MDI-1-2-005",
+      "MDI-1-2-006",
+      "MDI-1-2-007",
+      "MDI-1-2-008",
+      "MDI-1-2-009",
+      "MDI-1-2-010",
+      "MDI-1-2-011",
+      "MDI-1-2-012",
+      "MDI-1-3-001",
+      "MDI-1-3-002",
+      "MDI-1-3-003",
+      "MDI-1-3-004",
+      "MDI-1-3-005",
+      "MDI-1-3-006",
+      "MDI-1-3-007",
+      "MDI-1-3-008",
+      "MDI-1-3-009",
+      "MDI-1-3-010",
+      "MDI-1-3-011",
+      "MDI-1-3-012"
     )
     val ONE_B_PREFIXES = arrayOf(
-        "MDI-1-1-013",
-        "MDI-1-1-014",
-        "MDI-1-1-015",
-        "MDI-1-1-016",
-        "MDI-1-1-017",
-        "MDI-1-1-018",
-        "MDI-1-1-019",
-        "MDI-1-1-020",
-        "MDI-1-1-021",
-        "MDI-1-1-022",
-        "MDI-1-1-023",
-        "MDI-1-1-024",
-        "MDI-1-1-025",
-        "MDI-1-1-026",
-        "MDI-1-2-013",
-        "MDI-1-2-014",
-        "MDI-1-2-015",
-        "MDI-1-2-016",
-        "MDI-1-2-017",
-        "MDI-1-2-018",
-        "MDI-1-2-019",
-        "MDI-1-2-020",
-        "MDI-1-2-021",
-        "MDI-1-2-022",
-        "MDI-1-2-023",
-        "MDI-1-2-024",
-        "MDI-1-2-025",
-        "MDI-1-2-026",
-        "MDI-1-3-013",
-        "MDI-1-3-014",
-        "MDI-1-3-015",
-        "MDI-1-3-016",
-        "MDI-1-3-017",
-        "MDI-1-3-018",
-        "MDI-1-3-019",
-        "MDI-1-3-020",
-        "MDI-1-3-021",
-        "MDI-1-3-022",
-        "MDI-1-3-023",
-        "MDI-1-3-024",
-        "MDI-1-3-025",
-        "MDI-1-3-026"
+      "MDI-1-1-013",
+      "MDI-1-1-014",
+      "MDI-1-1-015",
+      "MDI-1-1-016",
+      "MDI-1-1-017",
+      "MDI-1-1-018",
+      "MDI-1-1-019",
+      "MDI-1-1-020",
+      "MDI-1-1-021",
+      "MDI-1-1-022",
+      "MDI-1-1-023",
+      "MDI-1-1-024",
+      "MDI-1-1-025",
+      "MDI-1-1-026",
+      "MDI-1-2-013",
+      "MDI-1-2-014",
+      "MDI-1-2-015",
+      "MDI-1-2-016",
+      "MDI-1-2-017",
+      "MDI-1-2-018",
+      "MDI-1-2-019",
+      "MDI-1-2-020",
+      "MDI-1-2-021",
+      "MDI-1-2-022",
+      "MDI-1-2-023",
+      "MDI-1-2-024",
+      "MDI-1-2-025",
+      "MDI-1-2-026",
+      "MDI-1-3-013",
+      "MDI-1-3-014",
+      "MDI-1-3-015",
+      "MDI-1-3-016",
+      "MDI-1-3-017",
+      "MDI-1-3-018",
+      "MDI-1-3-019",
+      "MDI-1-3-020",
+      "MDI-1-3-021",
+      "MDI-1-3-022",
+      "MDI-1-3-023",
+      "MDI-1-3-024",
+      "MDI-1-3-025",
+      "MDI-1-3-026"
     )
     val ONE_C_PREFIXES = arrayOf(
-        "MDI-1-1-027",
-        "MDI-1-1-028",
-        "MDI-1-1-029",
-        "MDI-1-1-030",
-        "MDI-1-1-031",
-        "MDI-1-1-032",
-        "MDI-1-1-033",
-        "MDI-1-1-034",
-        "MDI-1-1-035",
-        "MDI-1-1-036",
-        "MDI-1-1-037",
-        "MDI-1-1-038",
-        "MDI-1-2-027",
-        "MDI-1-2-028",
-        "MDI-1-2-029",
-        "MDI-1-2-030",
-        "MDI-1-2-031",
-        "MDI-1-2-032",
-        "MDI-1-2-033",
-        "MDI-1-2-034",
-        "MDI-1-2-035",
-        "MDI-1-2-036",
-        "MDI-1-2-037",
-        "MDI-1-2-038",
-        "MDI-1-3-027",
-        "MDI-1-3-028",
-        "MDI-1-3-029",
-        "MDI-1-3-030",
-        "MDI-1-3-031",
-        "MDI-1-3-032",
-        "MDI-1-3-033",
-        "MDI-1-3-034",
-        "MDI-1-3-035",
-        "MDI-1-3-036",
-        "MDI-1-3-037",
-        "MDI-1-3-038"
+      "MDI-1-1-027",
+      "MDI-1-1-028",
+      "MDI-1-1-029",
+      "MDI-1-1-030",
+      "MDI-1-1-031",
+      "MDI-1-1-032",
+      "MDI-1-1-033",
+      "MDI-1-1-034",
+      "MDI-1-1-035",
+      "MDI-1-1-036",
+      "MDI-1-1-037",
+      "MDI-1-1-038",
+      "MDI-1-2-027",
+      "MDI-1-2-028",
+      "MDI-1-2-029",
+      "MDI-1-2-030",
+      "MDI-1-2-031",
+      "MDI-1-2-032",
+      "MDI-1-2-033",
+      "MDI-1-2-034",
+      "MDI-1-2-035",
+      "MDI-1-2-036",
+      "MDI-1-2-037",
+      "MDI-1-2-038",
+      "MDI-1-3-027",
+      "MDI-1-3-028",
+      "MDI-1-3-029",
+      "MDI-1-3-030",
+      "MDI-1-3-031",
+      "MDI-1-3-032",
+      "MDI-1-3-033",
+      "MDI-1-3-034",
+      "MDI-1-3-035",
+      "MDI-1-3-036",
+      "MDI-1-3-037",
+      "MDI-1-3-038"
     )
     val extraPrefixes = arrayOf(
-        "MDI-1-1-039"
+      "MDI-1-1-039"
     )
 
     val locationPrefixes = arrayOf(*ONE_A_PREFIXES, *ONE_B_PREFIXES, *ONE_C_PREFIXES, *extraPrefixes)
-    assertThat(applyPredicatesToLocations(service.locationGroupFilter("MDI", "1"), *locationPrefixes)).containsExactly(*locationPrefixes)
-    assertThat(applyPredicatesToLocations(service.locationGroupFilter("MDI", "1_A"), *locationPrefixes)).containsExactly(*ONE_A_PREFIXES)
-    assertThat(applyPredicatesToLocations(service.locationGroupFilter("MDI", "1_B"), *locationPrefixes)).containsExactly(*ONE_B_PREFIXES)
-    assertThat(applyPredicatesToLocations(service.locationGroupFilter("MDI", "1_C"), *locationPrefixes)).containsExactly(*ONE_C_PREFIXES)
+    assertThat(
+      applyPredicatesToLocations(
+        service.locationGroupFilter("MDI", "1"),
+        *locationPrefixes
+      )
+    ).containsExactly(*locationPrefixes)
+    assertThat(
+      applyPredicatesToLocations(
+        service.locationGroupFilter("MDI", "1_A"),
+        *locationPrefixes
+      )
+    ).containsExactly(*ONE_A_PREFIXES)
+    assertThat(
+      applyPredicatesToLocations(
+        service.locationGroupFilter("MDI", "1_B"),
+        *locationPrefixes
+      )
+    ).containsExactly(*ONE_B_PREFIXES)
+    assertThat(
+      applyPredicatesToLocations(
+        service.locationGroupFilter("MDI", "1_C"),
+        *locationPrefixes
+      )
+    ).containsExactly(*ONE_C_PREFIXES)
   }
 
   @Test
@@ -332,7 +393,14 @@ class LocationGroupFromPropertiesServiceTest {
     groupsProperties.setProperty("HLI_B Wing", "HLI-B-.+")
     groupsProperties.setProperty("MDI_5", "MDI-5-.-A-.+,MDI-5-.-B-.+")
     val predicates = service.locationGroupFilter("HLI", "A Wing")
-    assertThat(applyPredicatesToLocations(predicates, "HLI-A-1-001", "HLI-A-2-001", "HLI-B-1-001")).containsExactly("HLI-A-1-001", "HLI-A-2-001")
+    assertThat(
+      applyPredicatesToLocations(
+        predicates,
+        "HLI-A-1-001",
+        "HLI-A-2-001",
+        "HLI-B-1-001"
+      )
+    ).containsExactly("HLI-A-1-001", "HLI-A-2-001")
   }
 
   @Test
@@ -343,7 +411,14 @@ class LocationGroupFromPropertiesServiceTest {
     groupsProperties.setProperty("HLI_B Wing", "HLI-B-.+")
     groupsProperties.setProperty("MDI_5", "MDI-5-.-A-.+,MDI-5-.-B-.+")
     val predicates = service.locationGroupFilter("HLI", "A Wing_Landing 2")
-    assertThat(applyPredicatesToLocations(predicates, "HLI-A-1-001", "HLI-A-2-001", "HLI-B-1-001")).containsExactly("HLI-A-2-001")
+    assertThat(
+      applyPredicatesToLocations(
+        predicates,
+        "HLI-A-1-001",
+        "HLI-A-2-001",
+        "HLI-B-1-001"
+      )
+    ).containsExactly("HLI-A-2-001")
   }
 
   companion object {
@@ -359,23 +434,26 @@ class LocationGroupFromPropertiesServiceTest {
       return aLocation(locationPrefix)
     }
 
-    private fun applyPredicatesToLocations(predicate: Predicate<Location>, vararg locationPrefixes: String): List<String> {
+    private fun applyPredicatesToLocations(
+      predicate: Predicate<Location>,
+      vararg locationPrefixes: String
+    ): List<String> {
       return locationPrefixes.map(::location).filter(predicate::test).map { it.locationPrefix }.toList()
     }
 
     private fun aLocation(locationPrefix: String): Location {
       return Location(
-          locationId = 0,
-          locationType = "",
-          description = "",
-          locationUsage = "",
-          agencyId = "",
-          parentLocationId = 0,
-          currentOccupancy = 0,
-          locationPrefix = locationPrefix,
-          operationalCapacity = 0,
-          userDescription = "",
-          internalLocationCode = ""
+        locationId = 0,
+        locationType = "",
+        description = "",
+        locationUsage = "",
+        agencyId = "",
+        parentLocationId = 0,
+        currentOccupancy = 0,
+        locationPrefix = locationPrefix,
+        operationalCapacity = 0,
+        userDescription = "",
+        internalLocationCode = ""
       )
     }
   }

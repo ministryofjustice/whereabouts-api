@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service
 
 @Service
 @ConditionalOnProperty("sqs.provider")
-class EventListener(@Qualifier("attendanceServiceAppScope") private val attendanceService: AttendanceService, private val gson: Gson) {
+class EventListener(
+  @Qualifier("attendanceServiceAppScope") private val attendanceService: AttendanceService,
+  private val gson: Gson
+) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
@@ -20,13 +23,16 @@ class EventListener(@Qualifier("attendanceServiceAppScope") private val attendan
     val (Message, MessageAttributes) = gson.fromJson<Message>(requestJson, Message::class.java)
     val (offenderIdDisplay, offenders) = gson.fromJson(Message, EventMessage::class.java)
 
-    val bookingIds = offenders.flatMap { offender -> offender.bookings.map { it.offenderBookId }}
+    val bookingIds = offenders.flatMap { offender -> offender.bookings.map { it.offenderBookId } }
 
     val eventType = MessageAttributes.eventType.Value
     log.info("Processing message of type {}", eventType)
 
     when (eventType) {
-      "DATA_COMPLIANCE_DELETE-OFFENDER" -> attendanceService.deleteAttendancesForOffenderDeleteEvent(offenderIdDisplay, bookingIds)
+      "DATA_COMPLIANCE_DELETE-OFFENDER" -> attendanceService.deleteAttendancesForOffenderDeleteEvent(
+        offenderIdDisplay,
+        bookingIds
+      )
     }
   }
 }

@@ -1,11 +1,10 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
-import lombok.extern.slf4j.Slf4j
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
-import java.util.*
+import java.util.Properties
 import java.util.function.Predicate
 import java.util.regex.Pattern
 import javax.persistence.EntityNotFoundException
@@ -15,7 +14,8 @@ import javax.persistence.EntityNotFoundException
  */
 @Service("overrideLocationGroupService")
 class LocationGroupFromPropertiesService(
-    @Qualifier("whereaboutsGroups") private val groupsProperties: Properties) : LocationGroupService {
+  @Qualifier("whereaboutsGroups") private val groupsProperties: Properties
+) : LocationGroupService {
 
   override fun getLocationGroupsForAgency(agencyId: String): List<LocationGroup> {
     return getLocationGroups(agencyId)
@@ -30,12 +30,12 @@ class LocationGroupFromPropertiesService(
   override fun getLocationGroups(agencyId: String): List<LocationGroup> {
     val fullKeys = groupsProperties.stringPropertyNames()
     return fullKeys.asSequence()
-        .filter { it.startsWith(agencyId) }
-        .map { it.substring(agencyId.length + 1) }
-        .filterNot { it.contains("_") }
-        .sorted()
-        .map { LocationGroup(it, it, getAvailableSubGroups(agencyId, it)) }
-        .toList()
+      .filter { it.startsWith(agencyId) }
+      .map { it.substring(agencyId.length + 1) }
+      .filterNot { it.contains("_") }
+      .sorted()
+      .map { LocationGroup(it, it, getAvailableSubGroups(agencyId, it)) }
+      .toList()
   }
 
   /**
@@ -49,21 +49,20 @@ class LocationGroupFromPropertiesService(
     val fullKeys = groupsProperties.stringPropertyNames()
     val agencyAndGroupName = "${agencyId}_${groupName}_"
     return fullKeys.asSequence()
-        .filter { it.startsWith(agencyAndGroupName) }
-        .map { it.substring(agencyAndGroupName.length) }
-        .sorted()
-        .map { LocationGroup(it, it, emptyList()) }
-        .toList()
+      .filter { it.startsWith(agencyAndGroupName) }
+      .map { it.substring(agencyAndGroupName.length) }
+      .sorted()
+      .map { LocationGroup(it, it, emptyList()) }
+      .toList()
   }
 
   override fun locationGroupFilter(agencyId: String, groupName: String): Predicate<Location> {
-    val patterns = groupsProperties.getProperty("${agencyId}_${groupName}")
-        ?: throw EntityNotFoundException("Group $groupName does not exist for agencyId $agencyId.")
+    val patterns = groupsProperties.getProperty("${agencyId}_$groupName")
+      ?: throw EntityNotFoundException("Group $groupName does not exist for agencyId $agencyId.")
     val patternStrings = patterns.split(",")
     return patternStrings.asSequence()
-        .map(Pattern::compile)
-        .map { pattern -> Predicate { l :Location -> pattern.matcher(l.locationPrefix).matches()} }
-        .reduce(Predicate<Location>::or)
+      .map(Pattern::compile)
+      .map { pattern -> Predicate { l: Location -> pattern.matcher(l.locationPrefix).matches() } }
+      .reduce(Predicate<Location>::or)
   }
-
 }

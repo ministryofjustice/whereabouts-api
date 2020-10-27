@@ -106,7 +106,7 @@ public class WebClientConfiguration {
 
     @Bean
     public WebClient elite2WebClientAppScope(@Qualifier(value = "authorizedClientManagerAppScope") final OAuth2AuthorizedClientManager authorizedClientManager, final WebClient.Builder builder) {
-         return getOAuthWebClient(authorizedClientManager, builder, prisonApiRootUri);
+        return getOAuthWebClient(authorizedClientManager, builder, prisonApiRootUri);
     }
 
     @Bean

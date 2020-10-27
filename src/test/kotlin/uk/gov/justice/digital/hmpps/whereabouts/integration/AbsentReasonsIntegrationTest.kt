@@ -8,33 +8,32 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
   @Test
   fun `should return the correct absent reasons`() {
     val paidReasons = setOf(
-        AbsentReason.AcceptableAbsence,
-        AbsentReason.ApprovedCourse,
-        AbsentReason.NotRequired
+      AbsentReason.AcceptableAbsence,
+      AbsentReason.ApprovedCourse,
+      AbsentReason.NotRequired
     )
     val unpaidReasons = setOf(
-        AbsentReason.SessionCancelled,
-        AbsentReason.RestDay,
-        AbsentReason.UnacceptableAbsence,
-        AbsentReason.Refused,
-        AbsentReason.RestInCellOrSick,
-        AbsentReason.RefusedIncentiveLevelWarning
+      AbsentReason.SessionCancelled,
+      AbsentReason.RestDay,
+      AbsentReason.UnacceptableAbsence,
+      AbsentReason.Refused,
+      AbsentReason.RestInCellOrSick,
+      AbsentReason.RefusedIncentiveLevelWarning
     )
 
     val triggersIEPWarnings = setOf(
-        AbsentReason.RefusedIncentiveLevelWarning,
-        AbsentReason.UnacceptableAbsence
+      AbsentReason.RefusedIncentiveLevelWarning,
+      AbsentReason.UnacceptableAbsence
     )
 
     val expected = AbsentReasonsDto(paidReasons, unpaidReasons, triggersIEPWarnings)
 
     webTestClient.get()
-        .uri("/absence-reasons")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .json(gson.toJson(expected))
+      .uri("/absence-reasons")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .json(gson.toJson(expected))
   }
 }
-

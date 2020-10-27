@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import org.junit.jupiter.api.Test
 
-class AgencyIntegrationTest: IntegrationTest() {
+class AgencyIntegrationTest : IntegrationTest() {
 
   @Test
   fun `location groups - none in properties - should retrieve groups from prison API`() {
@@ -10,13 +10,12 @@ class AgencyIntegrationTest: IntegrationTest() {
     prisonApiMockServer.stubGetAgencyLocationGroups(agencyId)
 
     webTestClient.get()
-        .uri("/agencies/$agencyId/locations/groups")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .json(loadJsonFile("LEI_location_groups.json"))
-
+      .uri("/agencies/$agencyId/locations/groups")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .json(loadJsonFile("LEI_location_groups.json"))
   }
 
   @Test
@@ -24,12 +23,12 @@ class AgencyIntegrationTest: IntegrationTest() {
     val agencyId = "MDI"
 
     webTestClient.get()
-        .uri("/agencies/$agencyId/locations/groups")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .json(loadJsonFile("MDI_location_groups.json"))
+      .uri("/agencies/$agencyId/locations/groups")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .json(loadJsonFile("MDI_location_groups.json"))
   }
 
   @Test
@@ -38,13 +37,13 @@ class AgencyIntegrationTest: IntegrationTest() {
     prisonApiMockServer.stubGetAgencyLocationGroupsNotFound(notAnAgencyId)
 
     webTestClient.get()
-        .uri("/agencies/$notAnAgencyId/locations/groups")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus()
-        .isNotFound
-        .expectBody()
-        .jsonPath("$.developerMessage").isEqualTo("Locations not found for agency NON")
+      .uri("/agencies/$notAnAgencyId/locations/groups")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus()
+      .isNotFound
+      .expectBody()
+      .jsonPath("$.developerMessage").isEqualTo("Locations not found for agency NON")
   }
 
   @Test
@@ -52,10 +51,10 @@ class AgencyIntegrationTest: IntegrationTest() {
     prisonApiMockServer.stubGetAgencyLocationGroupsServerError("LEI")
 
     webTestClient.get()
-        .uri("/agencies/LEI/locations/groups")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus()
-        .is5xxServerError
+      .uri("/agencies/LEI/locations/groups")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus()
+      .is5xxServerError
   }
 }

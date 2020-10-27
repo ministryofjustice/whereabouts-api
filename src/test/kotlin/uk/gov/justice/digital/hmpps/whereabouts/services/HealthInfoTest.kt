@@ -4,7 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.info.BuildProperties
 import uk.gov.justice.digital.hmpps.whereabouts.services.health.HealthInfo
-import java.util.*
+import java.util.Properties
 
 class HealthInfoTest {
   @Test

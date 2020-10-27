@@ -7,36 +7,36 @@ import java.time.LocalDateTime
 
 @ApiModel(description = "Attendances response")
 data class AttendancesResponse(
-    @ApiModelProperty(value = "Set of attendances")
-    var attendances: Set<AttendanceDto>? = null
+  @ApiModelProperty(value = "Set of attendances")
+  var attendances: Set<AttendanceDto>? = null
 )
 
 @ApiModel(description = "Attendance changes")
 data class AttendanceChangesResponse(
-    @ApiModelProperty(value= "Set of changes")
-    var changes: Set<AttendanceChangeDto>? = null
+  @ApiModelProperty(value = "Set of changes")
+  var changes: Set<AttendanceChangeDto>? = null
 )
 
 @ApiModel("Attendance change")
-data class AttendanceChangeDto (
-    @ApiModelProperty(value = "Id of the change record")
-    val id: Long,
-    @ApiModelProperty(value ="Attendance id")
-    val attendanceId: Long,
-    @ApiModelProperty(value = "Event id")
-    val eventId: Long,
-    @ApiModelProperty("Event location id")
-    val eventLocationId: Long,
-    @ApiModelProperty("Booking id")
-    val bookingId: Long,
-    @ApiModelProperty(value = "Previous attendance reason")
-    val changedFrom: AttendanceChangeValues,
-    @ApiModelProperty(value = "New attendance reason")
-    val changedTo: AttendanceChangeValues,
-    @ApiModelProperty("Date and time when the changed occurred")
-    val changedOn: LocalDateTime?,
-    @ApiModelProperty("Changed by username")
-    val changedBy: String?,
-    @ApiModelProperty("Id of the prison example", example = "MDI")
-    val prisonId: String?
+data class AttendanceChangeDto(
+  @ApiModelProperty(value = "Id of the change record")
+  val id: Long,
+  @ApiModelProperty(value = "Attendance id")
+  val attendanceId: Long,
+  @ApiModelProperty(value = "Event id")
+  val eventId: Long,
+  @ApiModelProperty("Event location id")
+  val eventLocationId: Long,
+  @ApiModelProperty("Booking id")
+  val bookingId: Long,
+  @ApiModelProperty(value = "Previous attendance reason")
+  val changedFrom: AttendanceChangeValues,
+  @ApiModelProperty(value = "New attendance reason")
+  val changedTo: AttendanceChangeValues,
+  @ApiModelProperty("Date and time when the changed occurred")
+  val changedOn: LocalDateTime?,
+  @ApiModelProperty("Changed by username")
+  val changedBy: String?,
+  @ApiModelProperty("Id of the prison example", example = "MDI")
+  val prisonId: String?
 )

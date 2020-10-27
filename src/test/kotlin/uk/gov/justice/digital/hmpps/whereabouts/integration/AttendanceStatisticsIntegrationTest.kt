@@ -25,16 +25,18 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
     prisonApiMockServer.stubGetScheduledActivitiesForDateRange(prisonId, fromDate, toDate, period, true)
 
     webTestClient.get()
-        .uri("/attendance-statistics/$prisonId/over-date-range?fromDate=$fromDate&toDate=$toDate&period=$period")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().isOk
+      .uri("/attendance-statistics/$prisonId/over-date-range?fromDate=$fromDate&toDate=$toDate&period=$period")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
 
-    prisonApiMockServer.verify(WireMock.getRequestedFor(
+    prisonApiMockServer.verify(
+      WireMock.getRequestedFor(
         WireMock.urlEqualTo(
-            "/api/schedules/$prisonId/activities-by-date-range?fromDate=$fromDate&toDate=$toDate&timeSlot=$period&includeSuspended=true"
+          "/api/schedules/$prisonId/activities-by-date-range?fromDate=$fromDate&toDate=$toDate&timeSlot=$period&includeSuspended=true"
         )
-    ))
+      )
+    )
   }
 
   @Test
@@ -42,26 +44,26 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
     prisonApiMockServer.stubGetScheduledActivitiesForDateRange(prisonId, fromDate, toDate, period, true)
 
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(any(), any(), any(), any())).thenReturn(
-        setOf(
+      setOf(
         Attendance
-            .builder()
-            .bookingId(1)
-            .attended(true)
-            .prisonId(prisonId)
-            .period(period)
-            .eventDate(fromDate)
-            .eventId(1)
-            .eventLocationId(1)
-            .build()
-        ))
+          .builder()
+          .bookingId(1)
+          .attended(true)
+          .prisonId(prisonId)
+          .period(period)
+          .eventDate(fromDate)
+          .eventId(1)
+          .eventLocationId(1)
+          .build()
+      )
+    )
 
     webTestClient.get()
-        .uri("/attendance-statistics/$prisonId/over-date-range?fromDate=$fromDate&toDate=$toDate&period=$period")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$.paidReasons.attended").isEqualTo(1)
-
+      .uri("/attendance-statistics/$prisonId/over-date-range?fromDate=$fromDate&toDate=$toDate&period=$period")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.paidReasons.attended").isEqualTo(1)
   }
 }

@@ -12,48 +12,54 @@ import javax.transaction.Transactional
 
 @Service
 class CourtService(
-    private val authenticationFacade: AuthenticationFacade,
-    private val prisonApiService: PrisonApiService,
-    private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
-    @Value("\${courts}") private val courts: String) {
+  private val authenticationFacade: AuthenticationFacade,
+  private val prisonApiService: PrisonApiService,
+  private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
+  @Value("\${courts}") private val courts: String
+) {
 
   fun getCourtLocations() = courts.split(",").toSet()
 
   @Transactional
   fun createVideoLinkAppointment(createVideoLinkAppointment: CreateVideoLinkAppointment) {
 
-    val eventId = prisonApiService.postAppointment(createVideoLinkAppointment.bookingId, CreateBookingAppointment(
+    val eventId = prisonApiService.postAppointment(
+      createVideoLinkAppointment.bookingId,
+      CreateBookingAppointment(
         appointmentType = "VLB",
         locationId = createVideoLinkAppointment.locationId,
         comment = createVideoLinkAppointment.comment,
         startTime = createVideoLinkAppointment.startTime.toString(),
         endTime = createVideoLinkAppointment.endTime.toString()
-    ))
+      )
+    )
 
-    videoLinkAppointmentRepository.save(VideoLinkAppointment(
+    videoLinkAppointmentRepository.save(
+      VideoLinkAppointment(
         appointmentId = eventId,
         bookingId = createVideoLinkAppointment.bookingId,
         court = createVideoLinkAppointment.court,
         hearingType = createVideoLinkAppointment.hearingType,
         createdByUsername = authenticationFacade.currentUsername,
         madeByTheCourt = createVideoLinkAppointment.madeByTheCourt
-    ))
+      )
+    )
   }
 
   fun getVideoLinkAppointments(appointmentIds: Set<Long>): Set<VideoLinkAppointmentDto> {
     return videoLinkAppointmentRepository
-        .findVideoLinkAppointmentByAppointmentIdIn(appointmentIds)
-        .asSequence()
-        .map {
-          VideoLinkAppointmentDto(
-              id = it.id!!,
-              bookingId = it.bookingId,
-              appointmentId = it.appointmentId,
-              hearingType = it.hearingType,
-              court = it.court,
-              createdByUsername = it.createdByUsername,
-              madeByTheCourt = it.madeByTheCourt
-          )
-        }.toSet()
+      .findVideoLinkAppointmentByAppointmentIdIn(appointmentIds)
+      .asSequence()
+      .map {
+        VideoLinkAppointmentDto(
+          id = it.id!!,
+          bookingId = it.bookingId,
+          appointmentId = it.appointmentId,
+          hearingType = it.hearingType,
+          court = it.court,
+          createdByUsername = it.createdByUsername,
+          madeByTheCourt = it.madeByTheCourt
+        )
+      }.toSet()
   }
 }

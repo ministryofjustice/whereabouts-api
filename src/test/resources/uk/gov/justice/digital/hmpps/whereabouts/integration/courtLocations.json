@@ -1,3 +1,6 @@
 {
-  "courtLocations": ["Test Court 1","Test Court 2"]
+  "courtLocations": [
+    "Test Court 1",
+    "Test Court 2"
+  ]
 }

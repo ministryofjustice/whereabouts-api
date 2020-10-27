@@ -23,7 +23,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.validation.ConstraintViolationException
 
-
 @ExtendWith(SpringExtension::class)
 @ActiveProfiles("test")
 @Import(TestAuditConfiguration::class)
@@ -43,17 +42,16 @@ class AttendanceRepositoryTest {
   private val now = LocalDate.now()
 
   private val attendance = Attendance.builder()
-      .attended(true)
-      .paid(true)
-      .bookingId(121)
-      .eventDate(LocalDate.now())
-      .eventId(1)
-      .eventLocationId(1)
-      .absentReason(AbsentReason.Refused)
-      .prisonId("LEI")
-      .period(TimePeriod.AM)
-      .build()
-
+    .attended(true)
+    .paid(true)
+    .bookingId(121)
+    .eventDate(LocalDate.now())
+    .eventId(1)
+    .eventLocationId(1)
+    .absentReason(AbsentReason.Refused)
+    .prisonId("LEI")
+    .period(TimePeriod.AM)
+    .build()
 
   @BeforeEach
   fun clearRepository() {
@@ -98,62 +96,64 @@ class AttendanceRepositoryTest {
 
   @Test
   fun `should find attendance by date range`() {
-    val attendanceToday =  Attendance
-        .builder()
-        .bookingId(1)
-        .attended(true)
-        .prisonId("LEI")
-        .period(TimePeriod.AM)
-        .eventDate(LocalDate.now())
-        .eventId(1)
-        .eventLocationId(1)
-        .createUserId("test")
-        .createDateTime(LocalDateTime.now())
-        .build()
+    val attendanceToday = Attendance
+      .builder()
+      .bookingId(1)
+      .attended(true)
+      .prisonId("LEI")
+      .period(TimePeriod.AM)
+      .eventDate(LocalDate.now())
+      .eventId(1)
+      .eventLocationId(1)
+      .createUserId("test")
+      .createDateTime(LocalDateTime.now())
+      .build()
 
-    val attendanceLastMonth =  Attendance
-        .builder()
-        .bookingId(1)
-        .attended(true)
-        .prisonId("LEI")
-        .period(TimePeriod.AM)
-        .eventDate(LocalDate.now().minusMonths(1))
-        .eventId(2)
-        .eventLocationId(1)
-        .createUserId("test")
-        .createDateTime(LocalDateTime.now())
-        .build()
+    val attendanceLastMonth = Attendance
+      .builder()
+      .bookingId(1)
+      .attended(true)
+      .prisonId("LEI")
+      .period(TimePeriod.AM)
+      .eventDate(LocalDate.now().minusMonths(1))
+      .eventId(2)
+      .eventLocationId(1)
+      .createUserId("test")
+      .createDateTime(LocalDateTime.now())
+      .build()
 
-    val attendanceLastYear =  Attendance
-        .builder()
-        .bookingId(1)
-        .attended(true)
-        .prisonId("LEI")
-        .period(TimePeriod.AM)
-        .eventDate(LocalDate.now().minusYears(1))
-        .eventId(3)
-        .eventLocationId(1)
-        .createUserId("test")
-        .createDateTime(LocalDateTime.now())
-        .build()
+    val attendanceLastYear = Attendance
+      .builder()
+      .bookingId(1)
+      .attended(true)
+      .prisonId("LEI")
+      .period(TimePeriod.AM)
+      .eventDate(LocalDate.now().minusYears(1))
+      .eventId(3)
+      .eventLocationId(1)
+      .createUserId("test")
+      .createDateTime(LocalDateTime.now())
+      .build()
 
-    attendanceRepository.saveAll(setOf(
+    attendanceRepository.saveAll(
+      setOf(
         attendanceLastMonth,
         attendanceLastYear,
         attendanceToday
-    ))
+      )
+    )
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
     TestTransaction.start()
 
     val results = attendanceRepository
-        .findByPrisonIdAndPeriodAndEventDateBetween(
-            "LEI",
-            TimePeriod.AM,
-            LocalDate.now().minusMonths(2),
-            LocalDate.now()
-        )
+      .findByPrisonIdAndPeriodAndEventDateBetween(
+        "LEI",
+        TimePeriod.AM,
+        LocalDate.now().minusMonths(2),
+        LocalDate.now()
+      )
 
     assertThat(results).extracting("eventId").contains(2L, 1L)
   }
@@ -161,75 +161,77 @@ class AttendanceRepositoryTest {
   @Test
   fun `should return AM and PM attendances`() {
     val attendanceToday = Attendance
-        .builder()
-        .bookingId(1)
-        .attended(true)
-        .prisonId("LEI")
-        .period(TimePeriod.AM)
-        .eventDate(LocalDate.now())
-        .eventId(1)
-        .eventLocationId(1)
-        .createUserId("test")
-        .createDateTime(LocalDateTime.now())
-        .build()
+      .builder()
+      .bookingId(1)
+      .attended(true)
+      .prisonId("LEI")
+      .period(TimePeriod.AM)
+      .eventDate(LocalDate.now())
+      .eventId(1)
+      .eventLocationId(1)
+      .createUserId("test")
+      .createDateTime(LocalDateTime.now())
+      .build()
 
     val attendanceLastMonth = Attendance
-        .builder()
-        .bookingId(1)
-        .attended(true)
-        .prisonId("LEI")
-        .period(TimePeriod.PM)
-        .eventDate(LocalDate.now())
-        .eventId(2)
-        .eventLocationId(1)
-        .createUserId("test")
-        .createDateTime(LocalDateTime.now())
-        .build()
+      .builder()
+      .bookingId(1)
+      .attended(true)
+      .prisonId("LEI")
+      .period(TimePeriod.PM)
+      .eventDate(LocalDate.now())
+      .eventId(2)
+      .eventLocationId(1)
+      .createUserId("test")
+      .createDateTime(LocalDateTime.now())
+      .build()
 
     val attendanceLastYear = Attendance
-        .builder()
-        .bookingId(1)
-        .attended(true)
-        .prisonId("LEI")
-        .period(TimePeriod.AM)
-        .eventDate(LocalDate.now().minusYears(1))
-        .eventId(3)
-        .eventLocationId(1)
-        .createUserId("test")
-        .createDateTime(LocalDateTime.now())
-        .build()
+      .builder()
+      .bookingId(1)
+      .attended(true)
+      .prisonId("LEI")
+      .period(TimePeriod.AM)
+      .eventDate(LocalDate.now().minusYears(1))
+      .eventId(3)
+      .eventLocationId(1)
+      .createUserId("test")
+      .createDateTime(LocalDateTime.now())
+      .build()
 
     val attendanceED = Attendance
-        .builder()
-        .bookingId(1)
-        .attended(true)
-        .prisonId("LEI")
-        .period(TimePeriod.ED)
-        .eventDate(LocalDate.now())
-        .eventId(4)
-        .eventLocationId(1)
-        .createUserId("test")
-        .createDateTime(LocalDateTime.now())
-        .build()
+      .builder()
+      .bookingId(1)
+      .attended(true)
+      .prisonId("LEI")
+      .period(TimePeriod.ED)
+      .eventDate(LocalDate.now())
+      .eventId(4)
+      .eventLocationId(1)
+      .createUserId("test")
+      .createDateTime(LocalDateTime.now())
+      .build()
 
-    attendanceRepository.saveAll(setOf(
+    attendanceRepository.saveAll(
+      setOf(
         attendanceLastMonth,
         attendanceLastYear,
         attendanceToday,
         attendanceED
-    ))
+      )
+    )
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
     TestTransaction.start()
 
     val results = attendanceRepository
-        .findByPrisonIdAndEventDateBetweenAndPeriodIn(
-            "LEI",
-            LocalDate.now().minusMonths(2),
-            LocalDate.now(),
-            setOf(TimePeriod.AM, TimePeriod.PM)
-        )
+      .findByPrisonIdAndEventDateBetweenAndPeriodIn(
+        "LEI",
+        LocalDate.now().minusMonths(2),
+        LocalDate.now(),
+        setOf(TimePeriod.AM, TimePeriod.PM)
+      )
 
     assertThat(results).extracting("eventId").containsExactly(2L, 1L)
   }
@@ -237,39 +239,39 @@ class AttendanceRepositoryTest {
   @Test
   fun `should match on date range, period and absent reason`() {
     val attendances = setOf(
-        Attendance.builder()
-            .bookingId(1)
-            .eventId(1)
-            .eventLocationId(1)
-            .eventDate(LocalDate.now().atStartOfDay().toLocalDate())
-            .prisonId("MDI")
-            .period(TimePeriod.AM)
-            .attended(false)
-            .paid(true)
-            .absentReason(AbsentReason.Refused)
-            .build(),
-        Attendance.builder()
-            .bookingId(1)
-            .eventId(2)
-            .eventLocationId(1)
-            .eventDate(LocalDate.now().plusMonths(1))
-            .prisonId("MDI")
-            .period(TimePeriod.AM)
-            .attended(false)
-            .paid(true)
-            .absentReason(AbsentReason.Refused)
-            .build(),
-        Attendance.builder()
-            .bookingId(1)
-            .eventId(3)
-            .eventLocationId(1)
-            .eventDate(LocalDate.now().plusMonths(1))
-            .prisonId("MDI")
-            .period(TimePeriod.AM)
-            .attended(false)
-            .paid(true)
-            .absentReason(AbsentReason.SessionCancelled)
-            .build()
+      Attendance.builder()
+        .bookingId(1)
+        .eventId(1)
+        .eventLocationId(1)
+        .eventDate(LocalDate.now().atStartOfDay().toLocalDate())
+        .prisonId("MDI")
+        .period(TimePeriod.AM)
+        .attended(false)
+        .paid(true)
+        .absentReason(AbsentReason.Refused)
+        .build(),
+      Attendance.builder()
+        .bookingId(1)
+        .eventId(2)
+        .eventLocationId(1)
+        .eventDate(LocalDate.now().plusMonths(1))
+        .prisonId("MDI")
+        .period(TimePeriod.AM)
+        .attended(false)
+        .paid(true)
+        .absentReason(AbsentReason.Refused)
+        .build(),
+      Attendance.builder()
+        .bookingId(1)
+        .eventId(3)
+        .eventLocationId(1)
+        .eventDate(LocalDate.now().plusMonths(1))
+        .prisonId("MDI")
+        .period(TimePeriod.AM)
+        .attended(false)
+        .paid(true)
+        .absentReason(AbsentReason.SessionCancelled)
+        .build()
     )
 
     attendanceRepository.saveAll(attendances)
@@ -278,70 +280,76 @@ class AttendanceRepositoryTest {
     TestTransaction.start()
 
     val result = attendanceRepository
-        .findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason("MDI", LocalDate.now(),
-            LocalDate.now().plusMonths(12), setOf(TimePeriod.AM), AbsentReason.Refused)
+      .findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(
+        "MDI",
+        LocalDate.now(),
+        LocalDate.now().plusMonths(12),
+        setOf(TimePeriod.AM),
+        AbsentReason.Refused
+      )
 
-    assertThat(result).extracting("bookingId", "eventId").containsExactlyInAnyOrder(Tuple.tuple(1L, 2L), Tuple.tuple(1L, 1L))
+    assertThat(result).extracting("bookingId", "eventId")
+      .containsExactlyInAnyOrder(Tuple.tuple(1L, 2L), Tuple.tuple(1L, 1L))
   }
 
   @Test
   fun `should match on date range, period and booking ids`() {
     val attendances = setOf(
-            Attendance.builder()
-                    .bookingId(1)
-                    .eventId(1)
-                    .eventLocationId(1)
-                    .eventDate(LocalDate.now().atStartOfDay().toLocalDate())
-                    .prisonId("MDI")
-                    .period(TimePeriod.AM)
-                    .attended(false)
-                    .paid(true)
-                    .absentReason(AbsentReason.Refused)
-                    .build(),
-            Attendance.builder()
-                    .bookingId(1)
-                    .eventId(2)
-                    .eventLocationId(1)
-                    .eventDate(LocalDate.now().plusMonths(1))
-                    .prisonId("MDI")
-                    .period(TimePeriod.AM)
-                    .attended(false)
-                    .paid(true)
-                    .absentReason(AbsentReason.Refused)
-                    .build(),
-            Attendance.builder()
-                    .bookingId(1)
-                    .eventId(3)
-                    .eventLocationId(1)
-                    .eventDate(LocalDate.now().plusMonths(13))
-                    .prisonId("MDI")
-                    .period(TimePeriod.AM)
-                    .attended(false)
-                    .paid(true)
-                    .absentReason(AbsentReason.SessionCancelled)
-                    .build(),
-            Attendance.builder()
-                    .bookingId(2)
-                    .eventId(3)
-                    .eventLocationId(1)
-                    .eventDate(LocalDate.now().plusMonths(1))
-                    .prisonId("MDI")
-                    .period(TimePeriod.AM)
-                    .attended(false)
-                    .paid(true)
-                    .absentReason(AbsentReason.SessionCancelled)
-                    .build(),
-            Attendance.builder()
-                    .bookingId(3)
-                    .eventId(3)
-                    .eventLocationId(1)
-                    .eventDate(LocalDate.now().plusMonths(1))
-                    .prisonId("MDI")
-                    .period(TimePeriod.PM)
-                    .attended(false)
-                    .paid(true)
-                    .absentReason(AbsentReason.SessionCancelled)
-                    .build()
+      Attendance.builder()
+        .bookingId(1)
+        .eventId(1)
+        .eventLocationId(1)
+        .eventDate(LocalDate.now().atStartOfDay().toLocalDate())
+        .prisonId("MDI")
+        .period(TimePeriod.AM)
+        .attended(false)
+        .paid(true)
+        .absentReason(AbsentReason.Refused)
+        .build(),
+      Attendance.builder()
+        .bookingId(1)
+        .eventId(2)
+        .eventLocationId(1)
+        .eventDate(LocalDate.now().plusMonths(1))
+        .prisonId("MDI")
+        .period(TimePeriod.AM)
+        .attended(false)
+        .paid(true)
+        .absentReason(AbsentReason.Refused)
+        .build(),
+      Attendance.builder()
+        .bookingId(1)
+        .eventId(3)
+        .eventLocationId(1)
+        .eventDate(LocalDate.now().plusMonths(13))
+        .prisonId("MDI")
+        .period(TimePeriod.AM)
+        .attended(false)
+        .paid(true)
+        .absentReason(AbsentReason.SessionCancelled)
+        .build(),
+      Attendance.builder()
+        .bookingId(2)
+        .eventId(3)
+        .eventLocationId(1)
+        .eventDate(LocalDate.now().plusMonths(1))
+        .prisonId("MDI")
+        .period(TimePeriod.AM)
+        .attended(false)
+        .paid(true)
+        .absentReason(AbsentReason.SessionCancelled)
+        .build(),
+      Attendance.builder()
+        .bookingId(3)
+        .eventId(3)
+        .eventLocationId(1)
+        .eventDate(LocalDate.now().plusMonths(1))
+        .prisonId("MDI")
+        .period(TimePeriod.PM)
+        .attended(false)
+        .paid(true)
+        .absentReason(AbsentReason.SessionCancelled)
+        .build()
 
     )
 
@@ -351,9 +359,15 @@ class AttendanceRepositoryTest {
     TestTransaction.start()
 
     val result = attendanceRepository
-            .findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn("MDI", setOf(1,2), LocalDate.now(),
-                    LocalDate.now().plusMonths(12), setOf(TimePeriod.AM, TimePeriod.PM))
+      .findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn(
+        "MDI",
+        setOf(1, 2),
+        LocalDate.now(),
+        LocalDate.now().plusMonths(12),
+        setOf(TimePeriod.AM, TimePeriod.PM)
+      )
 
-    assertThat(result).extracting("bookingId", "eventId").containsExactlyInAnyOrder(Tuple.tuple(1L, 2L), Tuple.tuple(1L, 1L), Tuple.tuple(2L, 3L))
+    assertThat(result).extracting("bookingId", "eventId")
+      .containsExactlyInAnyOrder(Tuple.tuple(1L, 2L), Tuple.tuple(1L, 1L), Tuple.tuple(2L, 3L))
   }
 }

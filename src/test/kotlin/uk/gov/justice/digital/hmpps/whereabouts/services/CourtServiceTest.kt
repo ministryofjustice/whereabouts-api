@@ -24,52 +24,62 @@ class CourtServiceTest {
 
   @Test
   fun `should push an appointment to elite2`() {
-    val service = CourtService(authenticationFacade,prisonApiService, videoLinkAppointmentRepository, "York Crown Court")
+    val service =
+      CourtService(authenticationFacade, prisonApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
-    service.createVideoLinkAppointment(CreateVideoLinkAppointment(
+    service.createVideoLinkAppointment(
+      CreateVideoLinkAppointment(
         bookingId = bookingId,
         locationId = 1,
         comment = "test",
-        startTime = LocalDateTime.of(2019,10,10,10,0),
-        endTime =  LocalDateTime.of(2019,10,10,11,0),
+        startTime = LocalDateTime.of(2019, 10, 10, 10, 0),
+        endTime = LocalDateTime.of(2019, 10, 10, 11, 0),
         court = "York Crown Court"
-    ))
+      )
+    )
 
-    verify(prisonApiService).postAppointment(bookingId, CreateBookingAppointment(
+    verify(prisonApiService).postAppointment(
+      bookingId,
+      CreateBookingAppointment(
         appointmentType = "VLB",
         locationId = 1,
         comment = "test",
         startTime = "2019-10-10T10:00",
         endTime = "2019-10-10T11:00"
-    ))
+      )
+    )
   }
 
   @Test
   fun `should create video link appointment using the event id returned from elite2`() {
-    val service = CourtService(authenticationFacade, prisonApiService, videoLinkAppointmentRepository, "York Crown Court")
+    val service =
+      CourtService(authenticationFacade, prisonApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
     whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(1L)
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
-    service.createVideoLinkAppointment(CreateVideoLinkAppointment(
+    service.createVideoLinkAppointment(
+      CreateVideoLinkAppointment(
         bookingId = bookingId,
         locationId = 1,
         comment = "test",
-        startTime = LocalDateTime.of(2019,10,10,10,0),
-        endTime =  LocalDateTime.of(2019,10,10,11,0),
+        startTime = LocalDateTime.of(2019, 10, 10, 10, 0),
+        endTime = LocalDateTime.of(2019, 10, 10, 11, 0),
         court = "York Crown Court"
-    ))
+      )
+    )
 
     verify(videoLinkAppointmentRepository).save(
-        VideoLinkAppointment(
-            appointmentId = 1,
-            court = "York Crown Court",
-            bookingId = bookingId,
-            hearingType = HearingType.MAIN,
-            createdByUsername = "username1"
-        ))
+      VideoLinkAppointment(
+        appointmentId = 1,
+        court = "York Crown Court",
+        bookingId = bookingId,
+        hearingType = HearingType.MAIN,
+        createdByUsername = "username1"
+      )
+    )
   }
 
   @Test
@@ -84,76 +94,91 @@ class CourtServiceTest {
   @Test
   fun `should return and map video link appointments`() {
     whenever(videoLinkAppointmentRepository.findVideoLinkAppointmentByAppointmentIdIn(setOf(3, 4))).thenReturn(
-        setOf(
-            VideoLinkAppointment(id = 1, bookingId = 2, appointmentId = 3, hearingType = HearingType.MAIN, court = "YORK"),
-            VideoLinkAppointment(id = 2, bookingId = 3, appointmentId = 4, hearingType = HearingType.PRE, court = "YORK", madeByTheCourt = false
-            ))
+      setOf(
+        VideoLinkAppointment(id = 1, bookingId = 2, appointmentId = 3, hearingType = HearingType.MAIN, court = "YORK"),
+        VideoLinkAppointment(
+          id = 2,
+          bookingId = 3,
+          appointmentId = 4,
+          hearingType = HearingType.PRE,
+          court = "YORK",
+          madeByTheCourt = false
+        )
+      )
     )
     val service = CourtService(authenticationFacade, prisonApiService, videoLinkAppointmentRepository, "")
     val appointments = service.getVideoLinkAppointments(setOf(3, 4))
 
     assertThat(appointments)
-        .extracting("id", "bookingId", "appointmentId", "hearingType", "court", "madeByTheCourt")
-        .containsExactlyInAnyOrder(
-            Tuple.tuple(1L, 2L, 3L, HearingType.MAIN, "YORK", true),
-            Tuple.tuple(2L, 3L, 4L, HearingType.PRE, "YORK", false)
-        )
+      .extracting("id", "bookingId", "appointmentId", "hearingType", "court", "madeByTheCourt")
+      .containsExactlyInAnyOrder(
+        Tuple.tuple(1L, 2L, 3L, HearingType.MAIN, "YORK", true),
+        Tuple.tuple(2L, 3L, 4L, HearingType.PRE, "YORK", false)
+      )
   }
 
   @Test
   fun `should record if the appointment was made by the court`() {
-    val service = CourtService(authenticationFacade, prisonApiService, videoLinkAppointmentRepository, "York Crown Court")
+    val service =
+      CourtService(authenticationFacade, prisonApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
     whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(1L)
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
-    service.createVideoLinkAppointment(CreateVideoLinkAppointment(
+    service.createVideoLinkAppointment(
+      CreateVideoLinkAppointment(
         bookingId = bookingId,
         locationId = 1,
         comment = "test",
-        startTime = LocalDateTime.of(2019,10,10,10,0),
-        endTime =  LocalDateTime.of(2019,10,10,11,0),
+        startTime = LocalDateTime.of(2019, 10, 10, 10, 0),
+        endTime = LocalDateTime.of(2019, 10, 10, 11, 0),
         court = "York Crown Court"
-    ))
+      )
+    )
 
     verify(videoLinkAppointmentRepository).save(
-        VideoLinkAppointment(
-            appointmentId = 1,
-            court = "York Crown Court",
-            bookingId = bookingId,
-            hearingType = HearingType.MAIN,
-            createdByUsername = "username1",
-            madeByTheCourt = true
-        ))
+      VideoLinkAppointment(
+        appointmentId = 1,
+        court = "York Crown Court",
+        bookingId = bookingId,
+        hearingType = HearingType.MAIN,
+        createdByUsername = "username1",
+        madeByTheCourt = true
+      )
+    )
   }
 
   @Test
   fun `should record if the appointment was made by the prison on behalf of the court`() {
-    val service = CourtService(authenticationFacade, prisonApiService, videoLinkAppointmentRepository, "York Crown Court")
+    val service =
+      CourtService(authenticationFacade, prisonApiService, videoLinkAppointmentRepository, "York Crown Court")
     val bookingId: Long = 1
 
     whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(1L)
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
-    service.createVideoLinkAppointment(CreateVideoLinkAppointment(
+    service.createVideoLinkAppointment(
+      CreateVideoLinkAppointment(
         bookingId = bookingId,
         locationId = 1,
         comment = "test",
-        startTime = LocalDateTime.of(2019,10,10,10,0),
-        endTime =  LocalDateTime.of(2019,10,10,11,0),
+        startTime = LocalDateTime.of(2019, 10, 10, 10, 0),
+        endTime = LocalDateTime.of(2019, 10, 10, 11, 0),
         court = "York Crown Court",
         madeByTheCourt = false
-    ))
+      )
+    )
 
     verify(videoLinkAppointmentRepository).save(
-        VideoLinkAppointment(
-            appointmentId = 1,
-            court = "York Crown Court",
-            bookingId = bookingId,
-            hearingType = HearingType.MAIN,
-            createdByUsername = "username1",
-            madeByTheCourt = false
-        ))
+      VideoLinkAppointment(
+        appointmentId = 1,
+        court = "York Crown Court",
+        bookingId = bookingId,
+        hearingType = HearingType.MAIN,
+        createdByUsername = "username1",
+        madeByTheCourt = false
+      )
+    )
   }
 }

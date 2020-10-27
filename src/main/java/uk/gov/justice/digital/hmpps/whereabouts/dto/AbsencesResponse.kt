@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModelProperty
 
 @ApiModel(description = "Absences response")
 data class AbsencesResponse(
-    @ApiModelProperty(value = "Set of absences")
-    var absences: Set<AbsenceDto>? = null
+  @ApiModelProperty(value = "Set of absences")
+  var absences: Set<AbsenceDto>? = null
 )
-
