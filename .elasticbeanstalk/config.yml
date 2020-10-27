@@ -2,8 +2,8 @@ branch-defaults:
   main:
     environment: whereabouts-api-dev
 global:
-  application_name: whereabouts-api
-  default_platform: Docker running on 64bit Amazon Linux
-  default_region: eu-west-2
+    application_name: whereabouts-api
+    default_platform: Docker running on 64bit Amazon Linux
+    default_region: eu-west-2
 deploy:
   artifact: Dockerrun.aws.json
