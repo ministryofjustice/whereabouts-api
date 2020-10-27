@@ -8,7 +8,7 @@ spec:
   type: ClusterIP
   ports:
     - port: 80
-      targetPort: {{ .Values.image.port }}
+      targetPort: {{ .Values.image.port }} 
       name: http
   selector:
     {{- include "app.selectorLabels" . | nindent 4 }}
