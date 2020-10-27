@@ -29,16 +29,31 @@ class WhereaboutsEnabledServiceTest {
 
   @Test
   fun `isEnabled - location groups and not enabled - true`() {
-    whenever(locationGroupService.getLocationGroups(anyString())).thenReturn(listOf(LocationGroup("any name", "any key", emptyList())))
+    whenever(locationGroupService.getLocationGroups(anyString())).thenReturn(
+      listOf(
+        LocationGroup(
+          "any name",
+          "any key",
+          emptyList()
+        )
+      )
+    )
 
     assertThat(whereaboutsEnabledService.isEnabled("not enabled agency")).isTrue()
   }
 
   @Test
   fun `isEnabled - location groups and enabled - true`() {
-    whenever(locationGroupService.getLocationGroups(anyString())).thenReturn(listOf(LocationGroup("any name", "any key", emptyList())))
+    whenever(locationGroupService.getLocationGroups(anyString())).thenReturn(
+      listOf(
+        LocationGroup(
+          "any name",
+          "any key",
+          emptyList()
+        )
+      )
+    )
 
     assertThat(whereaboutsEnabledService.isEnabled("MDI")).isTrue()
   }
-
 }

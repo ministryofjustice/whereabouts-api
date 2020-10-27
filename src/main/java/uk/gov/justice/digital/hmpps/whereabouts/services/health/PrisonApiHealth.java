@@ -16,6 +16,6 @@ public class PrisonApiHealth extends HealthCheck {
     public PrisonApiHealth(
             @Qualifier("prisonApiHealthWebClient") final WebClient webClient,
             @Value("${api.health-timeout-ms}") final Duration timeout) {
-        super(webClient,timeout);
+        super(webClient, timeout);
     }
 }

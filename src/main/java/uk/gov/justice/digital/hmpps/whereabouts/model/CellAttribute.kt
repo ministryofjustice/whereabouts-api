@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiModelProperty
  */
 @ApiModel(description = "Cell Attribute Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class CellAttribute (
+data class CellAttribute(
   @ApiModelProperty(required = true, value = "Cell attribute code", example = "LC")
   val code: String,
   @ApiModelProperty(required = true, value = "Cell attribute description", example = "Listener cell")

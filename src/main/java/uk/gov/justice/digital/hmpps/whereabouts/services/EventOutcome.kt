@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class EventOutcome(
-    val eventOutcome: String,
-    val performance: String? = null,
-    val outcomeComment: String? = null
+  val eventOutcome: String,
+  val performance: String? = null,
+  val outcomeComment: String? = null
 )

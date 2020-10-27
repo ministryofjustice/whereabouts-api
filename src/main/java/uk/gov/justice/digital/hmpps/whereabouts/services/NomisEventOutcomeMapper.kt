@@ -2,24 +2,31 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
-import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.*
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.AcceptableAbsence
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.ApprovedCourse
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.Companion.paidReasons
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.Companion.unpaidReasons
-
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.NotRequired
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.Refused
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.RefusedIncentiveLevelWarning
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.RestDay
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.RestInCellOrSick
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.SessionCancelled
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.UnacceptableAbsence
 
 @Service
 open class NomisEventOutcomeMapper {
   companion object {
     private val eventOutcomes = mapOf(
-        AcceptableAbsence to EventOutcome("ACCAB"),
-        NotRequired to EventOutcome("NREQ"),
-        ApprovedCourse to EventOutcome("ACCAB"),
-        SessionCancelled to EventOutcome("CANC"),
-        RestInCellOrSick to EventOutcome("REST"),
-        RestDay to EventOutcome("REST"),
-        Refused to EventOutcome("UNACAB"),
-        UnacceptableAbsence to EventOutcome("UNACAB"),
-        RefusedIncentiveLevelWarning to EventOutcome("UNACAB")
+      AcceptableAbsence to EventOutcome("ACCAB"),
+      NotRequired to EventOutcome("NREQ"),
+      ApprovedCourse to EventOutcome("ACCAB"),
+      SessionCancelled to EventOutcome("CANC"),
+      RestInCellOrSick to EventOutcome("REST"),
+      RestDay to EventOutcome("REST"),
+      Refused to EventOutcome("UNACAB"),
+      UnacceptableAbsence to EventOutcome("UNACAB"),
+      RefusedIncentiveLevelWarning to EventOutcome("UNACAB")
     )
   }
 

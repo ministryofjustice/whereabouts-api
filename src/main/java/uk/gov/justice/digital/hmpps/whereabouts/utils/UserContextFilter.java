@@ -6,7 +6,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
@@ -21,7 +26,7 @@ public class UserContextFilter implements Filter {
 
         final var httpServletRequest = (HttpServletRequest) servletRequest;
         final var authToken = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-        final var authentication =  SecurityContextHolder.getContext().getAuthentication();
+        final var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         UserContext.setAuthToken(authToken);
         UserContext.setAuthentication(authentication);

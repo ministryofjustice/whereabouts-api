@@ -7,7 +7,8 @@ import com.nhaarman.mockito_kotlin.whenever
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anySet
 import org.springframework.boot.test.mock.mockito.MockBean
-import uk.gov.justice.digital.hmpps.whereabouts.dto.*
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -28,7 +29,9 @@ class AttendancesIntegrationTest : IntegrationTest() {
     caseNotesMockServer.stubCreateCaseNote()
 
     whenever(attendanceRepository.findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(any(), any(), any(), any()))
-        .thenReturn(setOf(Attendance
+      .thenReturn(
+        setOf(
+          Attendance
             .builder()
             .id(1)
             .absentReason(AbsentReason.Refused)
@@ -41,35 +44,35 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .attended(false)
             .paid(false)
             .bookingId(1)
-            .build()))
+            .build()
+        )
+      )
 
     webTestClient
-            .get()
-            .uri {
-              it.path("/attendances/LEI/2")
-                      .queryParam("date", LocalDate.of(2019, 10, 10))
-                      .queryParam("period", TimePeriod.PM)
-                      .build()
-            }
-            .headers(setHeaders())
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody()
-            .jsonPath(".attendances[0].id").isEqualTo(1)
-            .jsonPath(".attendances[0].absentReason").isEqualTo("Refused")
-            .jsonPath(".attendances[0].period").isEqualTo("PM")
-            .jsonPath(".attendances[0].prisonId").isEqualTo("LEI")
-            .jsonPath(".attendances[0].eventLocationId").isEqualTo(2)
-            .jsonPath(".attendances[0].eventId").isEqualTo(1)
-            .jsonPath(".attendances[0].eventDate").isEqualTo("2019-10-10")
-            .jsonPath(".attendances[0].comments").isEqualTo("hello world")
-            .jsonPath(".attendances[0].attended").isEqualTo(false)
-            .jsonPath(".attendances[0].paid").isEqualTo(false)
-            .jsonPath(".attendances[0].bookingId").isEqualTo(1)
-            .jsonPath(".attendances[0].locked").isEqualTo(false)
-
+      .get()
+      .uri {
+        it.path("/attendances/LEI/2")
+          .queryParam("date", LocalDate.of(2019, 10, 10))
+          .queryParam("period", TimePeriod.PM)
+          .build()
+      }
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk()
+      .expectBody()
+      .jsonPath(".attendances[0].id").isEqualTo(1)
+      .jsonPath(".attendances[0].absentReason").isEqualTo("Refused")
+      .jsonPath(".attendances[0].period").isEqualTo("PM")
+      .jsonPath(".attendances[0].prisonId").isEqualTo("LEI")
+      .jsonPath(".attendances[0].eventLocationId").isEqualTo(2)
+      .jsonPath(".attendances[0].eventId").isEqualTo(1)
+      .jsonPath(".attendances[0].eventDate").isEqualTo("2019-10-10")
+      .jsonPath(".attendances[0].comments").isEqualTo("hello world")
+      .jsonPath(".attendances[0].attended").isEqualTo(false)
+      .jsonPath(".attendances[0].paid").isEqualTo(false)
+      .jsonPath(".attendances[0].bookingId").isEqualTo(1)
+      .jsonPath(".attendances[0].locked").isEqualTo(false)
   }
-
 
   @Test
   fun `should return modified by and modified on`() {
@@ -78,40 +81,43 @@ class AttendancesIntegrationTest : IntegrationTest() {
     val date = LocalDateTime.now()
 
     whenever(attendanceRepository.findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(any(), any(), any(), any()))
-        .thenReturn(setOf(
-            Attendance.builder()
-                .id(1)
-                .bookingId(1)
-                .paid(false)
-                .attended(false)
-                .absentReason(AbsentReason.Refused)
-                .comments("Refused")
-                .eventDate(LocalDate.of(2019, 10, 10))
-                .eventId(1)
-                .eventLocationId(2)
-                .prisonId("LEI")
-                .period(TimePeriod.AM)
-                .createDateTime(date)
-                .createUserId("user")
-                .modifyDateTime(date)
-                .modifyUserId("user")
-                .build()))
+      .thenReturn(
+        setOf(
+          Attendance.builder()
+            .id(1)
+            .bookingId(1)
+            .paid(false)
+            .attended(false)
+            .absentReason(AbsentReason.Refused)
+            .comments("Refused")
+            .eventDate(LocalDate.of(2019, 10, 10))
+            .eventId(1)
+            .eventLocationId(2)
+            .prisonId("LEI")
+            .period(TimePeriod.AM)
+            .createDateTime(date)
+            .createUserId("user")
+            .modifyDateTime(date)
+            .modifyUserId("user")
+            .build()
+        )
+      )
 
     webTestClient
-        .get()
-        .uri {
-          it.path("/attendances/LEI/2")
+      .get()
+      .uri {
+        it.path("/attendances/LEI/2")
           .queryParam("date", LocalDate.of(2019, 10, 10))
           .queryParam("period", TimePeriod.PM)
           .build()
-        }
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().isOk()
-        .expectBody()
-        .jsonPath(".attendances[0].id").isEqualTo(1)
-        .jsonPath(".attendances[0].modifyDateTime").isNotEmpty()
-        .jsonPath(".attendances[0].modifyUserId").isEqualTo("user")
+      }
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk()
+      .expectBody()
+      .jsonPath(".attendances[0].id").isEqualTo(1)
+      .jsonPath(".attendances[0].modifyDateTime").isNotEmpty()
+      .jsonPath(".attendances[0].modifyUserId").isEqualTo("user")
   }
 
   @Test
@@ -119,43 +125,48 @@ class AttendancesIntegrationTest : IntegrationTest() {
     prisonApiMockServer.stubUpdateAttendance()
 
     whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(any(), any(), any(), any()))
-        .thenReturn(setOf(
-            Attendance
-                .builder()
-                .id(1)
-                .absentReason(AbsentReason.Refused)
-                .period(TimePeriod.PM)
-                .prisonId("LEI")
-                .eventLocationId(2)
-                .eventId(1)
-                .eventDate(LocalDate.of(2019, 10, 10))
-                .comments("hello world")
-                .attended(true)
-                .paid(true)
-                .bookingId(1)
-                .build(),
-            Attendance
-                .builder()
-                .id(2)
-                .absentReason(AbsentReason.Refused)
-                .period(TimePeriod.PM)
-                .prisonId("LEI")
-                .eventLocationId(2)
-                .eventId(1)
-                .eventDate(LocalDate.of(2019, 10, 10))
-                .comments("hello world")
-                .attended(true)
-                .paid(true)
-                .bookingId(2)
-                .build()))
+      .thenReturn(
+        setOf(
+          Attendance
+            .builder()
+            .id(1)
+            .absentReason(AbsentReason.Refused)
+            .period(TimePeriod.PM)
+            .prisonId("LEI")
+            .eventLocationId(2)
+            .eventId(1)
+            .eventDate(LocalDate.of(2019, 10, 10))
+            .comments("hello world")
+            .attended(true)
+            .paid(true)
+            .bookingId(1)
+            .build(),
+          Attendance
+            .builder()
+            .id(2)
+            .absentReason(AbsentReason.Refused)
+            .period(TimePeriod.PM)
+            .prisonId("LEI")
+            .eventLocationId(2)
+            .eventId(1)
+            .eventDate(LocalDate.of(2019, 10, 10))
+            .comments("hello world")
+            .attended(true)
+            .paid(true)
+            .bookingId(2)
+            .build()
+        )
+      )
 
     webTestClient
       .get()
-      .uri({ it.path("/attendances/LEI")
-              .queryParam("date", LocalDate.of(2019, 10, 10))
-              .queryParam("period", TimePeriod.PM)
-              .queryParam("bookings", setOf(1,2))
-              .build()})
+      .uri({
+        it.path("/attendances/LEI")
+          .queryParam("date", LocalDate.of(2019, 10, 10))
+          .queryParam("period", TimePeriod.PM)
+          .queryParam("bookings", setOf(1, 2))
+          .build()
+      })
       .headers(setHeaders())
       .exchange()
       .expectStatus().isOk()
@@ -171,45 +182,48 @@ class AttendancesIntegrationTest : IntegrationTest() {
     prisonApiMockServer.stubUpdateAttendance()
 
     whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(any(), any(), any(), any()))
-        .thenReturn(setOf(
-            Attendance
-                .builder()
-                .id(1)
-                .absentReason(AbsentReason.Refused)
-                .period(TimePeriod.PM)
-                .prisonId("LEI")
-                .eventLocationId(2)
-                .eventId(1)
-                .eventDate(LocalDate.of(2019, 10, 10))
-                .comments("hello world")
-                .attended(true)
-                .paid(true)
-                .bookingId(1)
-                .build(),
-            Attendance
-                .builder()
-                .id(2)
-                .absentReason(AbsentReason.Refused)
-                .period(TimePeriod.PM)
-                .prisonId("LEI")
-                .eventLocationId(2)
-                .eventId(1)
-                .eventDate(LocalDate.of(2019, 10, 10))
-                .comments("hello world")
-                .attended(true)
-                .paid(true)
-                .bookingId(2)
-                .build()
-        ))
+      .thenReturn(
+        setOf(
+          Attendance
+            .builder()
+            .id(1)
+            .absentReason(AbsentReason.Refused)
+            .period(TimePeriod.PM)
+            .prisonId("LEI")
+            .eventLocationId(2)
+            .eventId(1)
+            .eventDate(LocalDate.of(2019, 10, 10))
+            .comments("hello world")
+            .attended(true)
+            .paid(true)
+            .bookingId(1)
+            .build(),
+          Attendance
+            .builder()
+            .id(2)
+            .absentReason(AbsentReason.Refused)
+            .period(TimePeriod.PM)
+            .prisonId("LEI")
+            .eventLocationId(2)
+            .eventId(1)
+            .eventDate(LocalDate.of(2019, 10, 10))
+            .comments("hello world")
+            .attended(true)
+            .paid(true)
+            .bookingId(2)
+            .build()
+        )
+      )
 
     val bookings = setOf(1, 2)
 
     webTestClient
       .post()
-      .uri({ it.path("/attendances/LEI")
-              .queryParam("date", LocalDate.of(2019, 10, 10))
-              .queryParam("period", TimePeriod.PM)
-              .build()
+      .uri({
+        it.path("/attendances/LEI")
+          .queryParam("date", LocalDate.of(2019, 10, 10))
+          .queryParam("period", TimePeriod.PM)
+          .build()
       })
       .headers(setHeaders())
       .bodyValue(bookings)
@@ -225,56 +239,67 @@ class AttendancesIntegrationTest : IntegrationTest() {
   fun `should return attendance information for set of bookings ids over date range by post`() {
     prisonApiMockServer.stubUpdateAttendance()
 
-    whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn(any(), any(), any(), any(), any()))
-            .thenReturn(setOf(
-                    Attendance
-                            .builder()
-                            .id(1)
-                            .absentReason(AbsentReason.Refused)
-                            .period(TimePeriod.PM)
-                            .prisonId("LEI")
-                            .eventLocationId(2)
-                            .eventId(1)
-                            .eventDate(LocalDate.of(2019, 10, 10))
-                            .comments("hello world")
-                            .attended(true)
-                            .paid(true)
-                            .bookingId(1)
-                            .build(),
-                    Attendance
-                            .builder()
-                            .id(2)
-                            .absentReason(AbsentReason.Refused)
-                            .period(TimePeriod.PM)
-                            .prisonId("LEI")
-                            .eventLocationId(2)
-                            .eventId(1)
-                            .eventDate(LocalDate.of(2019, 10, 11))
-                            .comments("hello world")
-                            .attended(true)
-                            .paid(true)
-                            .bookingId(2)
-                            .build()
-            ))
+    whenever(
+      attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn(
+        any(),
+        any(),
+        any(),
+        any(),
+        any()
+      )
+    )
+      .thenReturn(
+        setOf(
+          Attendance
+            .builder()
+            .id(1)
+            .absentReason(AbsentReason.Refused)
+            .period(TimePeriod.PM)
+            .prisonId("LEI")
+            .eventLocationId(2)
+            .eventId(1)
+            .eventDate(LocalDate.of(2019, 10, 10))
+            .comments("hello world")
+            .attended(true)
+            .paid(true)
+            .bookingId(1)
+            .build(),
+          Attendance
+            .builder()
+            .id(2)
+            .absentReason(AbsentReason.Refused)
+            .period(TimePeriod.PM)
+            .prisonId("LEI")
+            .eventLocationId(2)
+            .eventId(1)
+            .eventDate(LocalDate.of(2019, 10, 11))
+            .comments("hello world")
+            .attended(true)
+            .paid(true)
+            .bookingId(2)
+            .build()
+        )
+      )
 
     val bookings = setOf(1, 2)
 
     webTestClient
-            .post()
-            .uri({it.path("/attendances/LEI/attendance-over-date-range")
-                    .queryParam("fromDate", LocalDate.of(2019, 10, 10))
-                    .queryParam("toDate", LocalDate.of(2019, 10, 11))
-                    .queryParam("period", TimePeriod.PM)
-                    .build()
-            })
-            .headers(setHeaders())
-            .bodyValue(bookings)
-            .exchange()
-            .expectBody()
-            .jsonPath(".attendances[0].id").isEqualTo(1)
-            .jsonPath(".attendances[1].id").isEqualTo(2)
-            .jsonPath(".attendances[0].bookingId").isEqualTo(1)
-            .jsonPath(".attendances[1].bookingId").isEqualTo(2)
+      .post()
+      .uri({
+        it.path("/attendances/LEI/attendance-over-date-range")
+          .queryParam("fromDate", LocalDate.of(2019, 10, 10))
+          .queryParam("toDate", LocalDate.of(2019, 10, 11))
+          .queryParam("period", TimePeriod.PM)
+          .build()
+      })
+      .headers(setHeaders())
+      .bodyValue(bookings)
+      .exchange()
+      .expectBody()
+      .jsonPath(".attendances[0].id").isEqualTo(1)
+      .jsonPath(".attendances[1].id").isEqualTo(2)
+      .jsonPath(".attendances[0].bookingId").isEqualTo(1)
+      .jsonPath(".attendances[1].bookingId").isEqualTo(2)
   }
 
   @Test
@@ -284,20 +309,20 @@ class AttendancesIntegrationTest : IntegrationTest() {
     prisonApiMockServer.stubUpdateAttendanceForBookingIds()
 
     val bookingActivities = bookingIds
-        .stream()
-        .map { BookingActivity(activityId = 2L, bookingId = it) }
-        .collect(Collectors.toSet())
+      .stream()
+      .map { BookingActivity(activityId = 2L, bookingId = it) }
+      .collect(Collectors.toSet())
 
     val attendAll = AttendancesDto
-        .builder()
-        .eventDate(LocalDate.of(2019, 10, 10))
-        .eventLocationId(1L)
-        .prisonId("LEI")
-        .period(TimePeriod.AM)
-        .bookingActivities(bookingActivities)
-        .attended(true)
-        .paid(true)
-        .build()
+      .builder()
+      .eventDate(LocalDate.of(2019, 10, 10))
+      .eventLocationId(1L)
+      .prisonId("LEI")
+      .period(TimePeriod.AM)
+      .bookingActivities(bookingActivities)
+      .attended(true)
+      .paid(true)
+      .build()
 
     webTestClient
       .post()
@@ -307,12 +332,20 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isCreated()
 
-    prisonApiMockServer.verify(WireMock.putRequestedFor(WireMock.urlEqualTo("/api/bookings/activities/attendance"))
-        .withRequestBody(WireMock.equalToJson(gson.toJson(mapOf(
-            "performance" to "STANDARD",
-            "bookingActivities" to bookingActivities,
-            "eventOutcome" to "ATT"
-        )))))
+    prisonApiMockServer.verify(
+      WireMock.putRequestedFor(WireMock.urlEqualTo("/api/bookings/activities/attendance"))
+        .withRequestBody(
+          WireMock.equalToJson(
+            gson.toJson(
+              mapOf(
+                "performance" to "STANDARD",
+                "bookingActivities" to bookingActivities,
+                "eventOutcome" to "ATT"
+              )
+            )
+          )
+        )
+    )
 
     verify(attendanceRepository).saveAll(anySet())
   }
@@ -326,7 +359,9 @@ class AttendancesIntegrationTest : IntegrationTest() {
     val period = TimePeriod.AM
 
     whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(any(), anySet(), any(), any()))
-        .thenReturn(setOf(Attendance
+      .thenReturn(
+        setOf(
+          Attendance
             .builder()
             .id(1)
             .absentReason(AbsentReason.Refused)
@@ -339,14 +374,18 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .bookingId(1L)
             .eventDate(date)
             .caseNoteId(1)
-            .build()))
+            .build()
+        )
+      )
 
     webTestClient
       .get()
-      .uri({it.path("/attendances/$prisonId/attendance-for-scheduled-activities")
-              .queryParam("date", date)
-              .queryParam("period", period)
-              .build()})
+      .uri({
+        it.path("/attendances/$prisonId/attendance-for-scheduled-activities")
+          .queryParam("date", date)
+          .queryParam("period", period)
+          .build()
+      })
       .headers(setHeaders())
       .exchange()
       .expectStatus().isOk()
@@ -365,34 +404,46 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     prisonApiMockServer.stubGetScheduledActivitiesForDateRange(prisonId, date, date, period, true)
 
-    whenever(attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(any(), any(), any(), anySet(), any()))
-        .thenReturn(setOf(
-            Attendance
-                .builder()
-                .id(1)
-                .absentReason(reason)
-                .attended(false)
-                .paid(false)
-                .eventId(1)
-                .eventDate(date)
-                .eventLocationId(3)
-                .period(period)
-                .prisonId(prisonId)
-                .bookingId(1L)
-                .caseNoteId(1)
-                .build()))
+    whenever(
+      attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(
+        any(),
+        any(),
+        any(),
+        anySet(),
+        any()
+      )
+    )
+      .thenReturn(
+        setOf(
+          Attendance
+            .builder()
+            .id(1)
+            .absentReason(reason)
+            .attended(false)
+            .paid(false)
+            .eventId(1)
+            .eventDate(date)
+            .eventLocationId(3)
+            .period(period)
+            .prisonId(prisonId)
+            .bookingId(1L)
+            .caseNoteId(1)
+            .build()
+        )
+      )
 
     webTestClient
       .get()
-      .uri({it.path("/attendances/${prisonId}/absences-for-scheduled-activities/${reason}")
-              .queryParam("fromDate", date)
-              .queryParam("period", period)
-              .build()})
+      .uri({
+        it.path("/attendances/$prisonId/absences-for-scheduled-activities/$reason")
+          .queryParam("fromDate", date)
+          .queryParam("period", period)
+          .build()
+      })
       .headers(setHeaders())
       .exchange()
       .expectStatus().isOk()
       .expectBody()
       .jsonPath(".absences[0].attendanceId").isEqualTo(1)
-
   }
 }

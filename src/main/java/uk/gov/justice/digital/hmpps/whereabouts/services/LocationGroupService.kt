@@ -7,6 +7,7 @@ import java.util.function.Predicate
 interface LocationGroupService {
   fun getLocationGroupsForAgency(agencyId: String): List<LocationGroup>
   fun getLocationGroups(agencyId: String): List<LocationGroup>
+
   /**
    * Supply a filter predicate for LocationGroups.
    *

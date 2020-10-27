@@ -20,6 +20,7 @@ public class UserContext {
     public static void setAuthentication(Authentication auth) {
         authentication.set(auth);
     }
+
     public static Authentication getAuthentication() {
         return authentication.get();
     }

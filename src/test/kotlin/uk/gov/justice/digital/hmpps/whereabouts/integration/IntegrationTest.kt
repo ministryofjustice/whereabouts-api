@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.core.io.ResourceLoader
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -23,68 +22,66 @@ import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMo
 import wiremock.org.apache.commons.io.IOUtils
 import java.nio.charset.StandardCharsets
 
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @ContextConfiguration
 abstract class IntegrationTest {
 
-    @Autowired
-    lateinit var webTestClient: WebTestClient
+  @Autowired
+  lateinit var webTestClient: WebTestClient
 
-    internal val gson: Gson = getGson()
+  internal val gson: Gson = getGson()
 
-    @Value("\${token}")
-    private val token: String? = null
+  @Value("\${token}")
+  private val token: String? = null
 
-    companion object {
-        @JvmField
-        internal val prisonApiMockServer = PrisonApiMockServer()
+  companion object {
+    @JvmField
+    internal val prisonApiMockServer = PrisonApiMockServer()
 
-        @JvmField
-        internal val oauthMockServer = OAuthMockServer()
+    @JvmField
+    internal val oauthMockServer = OAuthMockServer()
 
-        @JvmField
-        internal val caseNotesMockServer = CaseNotesMockServer()
+    @JvmField
+    internal val caseNotesMockServer = CaseNotesMockServer()
 
-        @BeforeAll
-        @JvmStatic
-        fun startMocks() {
-            prisonApiMockServer.start()
-            oauthMockServer.start()
-            caseNotesMockServer.start()
-        }
-
-        @AfterAll
-        @JvmStatic
-        fun stopMocks() {
-            prisonApiMockServer.stop()
-            oauthMockServer.stop()
-            caseNotesMockServer.stop()
-        }
+    @BeforeAll
+    @JvmStatic
+    fun startMocks() {
+      prisonApiMockServer.start()
+      oauthMockServer.start()
+      caseNotesMockServer.start()
     }
 
-
-    init {
-        SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
-        // Resolves an issue where Wiremock keeps previous sockets open from other tests causing connection resets
-        System.setProperty("http.keepAlive", "false")
+    @AfterAll
+    @JvmStatic
+    fun stopMocks() {
+      prisonApiMockServer.stop()
+      oauthMockServer.stop()
+      caseNotesMockServer.stop()
     }
+  }
 
-    @BeforeEach
-    fun resetStubs() {
-        prisonApiMockServer.resetAll()
-        oauthMockServer.resetAll()
-        caseNotesMockServer.resetAll()
-        oauthMockServer.stubGrantToken()
-    }
+  init {
+    SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
+    // Resolves an issue where Wiremock keeps previous sockets open from other tests causing connection resets
+    System.setProperty("http.keepAlive", "false")
+  }
 
-    internal fun createHeaderEntity(entity: Any): HttpEntity<*> {
-        val headers = HttpHeaders()
-        headers.add("Authorization", "bearer $token")
-        headers.contentType = MediaType.APPLICATION_JSON
-        return HttpEntity(entity, headers)
-    }
+  @BeforeEach
+  fun resetStubs() {
+    prisonApiMockServer.resetAll()
+    oauthMockServer.resetAll()
+    caseNotesMockServer.resetAll()
+    oauthMockServer.stubGrantToken()
+  }
+
+  internal fun createHeaderEntity(entity: Any): HttpEntity<*> {
+    val headers = HttpHeaders()
+    headers.add("Authorization", "bearer $token")
+    headers.contentType = MediaType.APPLICATION_JSON
+    return HttpEntity(entity, headers)
+  }
 
   internal fun setHeaders(): (HttpHeaders) -> Unit {
     return {
@@ -96,5 +93,4 @@ abstract class IntegrationTest {
   fun loadJsonFile(jsonFile: String): String {
     return IOUtils.toString(javaClass.getResourceAsStream(jsonFile), StandardCharsets.UTF_8.toString())
   }
-
 }

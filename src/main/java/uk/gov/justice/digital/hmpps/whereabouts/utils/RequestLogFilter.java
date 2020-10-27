@@ -19,7 +19,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Pattern;
 
-import static uk.gov.justice.digital.hmpps.whereabouts.utils.MdcUtility.*;
+import static uk.gov.justice.digital.hmpps.whereabouts.utils.MdcUtility.REQUEST_DURATION;
+import static uk.gov.justice.digital.hmpps.whereabouts.utils.MdcUtility.RESPONSE_STATUS;
+import static uk.gov.justice.digital.hmpps.whereabouts.utils.MdcUtility.SKIP_LOGGING;
+import static uk.gov.justice.digital.hmpps.whereabouts.utils.MdcUtility.isLoggingAllowed;
 
 
 @Component

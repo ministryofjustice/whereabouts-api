@@ -4,8 +4,19 @@ import com.microsoft.applicationinsights.TelemetryClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.whereabouts.dto.*
-import uk.gov.justice.digital.hmpps.whereabouts.model.*
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsenceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendAllDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceChangeDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
+import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
+import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
+import uk.gov.justice.digital.hmpps.whereabouts.model.AttendanceChange
+import uk.gov.justice.digital.hmpps.whereabouts.model.AttendanceChangeValues
+import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
@@ -17,50 +28,66 @@ import javax.transaction.Transactional
 
 @Service
 class AttendanceService(
-    private val attendanceRepository: AttendanceRepository,
-    private val attendanceChangesRepository: AttendanceChangesRepository,
-    private val prisonApiService: PrisonApiService,
-    private val iepWarningService: IEPWarningService,
-    private val nomisEventOutcomeMapper: NomisEventOutcomeMapper,
-    private val telemetryClient: TelemetryClient) {
+  private val attendanceRepository: AttendanceRepository,
+  private val attendanceChangesRepository: AttendanceChangesRepository,
+  private val prisonApiService: PrisonApiService,
+  private val iepWarningService: IEPWarningService,
+  private val nomisEventOutcomeMapper: NomisEventOutcomeMapper,
+  private val telemetryClient: TelemetryClient
+) {
 
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getAttendanceForEventLocation(prisonId: String?, eventLocationId: Long?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
+  fun getAttendanceForEventLocation(
+    prisonId: String?,
+    eventLocationId: Long?,
+    date: LocalDate?,
+    period: TimePeriod?
+  ): Set<AttendanceDto> {
     val attendance = attendanceRepository
-        .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(prisonId, eventLocationId, date, period)
+      .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(prisonId, eventLocationId, date, period)
 
     return attendance
-        .map { toAttendanceDto(it) }
-        .toSet()
+      .map { toAttendanceDto(it) }
+      .toSet()
   }
 
   fun getAbsencesForReason(prisonId: String?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
     val attendance = attendanceRepository
-        .findByPrisonIdAndEventDateAndPeriodAndAbsentReasonNotNull(prisonId, date, period)
+      .findByPrisonIdAndEventDateAndPeriodAndAbsentReasonNotNull(prisonId, date, period)
 
     return attendance
-        .map { toAttendanceDto(it) }
-        .toSet()
+      .map { toAttendanceDto(it) }
+      .toSet()
   }
 
-  fun getAttendanceForBookings(prisonId: String?, bookings: Set<Long?>?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
+  fun getAttendanceForBookings(
+    prisonId: String?,
+    bookings: Set<Long?>?,
+    date: LocalDate?,
+    period: TimePeriod?
+  ): Set<AttendanceDto> {
     val attendance = attendanceRepository
-        .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookings, date, period)
+      .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookings, date, period)
 
     return attendance.map { toAttendanceDto(it) }.toSet()
   }
 
-  fun getAttendanceForBookingsOverDateRange(prisonId: String,  bookings: Set<Long>, fromDate: LocalDate, toDate: LocalDate?,
-                                        period: TimePeriod?): Set<AttendanceDto> {
+  fun getAttendanceForBookingsOverDateRange(
+    prisonId: String,
+    bookings: Set<Long>,
+    fromDate: LocalDate,
+    toDate: LocalDate?,
+    period: TimePeriod?
+  ): Set<AttendanceDto> {
 
     val periods = if (period == null) setOf(TimePeriod.AM, TimePeriod.PM) else setOf(period)
     val endDate = toDate ?: fromDate
 
     val attendances = attendanceRepository
-            .findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn(prisonId, bookings, fromDate, endDate, periods)
+      .findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn(prisonId, bookings, fromDate, endDate, periods)
 
     return attendances.map { toAttendanceDto(it) }.toSet()
   }
@@ -70,11 +97,12 @@ class AttendanceService(
   fun createAttendance(attendanceDto: CreateAttendanceDto): AttendanceDto {
     val provisionalAttendance = toAttendance(attendanceDto)
     val existing = attendanceRepository.findByPrisonIdAndBookingIdAndEventIdAndEventDateAndPeriod(
-        provisionalAttendance.prisonId,
-        provisionalAttendance.bookingId,
-        provisionalAttendance.eventId,
-        provisionalAttendance.eventDate,
-        provisionalAttendance.period)
+      provisionalAttendance.prisonId,
+      provisionalAttendance.bookingId,
+      provisionalAttendance.eventId,
+      provisionalAttendance.eventDate,
+      provisionalAttendance.period
+    )
 
     if (existing.size > 0) {
       log.info("Attendance already created")
@@ -85,11 +113,11 @@ class AttendanceService(
 
     postNomisAttendance(attendance)
     iepWarningService.postIEPWarningIfRequired(
-        attendance.bookingId,
-        attendance.caseNoteId,
-        attendance.absentReason,
-        attendance.comments,
-        attendance.eventDate
+      attendance.bookingId,
+      attendance.caseNoteId,
+      attendance.absentReason,
+      attendance.comments,
+      attendance.eventDate
     ).ifPresent { caseNoteId: Long? -> attendance.caseNoteId = caseNoteId }
     log.info("attendance created {}", attendance.toBuilder().comments(null))
     return toAttendanceDto(attendance)
@@ -105,7 +133,7 @@ class AttendanceService(
     }
 
     iepWarningService.handleIEPWarningScenarios(attendance, newAttendanceDetails)
-        .ifPresent { caseNoteId: Long? -> attendance.caseNoteId = caseNoteId }
+      .ifPresent { caseNoteId: Long? -> attendance.caseNoteId = caseNoteId }
 
     val changedFrom = if (attendance.attended) {
       AttendanceChangeValues.Attended
@@ -123,11 +151,13 @@ class AttendanceService(
     attendanceRepository.save(attendance)
     postNomisAttendance(attendance)
 
-    attendanceChangesRepository.save(AttendanceChange(
+    attendanceChangesRepository.save(
+      AttendanceChange(
         attendance = attendance,
         changedFrom = changedFrom,
         changedTo = changedTo
-    ))
+      )
+    )
   }
 
   @Transactional
@@ -137,35 +167,36 @@ class AttendanceService(
     prisonApiService.putAttendanceForMultipleBookings(attendAll.bookingActivities, eventOutcome)
 
     val attendances = attendAll.bookingActivities
-        .stream()
-        .map { (bookingId, activityId) ->
-          Attendance.builder()
-              .attended(true)
-              .paid(true)
-              .bookingId(bookingId)
-              .eventId(activityId)
-              .eventDate(attendAll.eventDate)
-              .eventLocationId(attendAll.eventLocationId)
-              .period(attendAll.period)
-              .prisonId(attendAll.prisonId)
-              .build()
-        }
-        .collect(Collectors.toSet())
+      .stream()
+      .map { (bookingId, activityId) ->
+        Attendance.builder()
+          .attended(true)
+          .paid(true)
+          .bookingId(bookingId)
+          .eventId(activityId)
+          .eventDate(attendAll.eventDate)
+          .eventLocationId(attendAll.eventLocationId)
+          .period(attendAll.period)
+          .prisonId(attendAll.prisonId)
+          .build()
+      }
+      .collect(Collectors.toSet())
 
     attendanceRepository.saveAll(attendances)
 
     return attendances
-        .stream()
-        .map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }
-        .collect(Collectors.toSet())
+      .stream()
+      .map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }
+      .collect(Collectors.toSet())
   }
 
   private fun postNomisAttendance(attendance: Attendance) {
     val eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
-        attendance.absentReason,
-        attendance.attended,
-        attendance.paid,
-        attendance.comments)
+      attendance.absentReason,
+      attendance.attended,
+      attendance.paid,
+      attendance.comments
+    )
 
     log.info("Updating attendance on NOMIS {} {}", attendance.toBuilder().comments(null).build(), eventOutcome)
     prisonApiService.putAttendance(attendance.bookingId, attendance.eventId, eventOutcome)
@@ -173,75 +204,90 @@ class AttendanceService(
 
   private fun isAttendanceLocked(attendance: Attendance): Boolean {
     if (attendance.createDateTime == null) return false
-    val dateOfChange = if (attendance.modifyDateTime == null) attendance.createDateTime.toLocalDate() else attendance.modifyDateTime.toLocalDate()
+    val dateOfChange =
+      if (attendance.modifyDateTime == null) attendance.createDateTime.toLocalDate() else attendance.modifyDateTime.toLocalDate()
     val dateDifference = ChronoUnit.DAYS.between(dateOfChange, LocalDate.now())
     return if (attendance.paid) dateDifference >= 1 else dateDifference >= 7
   }
 
-  fun getAttendanceForOffendersThatHaveScheduledActivity(prisonId: String?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
+  fun getAttendanceForOffendersThatHaveScheduledActivity(
+    prisonId: String?,
+    date: LocalDate?,
+    period: TimePeriod?
+  ): Set<AttendanceDto> {
     val bookingIds = prisonApiService.getBookingIdsForScheduleActivities(prisonId, date, period)
-    val attendances = attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookingIds, date, period)
-    return attendances.stream().map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }.collect(Collectors.toSet())
+    val attendances =
+      attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookingIds, date, period)
+    return attendances.stream().map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }
+      .collect(Collectors.toSet())
   }
 
   @Transactional
   fun createAttendances(attendancesDto: AttendancesDto): Set<AttendanceDto> {
     val attendances = attendancesDto.bookingActivities
-        .map { (bookingId, activityId) ->
-          Attendance.builder()
-              .bookingId(bookingId)
-              .eventId(activityId)
-              .attended(attendancesDto.attended)
-              .paid(attendancesDto.paid)
-              .absentReason(attendancesDto.reason)
-              .comments(attendancesDto.comments)
-              .eventDate(attendancesDto.eventDate)
-              .eventLocationId(attendancesDto.eventLocationId)
-              .period(attendancesDto.period)
-              .prisonId(attendancesDto.prisonId)
-              .build()
-        }
-        .toSet()
+      .map { (bookingId, activityId) ->
+        Attendance.builder()
+          .bookingId(bookingId)
+          .eventId(activityId)
+          .attended(attendancesDto.attended)
+          .paid(attendancesDto.paid)
+          .absentReason(attendancesDto.reason)
+          .comments(attendancesDto.comments)
+          .eventDate(attendancesDto.eventDate)
+          .eventLocationId(attendancesDto.eventLocationId)
+          .period(attendancesDto.period)
+          .prisonId(attendancesDto.prisonId)
+          .build()
+      }
+      .toSet()
 
     attendanceRepository.saveAll(attendances)
 
     val eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
-        attendancesDto.reason,
-        attendancesDto.attended,
-        attendancesDto.paid,
-        attendancesDto.comments)
+      attendancesDto.reason,
+      attendancesDto.attended,
+      attendancesDto.paid,
+      attendancesDto.comments
+    )
 
     prisonApiService.putAttendanceForMultipleBookings(attendancesDto.bookingActivities, eventOutcome)
 
     return attendances
-        .stream()
-        .map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }
-        .collect(Collectors.toSet())
+      .stream()
+      .map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }
+      .collect(Collectors.toSet())
   }
 
-  fun getAbsencesForReason(prisonId: String?, absentReason: AbsentReason?, fromDate: LocalDate, toDate: LocalDate?,
-                           period: TimePeriod?): Set<AbsenceDto> {
+  fun getAbsencesForReason(
+    prisonId: String?,
+    absentReason: AbsentReason?,
+    fromDate: LocalDate,
+    toDate: LocalDate?,
+    period: TimePeriod?
+  ): Set<AbsenceDto> {
 
     val periods = if (period == null) setOf(TimePeriod.AM, TimePeriod.PM) else setOf(period)
     val endDate = toDate ?: fromDate
 
     val offenderDetails = periods.flatMap { timePeriod ->
       prisonApiService.getScheduleActivityOffenderData(prisonId, fromDate, endDate, timePeriod)
-          .map { offenderDetailsWithPeriod(it, timePeriod) }.toSet()
+        .map { offenderDetailsWithPeriod(it, timePeriod) }.toSet()
     }
 
     val attendances = attendanceRepository
-        .findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prisonId, fromDate, endDate, periods, absentReason)
+      .findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prisonId, fromDate, endDate, periods, absentReason)
 
     return attendances.stream()
-        .filter { attendance: Attendance -> offenderDetails.stream().anyMatch(findAttendance(attendance.bookingId, attendance.eventId, attendance.period)) }
-        .map { attendance: Attendance ->
-          val details = offenderDetails.stream()
-              .filter(findAttendance(attendance.bookingId, attendance.eventId, attendance.period)).findFirst()
-              .orElseThrow()
-          toAbsenceDto(details, attendance)
-        }
-        .collect(Collectors.toSet())
+      .filter { attendance: Attendance ->
+        offenderDetails.stream().anyMatch(findAttendance(attendance.bookingId, attendance.eventId, attendance.period))
+      }
+      .map { attendance: Attendance ->
+        val details = offenderDetails.stream()
+          .filter(findAttendance(attendance.bookingId, attendance.eventId, attendance.period)).findFirst()
+          .orElseThrow()
+        toAbsenceDto(details, attendance)
+      }
+      .collect(Collectors.toSet())
   }
 
   @Transactional
@@ -254,112 +300,114 @@ class AttendanceService(
       attendanceRepository.deleteAll(attendances)
       totalAttendances += attendances.size
     }
-    telemetryClient.trackEvent("OffenderDelete", mapOf("offenderNo" to offenderNo, "count" to totalAttendances.toString()), null)
+    telemetryClient.trackEvent(
+      "OffenderDelete",
+      mapOf("offenderNo" to offenderNo, "count" to totalAttendances.toString()),
+      null
+    )
   }
 
   fun getAttendanceChanges(fromDateTime: LocalDateTime, toDateTime: LocalDateTime?): Set<AttendanceChangeDto> {
     val changes =
-        if (toDateTime == null) {
-          attendanceChangesRepository.findAttendanceChangeByCreateDateTime(fromDateTime)
-        } else
+      if (toDateTime == null) {
+        attendanceChangesRepository.findAttendanceChangeByCreateDateTime(fromDateTime)
+      } else
         attendanceChangesRepository.findAttendanceChangeByCreateDateTimeBetween(fromDateTime, toDateTime)
 
     return changes
-        .map {
-          AttendanceChangeDto(
-              id = it.id!!,
-              attendanceId = it.attendance.id,
-              bookingId = it.attendance.bookingId,
-              eventId = it.attendance.eventId,
-              eventLocationId = it.attendance.eventLocationId,
-              changedFrom = it.changedFrom,
-              changedTo = it.changedTo,
-              changedOn = it.createDateTime,
-              changedBy = it.createUserId,
-              prisonId = it.attendance.prisonId
+      .map {
+        AttendanceChangeDto(
+          id = it.id!!,
+          attendanceId = it.attendance.id,
+          bookingId = it.attendance.bookingId,
+          eventId = it.attendance.eventId,
+          eventLocationId = it.attendance.eventLocationId,
+          changedFrom = it.changedFrom,
+          changedTo = it.changedTo,
+          changedOn = it.createDateTime,
+          changedBy = it.createUserId,
+          prisonId = it.attendance.prisonId
 
-          )
-        }.toSet()
+        )
+      }.toSet()
   }
 
   private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails {
     return details.copy(
-        details.bookingId,
-        details.offenderNo,
-        details.eventId,
-        details.cellLocation,
-        details.eventDate,
-        period.toString(),
-        details.firstName,
-        details.lastName,
-        details.comment,
-        details.suspended
+      details.bookingId,
+      details.offenderNo,
+      details.eventId,
+      details.cellLocation,
+      details.eventDate,
+      period.toString(),
+      details.firstName,
+      details.lastName,
+      details.comment,
+      details.suspended
     )
   }
 
   private fun toAbsenceDto(details: OffenderDetails, attendance: Attendance): AbsenceDto {
     return AbsenceDto(
-        attendance.id,
-        attendance.bookingId,
-        details.offenderNo,
-        attendance.eventId,
-        attendance.eventLocationId,
-        attendance.eventDate,
-        TimePeriod.valueOf(details.timeSlot!!),
-        attendance.absentReason,
-        details.comment,
-        attendance.comments,
-        details.cellLocation,
-        details.firstName,
-        details.lastName,
-        details.suspended
+      attendance.id,
+      attendance.bookingId,
+      details.offenderNo,
+      attendance.eventId,
+      attendance.eventLocationId,
+      attendance.eventDate,
+      TimePeriod.valueOf(details.timeSlot!!),
+      attendance.absentReason,
+      details.comment,
+      attendance.comments,
+      details.cellLocation,
+      details.firstName,
+      details.lastName,
+      details.suspended
     )
   }
-
 
   private fun findAttendance(bookingId: Long, eventId: Long?, period: TimePeriod): Predicate<in OffenderDetails> {
     return Predicate { (bookingId1, _, eventId1, _, _, timeSlot) ->
       bookingId1 == bookingId &&
-          eventId1 == eventId && TimePeriod.valueOf(timeSlot!!) == period
+        eventId1 == eventId && TimePeriod.valueOf(timeSlot!!) == period
     }
   }
 
   private fun toAttendance(attendanceDto: CreateAttendanceDto): Attendance {
     return Attendance
-        .builder()
-        .eventLocationId(attendanceDto.eventLocationId)
-        .eventDate(attendanceDto.eventDate)
-        .eventId(attendanceDto.eventId)
-        .bookingId(attendanceDto.bookingId)
-        .period(attendanceDto.period)
-        .paid(attendanceDto.paid)
-        .attended(attendanceDto.attended)
-        .prisonId(attendanceDto.prisonId)
-        .absentReason(attendanceDto.absentReason)
-        .comments(attendanceDto.comments)
-        .build()
+      .builder()
+      .eventLocationId(attendanceDto.eventLocationId)
+      .eventDate(attendanceDto.eventDate)
+      .eventId(attendanceDto.eventId)
+      .bookingId(attendanceDto.bookingId)
+      .period(attendanceDto.period)
+      .paid(attendanceDto.paid)
+      .attended(attendanceDto.attended)
+      .prisonId(attendanceDto.prisonId)
+      .absentReason(attendanceDto.absentReason)
+      .comments(attendanceDto.comments)
+      .build()
   }
 
   private fun toAttendanceDto(attendanceData: Attendance): AttendanceDto {
     return AttendanceDto.builder()
-        .id(attendanceData.id)
-        .eventDate(attendanceData.eventDate)
-        .eventId(attendanceData.eventId)
-        .bookingId(attendanceData.bookingId)
-        .period(attendanceData.period)
-        .paid(attendanceData.paid)
-        .attended(attendanceData.attended)
-        .prisonId(attendanceData.prisonId)
-        .absentReason(attendanceData.absentReason)
-        .eventLocationId(attendanceData.eventLocationId)
-        .comments(attendanceData.comments)
-        .createUserId(attendanceData.createUserId)
-        .createDateTime(attendanceData.createDateTime)
-        .caseNoteId(attendanceData.caseNoteId)
-        .locked(isAttendanceLocked(attendanceData))
-        .modifyDateTime(attendanceData.modifyDateTime)
-        .modifyUserId(attendanceData.modifyUserId)
-        .build()
+      .id(attendanceData.id)
+      .eventDate(attendanceData.eventDate)
+      .eventId(attendanceData.eventId)
+      .bookingId(attendanceData.bookingId)
+      .period(attendanceData.period)
+      .paid(attendanceData.paid)
+      .attended(attendanceData.attended)
+      .prisonId(attendanceData.prisonId)
+      .absentReason(attendanceData.absentReason)
+      .eventLocationId(attendanceData.eventLocationId)
+      .comments(attendanceData.comments)
+      .createUserId(attendanceData.createUserId)
+      .createDateTime(attendanceData.createDateTime)
+      .caseNoteId(attendanceData.caseNoteId)
+      .locked(isAttendanceLocked(attendanceData))
+      .modifyDateTime(attendanceData.modifyDateTime)
+      .modifyUserId(attendanceData.modifyUserId)
+      .build()
   }
-
 }

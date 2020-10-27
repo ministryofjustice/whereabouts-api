@@ -8,8 +8,9 @@ import java.util.function.Predicate
 
 @Service("locationGroupServiceSelector")
 class LocationGroupServiceSelector(
-    @Qualifier("defaultLocationGroupService") private val defaultService: LocationGroupService,
-    @Qualifier("overrideLocationGroupService") private val overrideService: LocationGroupService) : LocationGroupService {
+  @Qualifier("defaultLocationGroupService") private val defaultService: LocationGroupService,
+  @Qualifier("overrideLocationGroupService") private val overrideService: LocationGroupService
+) : LocationGroupService {
 
   override fun getLocationGroupsForAgency(agencyId: String): List<LocationGroup> {
     return getLocationGroups(agencyId)
@@ -17,7 +18,9 @@ class LocationGroupServiceSelector(
 
   override fun getLocationGroups(agencyId: String): List<LocationGroup> {
     val groups = overrideService.getLocationGroups(agencyId)
-    return if (groups.isNotEmpty()) { groups } else defaultService.getLocationGroups(agencyId)
+    return if (groups.isNotEmpty()) {
+      groups
+    } else defaultService.getLocationGroups(agencyId)
   }
 
   override fun locationGroupFilter(agencyId: String, groupName: String): Predicate<Location> {

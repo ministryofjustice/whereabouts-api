@@ -11,10 +11,13 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.digital.hmpps.whereabouts.model.*
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
+import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
+import uk.gov.justice.digital.hmpps.whereabouts.model.AttendanceChange
+import uk.gov.justice.digital.hmpps.whereabouts.model.AttendanceChangeValues
+import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 import java.time.LocalDate
-
 
 @ActiveProfiles("test")
 @Import(TestAuditConfiguration::class)
@@ -45,23 +48,23 @@ class AttendanceChangesRepositoryTest {
   @Test
   fun `should be able to retrieve changes from the database`() {
     val attendance = Attendance.builder()
-        .attended(true)
-        .paid(true)
-        .bookingId(121)
-        .eventDate(LocalDate.now())
-        .eventId(1)
-        .eventLocationId(1)
-        .absentReason(AbsentReason.NotRequired)
-        .prisonId("LEI")
-        .period(TimePeriod.AM)
-        .build()
+      .attended(true)
+      .paid(true)
+      .bookingId(121)
+      .eventDate(LocalDate.now())
+      .eventId(1)
+      .eventLocationId(1)
+      .absentReason(AbsentReason.NotRequired)
+      .prisonId("LEI")
+      .period(TimePeriod.AM)
+      .build()
 
     val attendanceId = attendanceRepository.save(attendance).id
 
     val change = AttendanceChange(
-        attendance = attendance,
-        changedFrom = AttendanceChangeValues.Refused,
-        changedTo = AttendanceChangeValues.NotRequired
+      attendance = attendance,
+      changedFrom = AttendanceChangeValues.Refused,
+      changedTo = AttendanceChangeValues.NotRequired
     )
 
     val id = attendanceChangesRepository.save(change).id

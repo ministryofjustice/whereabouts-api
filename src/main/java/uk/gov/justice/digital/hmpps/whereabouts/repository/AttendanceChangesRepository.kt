@@ -6,9 +6,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.AttendanceChange
 import java.time.LocalDateTime
 
 @Repository
-interface AttendanceChangesRepository : CrudRepository<AttendanceChange,Long> {
-  fun findAttendanceChangeByCreateDateTimeBetween(fromDateTime: LocalDateTime, toDateTime: LocalDateTime): Set<AttendanceChange>
+interface AttendanceChangesRepository : CrudRepository<AttendanceChange, Long> {
+  fun findAttendanceChangeByCreateDateTimeBetween(
+    fromDateTime: LocalDateTime,
+    toDateTime: LocalDateTime
+  ): Set<AttendanceChange>
+
   fun findAttendanceChangeByCreateDateTime(createDateTime: LocalDateTime): Set<AttendanceChange>
 }
-
-

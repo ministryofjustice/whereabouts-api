@@ -46,15 +46,15 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     subPing(200)
 
     webTestClient.get()
-        .uri("/health")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$.components.prisonApiHealth.details.HttpStatus").isEqualTo("OK")
-        .jsonPath("$.components.OAuthApiHealth.details.HttpStatus").isEqualTo("OK")
-        .jsonPath("$.components.caseNotesApiHealth.details.HttpStatus").isEqualTo("OK")
-        .jsonPath("$.status").isEqualTo("UP")
+      .uri("/health")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.components.prisonApiHealth.details.HttpStatus").isEqualTo("OK")
+      .jsonPath("$.components.OAuthApiHealth.details.HttpStatus").isEqualTo("OK")
+      .jsonPath("$.components.caseNotesApiHealth.details.HttpStatus").isEqualTo("OK")
+      .jsonPath("$.status").isEqualTo("UP")
   }
 
   @Test
@@ -62,18 +62,21 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     subPing(404)
 
     webTestClient.get()
-        .uri("/health")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().is5xxServerError
-        .expectBody()
-        .jsonPath("$.components.prisonApiHealth.details.error").isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException\$NotFound: 404 Not Found from GET http://localhost:8999/health/ping")
-        .jsonPath("$.components.prisonApiHealth.details.body").isEqualTo("some error")
-        .jsonPath("$.components.OAuthApiHealth.details.error").isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException\$NotFound: 404 Not Found from GET http://localhost:8090/auth/health/ping")
-        .jsonPath("$.components.OAuthApiHealth.details.body").isEqualTo("some error")
-        .jsonPath("$.components.caseNotesApiHealth.details.error").isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException\$NotFound: 404 Not Found from GET http://localhost:8093/health/ping")
-        .jsonPath("$.components.caseNotesApiHealth.details.body").isEqualTo("some error")
-        .jsonPath("$.status").isEqualTo("DOWN")
+      .uri("/health")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().is5xxServerError
+      .expectBody()
+      .jsonPath("$.components.prisonApiHealth.details.error")
+      .isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException\$NotFound: 404 Not Found from GET http://localhost:8999/health/ping")
+      .jsonPath("$.components.prisonApiHealth.details.body").isEqualTo("some error")
+      .jsonPath("$.components.OAuthApiHealth.details.error")
+      .isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException\$NotFound: 404 Not Found from GET http://localhost:8090/auth/health/ping")
+      .jsonPath("$.components.OAuthApiHealth.details.body").isEqualTo("some error")
+      .jsonPath("$.components.caseNotesApiHealth.details.error")
+      .isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException\$NotFound: 404 Not Found from GET http://localhost:8093/health/ping")
+      .jsonPath("$.components.caseNotesApiHealth.details.body").isEqualTo("some error")
+      .jsonPath("$.status").isEqualTo("DOWN")
   }
 
   @Test
@@ -81,18 +84,21 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     subPing(418)
 
     webTestClient.get()
-        .uri("/health")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().is5xxServerError
-        .expectBody()
-        .jsonPath("$.components.prisonApiHealth.details.error").isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException: 418 I'm a teapot from GET http://localhost:8999/health/ping")
-        .jsonPath("$.components.prisonApiHealth.details.body").isEqualTo("some error")
-        .jsonPath("$.components.OAuthApiHealth.details.error").isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException: 418 I'm a teapot from GET http://localhost:8090/auth/health/ping")
-        .jsonPath("$.components.OAuthApiHealth.details.body").isEqualTo("some error")
-        .jsonPath("$.components.caseNotesApiHealth.details.error").isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException: 418 I'm a teapot from GET http://localhost:8093/health/ping")
-        .jsonPath("$.components.caseNotesApiHealth.details.body").isEqualTo("some error")
-        .jsonPath("$.status").isEqualTo("DOWN")
+      .uri("/health")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().is5xxServerError
+      .expectBody()
+      .jsonPath("$.components.prisonApiHealth.details.error")
+      .isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException: 418 I'm a teapot from GET http://localhost:8999/health/ping")
+      .jsonPath("$.components.prisonApiHealth.details.body").isEqualTo("some error")
+      .jsonPath("$.components.OAuthApiHealth.details.error")
+      .isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException: 418 I'm a teapot from GET http://localhost:8090/auth/health/ping")
+      .jsonPath("$.components.OAuthApiHealth.details.body").isEqualTo("some error")
+      .jsonPath("$.components.caseNotesApiHealth.details.error")
+      .isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException: 418 I'm a teapot from GET http://localhost:8093/health/ping")
+      .jsonPath("$.components.caseNotesApiHealth.details.body").isEqualTo("some error")
+      .jsonPath("$.status").isEqualTo("DOWN")
   }
 
   @Test
@@ -100,15 +106,16 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     subPingWithDelay(200)
 
     webTestClient.get()
-        .uri("/health")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().is5xxServerError
-        .expectBody()
-        .jsonPath("$.components.prisonApiHealth.details.error").isEqualTo("java.lang.IllegalStateException: Timeout on blocking read for 1000 MILLISECONDS")
-        .jsonPath("$.components.OAuthApiHealth.details.HttpStatus").isEqualTo("OK")
-        .jsonPath("$.components.caseNotesApiHealth.details.HttpStatus").isEqualTo("OK")
-        .jsonPath("$.status").isEqualTo("DOWN")
+      .uri("/health")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().is5xxServerError
+      .expectBody()
+      .jsonPath("$.components.prisonApiHealth.details.error")
+      .isEqualTo("java.lang.IllegalStateException: Timeout on blocking read for 1000 MILLISECONDS")
+      .jsonPath("$.components.OAuthApiHealth.details.HttpStatus").isEqualTo("OK")
+      .jsonPath("$.components.caseNotesApiHealth.details.HttpStatus").isEqualTo("OK")
+      .jsonPath("$.status").isEqualTo("DOWN")
   }
 
   @Test
@@ -117,13 +124,13 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     subPing(200)
 
     webTestClient.get()
-        .uri("/health")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().is5xxServerError
-        .expectBody()
-        .jsonPath("$.status").isEqualTo("DOWN")
-        .jsonPath("$.components.queueHealth.status").isEqualTo("DOWN")
+      .uri("/health")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().is5xxServerError
+      .expectBody()
+      .jsonPath("$.status").isEqualTo("DOWN")
+      .jsonPath("$.components.queueHealth.status").isEqualTo("DOWN")
   }
 
   @Test
@@ -131,14 +138,14 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     subPing(200)
 
     webTestClient.get()
-        .uri("/health")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$.status").isEqualTo("UP")
-        .jsonPath("$.components.queueHealth.status").isEqualTo("UP")
-        .jsonPath("$.components.queueHealth.details.dlqStatus").isEqualTo(DlqStatus.UP.description)
+      .uri("/health")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.status").isEqualTo("UP")
+      .jsonPath("$.components.queueHealth.status").isEqualTo("UP")
+      .jsonPath("$.components.queueHealth.details.dlqStatus").isEqualTo(DlqStatus.UP.description)
   }
 
   @Test
@@ -146,11 +153,11 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     subPing(200)
 
     webTestClient.get()
-        .uri("/health")
-        .headers(setHeaders())
-        .exchange()
-        .expectBody()
-        .jsonPath("$.components.queueHealth.details.${QueueAttributes.MESSAGES_ON_DLQ.healthName}").isEqualTo(0)
+      .uri("/health")
+      .headers(setHeaders())
+      .exchange()
+      .expectBody()
+      .jsonPath("$.components.queueHealth.details.${QueueAttributes.MESSAGES_ON_DLQ.healthName}").isEqualTo(0)
   }
 
   @Test
@@ -159,14 +166,14 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     mockQueueWithoutRedrivePolicyAttributes()
 
     webTestClient.get()
-        .uri("/health")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().is5xxServerError
-        .expectBody()
-        .jsonPath("$.status").isEqualTo("DOWN")
-        .jsonPath("$.components.queueHealth.status").isEqualTo("DOWN")
-        .jsonPath("$.components.queueHealth.details.dlqStatus").isEqualTo(DlqStatus.NOT_ATTACHED.description)
+      .uri("/health")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().is5xxServerError
+      .expectBody()
+      .jsonPath("$.status").isEqualTo("DOWN")
+      .jsonPath("$.components.queueHealth.status").isEqualTo("DOWN")
+      .jsonPath("$.components.queueHealth.details.dlqStatus").isEqualTo(DlqStatus.NOT_ATTACHED.description)
   }
 
   @Test
@@ -175,12 +182,12 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     mockQueueWithoutRedrivePolicyAttributes()
 
     webTestClient.get()
-        .uri("/health")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().is5xxServerError
-        .expectBody()
-        .jsonPath("$.components.queueHealth.details.dlqStatus").isEqualTo(DlqStatus.NOT_ATTACHED.description)
+      .uri("/health")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().is5xxServerError
+      .expectBody()
+      .jsonPath("$.components.queueHealth.details.dlqStatus").isEqualTo(DlqStatus.NOT_ATTACHED.description)
   }
 
   @Test
@@ -189,76 +196,107 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     ReflectionTestUtils.setField(queueHealth, "dlqName", "missing_queue")
 
     webTestClient.get()
-        .uri("/health")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().is5xxServerError
-        .expectBody()
-        .jsonPath("$.components.queueHealth.details.dlqStatus").isEqualTo(DlqStatus.NOT_FOUND.description)
+      .uri("/health")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().is5xxServerError
+      .expectBody()
+      .jsonPath("$.components.queueHealth.details.dlqStatus").isEqualTo(DlqStatus.NOT_FOUND.description)
   }
 
   @Test
   fun `Health liveness page is accessible`() {
     webTestClient.get()
-        .uri("/health/liveness")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$.status").isEqualTo("UP")
+      .uri("/health/liveness")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.status").isEqualTo("UP")
   }
 
   @Test
   fun `Health readiness page is accessible`() {
     webTestClient.get()
-        .uri("/health/readiness")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$.status").isEqualTo("UP")
+      .uri("/health/readiness")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.status").isEqualTo("UP")
   }
 
-
   private fun subPing(status: Int) {
-    prisonApiMockServer.stubFor(get("/health/ping").willReturn(aResponse()
-        .withHeader("Content-Type", "application/json")
-        .withBody(if (status == 200) "pong" else "some error")
-        .withStatus(status)))
+    prisonApiMockServer.stubFor(
+      get("/health/ping").willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withBody(if (status == 200) "pong" else "some error")
+          .withStatus(status)
+      )
+    )
 
-    oauthMockServer.stubFor(get("/auth/health/ping").willReturn(aResponse()
-        .withHeader("Content-Type", "application/json")
-        .withBody(if (status == 200) "pong" else "some error")
-        .withStatus(status)))
+    oauthMockServer.stubFor(
+      get("/auth/health/ping").willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withBody(if (status == 200) "pong" else "some error")
+          .withStatus(status)
+      )
+    )
 
-    caseNotesMockServer.stubFor(get("/health/ping").willReturn(aResponse()
-        .withHeader("Content-Type", "application/json")
-        .withBody(if (status == 200) "pong" else "some error")
-        .withStatus(status)))
+    caseNotesMockServer.stubFor(
+      get("/health/ping").willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withBody(if (status == 200) "pong" else "some error")
+          .withStatus(status)
+      )
+    )
   }
 
   private fun subPingWithDelay(status: Int) {
-    prisonApiMockServer.stubFor(get("/health/ping").willReturn(aResponse()
-        .withHeader("Content-Type", "application/json")
-        .withBody(if (status == 200) "pong" else "some error")
-        .withStatus(status)
-        .withFixedDelay(1000)))
+    prisonApiMockServer.stubFor(
+      get("/health/ping").willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withBody(if (status == 200) "pong" else "some error")
+          .withStatus(status)
+          .withFixedDelay(1000)
+      )
+    )
 
-    oauthMockServer.stubFor(get("/auth/health/ping").willReturn(aResponse()
-        .withHeader("Content-Type", "application/json")
-        .withBody(if (status == 200) "pong" else "some error")
-        .withStatus(status)))
+    oauthMockServer.stubFor(
+      get("/auth/health/ping").willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withBody(if (status == 200) "pong" else "some error")
+          .withStatus(status)
+      )
+    )
 
-    caseNotesMockServer.stubFor(get("/health/ping").willReturn(aResponse()
-        .withHeader("Content-Type", "application/json")
-        .withBody(if (status == 200) "pong" else "some error")
-        .withStatus(status)))
+    caseNotesMockServer.stubFor(
+      get("/health/ping").willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withBody(if (status == 200) "pong" else "some error")
+          .withStatus(status)
+      )
+    )
   }
 
   private fun mockQueueWithoutRedrivePolicyAttributes() {
     val queueName = ReflectionTestUtils.getField(queueHealth, "queueName") as String
     val queueUrl = awsSqsClient.getQueueUrl(queueName)
-    whenever(awsSqsClient.getQueueAttributes(GetQueueAttributesRequest(queueUrl.queueUrl).withAttributeNames(listOf(QueueAttributeName.All.toString()))))
-        .thenReturn(GetQueueAttributesResult())
+    whenever(
+      awsSqsClient.getQueueAttributes(
+        GetQueueAttributesRequest(queueUrl.queueUrl).withAttributeNames(
+          listOf(
+            QueueAttributeName.All.toString()
+          )
+        )
+      )
+    )
+      .thenReturn(GetQueueAttributesResult())
   }
 }

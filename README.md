@@ -12,6 +12,12 @@ Swagger API documentation is available (here)[https://whereabouts-api-dev.servic
 ./gradlew build
 ```
 
+### Code style & formatting
+```bash
+./gradlew ktlintApplyToIdea addKtlintFormatGitPreCommitHook
+```
+will apply ktlint styles to intellij and also add a pre-commit hook to format all changed kotlin files.
+
 ### To run:
 This service requires oauth, prison-api and the offender-case-notes to work. Bootstrap these services by running. 
 ```bash
