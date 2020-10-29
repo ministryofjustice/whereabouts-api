@@ -15,16 +15,16 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.client.RestClientException
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult
-import uk.gov.justice.digital.hmpps.whereabouts.services.CellService
+import uk.gov.justice.digital.hmpps.whereabouts.services.CellMoveService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 import javax.persistence.EntityNotFoundException
 
-@WebMvcTest(CellController::class)
+@WebMvcTest(CellMoveController::class)
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)
 class CellControllerTest : TestController() {
 
   @MockBean
-  lateinit var cellService: CellService
+  lateinit var cellMoveService: CellMoveService
 
   @Test
   fun `returns a an unauthorized error when no valid login is present`() {
@@ -37,7 +37,7 @@ class CellControllerTest : TestController() {
   @Test
   @WithMockUser(username = "ITAG_USER")
   fun `handle not found errors correctly`() {
-    whenever(cellService.makeCellMove(any())).thenThrow(EntityNotFoundException(SOME_ERROR_MESSAGE))
+    whenever(cellMoveService.makeCellMove(any())).thenThrow(EntityNotFoundException(SOME_ERROR_MESSAGE))
 
     mockMvc.perform(
       post("/cell/make-cell-move")
@@ -51,7 +51,7 @@ class CellControllerTest : TestController() {
   @Test
   @WithMockUser(username = "ITAG_USER")
   fun `handle server errors correctly`() {
-    whenever(cellService.makeCellMove(any())).thenThrow(RestClientException(SOME_ERROR_MESSAGE))
+    whenever(cellMoveService.makeCellMove(any())).thenThrow(RestClientException(SOME_ERROR_MESSAGE))
 
     mockMvc.perform(
       post("/cell/make-cell-move")
@@ -65,7 +65,7 @@ class CellControllerTest : TestController() {
   @Test
   @WithMockUser(username = "ITAG_USER")
   fun `return cll move details`() {
-    whenever(cellService.makeCellMove(any()))
+    whenever(cellMoveService.makeCellMove(any()))
       .thenReturn(
         CellMoveResult(
           bookingId = SOME_BOOKING_ID.toLong(),

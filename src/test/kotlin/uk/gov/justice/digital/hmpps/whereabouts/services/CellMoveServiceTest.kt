@@ -10,7 +10,7 @@ import org.mockito.ArgumentMatchers.anyString
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult
 
-class CellServiceTest {
+class CellMoveServiceTest {
 
   private val prisonApiService: PrisonApiService = mock()
 
@@ -27,7 +27,7 @@ class CellServiceTest {
         )
       )
 
-    val service = CellService(prisonApiService)
+    val service = CellMoveService(prisonApiService)
 
     val details = service.makeCellMove(cellMoveDetails = CellMoveDetails(SOME_BOOKING_ID, SOME_ASSIGNED_LIVING_UNIT_DESC, SOME_REASON_CODE))
 

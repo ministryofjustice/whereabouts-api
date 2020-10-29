@@ -14,16 +14,16 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
-import uk.gov.justice.digital.hmpps.whereabouts.services.CellService
+import uk.gov.justice.digital.hmpps.whereabouts.services.CellMoveService
 import javax.validation.Valid
 
 @Api(tags = ["cell"])
 @RestController
 @RequestMapping(value = ["cell"], produces = [MediaType.APPLICATION_JSON_VALUE])
-class CellController {
+class CellMoveController {
 
   @Autowired
-  private lateinit var cellService: CellService
+  private lateinit var cellMoveService: CellMoveService
 
   @PostMapping("/make-cell-move")
   @ApiOperation(value = "Make a cell move for an offender")
@@ -44,5 +44,5 @@ class CellController {
   fun makeCellMove(
     @RequestBody @Valid cellMoveDetails: CellMoveDetails
   ): CellMoveResponse =
-    CellMoveResponse(cellMoveResult = cellService.makeCellMove(cellMoveDetails))
+    CellMoveResponse(cellMoveResult = cellMoveService.makeCellMove(cellMoveDetails))
 }

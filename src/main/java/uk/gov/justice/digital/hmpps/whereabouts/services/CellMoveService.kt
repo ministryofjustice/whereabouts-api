@@ -5,7 +5,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult
 
 @Service
-class CellService(val prisonApiService: PrisonApiService) {
+class CellMoveService(val prisonApiService: PrisonApiService) {
   fun makeCellMove(cellMoveDetails: CellMoveDetails): CellMoveResult {
     return prisonApiService.putCellMove(
       cellMoveDetails.bookingId,

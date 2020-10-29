@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.junit.jupiter.api.Test
 
-class CellIntegrationTest : IntegrationTest() {
+class CellMoveIntegrationTest : IntegrationTest() {
   @Test
   fun `make a request to change an offenders cell`() {
     val bookingId = 10L
