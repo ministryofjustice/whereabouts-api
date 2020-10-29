@@ -1,5 +1,13 @@
 package uk.gov.justice.digital.hmpps.whereabouts.config
 
+import com.microsoft.applicationinsights.extensibility.ContextInitializer
+import org.slf4j.LoggerFactory
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.boot.info.BuildProperties
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.event.EventListener
+
 @Configuration
 class VersionOutputter(buildProperties: BuildProperties) {
   private val version = buildProperties.version
