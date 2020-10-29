@@ -31,7 +31,7 @@ class CellIntegrationTest : IntegrationTest() {
       )
       .headers(setHeaders())
       .exchange()
-      .expectStatus().isOk
+      .expectStatus().isCreated
       .expectBody()
       .json(loadJsonFile("cell-move-details.json"))
 

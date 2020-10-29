@@ -81,7 +81,7 @@ class CellControllerTest : TestController() {
         .content(getJsonBody(SOME_BOOKING_ID, SOME_ASSIGNED_LIVING_UNIT_DESC, SOME_REASON_CODE))
     )
       .andDo(MockMvcResultHandlers.print())
-      .andExpect(status().isOk())
+      .andExpect(status().isCreated())
       .andExpect(jsonPath(".bookingId").value(SOME_BOOKING_ID))
       .andExpect(jsonPath(".agencyId").value(SOME_AGENCY_ID))
       .andExpect(jsonPath(".assignedLivingUnitId").value(SOME_ASSIGNED_LIVING_UNIT_ID))

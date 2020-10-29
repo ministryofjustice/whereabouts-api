@@ -5,10 +5,12 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
@@ -25,6 +27,7 @@ class CellController {
 
   @PostMapping("/make-cell-move")
   @ApiOperation(value = "Make a cell move for an offender")
+  @ResponseStatus(HttpStatus.CREATED)
   @ApiResponses(
     value = [
       ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class), ApiResponse(
