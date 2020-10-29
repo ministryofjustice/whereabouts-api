@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
@@ -170,6 +171,18 @@ public class PrisonApiService {
                 .retrieve()
                 .bodyToMono(responseType)
                 .map(Event::getEventId)
+                .block();
+    }
+
+    public CellMoveResult putCellMove(final long bookingId, final String internalLocationDescription, final String reasonCode) {
+        final var responseType = new ParameterizedTypeReference<CellMoveResult>() {
+        };
+
+        return webClient.put()
+                .uri("/bookings/{bookingId}/living-unit/{internalLocationDescription}?reasonCode={reasonCode}",
+                        bookingId, internalLocationDescription, reasonCode)
+                .retrieve()
+                .bodyToMono(responseType)
                 .block();
     }
 }

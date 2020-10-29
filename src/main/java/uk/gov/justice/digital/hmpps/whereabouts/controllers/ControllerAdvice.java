@@ -16,7 +16,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException;
 import javax.persistence.EntityNotFoundException;
 
 @RestControllerAdvice(
-        basePackageClasses = {AttendanceController.class, AttendanceStatisticsController.class, AttendancesController.class, CourtController.class, AgencyController.class, LocationController.class}
+        basePackageClasses = {AttendanceController.class, AttendanceStatisticsController.class, AttendancesController.class, CourtController.class, AgencyController.class, LocationController.class, CellMoveController.class}
 )
 @Slf4j
 public class ControllerAdvice {

@@ -8,6 +8,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellAttribute
@@ -287,6 +288,32 @@ class PrisonApiMockServer : WireMockServer(8999) {
               )
             )
             .withStatus(201)
+        )
+    )
+  }
+
+  fun stubMakeCellMove(
+    bookingId: Long,
+    internalLocationDescription: String,
+    assignedLivingUnitId: Long,
+    agencyId: String
+  ) {
+    stubFor(
+      put(urlPathEqualTo("/api/bookings/$bookingId/living-unit/$internalLocationDescription"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-type", "application/json")
+            .withBody(
+              gson.toJson(
+                CellMoveResult(
+                  bookingId = bookingId,
+                  agencyId = agencyId,
+                  assignedLivingUnitDesc = internalLocationDescription,
+                  assignedLivingUnitId = assignedLivingUnitId
+                )
+              )
+            )
+            .withStatus(200)
         )
     )
   }

@@ -54,6 +54,8 @@ dependencies {
   implementation("com.amazonaws:amazon-sqs-java-messaging-lib:1.0.8")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
+  testImplementation("org.springframework.security:spring-security-test:4.0.0.RELEASE")
+
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.19.0")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
