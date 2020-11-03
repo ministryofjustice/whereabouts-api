@@ -1,8 +1,9 @@
-package uk.gov.justice.digital.hmpps.whereabouts.dto;
+package uk.gov.justice.digital.hmpps.whereabouts.dto.attendance;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 

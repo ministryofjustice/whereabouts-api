@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsencesResponse
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceChangesResponse
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsencesResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceChangesResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesResponse
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService

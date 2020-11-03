@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AbsentReasonsDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsentReasonsDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 
 class AbsentReasonsIntegrationTest : IntegrationTest() {
@@ -26,7 +26,11 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
       AbsentReason.UnacceptableAbsence
     )
 
-    val expected = AbsentReasonsDto(paidReasons, unpaidReasons, triggersIEPWarnings)
+    val expected = AbsentReasonsDto(
+      paidReasons,
+      unpaidReasons,
+      triggersIEPWarnings
+    )
 
     webTestClient.get()
       .uri("/absence-reasons")
