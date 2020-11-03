@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.whereabouts.dto
+package uk.gov.justice.digital.hmpps.whereabouts.dto.attendance
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty

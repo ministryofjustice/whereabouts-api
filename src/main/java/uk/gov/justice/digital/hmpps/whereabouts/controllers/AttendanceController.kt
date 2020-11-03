@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendAllDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendAllDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceExists
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceLocked
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceNotFound

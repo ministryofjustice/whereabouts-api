@@ -7,8 +7,8 @@ import com.nhaarman.mockito_kotlin.whenever
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anySet
 import org.springframework.boot.test.mock.mockito.MockBean
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod

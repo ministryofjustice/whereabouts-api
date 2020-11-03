@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.UpdateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod

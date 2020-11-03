@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.whereabouts.dto;
+package uk.gov.justice.digital.hmpps.whereabouts.dto.attendance;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
