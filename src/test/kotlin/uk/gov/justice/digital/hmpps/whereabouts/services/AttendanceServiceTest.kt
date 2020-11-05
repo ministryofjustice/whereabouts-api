@@ -47,19 +47,18 @@ class AttendanceServiceTest {
 
   private val today: LocalDate = LocalDate.now()
   private val testAttendanceDto: CreateAttendanceDto =
-    CreateAttendanceDto
-      .builder()
-      .attended(false)
-      .paid(false)
-      .absentReason(AbsentReason.Refused)
-      .eventId(2)
-      .eventLocationId(3)
-      .period(TimePeriod.AM)
-      .prisonId("LEI")
-      .bookingId(100)
-      .eventDate(today)
-      .comments("hello")
-      .build()
+    CreateAttendanceDto(
+      attended = false,
+      paid = false,
+      absentReason = AbsentReason.Refused,
+      eventId = 2,
+      eventLocationId = 3,
+      period = TimePeriod.AM,
+      prisonId = "LEI",
+      bookingId = 100,
+      eventDate = today,
+      comments = "hello"
+    )
 
   private lateinit var service: AttendanceService
 
@@ -299,12 +298,11 @@ class AttendanceServiceTest {
   fun `should create an attendance record`() {
 
     service.createAttendance(
-      testAttendanceDto
-        .toBuilder()
-        .paid(true)
-        .attended(true)
-        .absentReason(null)
-        .build()
+      testAttendanceDto.copy(
+        paid = true,
+        attended = true,
+        absentReason = null
+      )
     )
 
     verify(attendanceRepository).save(
@@ -332,12 +330,11 @@ class AttendanceServiceTest {
       )
     )
 
-    val attendance = testAttendanceDto
-      .toBuilder()
-      .absentReason(AbsentReason.AcceptableAbsence)
-      .attended(false)
-      .paid(true)
-      .build()
+    val attendance = testAttendanceDto.copy(
+      absentReason = AbsentReason.AcceptableAbsence,
+      attended = false,
+      paid = true
+    )
 
     service.createAttendance(attendance)
 
@@ -358,18 +355,18 @@ class AttendanceServiceTest {
 
     service.createAttendance(
       testAttendanceDto
-        .toBuilder()
-        .attended(false)
-        .paid(false)
-        .absentReason(AbsentReason.Refused)
-        .eventId(2)
-        .eventLocationId(3)
-        .period(TimePeriod.AM)
-        .prisonId("LEI")
-        .bookingId(100L)
-        .eventDate(today)
-        .comments("hello, world")
-        .build()
+        .copy(
+          attended = false,
+          paid = false,
+          absentReason = AbsentReason.Refused,
+          eventId = 2,
+          eventLocationId = 3,
+          period = TimePeriod.AM,
+          prisonId = "LEI",
+          bookingId = 100L,
+          eventDate = today,
+          comments = "hello, world"
+        )
     )
 
     verify(attendanceRepository).save(
@@ -429,19 +426,18 @@ class AttendanceServiceTest {
 
     assertThatThrownBy {
       service.createAttendance(
-        CreateAttendanceDto
-          .builder()
-          .absentReason(AbsentReason.Refused)
-          .attended(false)
-          .paid(false)
-          .bookingId(1)
-          .comments("test comments")
-          .eventId(1)
-          .eventLocationId(2)
-          .period(TimePeriod.AM)
-          .prisonId("LEI")
-          .eventDate(LocalDate.now())
-          .build()
+        CreateAttendanceDto(
+          absentReason = AbsentReason.Refused,
+          attended = false,
+          paid = false,
+          bookingId = 1,
+          comments = "test comments",
+          eventId = 1,
+          eventLocationId = 2,
+          period = TimePeriod.AM,
+          prisonId = "LEI",
+          eventDate = LocalDate.now()
+        )
       )
     }.isExactlyInstanceOf(AttendanceExists::class.java)
   }
@@ -648,19 +644,18 @@ class AttendanceServiceTest {
     ).thenReturn(Optional.of(100L))
 
     val created = service.createAttendance(
-      CreateAttendanceDto
-        .builder()
-        .absentReason(AbsentReason.Refused)
-        .attended(false)
-        .paid(false)
-        .bookingId(1)
-        .comments("test comments")
-        .eventId(1)
-        .eventLocationId(2)
-        .period(TimePeriod.AM)
-        .prisonId("LEI")
-        .eventDate(LocalDate.now())
-        .build()
+      CreateAttendanceDto(
+        absentReason = AbsentReason.Refused,
+        attended = false,
+        paid = false,
+        bookingId = 1,
+        comments = "test comments",
+        eventId = 1,
+        eventLocationId = 2,
+        period = TimePeriod.AM,
+        prisonId = "LEI",
+        eventDate = LocalDate.now()
+      )
     )
 
     assertThat(created).isEqualTo(
@@ -816,14 +811,13 @@ class AttendanceServiceTest {
       .collect(Collectors.toSet())
 
     val savedAttendanceDetails = service.attendAll(
-      AttendAllDto
-        .builder()
-        .eventDate(LocalDate.now().minusDays(1))
-        .eventLocationId(2L)
-        .prisonId("LEI")
-        .period(TimePeriod.AM)
-        .bookingActivities(bookingActivities)
-        .build()
+      AttendAllDto(
+        eventDate = LocalDate.now().minusDays(1),
+        eventLocationId = 2L,
+        prisonId = "LEI",
+        period = TimePeriod.AM,
+        bookingActivities = bookingActivities
+      )
     )
 
     assertThat(savedAttendanceDetails).containsExactlyInAnyOrder(
@@ -988,18 +982,17 @@ class AttendanceServiceTest {
       .collect(Collectors.toSet())
 
     val savedAttendanceDetails = service.createAttendances(
-      AttendancesDto
-        .builder()
-        .eventDate(LocalDate.now().minusDays(1))
-        .eventLocationId(2L)
-        .prisonId("LEI")
-        .period(TimePeriod.AM)
-        .reason(AbsentReason.AcceptableAbsence)
-        .comments("test")
-        .attended(false)
-        .paid(true)
-        .bookingActivities(bookingActivities)
-        .build()
+      AttendancesDto(
+        eventDate = LocalDate.now().minusDays(1),
+        eventLocationId = 2L,
+        prisonId = "LEI",
+        period = TimePeriod.AM,
+        reason = AbsentReason.AcceptableAbsence,
+        comments = "test",
+        attended = false,
+        paid = true,
+        bookingActivities = bookingActivities
+      )
     )
 
     assertThat(savedAttendanceDetails).containsExactlyInAnyOrder(

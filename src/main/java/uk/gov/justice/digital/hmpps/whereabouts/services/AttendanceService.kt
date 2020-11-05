@@ -166,21 +166,18 @@ class AttendanceService(
 
     prisonApiService.putAttendanceForMultipleBookings(attendAll.bookingActivities, eventOutcome)
 
-    val attendances = attendAll.bookingActivities
-      .stream()
-      .map { (bookingId, activityId) ->
-        Attendance.builder()
-          .attended(true)
-          .paid(true)
-          .bookingId(bookingId)
-          .eventId(activityId)
-          .eventDate(attendAll.eventDate)
-          .eventLocationId(attendAll.eventLocationId)
-          .period(attendAll.period)
-          .prisonId(attendAll.prisonId)
-          .build()
-      }
-      .collect(Collectors.toSet())
+    val attendances = attendAll.bookingActivities.map { (bookingId, activityId) ->
+      Attendance.builder()
+        .attended(true)
+        .paid(true)
+        .bookingId(bookingId)
+        .eventId(activityId)
+        .eventDate(attendAll.eventDate)
+        .eventLocationId(attendAll.eventLocationId)
+        .period(attendAll.period)
+        .prisonId(attendAll.prisonId)
+        .build()
+    }.toSet()
 
     attendanceRepository.saveAll(attendances)
 

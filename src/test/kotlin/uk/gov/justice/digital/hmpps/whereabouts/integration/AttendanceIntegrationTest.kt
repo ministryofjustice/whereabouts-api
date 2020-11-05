@@ -34,18 +34,17 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
     prisonApiMockServer.stubUpdateAttendance(5)
 
-    val attendance = CreateAttendanceDto
-      .builder()
-      .prisonId("LEI")
-      .bookingId(5)
-      .eventId(activityId)
-      .eventLocationId(2)
-      .eventDate(LocalDate.of(2010, 10, 10))
-      .period(TimePeriod.AM)
-      .attended(false)
-      .paid(false)
-      .absentReason(AbsentReason.Refused)
-      .build()
+    val attendance = CreateAttendanceDto(
+      prisonId = "LEI",
+      bookingId = 5,
+      eventId = activityId,
+      eventLocationId = 2,
+      eventDate = LocalDate.of(2010, 10, 10),
+      period = TimePeriod.AM,
+      attended = false,
+      paid = false,
+      absentReason = AbsentReason.Refused
+    )
 
     val response = webTestClient.post()
       .uri("/attendance")
@@ -98,17 +97,16 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
     prisonApiMockServer.stubUpdateAttendance()
 
-    val attendance = CreateAttendanceDto
-      .builder()
-      .prisonId("LEI")
-      .bookingId(1)
-      .eventId(activityId)
-      .eventLocationId(2)
-      .eventDate(LocalDate.of(2010, 10, 10))
-      .period(TimePeriod.AM)
-      .attended(true)
-      .paid(true)
-      .build()
+    val attendance = CreateAttendanceDto(
+      prisonId = "LEI",
+      bookingId = 1,
+      eventId = activityId,
+      eventLocationId = 2,
+      eventDate = LocalDate.of(2010, 10, 10),
+      period = TimePeriod.AM,
+      attended = true,
+      paid = true
+    )
 
     webTestClient.post()
       .uri("/attendance")
@@ -145,19 +143,18 @@ class AttendanceIntegrationTest : IntegrationTest() {
     caseNotesMockServer.stubCreateCaseNote(offenderNo)
     prisonApiMockServer.stubGetBooking(offenderNo, bookingId)
 
-    val attendance = CreateAttendanceDto
-      .builder()
-      .prisonId("LEI")
-      .bookingId(bookingId)
-      .eventId(activityId)
-      .eventLocationId(2)
-      .eventDate(LocalDate.of(2010, 10, 10))
-      .period(TimePeriod.AM)
-      .attended(false)
-      .paid(false)
-      .absentReason(AbsentReason.RefusedIncentiveLevelWarning)
-      .comments(comments)
-      .build()
+    val attendance = CreateAttendanceDto(
+      prisonId = "LEI",
+      bookingId = bookingId,
+      eventId = activityId,
+      eventLocationId = 2,
+      eventDate = LocalDate.of(2010, 10, 10),
+      period = TimePeriod.AM,
+      attended = false,
+      paid = false,
+      absentReason = AbsentReason.RefusedIncentiveLevelWarning,
+      comments = comments
+    )
 
     webTestClient.post()
       .uri("/attendance")
@@ -194,16 +191,15 @@ class AttendanceIntegrationTest : IntegrationTest() {
     webTestClient.post()
       .uri("/attendance")
       .bodyValue(
-        CreateAttendanceDto
-          .builder()
-          .prisonId("LEI")
-          .eventId(2)
-          .eventLocationId(2)
-          .eventDate(LocalDate.of(2010, 10, 10))
-          .period(TimePeriod.AM)
-          .attended(true)
-          .paid(true)
-          .build()
+        mapOf(
+          "prisonId" to "LEI",
+          "eventId" to 2,
+          "eventLocationId" to 2,
+          "eventDate" to LocalDate.of(2010, 10, 10),
+          "period" to TimePeriod.AM,
+          "attended" to true,
+          "paid" to true
+        )
       )
       .headers(setHeaders())
       .exchange()
@@ -216,16 +212,15 @@ class AttendanceIntegrationTest : IntegrationTest() {
     webTestClient.post()
       .uri("/attendance")
       .bodyValue(
-        CreateAttendanceDto
-          .builder()
-          .bookingId(1)
-          .eventId(2)
-          .eventLocationId(2)
-          .eventDate(LocalDate.of(2010, 10, 10))
-          .period(TimePeriod.AM)
-          .attended(true)
-          .paid(true)
-          .build()
+        mapOf(
+          "bookingId" to 1,
+          "eventId" to 2,
+          "eventLocationId" to 2,
+          "eventDate" to LocalDate.of(2010, 10, 10),
+          "period" to TimePeriod.AM,
+          "attended" to true,
+          "paid" to true
+        )
       )
       .headers(setHeaders())
       .exchange()
@@ -238,16 +233,15 @@ class AttendanceIntegrationTest : IntegrationTest() {
     webTestClient.post()
       .uri("/attendance")
       .bodyValue(
-        CreateAttendanceDto
-          .builder()
-          .bookingId(1)
-          .prisonId("LEI")
-          .eventLocationId(2)
-          .eventDate(LocalDate.of(2010, 10, 10))
-          .period(TimePeriod.AM)
-          .attended(true)
-          .paid(true)
-          .build()
+        mapOf(
+          "bookingId" to 1,
+          "prisonId" to "LEI",
+          "eventLocationId" to 2,
+          "eventDate" to LocalDate.of(2010, 10, 10),
+          "period" to TimePeriod.AM,
+          "attended" to true,
+          "paid" to true
+        )
       )
       .headers(setHeaders())
       .exchange()
@@ -260,16 +254,15 @@ class AttendanceIntegrationTest : IntegrationTest() {
     webTestClient.post()
       .uri("/attendance")
       .bodyValue(
-        CreateAttendanceDto
-          .builder()
-          .bookingId(1)
-          .prisonId("LEI")
-          .eventId(1)
-          .eventDate(LocalDate.of(2010, 10, 10))
-          .period(TimePeriod.AM)
-          .attended(true)
-          .paid(true)
-          .build()
+        mapOf(
+          "bookingId" to 1,
+          "prisonId" to "LEI",
+          "eventId" to 1,
+          "eventDate" to LocalDate.of(2010, 10, 10),
+          "period" to TimePeriod.AM,
+          "attended" to true,
+          "paid" to true
+        )
       )
       .headers(setHeaders())
       .exchange()
@@ -282,16 +275,15 @@ class AttendanceIntegrationTest : IntegrationTest() {
     webTestClient.post()
       .uri("/attendance")
       .bodyValue(
-        CreateAttendanceDto
-          .builder()
-          .bookingId(1)
-          .prisonId("LEI")
-          .eventId(1)
-          .eventLocationId(1)
-          .period(TimePeriod.AM)
-          .attended(true)
-          .paid(true)
-          .build()
+        mapOf(
+          "bookingId" to 1,
+          "prisonId" to "LEI",
+          "eventId" to 1,
+          "eventLocationId" to 1,
+          "period" to TimePeriod.AM,
+          "attended" to true,
+          "paid" to true
+        )
       )
       .headers(setHeaders())
       .exchange()
@@ -304,16 +296,15 @@ class AttendanceIntegrationTest : IntegrationTest() {
     webTestClient.post()
       .uri("/attendance")
       .bodyValue(
-        CreateAttendanceDto
-          .builder()
-          .bookingId(1)
-          .prisonId("LEI")
-          .eventId(1)
-          .eventLocationId(1)
-          .eventDate(LocalDate.of(2019, 10, 10))
-          .attended(true)
-          .paid(true)
-          .build()
+        mapOf(
+          "bookingId" to 1,
+          "prisonId" to "LEI",
+          "eventId" to 1,
+          "eventLocationId" to 1,
+          "eventDate" to LocalDate.of(2019, 10, 10),
+          "attended" to true,
+          "paid" to true
+        )
       )
       .headers(setHeaders())
       .exchange()
@@ -382,17 +373,16 @@ class AttendanceIntegrationTest : IntegrationTest() {
     )
 
     val attendanceDto =
-      CreateAttendanceDto
-        .builder()
-        .prisonId("LEI")
-        .attended(true)
-        .paid(true)
-        .bookingId(1)
-        .eventId(2)
-        .eventLocationId(1)
-        .period(TimePeriod.AM)
-        .eventDate(LocalDate.now())
-        .build()
+      CreateAttendanceDto(
+        prisonId = "LEI",
+        attended = true,
+        paid = true,
+        bookingId = 1,
+        eventId = 2,
+        eventLocationId = 1,
+        period = TimePeriod.AM,
+        eventDate = LocalDate.now()
+      )
 
     val response = webTestClient.post()
       .uri("/attendance")
@@ -414,17 +404,16 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
     prisonApiMockServer.stubUpdateAttendance(5)
 
-    val attendance = CreateAttendanceDto
-      .builder()
-      .prisonId("LEI")
-      .bookingId(5)
-      .eventId(activityId)
-      .eventLocationId(2)
-      .eventDate(LocalDate.of(2010, 11, 11))
-      .period(TimePeriod.AM)
-      .attended(true)
-      .paid(true)
-      .build()
+    val attendance = CreateAttendanceDto(
+      prisonId = "LEI",
+      bookingId = 5,
+      eventId = activityId,
+      eventLocationId = 2,
+      eventDate = LocalDate.of(2010, 11, 11),
+      period = TimePeriod.AM,
+      attended = true,
+      paid = true
+    )
 
     webTestClient.post()
       .uri("/attendance")
@@ -467,17 +456,16 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .build()
     )
 
-    val attendance = CreateAttendanceDto
-      .builder()
-      .prisonId("LEI")
-      .bookingId(1)
-      .eventId(activityId)
-      .eventLocationId(1)
-      .eventDate(LocalDate.of(2010, 10, 10))
-      .period(TimePeriod.AM)
-      .attended(true)
-      .paid(true)
-      .build()
+    val attendance = CreateAttendanceDto(
+      prisonId = "LEI",
+      bookingId = 1,
+      eventId = activityId,
+      eventLocationId = 1,
+      eventDate = LocalDate.of(2010, 10, 10),
+      period = TimePeriod.AM,
+      attended = true,
+      paid = true
+    )
 
     webTestClient.put()
       .uri("/attendance/${savedAttendance.id}")
@@ -509,17 +497,16 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
   private fun postAttendance(bookingId: Long = 1) {
     val attendanceDto =
-      CreateAttendanceDto
-        .builder()
-        .prisonId("LEI")
-        .attended(true)
-        .paid(true)
-        .bookingId(bookingId)
-        .eventId(2)
-        .eventLocationId(1)
-        .period(TimePeriod.AM)
-        .eventDate(LocalDate.now())
-        .build()
+      CreateAttendanceDto(
+        prisonId = "LEI",
+        attended = true,
+        paid = true,
+        bookingId = bookingId,
+        eventId = 2,
+        eventLocationId = 1,
+        period = TimePeriod.AM,
+        eventDate = (LocalDate.now())
+      )
 
     webTestClient.post()
       .uri("/attendance")
