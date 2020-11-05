@@ -313,16 +313,15 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .map { BookingActivity(activityId = 2L, bookingId = it) }
       .collect(Collectors.toSet())
 
-    val attendAll = AttendancesDto
-      .builder()
-      .eventDate(LocalDate.of(2019, 10, 10))
-      .eventLocationId(1L)
-      .prisonId("LEI")
-      .period(TimePeriod.AM)
-      .bookingActivities(bookingActivities)
-      .attended(true)
-      .paid(true)
-      .build()
+    val attendAll = AttendancesDto(
+      eventDate = LocalDate.of(2019, 10, 10),
+      eventLocationId = 1L,
+      prisonId = "LEI",
+      period = TimePeriod.AM,
+      bookingActivities = bookingActivities,
+      attended = true,
+      paid = true
+    )
 
     webTestClient
       .post()
