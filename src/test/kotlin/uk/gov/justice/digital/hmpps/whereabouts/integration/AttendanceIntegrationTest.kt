@@ -7,7 +7,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
@@ -21,64 +20,6 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
   @Autowired
   lateinit var attendanceRepository: AttendanceRepository
-
-  @Test
-  fun `should return all changes made to an attendance record`() {
-    val bookingId = getNextBookingId()
-
-    prisonApiMockServer.stubUpdateAttendance(bookingId)
-
-    val createdAttendance = webTestClient.post()
-      .uri("/attendance")
-      .headers(setHeaders())
-      .bodyValue(
-        CreateAttendanceDto(
-          prisonId = "LEI",
-          bookingId = bookingId,
-          eventId = 2L,
-          eventLocationId = 2,
-          eventDate = LocalDate.of(2010, 10, 10),
-          period = TimePeriod.AM,
-          attended = false,
-          paid = false,
-          absentReason = AbsentReason.Refused
-        )
-      )
-      .exchange()
-      .returnResult(AttendanceDto::class.java)
-      .responseBody
-      .blockFirst()
-
-    val updateAttendance =
-      UpdateAttendanceDto(attended = false, paid = true, absentReason = AbsentReason.AcceptableAbsence)
-
-    webTestClient.put()
-      .uri("/attendance/${createdAttendance.id}")
-      .headers(setHeaders())
-      .bodyValue(updateAttendance)
-      .exchange()
-      .expectStatus()
-      .isNoContent
-
-    webTestClient.get()
-      .uri {
-        it.path("/attendances/changes")
-          .queryParam("fromDateTime", LocalDateTime.now().minusHours(1).toString())
-          .queryParam("toDateTime", LocalDateTime.now().plusHours(1).toString())
-          .build()
-      }
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus().isOk()
-      .expectBody()
-      .jsonPath("$.changes[0].attendanceId").isNumber
-      .jsonPath("$.changes[0].eventId").isEqualTo(2L)
-      .jsonPath("$.changes[0].eventLocationId").isEqualTo(2L)
-      .jsonPath("$.changes[0].bookingId").isEqualTo(bookingId)
-      .jsonPath("$.changes[0].changedFrom").isEqualTo(AbsentReason.Refused.toString())
-      .jsonPath("$.changes[0].changedTo").isEqualTo(AbsentReason.AcceptableAbsence.toString())
-      .jsonPath("$.changes[0].changedBy").isEqualTo("ITAG_USER")
-  }
 
   @Test
   fun `should make an elite api request to update an offenders attendance`() {
