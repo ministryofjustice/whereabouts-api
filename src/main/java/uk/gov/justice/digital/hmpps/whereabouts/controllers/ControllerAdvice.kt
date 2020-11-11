@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import lombok.extern.slf4j.Slf4j
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -19,7 +18,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import javax.persistence.EntityNotFoundException
 
 @RestControllerAdvice(basePackageClasses = [AttendanceController::class, AttendanceStatisticsController::class, AttendancesController::class, CourtController::class, AgencyController::class, LocationController::class, CellMoveController::class])
-@Slf4j
 class ControllerAdvice {
   @ExceptionHandler(RestClientResponseException::class)
   fun handleException(e: RestClientResponseException): ResponseEntity<ByteArray> {
