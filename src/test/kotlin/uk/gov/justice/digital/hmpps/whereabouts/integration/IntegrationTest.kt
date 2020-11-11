@@ -15,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
-import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.CaseNotesMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
@@ -30,7 +29,8 @@ abstract class IntegrationTest {
   @Autowired
   lateinit var webTestClient: WebTestClient
 
-  internal val gson: Gson = getGson()
+  @Autowired
+  lateinit var gson: Gson
 
   @Value("\${token}")
   private val token: String? = null
@@ -44,6 +44,13 @@ abstract class IntegrationTest {
 
     @JvmField
     internal val caseNotesMockServer = CaseNotesMockServer()
+
+    private var lastBookingId = 0L
+
+    fun getNextBookingId(): Long {
+      lastBookingId += 1
+      return lastBookingId
+    }
 
     @BeforeAll
     @JvmStatic
