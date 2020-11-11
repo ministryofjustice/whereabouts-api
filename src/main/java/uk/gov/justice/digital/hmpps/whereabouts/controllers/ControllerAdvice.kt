@@ -57,7 +57,7 @@ class ControllerAdvice {
 
   @ExceptionHandler(AccessDeniedException::class)
   fun handleException(e: AccessDeniedException?): ResponseEntity<ErrorResponse> {
-    log.debug("Forbidden (403) returned", e)
+    log.debug("Forbidden (403) returned", e?.message)
     return ResponseEntity
       .status(HttpStatus.FORBIDDEN)
       .body(
@@ -156,6 +156,6 @@ class ControllerAdvice {
   }
 
   companion object {
-    val log = LoggerFactory.getLogger(this::class.java)
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
