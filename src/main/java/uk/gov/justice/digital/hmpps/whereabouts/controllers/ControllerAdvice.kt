@@ -21,7 +21,7 @@ import javax.persistence.EntityNotFoundException
 class ControllerAdvice {
   @ExceptionHandler(RestClientResponseException::class)
   fun handleException(e: RestClientResponseException): ResponseEntity<ByteArray> {
-    log.error("Unexpected exception", e)
+    log.error("Unexpected exception", e.message)
     return ResponseEntity
       .status(e.rawStatusCode)
       .body(e.responseBodyAsByteArray)
@@ -29,7 +29,7 @@ class ControllerAdvice {
 
   @ExceptionHandler(RestClientException::class)
   fun handleException(e: RestClientException): ResponseEntity<ErrorResponse> {
-    log.error("Unexpected exception", e)
+    log.error("Unexpected exception", e.message)
     return ResponseEntity
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .body(
@@ -56,8 +56,8 @@ class ControllerAdvice {
   }
 
   @ExceptionHandler(AccessDeniedException::class)
-  fun handleException(e: AccessDeniedException?): ResponseEntity<ErrorResponse> {
-    log.debug("Forbidden (403) returned", e?.message)
+  fun handleException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {
+    log.debug("Forbidden (403) returned", e.message)
     return ResponseEntity
       .status(HttpStatus.FORBIDDEN)
       .body(
@@ -70,6 +70,7 @@ class ControllerAdvice {
 
   @ExceptionHandler(AttendanceExists::class)
   fun handleAttendanceExists(e: AttendanceExists): ResponseEntity<ErrorResponse> {
+    log.debug("Attendance already exists exception,", e.message)
     return ResponseEntity
       .status(HttpStatus.CONFLICT)
       .contentType(MediaType.APPLICATION_JSON)
@@ -85,6 +86,7 @@ class ControllerAdvice {
 
   @ExceptionHandler(AttendanceLocked::class)
   fun handleAttendanceLocked(e: AttendanceLocked): ResponseEntity<ErrorResponse> {
+    log.debug("Attendance locked exception,", e.message)
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .contentType(MediaType.APPLICATION_JSON)
@@ -100,7 +102,7 @@ class ControllerAdvice {
 
   @ExceptionHandler(Exception::class)
   fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
-    log.error("Unexpected exception", e)
+    log.error("Unexpected exception", e.message)
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .body(
@@ -129,7 +131,7 @@ class ControllerAdvice {
 
   @ExceptionHandler(InvalidCourtLocation::class)
   fun handleValidationException(e: InvalidCourtLocation): ResponseEntity<ErrorResponse> {
-    log.error("InvalidCourtLocation exception", e)
+    log.error("InvalidCourtLocation exception", e.message)
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .body(
@@ -144,6 +146,7 @@ class ControllerAdvice {
 
   @ExceptionHandler(EntityNotFoundException::class)
   fun handleNotFoundException(e: Exception): ResponseEntity<ErrorResponse> {
+    log.error("Not found returned", e.message)
     return ResponseEntity
       .status(HttpStatus.NOT_FOUND)
       .body(
