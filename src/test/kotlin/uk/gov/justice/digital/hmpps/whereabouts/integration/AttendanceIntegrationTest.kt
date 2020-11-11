@@ -5,13 +5,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
-import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
@@ -21,85 +16,23 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class AttendanceIntegrationTest : IntegrationTest() {
 
   @Autowired
   lateinit var attendanceRepository: AttendanceRepository
 
   @Test
-  @Order(0)
-  fun `should return all changes made to an attendance record`() {
-    val activityId = 2L
-
-    prisonApiMockServer.stubUpdateAttendance(5)
-
-    val attendance = CreateAttendanceDto(
-      prisonId = "LEI",
-      bookingId = 5,
-      eventId = activityId,
-      eventLocationId = 2,
-      eventDate = LocalDate.of(2010, 10, 10),
-      period = TimePeriod.AM,
-      attended = false,
-      paid = false,
-      absentReason = AbsentReason.Refused
-    )
-
-    val response = webTestClient.post()
-      .uri("/attendance")
-      .headers(setHeaders())
-      .bodyValue(attendance)
-      .exchange()
-      .returnResult(AttendanceDto::class.java)
-
-    val createdAttendance = response.responseBody.blockFirst()
-    val updateAttendance =
-      UpdateAttendanceDto(attended = false, paid = true, absentReason = AbsentReason.AcceptableAbsence)
-
-    webTestClient.put()
-      .uri("/attendance/${createdAttendance.id}")
-      .headers(setHeaders())
-      .bodyValue(updateAttendance)
-      .exchange()
-      .expectStatus()
-      .isNoContent()
-
-    val from = LocalDateTime.now().minusHours(1)
-    val to = LocalDateTime.now().plusHours(1)
-
-    webTestClient.get()
-      .uri {
-        it.path("/attendances/changes")
-          .queryParam("fromDateTime", from)
-          .queryParam("toDateTime", to)
-          .build()
-      }
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus().isOk()
-      .expectBody()
-      .jsonPath("$.changes[0].attendanceId").isEqualTo(createdAttendance.id)
-      .jsonPath("$.changes[0].eventId").isEqualTo(activityId)
-      .jsonPath("$.changes[0].eventLocationId").isEqualTo(2L)
-      .jsonPath("$.changes[0].bookingId").isEqualTo(5L)
-      .jsonPath("$.changes[0].changedFrom").isEqualTo(AbsentReason.Refused.toString())
-      .jsonPath("$.changes[0].changedTo").isEqualTo(AbsentReason.AcceptableAbsence.toString())
-      .jsonPath("$.changes[0].changedBy").isEqualTo("ITAG_USER")
-  }
-
-  @Test
   fun `should make an elite api request to update an offenders attendance`() {
 
-    val bookingId = 1
+    val bookingId = getNextBookingId()
     val activityId = 2L
     val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
 
-    prisonApiMockServer.stubUpdateAttendance()
+    prisonApiMockServer.stubUpdateAttendance(bookingId)
 
     val attendance = CreateAttendanceDto(
       prisonId = "LEI",
-      bookingId = 1,
+      bookingId = bookingId,
       eventId = activityId,
       eventLocationId = 2,
       eventDate = LocalDate.of(2010, 10, 10),
@@ -134,7 +67,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
   @Test
   fun `should make a case note service request to create a IEP warning case note`() {
     val activityId = 2L
-    val bookingId = 3L
+    val bookingId = getNextBookingId()
     val offenderNo = "AB1234G"
     val comments = "Test comment"
     val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
@@ -187,139 +120,15 @@ class AttendanceIntegrationTest : IntegrationTest() {
   }
 
   @Test
-  fun `should return a bad request when the 'bookingId' is missing`() {
-    webTestClient.post()
-      .uri("/attendance")
-      .bodyValue(
-        mapOf(
-          "prisonId" to "LEI",
-          "eventId" to 2,
-          "eventLocationId" to 2,
-          "eventDate" to LocalDate.of(2010, 10, 10),
-          "period" to TimePeriod.AM,
-          "attended" to true,
-          "paid" to true
-        )
-      )
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus()
-      .isBadRequest()
-  }
-
-  @Test
-  fun `should return a bad request when the 'prisonId' is missing`() {
-    webTestClient.post()
-      .uri("/attendance")
-      .bodyValue(
-        mapOf(
-          "bookingId" to 1,
-          "eventId" to 2,
-          "eventLocationId" to 2,
-          "eventDate" to LocalDate.of(2010, 10, 10),
-          "period" to TimePeriod.AM,
-          "attended" to true,
-          "paid" to true
-        )
-      )
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus()
-      .isBadRequest()
-  }
-
-  @Test
-  fun `should return a bad request when the 'eventId' is missing`() {
-    webTestClient.post()
-      .uri("/attendance")
-      .bodyValue(
-        mapOf(
-          "bookingId" to 1,
-          "prisonId" to "LEI",
-          "eventLocationId" to 2,
-          "eventDate" to LocalDate.of(2010, 10, 10),
-          "period" to TimePeriod.AM,
-          "attended" to true,
-          "paid" to true
-        )
-      )
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus()
-      .isBadRequest()
-  }
-
-  @Test
-  fun `should return a bad request when the 'eventLocationId' is missing`() {
-    webTestClient.post()
-      .uri("/attendance")
-      .bodyValue(
-        mapOf(
-          "bookingId" to 1,
-          "prisonId" to "LEI",
-          "eventId" to 1,
-          "eventDate" to LocalDate.of(2010, 10, 10),
-          "period" to TimePeriod.AM,
-          "attended" to true,
-          "paid" to true
-        )
-      )
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus()
-      .isBadRequest()
-  }
-
-  @Test
-  fun `should return a bad request when the 'eventDate' is missing`() {
-    webTestClient.post()
-      .uri("/attendance")
-      .bodyValue(
-        mapOf(
-          "bookingId" to 1,
-          "prisonId" to "LEI",
-          "eventId" to 1,
-          "eventLocationId" to 1,
-          "period" to TimePeriod.AM,
-          "attended" to true,
-          "paid" to true
-        )
-      )
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus()
-      .isBadRequest()
-  }
-
-  @Test
-  fun `should return a bad request when the 'period' is missing`() {
-    webTestClient.post()
-      .uri("/attendance")
-      .bodyValue(
-        mapOf(
-          "bookingId" to 1,
-          "prisonId" to "LEI",
-          "eventId" to 1,
-          "eventLocationId" to 1,
-          "eventDate" to LocalDate.of(2019, 10, 10),
-          "attended" to true,
-          "paid" to true
-        )
-      )
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus()
-      .isBadRequest()
-  }
-
-  @Test
   fun `should update attendance`() {
-    prisonApiMockServer.stubUpdateAttendance()
+    val bookingId = getNextBookingId()
+
+    prisonApiMockServer.stubUpdateAttendance(bookingId)
 
     val persistedAttendance = attendanceRepository.save(
       Attendance.builder()
         .absentReason(AbsentReason.Refused)
-        .bookingId(1)
+        .bookingId(bookingId)
         .comments("Refused to turn up")
         .attended(false)
         .paid(false)
@@ -342,105 +151,19 @@ class AttendanceIntegrationTest : IntegrationTest() {
   }
 
   @Test
-  fun `should return a 404 when attempting to update non existent attendance`() {
-    webTestClient.put()
-      .uri("/attendance/100")
-      .bodyValue(UpdateAttendanceDto(attended = true, paid = true))
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus()
-      .isNotFound()
-  }
-
-  @Test
-  fun `should return a 409 bad request when attendance already exists`() {
-    prisonApiMockServer.stubUpdateAttendance()
-
-    attendanceRepository.save(
-      Attendance.builder()
-        .absentReason(AbsentReason.Refused)
-        .bookingId(1)
-        .comments("Refused to turn up")
-        .attended(false)
-        .paid(false)
-        .createDateTime(LocalDateTime.now())
-        .eventDate(LocalDate.now())
-        .eventId(2)
-        .prisonId("LEI")
-        .period(TimePeriod.AM)
-        .eventLocationId(2)
-        .build()
-    )
-
-    val attendanceDto =
-      CreateAttendanceDto(
-        prisonId = "LEI",
-        attended = true,
-        paid = true,
-        bookingId = 1,
-        eventId = 2,
-        eventLocationId = 1,
-        period = TimePeriod.AM,
-        eventDate = LocalDate.now()
-      )
-
-    val response = webTestClient.post()
-      .uri("/attendance")
-      .bodyValue(attendanceDto)
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus()
-      .isEqualTo(409)
-      .returnResult(String::class.java)
-
-    val body = response.responseBody.blockFirst()
-
-    assertThat(body).isEqualTo("Attendance already exists")
-  }
-
-  @Test
-  fun `should return the attendance dto on creation`() {
-    val activityId = 2L
-
-    prisonApiMockServer.stubUpdateAttendance(5)
-
-    val attendance = CreateAttendanceDto(
-      prisonId = "LEI",
-      bookingId = 5,
-      eventId = activityId,
-      eventLocationId = 2,
-      eventDate = LocalDate.of(2010, 11, 11),
-      period = TimePeriod.AM,
-      attended = true,
-      paid = true
-    )
-
-    webTestClient.post()
-      .uri("/attendance")
-      .bodyValue(attendance)
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus()
-      .isCreated()
-      .expectBody()
-      .jsonPath("$.id").isNotEmpty()
-      .jsonPath("$.createUserId").isEqualTo("ITAG_USER")
-      .jsonPath("$.locked").isEqualTo(false)
-  }
-
-  @Test
   fun `should make a case note amendment request`() {
     val offenderNo = "BC1234D"
     val activityId = 2L
     val caseNoteId = 3L
+    val bookingId = getNextBookingId()
 
-    prisonApiMockServer.stubUpdateAttendance()
+    prisonApiMockServer.stubUpdateAttendance(bookingId)
     caseNotesMockServer.stubCaseNoteAmendment(offenderNo)
     prisonApiMockServer.stubGetBooking(offenderNo)
 
     val savedAttendance = attendanceRepository.save(
       Attendance.builder()
-        .bookingId(1)
+        .bookingId(bookingId)
         .paid(false)
         .attended(false)
         .absentReason(AbsentReason.Refused)
@@ -458,7 +181,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
     val attendance = CreateAttendanceDto(
       prisonId = "LEI",
-      bookingId = 1,
+      bookingId = bookingId,
       eventId = activityId,
       eventLocationId = 1,
       eventDate = LocalDate.of(2010, 10, 10),
@@ -484,18 +207,21 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should request a new auth token for each new incoming request`() {
-    prisonApiMockServer.stubUpdateAttendance()
-    prisonApiMockServer.stubUpdateAttendance(2)
+    val firstBooking = 507L
+    val secondBooking = 508L
+
+    prisonApiMockServer.stubUpdateAttendance(firstBooking)
+    prisonApiMockServer.stubUpdateAttendance(secondBooking)
     oauthMockServer.resetAll()
     oauthMockServer.stubGrantToken()
 
-    postAttendance()
-    postAttendance(2)
+    postAttendance(firstBooking)
+    postAttendance(secondBooking)
 
     oauthMockServer.verify(2, postRequestedFor(urlEqualTo("/auth/oauth/token")))
   }
 
-  private fun postAttendance(bookingId: Long = 1) {
+  private fun postAttendance(bookingId: Long) {
     val attendanceDto =
       CreateAttendanceDto(
         prisonId = "LEI",
