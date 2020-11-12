@@ -7,18 +7,13 @@ import io.swagger.annotations.ApiResponses
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveDetails
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveReasonsResponse
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
-import uk.gov.justice.digital.hmpps.whereabouts.dto.Reason
-import uk.gov.justice.digital.hmpps.whereabouts.model.cellMove.CellMoveReason
 import uk.gov.justice.digital.hmpps.whereabouts.services.CellMoveService
 import javax.validation.Valid
 
@@ -50,26 +45,4 @@ class CellMoveController {
     @RequestBody @Valid cellMoveDetails: CellMoveDetails
   ): CellMoveResponse =
     CellMoveResponse(cellMoveResult = cellMoveService.makeCellMove(cellMoveDetails))
-
-  @GetMapping("/cell-move-reasons")
-  @ApiOperation(value = "Return all cell move reasons")
-  @ApiResponses(
-    value = [
-      ApiResponse(
-        code = 500,
-        message = "Unrecoverable error occurred whilst processing request.",
-        response = ErrorResponse::class
-      )
-    ]
-  )
-  fun cellMoveReasons(): CellMoveReasonsResponse = CellMoveReasonsResponse(
-    reasons = setOf(
-      Reason(CellMoveReason.ADM.name, CellMoveReason.ADM.description),
-      Reason(CellMoveReason.BEH.name, CellMoveReason.BEH.description),
-      Reason(CellMoveReason.CLA.name, CellMoveReason.CLA.description),
-      Reason(CellMoveReason.CON.name, CellMoveReason.CON.description),
-      Reason(CellMoveReason.LN.name, CellMoveReason.LN.description),
-      Reason(CellMoveReason.VP.name, CellMoveReason.VP.description)
-    )
-  )
 }
