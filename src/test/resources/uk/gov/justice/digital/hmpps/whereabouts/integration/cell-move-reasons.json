@@ -1,0 +1,28 @@
+{
+  "reasons": [
+    {
+      "code": "ADM",
+      "description": "Administrative"
+    },
+    {
+      "code": "BEH",
+      "description": "Behaviour"
+    },
+    {
+      "code": "CLA",
+      "description": "Classification or re-classification"
+    },
+    {
+      "code": "CON",
+      "description": "Conflict with other prisoners"
+    },
+    {
+      "code": "LN",
+      "description": "Local needs"
+    },
+    {
+      "code": "VP",
+      "description": "Vulnerable prisoner"
+    }
+  ]
+}

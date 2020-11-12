@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
@@ -107,6 +108,16 @@ class CellControllerTest : TestController() {
         .content(getJsonBody(null, null, null))
     ).andDo(MockMvcResultHandlers.print())
       .andExpect(status().isBadRequest)
+  }
+
+  @Test
+  @WithMockUser(username = "ITAG_USER")
+  fun `should return cell move reasons response model`() {
+    mockMvc.perform(
+      get("/cell/cell-move-reasons")
+    ).andDo(MockMvcResultHandlers.print())
+      .andExpect(status().isOk)
+      .andExpect(jsonPath(".reasons").isNotEmpty)
   }
 
   private fun getJsonBody(bookingId: Int?, destination: String?, cellMoveReason: String?) = gson.toJson(
