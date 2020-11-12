@@ -41,15 +41,4 @@ class CellMoveIntegrationTest : IntegrationTest() {
       )
     )
   }
-
-  @Test
-  fun `return all cell move reasons`() {
-    webTestClient.get()
-      .uri("/cell/cell-move-reasons")
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .json(loadJsonFile("cell-move-reasons.json"))
-  }
 }
