@@ -53,7 +53,6 @@ class CellMoveController {
 
   @GetMapping("/cell-move-reasons")
   @ApiOperation(value = "Return all cell move reasons")
-  @ResponseStatus(HttpStatus.OK)
   @ApiResponses(
     value = [
       ApiResponse(
