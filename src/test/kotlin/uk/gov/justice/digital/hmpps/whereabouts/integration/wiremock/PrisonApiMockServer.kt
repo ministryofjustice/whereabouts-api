@@ -8,7 +8,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellAttribute
@@ -296,7 +295,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
     bookingId: Long,
     internalLocationDescription: String,
     assignedLivingUnitId: Long,
-    agencyId: String
+    agencyId: String,
+    bedAssignmentHistorySequence: Int
   ) {
     stubFor(
       put(urlPathEqualTo("/api/bookings/$bookingId/living-unit/$internalLocationDescription"))
@@ -305,11 +305,12 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withHeader("Content-type", "application/json")
             .withBody(
               gson.toJson(
-                CellMoveResult(
-                  bookingId = bookingId,
-                  agencyId = agencyId,
-                  assignedLivingUnitDesc = internalLocationDescription,
-                  assignedLivingUnitId = assignedLivingUnitId
+                mapOf(
+                  "bookingId" to bookingId,
+                  "agencyId" to agencyId,
+                  "assignedLivingUnitDesc" to internalLocationDescription,
+                  "assignedLivingUnitId" to assignedLivingUnitId,
+                  "bedAssignmentHistorySequence" to bedAssignmentHistorySequence
                 )
               )
             )
