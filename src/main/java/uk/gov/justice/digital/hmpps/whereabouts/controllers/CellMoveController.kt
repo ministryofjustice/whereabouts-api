@@ -29,7 +29,7 @@ class CellMoveController {
   private lateinit var cellMoveService: CellMoveService
 
   @PostMapping("/make-cell-move")
-  @ApiOperation(value = "Make a cell move for an offender. Triggers a MOVED_CELL case note.")
+  @ApiOperation(value = "Make a cell move for an offender. Triggers the creation of a MOVED_CELL case note.")
   @ResponseStatus(HttpStatus.CREATED)
   @ApiResponses(
     value = [
