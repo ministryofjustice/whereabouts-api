@@ -1,17 +1,24 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
+import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 
 class CourtIntegrationTest : IntegrationTest() {
 
   @MockBean
   lateinit var videoLinkAppointmentRepository: VideoLinkAppointmentRepository
+
+  @MockBean
+  lateinit var videoLinkBookingRepository: VideoLinkBookingRepository
 
   @Test
   fun `should list all courts`() {
@@ -107,5 +114,46 @@ class CourtIntegrationTest : IntegrationTest() {
       )
       .exchange()
       .expectStatus().is4xxClientError
+  }
+
+  @Test
+  fun `Successful POST video-link-bookings, main appointment only`() {
+    val bookingId = 1L
+    val mainAppointmentId = 1L
+
+    prisonApiMockServer.stubAddAppointment(bookingId, eventId = mainAppointmentId)
+
+    val theVideoLinkBooking = VideoLinkBooking(
+      main = VideoLinkAppointment(
+        bookingId = bookingId,
+        appointmentId = mainAppointmentId,
+        court = "Test Court 1",
+        madeByTheCourt = false,
+        hearingType = HearingType.MAIN
+      )
+    )
+
+    whenever(videoLinkBookingRepository.save(any())).thenReturn(theVideoLinkBooking.copy(id = 1))
+
+    webTestClient.post()
+      .uri("/court/video-link-bookings")
+      .headers(setHeaders())
+      .bodyValue(
+        mapOf(
+          "bookingId" to bookingId,
+          "court" to "Test Court 1",
+          "madeByTheCourt" to false,
+          "main" to mapOf(
+            "locationId" to 1,
+            "startTime" to "2020-12-01T09:00",
+            "endTime" to "2020-12-01T09:30"
+          )
+        )
+      )
+      .exchange()
+      .expectStatus().isCreated
+      .expectBody().json("1")
+
+    verify(videoLinkBookingRepository).save(theVideoLinkBooking)
   }
 }

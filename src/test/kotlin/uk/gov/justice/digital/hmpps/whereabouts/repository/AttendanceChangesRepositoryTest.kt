@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.repository
 
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -67,7 +67,7 @@ class AttendanceChangesRepositoryTest {
       changedTo = AttendanceChangeValues.NotRequired
     )
 
-    val id = attendanceChangesRepository.save(change).id
+    val id = attendanceChangesRepository.save(change).id!!
     TestTransaction.flagForCommit()
     TestTransaction.end()
 

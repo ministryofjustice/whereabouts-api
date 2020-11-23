@@ -59,7 +59,7 @@ dependencies {
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.19.0")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("com.nhaarman:mockito-kotlin-kt1.1:1.6.0")
+  testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.12")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
