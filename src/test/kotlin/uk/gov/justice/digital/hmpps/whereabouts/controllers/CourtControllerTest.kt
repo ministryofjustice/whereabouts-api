@@ -28,6 +28,7 @@ class CourtControllerTest : TestController() {
         mapOf(
           "bookingId" to 1,
           "court" to "Test Court 1",
+          "madeByTheCourt" to true,
           "main" to mapOf(
             "locationId" to 2,
             "startTime" to "2020-12-01T09:00",
@@ -70,6 +71,24 @@ class CourtControllerTest : TestController() {
 
   @Test
   @WithMockUser(username = "ITAG_USER")
+  fun `Missing madeByTheCourt doesn't fail`() {
+    passWithJson(
+      gson.toJson(
+        mapOf(
+          "bookingId" to 1,
+          "court" to "Test Court 1",
+          "main" to mapOf(
+            "locationId" to 2,
+            "startTime" to "2020-12-01T09:00",
+            "endTime" to "2020-12-01T09:30"
+          )
+        )
+      )
+    )
+  }
+
+  @Test
+  @WithMockUser(username = "ITAG_USER")
   fun `Reject missing main`() {
     failWithJson(
       gson.toJson(
@@ -89,6 +108,7 @@ class CourtControllerTest : TestController() {
       gson.toJson(
         mapOf(
           "court" to "Test Court 1",
+          "madeByTheCourt" to true,
           "main" to mapOf(
             "startTime" to "2020-12-01T09:30",
             "endTime" to "2020-12-01T10:00"
@@ -107,6 +127,7 @@ class CourtControllerTest : TestController() {
         mapOf(
           "bookingId" to 1,
           "court" to "Test Court 1",
+          "madeByTheCourt" to true,
           "main" to mapOf(
             "startTime" to "2020-12-01T09:30",
             "endTime" to "2020-12-01T10:00"
@@ -114,6 +135,83 @@ class CourtControllerTest : TestController() {
         )
       ),
       400
+    )
+  }
+
+  @Test
+  @WithMockUser(username = "ITAG_USER")
+  fun `Reject missing startTime`() {
+    failWithJson(
+      gson.toJson(
+        mapOf(
+          "bookingId" to 1,
+          "court" to "Test Court 1",
+          "madeByTheCourt" to true,
+          "main" to mapOf(
+            "locationId" to 1,
+            "endTime" to "2020-12-01T10:00"
+          ),
+        )
+      ),
+      400
+    )
+  }
+
+  @Test
+  @WithMockUser(username = "ITAG_USER")
+  fun `Reject bad startTime`() {
+    failWithJson(
+      gson.toJson(
+        mapOf(
+          "bookingId" to 1,
+          "court" to "Test Court 1",
+          "madeByTheCourt" to true,
+          "main" to mapOf(
+            "locationId" to 1,
+            "startTime" to "2020-13-45T00:00",
+            "endTime" to "2020-12-01T10:00"
+          ),
+        )
+      ),
+      400
+    )
+  }
+
+  @Test
+  @WithMockUser(username = "ITAG_USER")
+  fun `Reject missing endTime`() {
+    failWithJson(
+      gson.toJson(
+        mapOf(
+          "bookingId" to 1,
+          "court" to "Test Court 1",
+          "madeByTheCourt" to true,
+          "main" to mapOf(
+            "locationId" to 1,
+            "startTime" to "2020-12-01T10:00"
+          ),
+        )
+      ),
+      400
+    )
+  }
+
+  @Test
+  fun `Valid request, no user`() {
+    failWithJson(
+      gson.toJson(
+        mapOf(
+          "bookingId" to 1,
+          "court" to "Test Court 1",
+          "madeByTheCourt" to true,
+          "main" to mapOf(
+            "locationId" to 2,
+            "startTime" to "2020-12-01T09:00",
+            "endTime" to "2020-12-01T09:30"
+          )
+        )
+      ),
+      401
     )
   }
 

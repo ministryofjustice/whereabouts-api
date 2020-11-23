@@ -54,7 +54,6 @@ class CourtController(private val courtService: CourtService) {
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings"])
   @ResponseStatus(HttpStatus.CREATED)
   @ApiOperation(value = "Create a Video Link Booking")
-  fun createVideoLinkBooking(@RequestBody @Valid videoLinkBookingSpecification: VideoLinkBookingSpecification): Long {
-    return courtService.createVideoLinkBooking(videoLinkBookingSpecification)
-  }
+  fun createVideoLinkBooking(@RequestBody @Valid videoLinkBookingSpecification: VideoLinkBookingSpecification) =
+    courtService.createVideoLinkBooking(videoLinkBookingSpecification)
 }

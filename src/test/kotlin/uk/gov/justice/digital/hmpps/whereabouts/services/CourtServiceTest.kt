@@ -223,7 +223,7 @@ class CourtServiceTest {
     private val expectedVideoLinkBookingId = 11L
 
     @Test
-    fun `happy flow - Main appointment only`() {
+    fun `happy flow - Main appointment only - madeByTheCourt`() {
 
       val booking = VideoLinkBooking(
         id = expectedVideoLinkBookingId,
@@ -238,6 +238,7 @@ class CourtServiceTest {
           bookingId = 1L,
           court = YORK_CC,
           comment = "Comment",
+          madeByTheCourt = true,
           main = VideoLinkAppointmentSpecification(
             locationId = 2L,
             startTime = startTime,
@@ -280,6 +281,7 @@ class CourtServiceTest {
           bookingId = 1L,
           court = YORK_CC,
           comment = "Comment",
+          madeByTheCourt = true,
           main = VideoLinkAppointmentSpecification(
             locationId = 2L,
             startTime = startTime,
@@ -303,15 +305,15 @@ class CourtServiceTest {
     }
 
     @Test
-    fun `happy flow - pre, main and post appointments`() {
+    fun `happy flow - pre, main and post appointments - Not madeByTheCourt`() {
 
       val offenderBookingId = 1L
 
       val booking = VideoLinkBooking(
         id = expectedVideoLinkBookingId,
-        pre = preVideoLinkAppointment,
-        main = mainVideoLinkAppointment,
-        post = postVideoLinkAppointment
+        pre = preVideoLinkAppointment.copy(madeByTheCourt = false),
+        main = mainVideoLinkAppointment.copy(madeByTheCourt = false),
+        post = postVideoLinkAppointment.copy(madeByTheCourt = false)
       )
 
       val mainCreateAppointment = CreateBookingAppointment(
@@ -349,6 +351,7 @@ class CourtServiceTest {
           bookingId = offenderBookingId,
           court = YORK_CC,
           comment = "Comment",
+          madeByTheCourt = false,
           pre = VideoLinkAppointmentSpecification(
             locationId = 1L,
             startTime = startTime.minusMinutes(20),

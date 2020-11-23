@@ -128,6 +128,7 @@ class CourtIntegrationTest : IntegrationTest() {
         bookingId = bookingId,
         appointmentId = mainAppointmentId,
         court = "Test Court 1",
+        madeByTheCourt = false,
         hearingType = HearingType.MAIN
       )
     )
@@ -141,6 +142,7 @@ class CourtIntegrationTest : IntegrationTest() {
         mapOf(
           "bookingId" to bookingId,
           "court" to "Test Court 1",
+          "madeByTheCourt" to false,
           "main" to mapOf(
             "locationId" to 1,
             "startTime" to "2020-12-01T09:00",

@@ -73,6 +73,7 @@ class CourtService(
       }.toSet()
   }
 
+  @Transactional
   fun createVideoLinkBooking(specification: VideoLinkBookingSpecification): Long {
     val mainId = savePrisonAppointment(specification, specification.main)
     val preId = specification.pre?.let { savePrisonAppointment(specification, it) }

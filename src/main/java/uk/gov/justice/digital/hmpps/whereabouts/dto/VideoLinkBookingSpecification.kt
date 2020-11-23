@@ -7,7 +7,7 @@ import javax.validation.Valid
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 
-@ApiModel(description = " Video Link Booking details")
+@ApiModel(description = "Video Link Booking details")
 data class VideoLinkBookingSpecification(
 
   @ApiModelProperty(value = "Offender booking Id", example = "1")
@@ -22,13 +22,14 @@ data class VideoLinkBookingSpecification(
   @NotEmpty
   val court: String,
 
-  @ApiModelProperty(value = "Booking placed by the court", required = false)
-  val madeByTheCourt: Boolean = true,
+  @ApiModelProperty(value = "Booking placed by the court", required = true)
+  @NotNull
+  val madeByTheCourt: Boolean?,
 
   @ApiModelProperty(value = "Free text comments", example = "Requires special access")
   val comment: String? = null,
 
-  @ApiModelProperty(value = "Pre-hearing appointment", required = false)
+  @ApiModelProperty(value = "Pre-hearing appointment")
   @Valid
   val pre: VideoLinkAppointmentSpecification? = null,
 
@@ -36,7 +37,7 @@ data class VideoLinkBookingSpecification(
   @field:Valid
   val main: VideoLinkAppointmentSpecification,
 
-  @ApiModelProperty(value = "Post-hearing appointment", required = false)
+  @ApiModelProperty(value = "Post-hearing appointment")
   @Valid
   val post: VideoLinkAppointmentSpecification? = null
 )
