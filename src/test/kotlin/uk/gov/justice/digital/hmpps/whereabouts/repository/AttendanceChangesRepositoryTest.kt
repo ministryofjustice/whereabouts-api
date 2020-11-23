@@ -67,7 +67,7 @@ class AttendanceChangesRepositoryTest {
       changedTo = AttendanceChangeValues.NotRequired
     )
 
-    val id = attendanceChangesRepository.save(change).id
+    val id = attendanceChangesRepository.save(change).id!!
     TestTransaction.flagForCommit()
     TestTransaction.end()
 

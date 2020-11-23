@@ -41,7 +41,7 @@ class VideoLinkBookingRepositoryTest {
       )
     )
 
-    val id = repository.save(transientBooking).id
+    val id = repository.save(transientBooking).id!!
     assertThat(id).isNotNull
 
     TestTransaction.flagForCommit()
@@ -83,7 +83,7 @@ class VideoLinkBookingRepositoryTest {
       ),
     )
 
-    val id = repository.save(transientBooking).id
+    val id = repository.save(transientBooking).id!!
     assertThat(id).isNotNull
 
     TestTransaction.flagForCommit()
