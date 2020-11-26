@@ -30,6 +30,8 @@ class VideoLinkAppointmentRepositoryTest {
   fun `should return all video link appointments`() {
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
+    val preAppointments = videoLinkAppointmentRepository.findAll()
+
     videoLinkAppointmentRepository.save(
       VideoLinkAppointment(
         appointmentId = 1,
@@ -53,7 +55,7 @@ class VideoLinkAppointmentRepositoryTest {
     TestTransaction.flagForCommit()
     TestTransaction.end()
 
-    val appointments = videoLinkAppointmentRepository.findAll()
+    val appointments = videoLinkAppointmentRepository.findAll().minus(preAppointments)
 
     assertThat(appointments).extracting("appointmentId", "bookingId", "court", "createdByUsername", "madeByTheCourt")
       .containsExactlyInAnyOrder(
