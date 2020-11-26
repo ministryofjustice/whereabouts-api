@@ -7,7 +7,7 @@ import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
 import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
+import javax.persistence.OneToOne
 import javax.persistence.Table
 
 @Entity
@@ -17,15 +17,15 @@ data class VideoLinkBooking(
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   val id: Long? = null,
 
-  @ManyToOne(optional = false, cascade = [PERSIST, REMOVE])
-  @JoinColumn(name = "MAIN_APPOINTMENT", nullable = false, updatable = false)
+  @OneToOne(optional = false, cascade = [PERSIST, REMOVE])
+  @JoinColumn(name = "MAIN_APPOINTMENT", nullable = false, updatable = false, unique = true)
   val main: VideoLinkAppointment,
 
-  @ManyToOne(optional = true, cascade = [PERSIST, REMOVE])
-  @JoinColumn(name = "PRE_APPOINTMENT", nullable = true, updatable = false)
+  @OneToOne(optional = true, cascade = [PERSIST, REMOVE])
+  @JoinColumn(name = "PRE_APPOINTMENT", nullable = true, updatable = true, unique = true)
   val pre: VideoLinkAppointment? = null,
 
-  @ManyToOne(optional = true, cascade = [PERSIST, REMOVE])
-  @JoinColumn(name = "POST_APPOINTMENT", nullable = true, updatable = false)
+  @OneToOne(optional = true, cascade = [PERSIST, REMOVE])
+  @JoinColumn(name = "POST_APPOINTMENT", nullable = true, updatable = true, unique = true)
   val post: VideoLinkAppointment? = null
 )

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
@@ -33,7 +34,7 @@ class CourtService(
   @Transactional
   fun createVideoLinkAppointment(createVideoLinkAppointment: CreateVideoLinkAppointment) {
 
-    val eventId = prisonApiService.postAppointment(
+    val event = prisonApiService.postAppointment(
       createVideoLinkAppointment.bookingId,
       CreateBookingAppointment(
         appointmentType = VIDEO_LINK_APPOINTMENT_TYPE,
@@ -46,7 +47,7 @@ class CourtService(
 
     videoLinkAppointmentRepository.save(
       VideoLinkAppointment(
-        appointmentId = eventId,
+        appointmentId = event.eventId,
         bookingId = createVideoLinkAppointment.bookingId,
         court = createVideoLinkAppointment.court,
         hearingType = createVideoLinkAppointment.hearingType,
@@ -75,48 +76,59 @@ class CourtService(
 
   @Transactional
   fun createVideoLinkBooking(specification: VideoLinkBookingSpecification): Long {
-    val mainId = savePrisonAppointment(specification, specification.main)
-    val preId = specification.pre?.let { savePrisonAppointment(specification, it) }
-    val postId = specification.post?.let { savePrisonAppointment(specification, it) }
+    val mainEvent = savePrisonAppointment(specification, specification.main)
+    val preEvent = specification.pre?.let { savePrisonAppointment(specification, it) }
+    val postEvent = specification.post?.let { savePrisonAppointment(specification, it) }
 
     val persistentBooking = videoLinkBookingRepository.save(
       VideoLinkBooking(
-        pre = preId?.let { toAppointment(preId, HearingType.PRE, specification) },
-        main = toAppointment(mainId, HearingType.MAIN, specification),
-        post = postId?.let { toAppointment(postId, HearingType.POST, specification) }
+        pre = preEvent?.let { toAppointment(preEvent.eventId, HearingType.PRE, specification) },
+        main = toAppointment(mainEvent.eventId, HearingType.MAIN, specification),
+        post = postEvent?.let { toAppointment(postEvent.eventId, HearingType.POST, specification) }
       )
     )
-    trackVideoLinkBookingCreated(persistentBooking)
+    trackVideoLinkBookingCreated(persistentBooking, specification, mainEvent.agencyId)
     return persistentBooking.id!!
   }
 
-  private fun trackVideoLinkBookingCreated(booking: VideoLinkBooking) {
+  private fun trackVideoLinkBookingCreated(
+    booking: VideoLinkBooking,
+    specification: VideoLinkBookingSpecification,
+    agencyId: String
+  ) {
     val properties = mutableMapOf(
       "id" to (booking.id?.toString()),
       "bookingId" to booking.main.bookingId.toString(),
       "court" to booking.main.court,
       "user" to authenticationFacade.currentUsername,
+      "agencyId" to agencyId,
+      "madeByTheCourt" to booking.main.madeByTheCourt.toString(),
     )
 
-    properties.putAll(appointmentDetail(booking.main))
-    booking.pre?.also { properties.putAll(appointmentDetail(it)) }
-    booking.post?.also { properties.putAll(appointmentDetail(it)) }
+    properties.putAll(appointmentDetail(booking.main, specification.main))
+    booking.pre?.also { properties.putAll(appointmentDetail(it, specification.pre!!)) }
+    booking.post?.also { properties.putAll(appointmentDetail(it, specification.post!!)) }
 
     telemetryClient.trackEvent("VideoLinkBookingCreated", properties, null)
   }
 
-  private fun appointmentDetail(appointment: VideoLinkAppointment): Map<String, String> {
+  private fun appointmentDetail(
+    appointment: VideoLinkAppointment,
+    specification: VideoLinkAppointmentSpecification
+  ): Map<String, String> {
     val prefix = appointment.hearingType.name.toLowerCase()
     return mapOf(
       "${prefix}AppointmentId" to appointment.appointmentId.toString(),
-      "${prefix}Id" to appointment.id.toString()
+      "${prefix}Id" to appointment.id.toString(),
+      "${prefix}Start" to specification.startTime.toString(),
+      "${prefix}End" to specification.endTime.toString(),
     )
   }
 
   private fun savePrisonAppointment(
     bookingSpec: VideoLinkBookingSpecification,
     appointmentSpec: VideoLinkAppointmentSpecification
-  ): Long = prisonApiService.postAppointment(
+  ): Event = prisonApiService.postAppointment(
     bookingSpec.bookingId!!,
     CreateBookingAppointment(
       appointmentType = VIDEO_LINK_APPOINTMENT_TYPE,
