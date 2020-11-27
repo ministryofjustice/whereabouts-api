@@ -4,25 +4,18 @@ import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
-import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
-import uk.gov.justice.digital.hmpps.whereabouts.model.CellMoveReason
-import uk.gov.justice.digital.hmpps.whereabouts.repository.CellMoveReasonRepository
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
-import java.util.Optional
 
 class CellMoveIntegrationTest : IntegrationTest() {
 
   @MockBean
   lateinit var clock: Clock
-
-  @MockBean
-  lateinit var cellMoveReasonRepository: CellMoveReasonRepository
 
   @BeforeEach
   fun beforeEach() {
@@ -97,15 +90,22 @@ class CellMoveIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return cell move details`() {
-    whenever(cellMoveReasonRepository.findById(any())).thenReturn(
-      Optional.of(
-        CellMoveReason(
-          bookingId = SOME_BOOKING_ID,
-          bedAssignmentsSequence = SOME_BED_ASSIGNMENT_SEQUENCE,
-          caseNoteId = SOME_CASE_NOTE_ID
+    stubCellMove()
+
+    webTestClient.post()
+      .uri("/cell/make-cell-move")
+      .bodyValue(
+        mapOf(
+          "bookingId" to SOME_BOOKING_ID,
+          "offenderNo" to SOME_OFFENDER_NO,
+          "internalLocationDescriptionDestination" to SOME_INTERNAL_LOCATION_DESCRIPTION,
+          "cellMoveReasonCode" to SOME_REASON_CODE,
+          "commentText" to SOME_TEXT
         )
       )
-    )
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isCreated()
 
     webTestClient.get()
       .uri("/cell/cell-move-reason/booking/$SOME_BOOKING_ID/bed-assignment-sequence/$SOME_ASSIGNMENT_LIVING_UNIT_ID")
@@ -124,14 +124,14 @@ class CellMoveIntegrationTest : IntegrationTest() {
       internalLocationDescription = SOME_INTERNAL_LOCATION_DESCRIPTION,
       bedAssignmentHistorySequence = SOME_BED_ASSIGNMENT_SEQUENCE
     )
-    caseNotesMockServer.stubCreateCaseNote(SOME_OFFENDER_NO)
+    caseNotesMockServer.stubCreateCaseNote(SOME_OFFENDER_NO, SOME_CASE_NOTE_ID)
   }
 
   companion object {
     private const val SOME_BOOKING_ID = 10L
     private const val SOME_AGENCY_ID = "MDI"
     private const val SOME_OFFENDER_NO = "A12345"
-    private const val SOME_ASSIGNMENT_LIVING_UNIT_ID = 25700L
+    private const val SOME_ASSIGNMENT_LIVING_UNIT_ID = 2L
     private const val SOME_INTERNAL_LOCATION_DESCRIPTION = "MDI-2-2-006"
     private const val SOME_REASON_CODE = "ADM"
     private const val SOME_TEXT = "Some comment defending the reason of move"
