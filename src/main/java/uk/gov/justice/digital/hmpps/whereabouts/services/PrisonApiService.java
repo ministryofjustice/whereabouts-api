@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
+import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import javax.persistence.EntityNotFoundException;
@@ -182,6 +183,19 @@ public class PrisonApiService {
                         bookingId, internalLocationDescription, reasonCode)
                 .retrieve()
                 .bodyToMono(responseType)
+                .block();
+    }
+
+    public List<PrisonAppointment> getPrisonAppointmentsForBookingId(long bookingId, int offset, int limit) {
+        return webClient.get()
+                .uri("/bookings/{bookingId}/appointments", bookingId)
+                .header("fromDate", "2019-01-01")
+                .header("toDate", "2050-01-01")
+                .header("Page-Offset", Integer.toString(offset))
+                .header("Page-Limit", Integer.toString(limit))
+                .header("Sort-Fields", "startTime")
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<PrisonAppointment>>(){})
                 .block();
     }
 }

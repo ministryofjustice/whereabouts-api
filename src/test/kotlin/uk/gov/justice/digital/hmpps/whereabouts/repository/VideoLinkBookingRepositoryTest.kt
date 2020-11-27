@@ -29,6 +29,8 @@ class VideoLinkBookingRepositoryTest {
 
   @Test
   fun `should persist a booking (main only)`() {
+    repository.deleteAll()
+
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
     val transientBooking = VideoLinkBooking(
@@ -57,12 +59,14 @@ class VideoLinkBookingRepositoryTest {
 
   @Test
   fun `should persist a booking (main, pre and post)`() {
+    repository.deleteAll()
+
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
     val transientBooking = VideoLinkBooking(
       main = VideoLinkAppointment(
         bookingId = 1,
-        appointmentId = 2,
+        appointmentId = 4,
         court = "A Court",
         hearingType = HearingType.MAIN,
         madeByTheCourt = true
