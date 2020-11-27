@@ -2,7 +2,7 @@
   "cellMoveResult": {
     "bookingId": 10,
     "agencyId": "MDI",
-    "assignedLivingUnitId": 25700,
+    "assignedLivingUnitId": 2,
     "assignedLivingUnitDesc": "MDI-2-2-006"
   }
 }
