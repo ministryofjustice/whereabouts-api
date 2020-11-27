@@ -187,6 +187,9 @@ public class PrisonApiService {
     }
 
     public List<PrisonAppointment> getPrisonAppointmentsForBookingId(long bookingId, int offset, int limit) {
+        final var responseType = new ParameterizedTypeReference<List<PrisonAppointment>>() {
+        };
+
         return webClient.get()
                 .uri("/bookings/{bookingId}/appointments", bookingId)
                 .header("fromDate", "2019-01-01")
@@ -195,7 +198,7 @@ public class PrisonApiService {
                 .header("Page-Limit", Integer.toString(limit))
                 .header("Sort-Fields", "startTime")
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<PrisonAppointment>>(){})
+                .bodyToMono(responseType)
                 .block();
     }
 }

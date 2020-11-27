@@ -20,12 +20,15 @@ class VideoLinkAppointmentLinker(
 ) {
 
   fun linkAppointments() {
+
     getBookingIdsOfUnlinkedAppointments().forEach { linkAppointmentsForOffenderBookingId(it) }
   }
 
   @Transactional
   fun getBookingIdsOfUnlinkedAppointments(): List<Long> {
-    return videoLinkAppointmentRepository.bookingIdsOfUnlinkedAppointments()
+    val bookingIds = videoLinkAppointmentRepository.bookingIdsOfUnlinkedAppointments()
+    log.info("Found unlinked VideoLinkAppointments for ${bookingIds.size} bookingIds")
+    return bookingIds
   }
 
   @Transactional
@@ -70,7 +73,7 @@ class VideoLinkAppointmentLinker(
         .getPrisonAppointmentsForBookingId(bookingId, offset, CHUNK_SIZE)
         .filter { it.eventSubType == "VLB" }
       prisonAppointments.addAll(chunk)
-      offset += CHUNK_SIZE
+      offset += chunk.size
     } while (chunk.isNotEmpty())
 
     log.info("bookingId $bookingId: Retrieved ${prisonAppointments.size} VLB appointments from prison-api")

@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
@@ -314,6 +315,19 @@ class PrisonApiMockServer : WireMockServer(8999) {
                 )
               )
             )
+            .withStatus(200)
+        )
+    )
+  }
+
+  fun stubGetPrisonAppointmentsForBookingId(bookingId: Long, offset: Int, responseJson: String) {
+    stubFor(
+      get(urlPathEqualTo("/api/bookings/$bookingId/appointments"))
+        .withHeader("Page-Offset", equalTo(offset.toString()))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(responseJson)
             .withStatus(200)
         )
     )
