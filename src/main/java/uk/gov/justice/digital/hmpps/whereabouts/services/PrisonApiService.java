@@ -161,7 +161,7 @@ public class PrisonApiService {
         }
     }
 
-    public Long postAppointment(final long bookingId, @NotNull CreateBookingAppointment createbookingAppointment) {
+    public Event postAppointment(final long bookingId, @NotNull CreateBookingAppointment createbookingAppointment) {
         final var responseType = new ParameterizedTypeReference<Event>() {
         };
 
@@ -170,7 +170,6 @@ public class PrisonApiService {
                 .bodyValue(createbookingAppointment)
                 .retrieve()
                 .bodyToMono(responseType)
-                .map(Event::getEventId)
                 .block();
     }
 

@@ -78,4 +78,7 @@ data class CreateVideoLinkAppointment(
   val madeByTheCourt: Boolean? = true
 )
 
-data class Event(val eventId: Long)
+data class Event(
+  val eventId: Long,
+  val agencyId: String,
+)

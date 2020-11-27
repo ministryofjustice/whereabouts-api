@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
@@ -25,6 +26,7 @@ import java.time.LocalDateTime
 
 const val YORK_CC = "York Crown Court"
 const val VLB_APPOINTMENT_TYPE = "VLB"
+const val AGENCY_WANDSWORTH = "WWI"
 
 class CourtServiceTest {
 
@@ -38,6 +40,8 @@ class CourtServiceTest {
   fun `should push an appointment to elite2`() {
     val service = service(YORK_CC)
     val bookingId: Long = 1
+
+    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(Event(1L, AGENCY_WANDSWORTH))
 
     service.createVideoLinkAppointment(
       CreateVideoLinkAppointment(
@@ -67,7 +71,7 @@ class CourtServiceTest {
     val service = service(YORK_CC)
     val bookingId: Long = 1
 
-    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(1L)
+    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(Event(1L, AGENCY_WANDSWORTH))
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
     service.createVideoLinkAppointment(
@@ -132,7 +136,7 @@ class CourtServiceTest {
     val service = service(YORK_CC)
     val bookingId: Long = 1
 
-    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(1L)
+    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(Event(1L, AGENCY_WANDSWORTH))
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
     service.createVideoLinkAppointment(
@@ -163,7 +167,7 @@ class CourtServiceTest {
     val service = service(YORK_CC)
     val bookingId: Long = 1
 
-    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(1L)
+    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(Event(1L, AGENCY_WANDSWORTH))
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
     service.createVideoLinkAppointment(
@@ -230,7 +234,12 @@ class CourtServiceTest {
         main = mainVideoLinkAppointment
       )
 
-      whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(mainAppointmentId)
+      whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(
+        Event(
+          mainAppointmentId,
+          AGENCY_WANDSWORTH
+        )
+      )
       whenever(videoLinkBookingRepository.save(any())).thenReturn(booking)
 
       val vlbBookingId = service.createVideoLinkBooking(
@@ -267,7 +276,14 @@ class CourtServiceTest {
     @Test
     fun `happy flow - telemetry`() {
 
-      whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(mainAppointmentId)
+      val endTime = startTime.plusMinutes(20)
+
+      whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(
+        Event(
+          mainAppointmentId,
+          AGENCY_WANDSWORTH
+        )
+      )
       whenever(videoLinkBookingRepository.save(any()))
         .thenReturn(
           VideoLinkBooking(
@@ -275,6 +291,7 @@ class CourtServiceTest {
             main = mainVideoLinkAppointment.copy(id = 12L)
           )
         )
+      whenever(authenticationFacade.currentUsername).thenReturn("A_USER")
 
       service.createVideoLinkBooking(
         VideoLinkBookingSpecification(
@@ -285,7 +302,7 @@ class CourtServiceTest {
           main = VideoLinkAppointmentSpecification(
             locationId = 2L,
             startTime = startTime,
-            endTime = startTime.plusMinutes(30)
+            endTime = endTime
           )
         )
       )
@@ -296,9 +313,13 @@ class CourtServiceTest {
           "id" to "11",
           "bookingId" to "1",
           "court" to "York Crown Court",
-          "user" to null,
+          "agencyId" to AGENCY_WANDSWORTH,
+          "user" to "A_USER",
+          "madeByTheCourt" to "true",
           "mainAppointmentId" to "12",
-          "mainId" to "12"
+          "mainId" to "12",
+          "mainStart" to startTime.toString(),
+          "mainEnd" to endTime.toString(),
         ),
         null
       )
@@ -311,9 +332,9 @@ class CourtServiceTest {
 
       val booking = VideoLinkBooking(
         id = expectedVideoLinkBookingId,
-        pre = preVideoLinkAppointment.copy(madeByTheCourt = false),
-        main = mainVideoLinkAppointment.copy(madeByTheCourt = false),
-        post = postVideoLinkAppointment.copy(madeByTheCourt = false)
+        pre = preVideoLinkAppointment.copy(madeByTheCourt = false, id = 20L),
+        main = mainVideoLinkAppointment.copy(madeByTheCourt = false, id = 21L),
+        post = postVideoLinkAppointment.copy(madeByTheCourt = false, id = 22L)
       )
 
       val mainCreateAppointment = CreateBookingAppointment(
@@ -340,11 +361,28 @@ class CourtServiceTest {
         endTime = "2020-10-09T11:20"
       )
 
-      whenever(prisonApiService.postAppointment(offenderBookingId, mainCreateAppointment)).thenReturn(mainAppointmentId)
-      whenever(prisonApiService.postAppointment(offenderBookingId, preCreateAppointment)).thenReturn(preAppointmentId)
-      whenever(prisonApiService.postAppointment(offenderBookingId, postCreateAppointment)).thenReturn(postAppointmentId)
+      whenever(prisonApiService.postAppointment(offenderBookingId, mainCreateAppointment)).thenReturn(
+        Event(
+          mainAppointmentId,
+          AGENCY_WANDSWORTH
+        )
+      )
+      whenever(prisonApiService.postAppointment(offenderBookingId, preCreateAppointment)).thenReturn(
+        Event(
+          preAppointmentId,
+          AGENCY_WANDSWORTH
+        )
+      )
+      whenever(prisonApiService.postAppointment(offenderBookingId, postCreateAppointment)).thenReturn(
+        Event(
+          postAppointmentId,
+          AGENCY_WANDSWORTH
+        )
+      )
 
       whenever(videoLinkBookingRepository.save(any())).thenReturn(booking)
+
+      whenever(authenticationFacade.currentUsername).thenReturn("A_USER")
 
       val vlbBookingId = service.createVideoLinkBooking(
         VideoLinkBookingSpecification(
@@ -376,7 +414,42 @@ class CourtServiceTest {
       verify(prisonApiService).postAppointment(offenderBookingId, preCreateAppointment)
       verify(prisonApiService).postAppointment(offenderBookingId, postCreateAppointment)
 
-      verify(videoLinkBookingRepository).save(booking.copy(id = null))
+      verify(videoLinkBookingRepository).save(
+        booking.copy(
+          id = null,
+          pre = booking.pre?.copy(id = null),
+          main = booking.main.copy(id = null),
+          post = booking.post?.copy(id = null)
+        )
+      )
+
+      verify(telemetryClient).trackEvent(
+        "VideoLinkBookingCreated",
+        mapOf(
+          "id" to "11",
+          "bookingId" to "1",
+          "court" to "York Crown Court",
+          "agencyId" to AGENCY_WANDSWORTH,
+          "user" to "A_USER",
+          "madeByTheCourt" to "false",
+
+          "mainAppointmentId" to "12",
+          "mainId" to "21",
+          "mainStart" to startTime.toString(),
+          "mainEnd" to startTime.plusMinutes(30).toString(),
+
+          "preAppointmentId" to "13",
+          "preId" to "20",
+          "preStart" to "2020-10-09T10:10",
+          "preEnd" to "2020-10-09T10:30",
+
+          "postAppointmentId" to "14",
+          "postId" to "22",
+          "postStart" to "2020-10-09T11:00",
+          "postEnd" to "2020-10-09T11:20",
+        ),
+        null
+      )
     }
   }
 

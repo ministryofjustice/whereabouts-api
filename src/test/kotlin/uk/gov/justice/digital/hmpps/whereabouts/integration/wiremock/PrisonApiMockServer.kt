@@ -283,7 +283,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withHeader("Content-type", "application/json")
             .withBody(
               gson.toJson(
-                Event(eventId = eventId)
+                Event(eventId = eventId, agencyId = "WWI")
               )
             )
             .withStatus(201)
