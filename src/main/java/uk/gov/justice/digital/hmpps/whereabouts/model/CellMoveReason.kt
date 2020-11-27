@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
 import lombok.Data
-import lombok.EqualsAndHashCode
 import java.io.Serializable
 import javax.persistence.Column
 import javax.persistence.Embeddable
@@ -27,7 +26,6 @@ data class CellMoveReason(
 
 @Entity
 @Embeddable
-@EqualsAndHashCode
 data class CellMoveReasonPK(
   @Id @Column(name = "BOOKING_ID") var bookingId: Long,
   @Id @Column(name = "BED_ASSIGNMENT_SEQUENCE") var bedAssignmentsSequence: Int
