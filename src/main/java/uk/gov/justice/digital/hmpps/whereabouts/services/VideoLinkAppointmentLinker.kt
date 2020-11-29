@@ -89,10 +89,11 @@ class VideoLinkAppointmentLinker(
     val appointmentsByEndTime = prisonAppointments
       .filter { appointmentsByAppointmentId.containsKey(it.eventId) }
       .associateBy({ it.endTime }, { appointmentsByAppointmentId[it.eventId] })
+      .toMutableMap()
 
     log.info("bookingId $bookingId: Found ${appointmentsByAppointmentId.size} PRE VideoLinkAppointments, Matched ${appointmentsByEndTime.size} with prison appointments")
 
-    return ({ mainAppointment -> appointmentsByEndTime[mainAppointment?.startTime] })
+    return ({ mainAppointment -> appointmentsByEndTime.remove(mainAppointment?.startTime) })
   }
 
   fun postAppointmentFinder(bookingId: Long, prisonAppointments: List<PrisonAppointment>): AppointmentFinder {
@@ -103,10 +104,11 @@ class VideoLinkAppointmentLinker(
     val appointmentsByStartTime = prisonAppointments
       .filter { appointmentsByAppointmentId.containsKey(it.eventId) }
       .associateBy({ it.startTime }, { appointmentsByAppointmentId[it.eventId] })
+      .toMutableMap()
 
     log.info("bookingId $bookingId: Found ${appointmentsByAppointmentId.size} PRE VideoLinkAppointments, Matched ${appointmentsByStartTime.size} with prison appointments")
 
-    return ({ mainAppointment -> appointmentsByStartTime[mainAppointment?.endTime] })
+    return ({ mainAppointment -> appointmentsByStartTime.remove(mainAppointment?.endTime) })
   }
 
   companion object {
