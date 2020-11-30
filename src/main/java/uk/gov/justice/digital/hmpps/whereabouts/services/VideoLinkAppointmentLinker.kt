@@ -20,8 +20,9 @@ class VideoLinkAppointmentLinker(
 ) {
 
   fun linkAppointments() {
-
-    getBookingIdsOfUnlinkedAppointments().forEach { linkAppointmentsForOffenderBookingId(it) }
+    getBookingIdsOfUnlinkedAppointments()
+      .also { log.info("Found unlinked MAIN appointments for ${it.size} booking Ids") }
+      .forEach { linkAppointmentsForOffenderBookingId(it) }
   }
 
   @Transactional
@@ -41,15 +42,15 @@ class VideoLinkAppointmentLinker(
   }
 
   fun videoLinkBookingsForOffenderBookingId(bookingId: Long): List<VideoLinkBooking> {
-    val prisonAppointments = getPrisonVideoLinkAppointmentsForBookingId(bookingId)
-    val prisonAppointmentsById = prisonAppointments.associateBy { it.eventId }
-
     val mainAppointments = videoLinkAppointmentRepository.unlinkedMainAppointmentsForBookingId(bookingId)
 
     log.info("bookingId $bookingId: Found ${mainAppointments.size} MAIN VideoLinkAppointments")
 
-    val findPreAppointmentFor = preAppointmentFinder(bookingId, prisonAppointments)
-    val findPostAppointmentFor = postAppointmentFinder(bookingId, prisonAppointments)
+    val prisonAppointmentsById = getPrisonAppointments(mainAppointments.map { it.appointmentId })
+      .associateBy { it.eventId }
+
+    val findPreAppointmentFor = preAppointmentFinder(bookingId)
+    val findPostAppointmentFor = postAppointmentFinder(bookingId)
 
     return mainAppointments
       .filter { prisonAppointmentsById.containsKey(it.appointmentId) }
@@ -64,30 +65,17 @@ class VideoLinkAppointmentLinker(
       }
   }
 
-  fun getPrisonVideoLinkAppointmentsForBookingId(bookingId: Long): List<PrisonAppointment> {
-    val prisonAppointments = mutableListOf<PrisonAppointment>()
-    var offset = 0
+  private fun getPrisonAppointments(appointmentIds: List<Long>) =
+    appointmentIds
+      .map { prisonApiService.getPrisonAppointment(it) }
+      .filterNotNull()
 
-    do {
-      val chunk = prisonApiService
-        .getPrisonAppointmentsForBookingId(bookingId, offset, CHUNK_SIZE)
-        .filter { it.eventSubType == "VLB" }
-      prisonAppointments.addAll(chunk)
-      offset += chunk.size
-    } while (chunk.isNotEmpty())
-
-    log.info("bookingId $bookingId: Retrieved ${prisonAppointments.size} VLB appointments from prison-api")
-
-    return prisonAppointments
-  }
-
-  fun preAppointmentFinder(bookingId: Long, prisonAppointments: List<PrisonAppointment>): AppointmentFinder {
-    val appointmentsByAppointmentId = videoLinkAppointmentRepository
-      .unlinkedPreAppointmentsForBookingId(bookingId)
-      .associateBy { it.appointmentId }
+  private fun preAppointmentFinder(bookingId: Long): AppointmentFinder {
+    val appointments = videoLinkAppointmentRepository.unlinkedPreAppointmentsForBookingId(bookingId)
+    val appointmentsByAppointmentId = appointments.associateBy { it.appointmentId }
+    val prisonAppointments = getPrisonAppointments(appointments.map { it.appointmentId })
 
     val appointmentsByEndTime = prisonAppointments
-      .filter { appointmentsByAppointmentId.containsKey(it.eventId) }
       .associateBy({ it.endTime }, { appointmentsByAppointmentId[it.eventId] })
       .toMutableMap()
 
@@ -96,17 +84,16 @@ class VideoLinkAppointmentLinker(
     return ({ mainAppointment -> appointmentsByEndTime.remove(mainAppointment?.startTime) })
   }
 
-  fun postAppointmentFinder(bookingId: Long, prisonAppointments: List<PrisonAppointment>): AppointmentFinder {
-    val appointmentsByAppointmentId = videoLinkAppointmentRepository
-      .unlinkedPostAppointmentsForBookingId(bookingId)
-      .associateBy { it.appointmentId }
+  private fun postAppointmentFinder(bookingId: Long): AppointmentFinder {
+    val appointments = videoLinkAppointmentRepository.unlinkedPostAppointmentsForBookingId(bookingId)
+    val appointmentsByAppointmentId = appointments.associateBy { it.appointmentId }
+    val prisonAppointments = getPrisonAppointments(appointments.map { it.appointmentId })
 
     val appointmentsByStartTime = prisonAppointments
-      .filter { appointmentsByAppointmentId.containsKey(it.eventId) }
       .associateBy({ it.startTime }, { appointmentsByAppointmentId[it.eventId] })
       .toMutableMap()
 
-    log.info("bookingId $bookingId: Found ${appointmentsByAppointmentId.size} PRE VideoLinkAppointments, Matched ${appointmentsByStartTime.size} with prison appointments")
+    log.info("bookingId $bookingId: Found ${appointmentsByAppointmentId.size} POST VideoLinkAppointments, Matched ${appointmentsByStartTime.size} with prison appointments")
 
     return ({ mainAppointment -> appointmentsByStartTime.remove(mainAppointment?.endTime) })
   }

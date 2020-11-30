@@ -6,6 +6,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
@@ -200,6 +201,16 @@ public class PrisonApiService {
                 .retrieve()
                 .bodyToMono(responseType)
                 .block();
+    }
+
+    public PrisonAppointment getPrisonAppointment(long appointmentId) {
+        return webClient.get()
+                .uri("/appointments/{appointmentId}", appointmentId)
+                .retrieve()
+                .bodyToMono(PrisonAppointment.class)
+                .onErrorResume(WebClientResponseException.NotFound.class, notFound -> Mono.empty())
+                .blockOptional()
+                .orElse(null);
     }
 }
 

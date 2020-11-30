@@ -2,10 +2,10 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyLong
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
@@ -13,7 +13,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
-import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker.Companion.CHUNK_SIZE
 import java.time.LocalDateTime
 
 class VideoLinkAppointmentLinkerTest {
@@ -33,38 +32,7 @@ class VideoLinkAppointmentLinkerTest {
   }
 
   @Test
-  fun `Assembles one prison appointment`() {
-    whenever(prisonApiService.getPrisonAppointmentsForBookingId(anyLong(), eq(0), anyInt()))
-      .thenReturn(prisonAppointments(1))
-
-    assertThat(service.getPrisonVideoLinkAppointmentsForBookingId(1L)).hasSize(1)
-  }
-
-  @Test
-  fun `Filters non VLB prison appointments`() {
-    whenever(prisonApiService.getPrisonAppointmentsForBookingId(anyLong(), eq(0), anyInt()))
-      .thenReturn(prisonAppointments(CHUNK_SIZE))
-
-    assertThat(service.getPrisonVideoLinkAppointmentsForBookingId(1L)).hasSize(100)
-  }
-
-  @Test
-  fun `Assembles prison appointments from chunks`() {
-    whenever(prisonApiService.getPrisonAppointmentsForBookingId(anyLong(), anyInt(), anyInt()))
-      .thenReturn(prisonAppointments(CHUNK_SIZE))
-      .thenReturn(prisonAppointments(CHUNK_SIZE))
-      .thenReturn(prisonAppointments(5))
-      .thenReturn(prisonAppointments(0))
-
-    assertThat(service.getPrisonVideoLinkAppointmentsForBookingId(1L)).hasSize(CHUNK_SIZE + 5)
-  }
-
-  @Test
   fun `Builds no VideoLinkBookings if no matches in VideoLinkAppointmentRepository`() {
-    whenever(prisonApiService.getPrisonAppointmentsForBookingId(anyLong(), anyInt(), anyInt()))
-      .thenReturn(prisonAppointments(CHUNK_SIZE))
-      .thenReturn(prisonAppointments(0))
-
     whenever(
       videoLinkAppointmentRepository.unlinkedMainAppointmentsForBookingId(
         anyLong(),
@@ -85,13 +53,44 @@ class VideoLinkAppointmentLinkerTest {
     ).thenReturn(listOf())
 
     assertThat(service.videoLinkBookingsForOffenderBookingId(1L)).isEmpty()
+
+    verifyZeroInteractions(prisonApiService)
   }
 
   @Test
   fun `Builds VideoLinkBooking with main appointment`() {
-    whenever(prisonApiService.getPrisonAppointmentsForBookingId(anyLong(), anyInt(), anyInt()))
-      .thenReturn(prisonAppointments(1))
-      .thenReturn(prisonAppointments(0))
+    val startTime = LocalDateTime.of(2020, 10, 1, 0, 9, 0)
+
+    whenever(prisonApiService.getPrisonAppointment(anyLong())).thenReturn(prisonAppointment(0, startTime))
+
+    whenever(
+      videoLinkAppointmentRepository.unlinkedPreAppointmentsForBookingId(
+        anyLong(),
+        eq(HearingType.PRE)
+      )
+    ).thenReturn(listOf())
+    whenever(
+      videoLinkAppointmentRepository.unlinkedPostAppointmentsForBookingId(
+        anyLong(),
+        eq(HearingType.POST)
+      )
+    ).thenReturn(listOf())
+    whenever(
+      videoLinkAppointmentRepository.unlinkedMainAppointmentsForBookingId(
+        anyLong(),
+        eq(HearingType.MAIN)
+      )
+    ).thenReturn(videoLinkAppointments(HearingType.MAIN, 0))
+
+    assertThat(service.videoLinkBookingsForOffenderBookingId(1L))
+      .hasSize(1)
+      .element(0).isEqualTo(VideoLinkBooking(main = videoLinkAppointments(HearingType.MAIN, 0)[0]))
+  }
+
+  @Test
+  fun `Handles missing prison appointment`() {
+
+    whenever(prisonApiService.getPrisonAppointment(anyLong())).thenReturn(null)
 
     whenever(videoLinkAppointmentRepository.unlinkedPreAppointmentsForBookingId(anyLong(), eq(HearingType.PRE)))
       .thenReturn(listOf())
@@ -102,16 +101,16 @@ class VideoLinkAppointmentLinkerTest {
     whenever(videoLinkAppointmentRepository.unlinkedMainAppointmentsForBookingId(anyLong(), eq(HearingType.MAIN)))
       .thenReturn(videoLinkAppointments(HearingType.MAIN, 0))
 
-    assertThat(service.videoLinkBookingsForOffenderBookingId(1L))
-      .hasSize(1)
-      .element(0).isEqualTo(VideoLinkBooking(main = videoLinkAppointments(HearingType.MAIN, 0)[0]))
+    assertThat(service.videoLinkBookingsForOffenderBookingId(1L)).hasSize(0)
   }
 
   @Test
-  fun `Builds VideoLinkBooking with main, pre and post appointment`() {
-    whenever(prisonApiService.getPrisonAppointmentsForBookingId(anyLong(), anyInt(), anyInt()))
-      .thenReturn(prisonAppointments(10))
-      .thenReturn(prisonAppointments(0))
+  fun `Builds VideoLinkBooking from matching main, pre and post appointments`() {
+    val startTime = LocalDateTime.of(2020, 10, 1, 0, 9, 0)
+
+    whenever(prisonApiService.getPrisonAppointment(0L)).thenReturn(prisonAppointment(0, startTime))
+    whenever(prisonApiService.getPrisonAppointment(1L)).thenReturn(prisonAppointment(1, startTime.plusHours(1)))
+    whenever(prisonApiService.getPrisonAppointment(2L)).thenReturn(prisonAppointment(2, startTime.plusHours(2)))
 
     val preAppts = videoLinkAppointments(HearingType.PRE, 0)
     val mainAppts = videoLinkAppointments(HearingType.MAIN, 1)
@@ -126,36 +125,27 @@ class VideoLinkAppointmentLinkerTest {
     whenever(videoLinkAppointmentRepository.unlinkedPostAppointmentsForBookingId(anyLong(), eq(HearingType.POST)))
       .thenReturn(postAppts)
 
-    /**
-     * Prison appointments eventId = contiguous 0..10 1hr apponitment times
-     * 1 pre VLA appointmentId = 0
-     * 1 main VLA appointmentId = 1
-     * 1 post VLA apppointmentId = 2
-     *
-     * The VLA will match prison appointments and the times will be contiguous. Therefore they will
-     * be treated as the pre, main and post appointment for the same VLB:
-     */
-
     assertThat(service.videoLinkBookingsForOffenderBookingId(1L))
       .hasSize(1)
       .element(0).isEqualTo(VideoLinkBooking(main = mainAppts[0], pre = preAppts[0], post = postAppts[0]))
   }
 
   @Test
-  fun `Builds multiple VideoLinkBookings`() {
-    // 20 Prison appointments. eventId = 0..19
-    whenever(prisonApiService.getPrisonAppointmentsForBookingId(anyLong(), anyInt(), anyInt()))
-      .thenReturn(prisonAppointments(20))
-      .thenReturn(prisonAppointments(0))
+  fun `Builds VideoLinkBooking from main only when pre and post times do not align`() {
+    val startTime = LocalDateTime.of(2020, 10, 1, 0, 9, 0)
 
-    // 0 precedes main 1, 12 precedes main 13. Should get first and third VLB with pre appt.
-    val preAppts = videoLinkAppointments(HearingType.PRE, 0, 7, 12, 21)
+    whenever(prisonApiService.getPrisonAppointment(0L))
+      .thenReturn(prisonAppointment(0, startTime.plusMinutes(1)))
 
-    // First 4 mainAppts match a prison appointment. Last 2 do not match. Should get 4 VLBs.
-    val mainAppts = videoLinkAppointments(HearingType.MAIN, 1, 6, 13, 15, 22, 23)
+    whenever(prisonApiService.getPrisonAppointment(1L))
+      .thenReturn(prisonAppointment(1, startTime.plusHours(1)))
 
-    // 2 succeeds main 1, 16 succeeds main 15. Should get first and fourth VLB with post appt
-    val postAppts = videoLinkAppointments(HearingType.POST, 2, 8, 16, 17)
+    whenever(prisonApiService.getPrisonAppointment(2L))
+      .thenReturn(prisonAppointment(2, startTime.plusHours(2).plusMinutes(1)))
+
+    val preAppts = videoLinkAppointments(HearingType.PRE, 0)
+    val mainAppts = videoLinkAppointments(HearingType.MAIN, 1)
+    val postAppts = videoLinkAppointments(HearingType.POST, 2)
 
     whenever(videoLinkAppointmentRepository.unlinkedPreAppointmentsForBookingId(anyLong(), eq(HearingType.PRE)))
       .thenReturn(preAppts)
@@ -167,35 +157,58 @@ class VideoLinkAppointmentLinkerTest {
       .thenReturn(postAppts)
 
     assertThat(service.videoLinkBookingsForOffenderBookingId(1L))
-      .hasSize(4)
-      .containsAll(
-        listOf(
-          VideoLinkBooking(main = mainAppts[0], pre = preAppts[0], post = postAppts[0]),
-          VideoLinkBooking(main = mainAppts[1]),
-          VideoLinkBooking(main = mainAppts[2], pre = preAppts[2]),
-          VideoLinkBooking(main = mainAppts[3], post = postAppts[2])
-        )
+      .hasSize(1)
+      .element(0).isEqualTo(VideoLinkBooking(main = mainAppts[0]))
+  }
+
+  @Test
+  fun `Builds VideoLinkBookings for multiple appointments`() {
+    val startTime = LocalDateTime.of(2020, 10, 1, 0, 9, 0)
+
+    whenever(prisonApiService.getPrisonAppointment(0L)).thenReturn(prisonAppointment(0, startTime))
+    whenever(prisonApiService.getPrisonAppointment(1L)).thenReturn(prisonAppointment(1, startTime.plusHours(1)))
+    whenever(prisonApiService.getPrisonAppointment(2L)).thenReturn(prisonAppointment(2, startTime.plusHours(2)))
+
+    whenever(prisonApiService.getPrisonAppointment(4L)).thenReturn(prisonAppointment(4, startTime.plusHours(4)))
+
+    whenever(prisonApiService.getPrisonAppointment(6L)).thenReturn(prisonAppointment(6, startTime.plusHours(6)))
+    whenever(prisonApiService.getPrisonAppointment(7L)).thenReturn(prisonAppointment(7, startTime.plusHours(7)))
+
+    whenever(prisonApiService.getPrisonAppointment(10L)).thenReturn(prisonAppointment(10, startTime.plusHours(10)))
+    whenever(prisonApiService.getPrisonAppointment(11L)).thenReturn(prisonAppointment(11, startTime.plusHours(11)))
+
+    val preAppts = videoLinkAppointments(HearingType.PRE, 0, 6, 12)
+    val mainAppts = videoLinkAppointments(HearingType.MAIN, 1, 4, 7, 10, 13)
+    val postAppts = videoLinkAppointments(HearingType.POST, 2, 11, 14)
+
+    whenever(videoLinkAppointmentRepository.unlinkedPreAppointmentsForBookingId(anyLong(), eq(HearingType.PRE)))
+      .thenReturn(preAppts)
+
+    whenever(videoLinkAppointmentRepository.unlinkedMainAppointmentsForBookingId(anyLong(), eq(HearingType.MAIN)))
+      .thenReturn(mainAppts)
+
+    whenever(videoLinkAppointmentRepository.unlinkedPostAppointmentsForBookingId(anyLong(), eq(HearingType.POST)))
+      .thenReturn(postAppts)
+
+    assertThat(service.videoLinkBookingsForOffenderBookingId(1L))
+      .containsExactlyInAnyOrder(
+        VideoLinkBooking(main = mainAppts[0], pre = preAppts[0], post = postAppts[0]),
+        VideoLinkBooking(main = mainAppts[1]),
+        VideoLinkBooking(main = mainAppts[2], pre = preAppts[1]),
+        VideoLinkBooking(main = mainAppts[3], post = postAppts[1]),
       )
   }
 
-  private fun prisonAppointments(appointmentsToCreate: Int): List<PrisonAppointment> {
-    val initialTime = LocalDateTime.of(2020, 1, 1, 0, 0)
-    return List(appointmentsToCreate) { index ->
-      PrisonAppointment(
-        agencyId = "WWI",
-        bookingId = 1,
-        startTime = initialTime.plusHours(1L * index),
-        endTime = initialTime.plusHours(1L * index).plusHours(1),
-        eventId = index.toLong(),
-        eventLocationId = 100L,
-        eventSubType = if (index < CHUNK_SIZE / 2) {
-          "VLB"
-        } else {
-          "NOT_VLB"
-        },
-      )
-    }
-  }
+  private fun prisonAppointment(appointmentId: Long, startTime: LocalDateTime) =
+    PrisonAppointment(
+      agencyId = "WWI",
+      bookingId = 1L,
+      startTime = startTime,
+      endTime = startTime.plusHours(1),
+      eventId = appointmentId,
+      eventLocationId = 100L,
+      eventSubType = "VLB"
+    )
 
   private fun videoLinkAppointments(hearingType: HearingType, vararg appointmentIds: Long): List<VideoLinkAppointment> =
     appointmentIds.map { appointmentId ->

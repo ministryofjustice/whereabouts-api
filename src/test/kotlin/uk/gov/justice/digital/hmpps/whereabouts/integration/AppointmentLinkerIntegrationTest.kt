@@ -40,28 +40,27 @@ class AppointmentLinkerIntegrationTest : IntegrationTest() {
     videoLinkAppointmentRepository.saveAll(videoLinkAppointments(HearingType.MAIN, 2, 101))
     videoLinkAppointmentRepository.saveAll(videoLinkAppointments(HearingType.POST, 2, 102))
 
+    videoLinkAppointmentRepository.saveAll(videoLinkAppointments(HearingType.MAIN, 3, 201))
+
     TestTransaction.flagForCommit()
     TestTransaction.end()
 
-    prisonApiMockServer.stubGetPrisonAppointmentsForBookingId(
-      bookingId = 1,
-      offset = 0,
-      responseJson = objectMapper.writeValueAsString(
-        prisonAppointments(1, LocalDateTime.of(2020, 11, 1, 9, 0), 0, 1, 2, 3, 4, 5)
-      )
-    )
+    val t0 = LocalDateTime.of(2020, 10, 10, 9, 0)
 
-    prisonApiMockServer.stubGetPrisonAppointmentsForBookingId(bookingId = 1, offset = 6, responseJson = "[]")
+    stubPrisonAppointment(1, 0, t0, 30)
+    stubPrisonAppointment(1, 1, t0.plusMinutes(30), 30)
+    stubPrisonAppointment(1, 2, t0.plusMinutes(60), 30)
 
-    prisonApiMockServer.stubGetPrisonAppointmentsForBookingId(
-      bookingId = 2,
-      offset = 0,
-      responseJson = objectMapper.writeValueAsString(
-        prisonAppointments(2, LocalDateTime.of(2020, 11, 7, 9, 0), 101, 102, 103)
-      )
-    )
+    stubPrisonAppointment(1, 3, t0.plusMinutes(90), 30)
+    stubPrisonAppointment(1, 4, t0.plusMinutes(120), 30)
+    stubPrisonAppointment(1, 5, t0.plusMinutes(150), 30)
 
-    prisonApiMockServer.stubGetPrisonAppointmentsForBookingId(bookingId = 2, offset = 3, responseJson = "[]")
+    stubPrisonAppointment(2, 100, t0.plusMinutes(15), 30)
+    stubPrisonAppointment(2, 101, t0.plusMinutes(45), 30)
+    stubPrisonAppointment(2, 102, t0.plusMinutes(75), 30)
+
+    // Make sure that PrisonApiServer handles 404 correctly.
+    prisonApiMockServer.stubGetPrisonAppointmentNotFound(201)
 
     webTestClient.post()
       .uri("/court/appointment-linker")
@@ -92,22 +91,25 @@ class AppointmentLinkerIntegrationTest : IntegrationTest() {
       )
     }
 
-  private fun prisonAppointments(
+  private fun stubPrisonAppointment(
     bookingId: Long,
+    eventId: Long,
     startTime: LocalDateTime,
-    vararg eventIds: Long
-  ): List<PrisonAppointment> {
-    var time = startTime
-    return eventIds.map { eventId ->
-      PrisonAppointment(
-        eventId = eventId,
-        agencyId = "WWI",
-        bookingId = bookingId,
-        startTime = time,
-        endTime = time.plusHours(1),
-        eventLocationId = 1L,
-        eventSubType = "VLB"
-      ).also { time = time.plusHours(1) }
-    }
+    endTimeOffsetMinutes: Long
+  ) {
+    prisonApiMockServer.stubGetPrisonAppointment(
+      eventId,
+      objectMapper.writeValueAsString(
+        PrisonAppointment(
+          bookingId = bookingId,
+          eventId = eventId,
+          startTime = startTime,
+          endTime = startTime.plusMinutes(endTimeOffsetMinutes),
+          eventSubType = "VLB",
+          agencyId = "WWI",
+          eventLocationId = 1,
+        )
+      )
+    )
   }
 }

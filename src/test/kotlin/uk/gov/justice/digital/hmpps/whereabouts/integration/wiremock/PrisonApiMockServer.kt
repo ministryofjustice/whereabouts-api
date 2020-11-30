@@ -332,4 +332,20 @@ class PrisonApiMockServer : WireMockServer(8999) {
         )
     )
   }
+
+  fun stubGetPrisonAppointment(appointmentId: Long, responseJson: String) {
+    stubFor(
+      get(urlPathEqualTo("/api/appointments/$appointmentId"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(responseJson)
+            .withStatus(200)
+        )
+    )
+  }
+
+  fun stubGetPrisonAppointmentNotFound(appointmentId: Long) {
+    stubFor(get(urlPathEqualTo("/api/appointments/$appointmentId")).willReturn(aResponse().withStatus(404)))
+  }
 }
