@@ -156,4 +156,18 @@ class CourtIntegrationTest : IntegrationTest() {
 
     verify(videoLinkBookingRepository).save(theVideoLinkBooking)
   }
+
+  @Test
+  fun `Returns 404 when trying to delete a non-existent video link booking`() {
+    val bookingId: Long = 1
+
+    webTestClient.delete()
+      .uri("/court/video-link-bookings/$bookingId")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isNotFound
+      .expectBody()
+      .jsonPath("$.developerMessage").isEqualTo("Video link booking with id $bookingId not found")
+
+  }
 }

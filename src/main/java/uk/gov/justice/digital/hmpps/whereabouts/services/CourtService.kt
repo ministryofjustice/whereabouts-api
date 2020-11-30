@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import javax.persistence.EntityNotFoundException
 import javax.transaction.Transactional
 
 const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
@@ -147,4 +148,28 @@ class CourtService(
       hearingType = type,
       madeByTheCourt = specification.madeByTheCourt
     )
+
+    fun deleteVideoLinkBooking(videoBookingId: Long) {
+      val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
+        EntityNotFoundException("Video link booking with id $videoBookingId not found")
+      }
+    }
 }
+
+/**
+
+Load up the booking, if it does not exist then we throw an exception
+
+For each appointment
+  Call the prison API end-point DELETE /appointments/{appointmentId} for the appointment (Ignore 404 Not Found response)
+
+For each appointment
+  Deleting the VIDEO_LINK_APPOINTMENT record
+
+Then delete the VIDEO_LINK_BOOKING itself
+
+Then fire an Application Insights DeleteVideoLinkBooking custom event
+
+If any of the calls to prison api fail then the whole operation fails and the VIDEO_LINK_BOOKING and referenced VIDEO_LINK_APPOINTMENT records are left intact
+
+**/
