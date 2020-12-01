@@ -214,11 +214,17 @@ public class PrisonApiService {
     }
 
     public void deleteAppointment(final Long appointmentId) {
-        webClient.delete()
-                .uri("/appointments/{appointmentId}", appointmentId)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
+        try {
+            webClient.delete()
+                    .uri("/appointments/{appointmentId}", appointmentId)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+        } catch (WebClientResponseException e) {
+            if (!e.getStatusCode().equals(NOT_FOUND)) {
+                throw e;
+            }
+        }
     }
 }
 

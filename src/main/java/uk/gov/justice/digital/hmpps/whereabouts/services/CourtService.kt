@@ -155,6 +155,7 @@ class CourtService(
       }
       booking.toAppointments().forEach { prisonApiService.deleteAppointment(it.appointmentId) }
     }
+
 }
 
 /**
