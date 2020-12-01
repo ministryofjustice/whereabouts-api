@@ -212,5 +212,13 @@ public class PrisonApiService {
                 .blockOptional()
                 .orElse(null);
     }
+
+    public void deleteAppointment(final Long appointmentId) {
+        webClient.delete()
+                .uri("/appointments/{appointmentId}", appointmentId)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+    }
 }
 

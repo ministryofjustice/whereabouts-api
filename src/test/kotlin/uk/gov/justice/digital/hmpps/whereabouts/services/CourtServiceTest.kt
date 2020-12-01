@@ -493,7 +493,7 @@ class CourtServiceTest {
     )
 
     @Test
-    fun `when there is no booking it throws an exception`() {
+    fun `when there is no video link booking it throws an exception`() {
 
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.empty())
       Assertions.assertThrows(EntityNotFoundException::class.java) {
@@ -502,10 +502,15 @@ class CourtServiceTest {
     }
 
     @Test
-    fun `when there is a booking it does not throw an exception`() {
+    fun `happy path`() {
 
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
       service.deleteVideoLinkBooking(videoLinkBooking.id!!)
+
+      verify(prisonApiService).deleteAppointment(preVideoLinkAppointment.appointmentId)
+      verify(prisonApiService).deleteAppointment(mainVideoLinkAppointment.appointmentId)
+      verify(prisonApiService).deleteAppointment(postVideoLinkAppointment.appointmentId)
+
     }
   }
 

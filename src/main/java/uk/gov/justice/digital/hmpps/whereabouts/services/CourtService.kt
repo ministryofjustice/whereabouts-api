@@ -153,6 +153,7 @@ class CourtService(
       val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
         EntityNotFoundException("Video link booking with id $videoBookingId not found")
       }
+      booking.toAppointments().forEach { prisonApiService.deleteAppointment(it.appointmentId) }
     }
 }
 
