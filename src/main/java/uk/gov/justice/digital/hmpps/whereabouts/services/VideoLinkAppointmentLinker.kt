@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
@@ -19,6 +20,7 @@ class VideoLinkAppointmentLinker(
   private val prisonApiService: PrisonApiService
 ) {
 
+  @PreAuthorize("hasAnyRole('ROLE_VIDEO_APPOINTMENT_LINKER')")
   fun linkAppointments() {
     getBookingIdsOfUnlinkedAppointments()
       .also { log.info("Found unlinked MAIN appointments for ${it.size} booking Ids") }

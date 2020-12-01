@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.MediaType
 import org.springframework.test.context.transaction.TestTransaction
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
@@ -16,6 +18,9 @@ import javax.transaction.Transactional
 @Transactional
 class AppointmentLinkerIntegrationTest : IntegrationTest() {
 
+  @Value("\${appointmentLinkerToken}")
+  private val appointmentLinkerToken: String? = null
+
   @Autowired
   lateinit var videoLinkAppointmentRepository: VideoLinkAppointmentRepository
 
@@ -24,6 +29,15 @@ class AppointmentLinkerIntegrationTest : IntegrationTest() {
 
   @Autowired
   lateinit var objectMapper: ObjectMapper
+
+  @Test
+  fun `unauthorised client gets 403 Forbidden `() {
+    webTestClient.post()
+      .uri("/court/appointment-linker")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isForbidden
+  }
 
   @Test
   fun `should link dangling appointments`() {
@@ -64,7 +78,10 @@ class AppointmentLinkerIntegrationTest : IntegrationTest() {
 
     webTestClient.post()
       .uri("/court/appointment-linker")
-      .headers(setHeaders())
+      .headers {
+        it.setBearerAuth(appointmentLinkerToken!!)
+        it.setContentType(MediaType.APPLICATION_JSON)
+      }
       .exchange()
       .expectStatus().isNoContent
 
