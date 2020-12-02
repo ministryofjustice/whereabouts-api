@@ -43,8 +43,8 @@ class VideoLinkAppointmentRepositoryTest {
 
     videoLinkAppointmentRepository.save(
       VideoLinkAppointment(
-        appointmentId = 2,
-        bookingId = 3,
+        appointmentId = 3,
+        bookingId = 4,
         court = "York 2",
         hearingType = HearingType.MAIN,
         createdByUsername = "username1",
@@ -60,7 +60,7 @@ class VideoLinkAppointmentRepositoryTest {
     assertThat(appointments).extracting("appointmentId", "bookingId", "court", "createdByUsername", "madeByTheCourt")
       .containsExactlyInAnyOrder(
         Tuple.tuple(1L, 2L, "York", null, true),
-        Tuple.tuple(2L, 3L, "York 2", "username1", false)
+        Tuple.tuple(3L, 4L, "York 2", "username1", false)
       )
   }
 }

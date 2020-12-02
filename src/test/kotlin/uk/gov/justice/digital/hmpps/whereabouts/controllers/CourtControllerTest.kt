@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService
+import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 
 @WebMvcTest(CourtController::class)
@@ -19,6 +20,9 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 class CourtControllerTest : TestController() {
   @MockBean
   lateinit var courtService: CourtService
+
+  @MockBean
+  lateinit var videoLinkAppointmentLinker: VideoLinkAppointmentLinker
 
   @Test
   @WithMockUser(username = "ITAG_USER")

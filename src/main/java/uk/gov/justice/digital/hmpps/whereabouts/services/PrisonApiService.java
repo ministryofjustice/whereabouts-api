@@ -6,6 +6,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
@@ -15,6 +16,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
+import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import javax.persistence.EntityNotFoundException;
@@ -183,6 +185,32 @@ public class PrisonApiService {
                 .retrieve()
                 .bodyToMono(responseType)
                 .block();
+    }
+
+    public List<PrisonAppointment> getPrisonAppointmentsForBookingId(long bookingId, int offset, int limit) {
+        final var responseType = new ParameterizedTypeReference<List<PrisonAppointment>>() {
+        };
+
+        return webClient.get()
+                .uri("/bookings/{bookingId}/appointments", bookingId)
+                .header("fromDate", "2019-01-01")
+                .header("toDate", "2050-01-01")
+                .header("Page-Offset", Integer.toString(offset))
+                .header("Page-Limit", Integer.toString(limit))
+                .header("Sort-Fields", "startTime")
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
+    }
+
+    public PrisonAppointment getPrisonAppointment(long appointmentId) {
+        return webClient.get()
+                .uri("/appointments/{appointmentId}", appointmentId)
+                .retrieve()
+                .bodyToMono(PrisonAppointment.class)
+                .onErrorResume(WebClientResponseException.NotFound.class, notFound -> Mono.empty())
+                .blockOptional()
+                .orElse(null);
     }
 }
 

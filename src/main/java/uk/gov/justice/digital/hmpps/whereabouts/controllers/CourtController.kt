@@ -15,12 +15,16 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService
+import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker
 import javax.validation.Valid
 
 @Api(tags = ["court"])
 @RestController
 @RequestMapping(value = ["court"], produces = [MediaType.APPLICATION_JSON_VALUE])
-class CourtController(private val courtService: CourtService) {
+class CourtController(
+  private val courtService: CourtService,
+  private val appointmentLinker: VideoLinkAppointmentLinker
+) {
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/all-courts"])
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation(
@@ -56,4 +60,11 @@ class CourtController(private val courtService: CourtService) {
   @ApiOperation(value = "Create a Video Link Booking")
   fun createVideoLinkBooking(@RequestBody @Valid videoLinkBookingSpecification: VideoLinkBookingSpecification) =
     courtService.createVideoLinkBooking(videoLinkBookingSpecification)
+
+  @PostMapping(path = ["/appointment-linker"])
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @ApiOperation(value = "Create Video Link Bookings for dangling Video Link Appointments")
+  fun linkDanglingAppointments() {
+    appointmentLinker.linkAppointments()
+  }
 }
