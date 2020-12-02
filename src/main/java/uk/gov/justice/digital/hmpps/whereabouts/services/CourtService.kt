@@ -149,11 +149,17 @@ class CourtService(
       madeByTheCourt = specification.madeByTheCourt
     )
 
+    @Transactional
     fun deleteVideoLinkBooking(videoBookingId: Long) {
       val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
         EntityNotFoundException("Video link booking with id $videoBookingId not found")
       }
+
       booking.toAppointments().forEach { prisonApiService.deleteAppointment(it.appointmentId) }
+      booking.toAppointments().forEach { videoLinkAppointmentRepository.deleteById(it.id) }
+      videoLinkBookingRepository.deleteById(booking.id)
+
+      telemetryClient.trackEvent("DeleteVideoLinkBooking", mapOf("videoBookingId" to "${booking.id}"), null)
     }
 
 }

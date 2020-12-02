@@ -463,6 +463,7 @@ class CourtServiceTest {
 
     private val mainAppointmentId = 12L
     private val mainVideoLinkAppointment = VideoLinkAppointment(
+      id = 222,
       appointmentId = mainAppointmentId,
       bookingId = 1,
       court = YORK_CC,
@@ -471,6 +472,7 @@ class CourtServiceTest {
 
     private val preAppointmentId = 13L
     private val preVideoLinkAppointment = VideoLinkAppointment(
+      id = 111,
       appointmentId = preAppointmentId,
       bookingId = 1,
       court = YORK_CC,
@@ -479,6 +481,7 @@ class CourtServiceTest {
 
     private val postAppointmentId = 14L
     private val postVideoLinkAppointment = VideoLinkAppointment(
+      id = 333,
       appointmentId = postAppointmentId,
       bookingId = 1,
       court = YORK_CC,
@@ -510,6 +513,14 @@ class CourtServiceTest {
       verify(prisonApiService).deleteAppointment(preVideoLinkAppointment.appointmentId)
       verify(prisonApiService).deleteAppointment(mainVideoLinkAppointment.appointmentId)
       verify(prisonApiService).deleteAppointment(postVideoLinkAppointment.appointmentId)
+
+      verify(videoLinkAppointmentRepository).deleteById(preVideoLinkAppointment.id)
+      verify(videoLinkAppointmentRepository).deleteById(mainVideoLinkAppointment.id)
+      verify(videoLinkAppointmentRepository).deleteById(postVideoLinkAppointment.id)
+
+      verify(videoLinkBookingRepository).deleteById(videoLinkBooking.id)
+
+      verify(telemetryClient).trackEvent("DeleteVideoLinkBooking", mapOf("videoBookingId" to "${videoLinkBooking.id}"), null)
 
     }
   }
