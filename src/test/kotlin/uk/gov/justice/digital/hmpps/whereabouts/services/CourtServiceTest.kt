@@ -17,7 +17,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.main
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
@@ -507,20 +506,33 @@ class CourtServiceTest {
     @Test
     fun `happy path`() {
 
+      whenever(authenticationFacade.currentUsername).thenReturn("A_USER")
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
+
       service.deleteVideoLinkBooking(videoLinkBooking.id!!)
 
       verify(prisonApiService).deleteAppointment(preVideoLinkAppointment.appointmentId)
       verify(prisonApiService).deleteAppointment(mainVideoLinkAppointment.appointmentId)
       verify(prisonApiService).deleteAppointment(postVideoLinkAppointment.appointmentId)
 
-      verify(videoLinkAppointmentRepository).deleteById(preVideoLinkAppointment.id)
-      verify(videoLinkAppointmentRepository).deleteById(mainVideoLinkAppointment.id)
-      verify(videoLinkAppointmentRepository).deleteById(postVideoLinkAppointment.id)
+      verify(videoLinkAppointmentRepository).deleteById(preVideoLinkAppointment.id!!)
+      verify(videoLinkAppointmentRepository).deleteById(mainVideoLinkAppointment.id!!)
+      verify(videoLinkAppointmentRepository).deleteById(postVideoLinkAppointment.id!!)
 
-      verify(videoLinkBookingRepository).deleteById(videoLinkBooking.id)
+      verify(videoLinkBookingRepository).deleteById(videoLinkBooking.id!!)
 
-      verify(telemetryClient).trackEvent("DeleteVideoLinkBooking", mapOf("videoBookingId" to "${videoLinkBooking.id}"), null)
+      verify(telemetryClient).trackEvent("VideoLinkBookingDeleted", mapOf(
+        "id" to "${videoLinkBooking.id}",
+        "bookingId" to "${videoLinkBooking.main.bookingId}",
+        "court" to videoLinkBooking.main.court,
+        "user" to "A_USER",
+        "mainAppointmentId" to "${videoLinkBooking.main.appointmentId}",
+        "mainId" to "${videoLinkBooking.main.id}",
+        "preAppointmentId" to "${videoLinkBooking.pre?.appointmentId}",
+        "preId" to "${videoLinkBooking.pre?.id}",
+        "postAppointmentId" to "${videoLinkBooking.post?.appointmentId}",
+        "postId" to "${videoLinkBooking.post?.id}",
+      ), null)
 
     }
   }

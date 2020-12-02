@@ -156,28 +156,36 @@ class CourtService(
       }
 
       booking.toAppointments().forEach { prisonApiService.deleteAppointment(it.appointmentId) }
-      booking.toAppointments().forEach { videoLinkAppointmentRepository.deleteById(it.id) }
-      videoLinkBookingRepository.deleteById(booking.id)
+      booking.toAppointments().forEach { videoLinkAppointmentRepository.deleteById(it.id!!) }
+      videoLinkBookingRepository.deleteById(booking.id!!)
 
-      telemetryClient.trackEvent("DeleteVideoLinkBooking", mapOf("videoBookingId" to "${booking.id}"), null)
+      trackVideoLinkBookingDeleted(booking)
     }
 
+  private fun trackVideoLinkBookingDeleted(
+    booking: VideoLinkBooking
+  ) {
+    val properties = mutableMapOf(
+      "id" to (booking.id?.toString()),
+      "bookingId" to booking.main.bookingId.toString(),
+      "court" to booking.main.court,
+      "user" to authenticationFacade.currentUsername,
+    )
+
+    properties.putAll(deletedAppointmentDetail(booking.main))
+    booking.pre?.also { properties.putAll(deletedAppointmentDetail(it)) }
+    booking.post?.also { properties.putAll(deletedAppointmentDetail(it)) }
+
+    telemetryClient.trackEvent("VideoLinkBookingDeleted", properties, null)
+  }
+
+  private fun deletedAppointmentDetail(
+    appointment: VideoLinkAppointment,
+  ): Map<String, String> {
+    val prefix = appointment.hearingType.name.toLowerCase()
+    return mapOf(
+      "${prefix}AppointmentId" to appointment.appointmentId.toString(),
+      "${prefix}Id" to appointment.id.toString(),
+    )
+  }
 }
-
-/**
-
-Load up the booking, if it does not exist then we throw an exception
-
-For each appointment
-  Call the prison API end-point DELETE /appointments/{appointmentId} for the appointment (Ignore 404 Not Found response)
-
-For each appointment
-  Deleting the VIDEO_LINK_APPOINTMENT record
-
-Then delete the VIDEO_LINK_BOOKING itself
-
-Then fire an Application Insights DeleteVideoLinkBooking custom event
-
-If any of the calls to prison api fail then the whole operation fails and the VIDEO_LINK_BOOKING and referenced VIDEO_LINK_APPOINTMENT records are left intact
-
-**/

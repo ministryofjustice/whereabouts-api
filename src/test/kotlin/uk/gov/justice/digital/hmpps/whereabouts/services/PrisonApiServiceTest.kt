@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.google.gson.GsonBuilder
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
@@ -14,8 +13,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMo
 
 class PrisonApiServiceTest {
 
-  lateinit var webTestClient: WebTestClient
-  lateinit var prisonApiService: PrisonApiService
+  private lateinit var prisonApiService: PrisonApiService
 
   companion object {
     @JvmField
@@ -37,7 +35,7 @@ class PrisonApiServiceTest {
   @BeforeEach
   fun resetStubs() {
     prisonApiMockServer.resetAll()
-    prisonApiService = PrisonApiService(WebClient.create("http://localhost:${prisonApiMockServer.port()}"))
+    prisonApiService = PrisonApiService(WebClient.create("http://localhost:${prisonApiMockServer.port()}/api"))
 
   }
 
@@ -47,7 +45,7 @@ class PrisonApiServiceTest {
     prisonApiMockServer.stubDeleteAppointment(appointmentId, 200)
     prisonApiService.deleteAppointment(appointmentId)
     prisonApiMockServer.verify(
-      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/appointments/${appointmentId}"))
+      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/${appointmentId}"))
     )
   }
 
@@ -57,7 +55,7 @@ class PrisonApiServiceTest {
     prisonApiMockServer.stubDeleteAppointment(appointmentId, 404)
     prisonApiService.deleteAppointment(appointmentId)
     prisonApiMockServer.verify(
-      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/appointments/${appointmentId}"))
+      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/${appointmentId}"))
     )
   }
 
@@ -69,7 +67,7 @@ class PrisonApiServiceTest {
       prisonApiService.deleteAppointment(appointmentId)
     }
     prisonApiMockServer.verify(
-      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/appointments/${appointmentId}"))
+      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/${appointmentId}"))
     )
   }
 
