@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "1.1.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.0.0"
   kotlin("plugin.spring") version "1.4.10"
   kotlin("plugin.jpa") version "1.4.10"
   id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
@@ -12,13 +12,13 @@ configurations {
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.12")
+  annotationProcessor("org.projectlombok:lombok:1.18.16")
 
-  compileOnly("org.projectlombok:lombok:1.18.12")
+  compileOnly("org.projectlombok:lombok:1.18.16")
 
   runtimeOnly("com.h2database:h2:1.4.200")
   runtimeOnly("org.flywaydb:flyway-core:6.5.5")
-  runtimeOnly("org.postgresql:postgresql:42.2.16")
+  runtimeOnly("org.postgresql:postgresql:42.2.18")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-cache")
