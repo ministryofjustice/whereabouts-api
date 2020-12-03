@@ -32,6 +32,9 @@ class VideoLinkBookingRepositoryTest {
   @MockBean
   lateinit var authenticationFacade: AuthenticationFacade
 
+  @Autowired
+  lateinit var jdbcTemplate: JdbcTemplate
+
   @Test
   fun `should persist a booking (main only)`() {
     repository.deleteAll()
@@ -104,6 +107,9 @@ class VideoLinkBookingRepositoryTest {
     val persistentBooking = persistentBookingOptional.get()
 
     assertThat(persistentBooking).isEqualToIgnoringGivenFields(transientBooking, "id")
+
+    val hearingTypes = jdbcTemplate.queryForList("select hearing_type from video_link_appointment", String::class.java)
+    assertThat(hearingTypes).contains("PRE", "MAIN", "POST")
   }
 
 

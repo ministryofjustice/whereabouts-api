@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -24,54 +25,55 @@ class CellMoveServiceTest {
   private val prisonApiService: PrisonApiService = mock()
   private val caseNoteService: CaseNotesService = mock()
   private val cellMoveRepository: CellMoveReasonRepository = mock()
-  private val clock = Clock.fixed(Instant.parse(SOME_OCCURRENCE_DATE_TIME + "Z"), ZoneId.of("UTC"))
+  private val telemetryClient: TelemetryClient = mock()
+  private val clock = Clock.fixed(Instant.parse(OCCURRENCE_DATE_TIME + "Z"), ZoneId.of("UTC"))
 
   @Test
   fun `should make a call to prison api cell move method`() {
     stubPutCellMove()
 
-    val service = CellMoveService(prisonApiService, caseNoteService, cellMoveRepository, clock)
+    val service = CellMoveService(prisonApiService, caseNoteService, cellMoveRepository, telemetryClient, clock)
 
     val details = service.makeCellMove(
       cellMoveDetails = CellMoveDetails(
-        bookingId = SOME_BOOKING_ID,
-        offenderNo = SOME_OFFENDER_NO,
-        internalLocationDescriptionDestination = SOME_ASSIGNED_LIVING_UNIT_DESC,
-        cellMoveReasonCode = SOME_REASON_CODE,
-        commentText = SOME_TEXT
+        bookingId = BOOKING_ID,
+        offenderNo = OFFENDER_NO,
+        internalLocationDescriptionDestination = ASSIGNED_LIVING_UNIT_DESC,
+        cellMoveReasonCode = REASON_CODE,
+        commentText = TEXT
       )
     )
 
-    assertThat(details.agencyId).isEqualTo(SOME_AGENCY_ID)
-    assertThat(details.assignedLivingUnitDesc).isEqualTo(SOME_ASSIGNED_LIVING_UNIT_DESC)
-    assertThat(details.assignedLivingUnitId).isEqualTo(SOME_ASSIGNED_LIVING_UNIT_ID)
-    assertThat(details.agencyId).isEqualTo(SOME_AGENCY_ID)
+    assertThat(details.agencyId).isEqualTo(AGENCY_ID)
+    assertThat(details.assignedLivingUnitDesc).isEqualTo(ASSIGNED_LIVING_UNIT_DESC)
+    assertThat(details.assignedLivingUnitId).isEqualTo(ASSIGNED_LIVING_UNIT_ID)
+    assertThat(details.agencyId).isEqualTo(AGENCY_ID)
 
-    verify(prisonApiService).putCellMove(SOME_BOOKING_ID, SOME_ASSIGNED_LIVING_UNIT_DESC, SOME_REASON_CODE)
+    verify(prisonApiService).putCellMove(BOOKING_ID, ASSIGNED_LIVING_UNIT_DESC, REASON_CODE)
   }
 
   @Test
   fun `should make a call to create a case note`() {
     stubPutCellMove()
 
-    val service = CellMoveService(prisonApiService, caseNoteService, cellMoveRepository, clock)
+    val service = CellMoveService(prisonApiService, caseNoteService, cellMoveRepository, telemetryClient, clock)
 
     service.makeCellMove(
       cellMoveDetails = CellMoveDetails(
-        bookingId = SOME_BOOKING_ID,
-        offenderNo = SOME_OFFENDER_NO,
-        internalLocationDescriptionDestination = SOME_ASSIGNED_LIVING_UNIT_DESC,
-        cellMoveReasonCode = SOME_REASON_CODE,
-        commentText = SOME_TEXT
+        bookingId = BOOKING_ID,
+        offenderNo = OFFENDER_NO,
+        internalLocationDescriptionDestination = ASSIGNED_LIVING_UNIT_DESC,
+        cellMoveReasonCode = REASON_CODE,
+        commentText = TEXT
       )
     )
 
     verify(caseNoteService).postCaseNote(
-      SOME_OFFENDER_NO,
-      SOME_CASE_NOTE_TYPE,
-      SOME_REASON_CODE,
-      SOME_TEXT,
-      LocalDateTime.parse(SOME_OCCURRENCE_DATE_TIME)
+      OFFENDER_NO,
+      CASE_NOTE_TYPE,
+      REASON_CODE,
+      TEXT,
+      LocalDateTime.parse(OCCURRENCE_DATE_TIME)
     )
   }
 
@@ -79,23 +81,23 @@ class CellMoveServiceTest {
   fun `should store the cell move history and case note ids`() {
     stubPutCellMove()
 
-    val service = CellMoveService(prisonApiService, caseNoteService, cellMoveRepository, clock)
+    val service = CellMoveService(prisonApiService, caseNoteService, cellMoveRepository, telemetryClient, clock)
 
     service.makeCellMove(
       cellMoveDetails = CellMoveDetails(
-        bookingId = SOME_BOOKING_ID,
-        offenderNo = SOME_OFFENDER_NO,
-        internalLocationDescriptionDestination = SOME_ASSIGNED_LIVING_UNIT_DESC,
-        cellMoveReasonCode = SOME_REASON_CODE,
-        commentText = SOME_TEXT
+        bookingId = BOOKING_ID,
+        offenderNo = OFFENDER_NO,
+        internalLocationDescriptionDestination = ASSIGNED_LIVING_UNIT_DESC,
+        cellMoveReasonCode = REASON_CODE,
+        commentText = TEXT
       )
     )
 
     verify(cellMoveRepository).save(
       CellMoveReason(
-        bookingId = SOME_BOOKING_ID,
-        caseNoteId = SOME_CASE_NOTE_ID,
-        bedAssignmentsSequence = SOME_BED_ASSIGNMENT_SEQUENCE
+        bookingId = BOOKING_ID,
+        caseNoteId = CASE_NOTE_ID,
+        bedAssignmentsSequence = BED_ASSIGNMENT_SEQUENCE
       )
     )
   }
@@ -107,49 +109,77 @@ class CellMoveServiceTest {
     ).thenReturn(
       Optional.of(
         CellMoveReason(
-          bookingId = SOME_BOOKING_ID,
-          bedAssignmentsSequence = SOME_BED_ASSIGNMENT_SEQUENCE,
-          caseNoteId = SOME_CASE_NOTE_ID
+          bookingId = BOOKING_ID,
+          bedAssignmentsSequence = BED_ASSIGNMENT_SEQUENCE,
+          caseNoteId = CASE_NOTE_ID
         )
       )
     )
 
-    val service = CellMoveService(prisonApiService, caseNoteService, cellMoveRepository, clock)
+    val service = CellMoveService(prisonApiService, caseNoteService, cellMoveRepository, telemetryClient, clock)
 
-    val cellReasonDto = service.getCellMoveReason(SOME_BOOKING_ID, SOME_BED_ASSIGNMENT_SEQUENCE)
+    val cellReasonDto = service.getCellMoveReason(BOOKING_ID, BED_ASSIGNMENT_SEQUENCE)
 
-    assertThat(cellReasonDto.bookingId).isEqualTo(SOME_BOOKING_ID)
-    assertThat(cellReasonDto.bedAssignmentsSequence).isEqualTo(SOME_BED_ASSIGNMENT_SEQUENCE)
-    assertThat(cellReasonDto.caseNoteId).isEqualTo(SOME_CASE_NOTE_ID)
+    assertThat(cellReasonDto.bookingId).isEqualTo(BOOKING_ID)
+    assertThat(cellReasonDto.bedAssignmentsSequence).isEqualTo(BED_ASSIGNMENT_SEQUENCE)
+    assertThat(cellReasonDto.caseNoteId).isEqualTo(CASE_NOTE_ID)
+  }
+
+  @Test
+  fun `should raise a telemetry event`() {
+    stubPutCellMove()
+
+    val service = CellMoveService(prisonApiService, caseNoteService, cellMoveRepository, telemetryClient, clock)
+
+    service.makeCellMove(
+      cellMoveDetails = CellMoveDetails(
+        bookingId = BOOKING_ID,
+        offenderNo = OFFENDER_NO,
+        internalLocationDescriptionDestination = ASSIGNED_LIVING_UNIT_DESC,
+        cellMoveReasonCode = REASON_CODE,
+        commentText = TEXT
+      )
+    )
+
+    verify(telemetryClient).trackEvent(
+      "CellMove",
+      mapOf(
+        "bookingId" to BOOKING_ID.toString(),
+        "assignedLivingUnitDesc" to ASSIGNED_LIVING_UNIT_DESC,
+        "assignedLivingUnitId" to ASSIGNED_LIVING_UNIT_ID.toString(),
+        "cellMoveReasonCode" to REASON_CODE
+      ),
+      null
+    )
   }
 
   private fun stubPutCellMove() {
     whenever(prisonApiService.putCellMove(anyLong(), anyString(), anyString()))
       .thenReturn(
         CellMoveResult(
-          bookingId = SOME_BOOKING_ID,
-          agencyId = SOME_AGENCY_ID,
-          assignedLivingUnitId = SOME_ASSIGNED_LIVING_UNIT_ID,
-          assignedLivingUnitDesc = SOME_ASSIGNED_LIVING_UNIT_DESC,
-          bedAssignmentHistorySequence = SOME_BED_ASSIGNMENT_SEQUENCE,
-          caseNoteId = SOME_CASE_NOTE_ID
+          bookingId = BOOKING_ID,
+          agencyId = AGENCY_ID,
+          assignedLivingUnitId = ASSIGNED_LIVING_UNIT_ID,
+          assignedLivingUnitDesc = ASSIGNED_LIVING_UNIT_DESC,
+          bedAssignmentHistorySequence = BED_ASSIGNMENT_SEQUENCE,
+          caseNoteId = CASE_NOTE_ID
         )
       )
     whenever(caseNoteService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any()))
-      .thenReturn(CaseNoteDto.builder().caseNoteId(SOME_CASE_NOTE_ID).build())
+      .thenReturn(CaseNoteDto.builder().caseNoteId(CASE_NOTE_ID).build())
   }
 
   companion object {
-    private const val SOME_BOOKING_ID = -10L
-    private const val SOME_AGENCY_ID = "MDI"
-    private const val SOME_OFFENDER_NO = "A12345"
-    private const val SOME_ASSIGNED_LIVING_UNIT_ID = 123L
-    private const val SOME_ASSIGNED_LIVING_UNIT_DESC = "MDI-2-2-006"
-    private const val SOME_CASE_NOTE_TYPE = "MOVED_CELL"
-    private const val SOME_REASON_CODE = "ADM"
-    private const val SOME_TEXT = "some text"
-    private const val SOME_OCCURRENCE_DATE_TIME = "2020-10-03T20:00:00"
-    private const val SOME_CASE_NOTE_ID = 1L
-    private const val SOME_BED_ASSIGNMENT_SEQUENCE = 1
+    private const val BOOKING_ID = -10L
+    private const val AGENCY_ID = "MDI"
+    private const val OFFENDER_NO = "A12345"
+    private const val ASSIGNED_LIVING_UNIT_ID = 123L
+    private const val ASSIGNED_LIVING_UNIT_DESC = "MDI-2-2-006"
+    private const val CASE_NOTE_TYPE = "MOVED_CELL"
+    private const val REASON_CODE = "ADM"
+    private const val TEXT = "some text"
+    private const val OCCURRENCE_DATE_TIME = "2020-10-03T20:00:00"
+    private const val CASE_NOTE_ID = 1L
+    private const val BED_ASSIGNMENT_SEQUENCE = 1
   }
 }
