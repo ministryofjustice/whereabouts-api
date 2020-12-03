@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.microsoft.applicationinsights.TelemetryClient
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveDetails
@@ -18,6 +19,7 @@ class CellMoveService(
   val prisonApiService: PrisonApiService,
   val caseNotesService: CaseNotesService,
   val cellMoveRepository: CellMoveReasonRepository,
+  val telemetryClient: TelemetryClient,
   val clock: Clock
 ) {
 
@@ -57,6 +59,17 @@ class CellMoveService(
     log.info("Saving cell move details: {}", cellMove)
 
     cellMoveRepository.save(cellMove)
+
+    telemetryClient.trackEvent(
+      "CellMove",
+      mapOf(
+        "bookingId" to moveResult.bookingId.toString(),
+        "assignedLivingUnitDesc" to moveResult.assignedLivingUnitDesc,
+        "assignedLivingUnitId" to moveResult.assignedLivingUnitId.toString(),
+        "cellMoveReasonCode" to cellMoveDetails.cellMoveReasonCode
+      ),
+      null
+    )
 
     return moveResult.copy(caseNoteId = caseNoteDetails.caseNoteId)
   }
