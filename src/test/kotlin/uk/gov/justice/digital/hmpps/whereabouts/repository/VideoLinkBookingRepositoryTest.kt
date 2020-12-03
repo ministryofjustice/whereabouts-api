@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
@@ -26,6 +27,9 @@ class VideoLinkBookingRepositoryTest {
 
   @MockBean
   lateinit var authenticationFacade: AuthenticationFacade
+
+  @Autowired
+  lateinit var jdbcTemplate: JdbcTemplate
 
   @Test
   fun `should persist a booking (main only)`() {
@@ -99,5 +103,8 @@ class VideoLinkBookingRepositoryTest {
     val persistentBooking = persistentBookingOptional.get()
 
     assertThat(persistentBooking).isEqualToIgnoringGivenFields(transientBooking, "id")
+
+    val hearingTypes = jdbcTemplate.queryForList("select hearing_type from video_link_appointment", String::class.java)
+    assertThat(hearingTypes).contains("PRE", "MAIN", "POST")
   }
 }

@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
 import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
@@ -20,6 +22,8 @@ data class VideoLinkAppointment(
   val bookingId: Long,
   val appointmentId: Long,
   val court: String,
+
+  @Enumerated(EnumType.STRING)
   val hearingType: HearingType,
   val createdByUsername: String? = null,
   val madeByTheCourt: Boolean? = true
