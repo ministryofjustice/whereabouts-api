@@ -32,9 +32,6 @@ class VideoLinkBookingRepositoryTest {
   @MockBean
   lateinit var authenticationFacade: AuthenticationFacade
 
-  @Autowired
-  lateinit var jdbcTemplate: JdbcTemplate
-
   @Test
   fun `should persist a booking (main only)`() {
     repository.deleteAll()
@@ -115,7 +112,7 @@ class VideoLinkBookingRepositoryTest {
 
   @Test
   fun `Deleting a booking should delete its appointments`() {
-    repository.deleteAll()
+    JdbcTestUtils.deleteFromTables(jdbcTemplate, "VIDEO_LINK_BOOKING", "VIDEO_LINK_APPOINTMENT")
     TestTransaction.flagForCommit()
     TestTransaction.end()
     TestTransaction.start()
