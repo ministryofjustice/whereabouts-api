@@ -12,9 +12,9 @@ configurations {
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.16")
+  annotationProcessor("org.projectlombok:lombok:1.18.12")
 
-  compileOnly("org.projectlombok:lombok:1.18.16")
+  compileOnly("org.projectlombok:lombok:1.18.12")
 
   runtimeOnly("com.h2database:h2:1.4.200")
   runtimeOnly("org.flywaydb:flyway-core:6.5.5")
