@@ -12,12 +12,16 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
+import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.EntityNotFoundException
 
 @WebMvcTest(CourtController::class)
@@ -252,6 +256,41 @@ class CourtControllerTest : TestController() {
   }
 
   @Nested
+  inner class `Get a booking` {
+
+
+
+    private fun passWithJson(videoBookingId: Long, json: String) {
+      whenever(courtService.getVideoLinkBooking(any())).thenReturn(VideoLinkBookingResponse(
+        bookingId = 100,
+        court = "Test Court",
+        pre = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+          locationId = 10,
+          startTime = LocalDateTime.of(2020, 2, 7, 12, 0 ),
+          endTime = LocalDateTime.of(2020, 2, 7, 13, 0 ),
+        ))
+
+      mockMvc.perform(
+        get("/court/video-link-bookings/{videoBookingId}", videoBookingId)
+          .contentType(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(status().isOk)
+        .andExpect(jsonPath("$").value(1))
+      )
+    }
+
+    private fun failWithJson(videoBookingId: Long, json: String, expectedStatus: Int) {
+      whenever(courtService.getVideoLinkBooking(any())).thenReturn(1L)
+
+      mockMvc.perform(
+        get("/court/video-link-bookings/{videoBookingId}", videoBookingId)
+          .contentType(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(status().`is`(expectedStatus))
+    }
+  }
+
+    @Nested
   inner class `Deleting a booking` {
     @Test
     @WithMockUser(username = "ITAG_USER")

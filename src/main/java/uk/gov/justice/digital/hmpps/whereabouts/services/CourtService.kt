@@ -8,6 +8,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
@@ -150,6 +151,14 @@ class CourtService(
     )
 
     @Transactional
+    fun getVideoLinkBooking(videoBookingId: Long): VideoLinkBookingResponse {
+//      val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
+//        EntityNotFoundException("Video link booking with id $videoBookingId not found")
+//      }
+      throw EntityNotFoundException("Video link booking with id $videoBookingId not found")
+    }
+
+    @Transactional
     fun deleteVideoLinkBooking(videoBookingId: Long) {
       val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
         EntityNotFoundException("Video link booking with id $videoBookingId not found")
@@ -187,4 +196,5 @@ class CourtService(
       "${prefix}Id" to appointment.id.toString(),
     )
   }
+
 }
