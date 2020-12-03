@@ -214,8 +214,6 @@ class CourtIntegrationTest : IntegrationTest() {
       WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/${mainAppointmentId}"))
     )
 
-    verify(videoLinkAppointmentRepository).deleteById(theVideoLinkBooking.pre?.id!!)
-    verify(videoLinkAppointmentRepository).deleteById(theVideoLinkBooking.main.id!!)
     verify(videoLinkBookingRepository).deleteById(videoBookingId)
   }
 }

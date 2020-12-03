@@ -71,7 +71,7 @@ class CourtController(
     appointmentLinker.linkAppointments()
   }
 
-  @DeleteMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings/{videoBookingId}"])
+  @DeleteMapping(path = ["/video-link-bookings/{videoBookingId}"])
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ApiOperation(value = "Delete a Video Link Booking")
   fun deleteVideoLinkBooking(@ApiParam(

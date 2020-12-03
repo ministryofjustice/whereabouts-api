@@ -156,7 +156,6 @@ class CourtService(
       }
 
       booking.toAppointments().forEach { prisonApiService.deleteAppointment(it.appointmentId) }
-      booking.toAppointments().forEach { videoLinkAppointmentRepository.deleteById(it.id!!) }
       videoLinkBookingRepository.deleteById(booking.id!!)
 
       trackVideoLinkBookingDeleted(booking)

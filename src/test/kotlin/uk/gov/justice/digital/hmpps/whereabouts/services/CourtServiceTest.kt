@@ -515,10 +515,6 @@ class CourtServiceTest {
       verify(prisonApiService).deleteAppointment(mainVideoLinkAppointment.appointmentId)
       verify(prisonApiService).deleteAppointment(postVideoLinkAppointment.appointmentId)
 
-      verify(videoLinkAppointmentRepository).deleteById(preVideoLinkAppointment.id!!)
-      verify(videoLinkAppointmentRepository).deleteById(mainVideoLinkAppointment.id!!)
-      verify(videoLinkAppointmentRepository).deleteById(postVideoLinkAppointment.id!!)
-
       verify(videoLinkBookingRepository).deleteById(videoLinkBooking.id!!)
 
       verify(telemetryClient).trackEvent("VideoLinkBookingDeleted", mapOf(
