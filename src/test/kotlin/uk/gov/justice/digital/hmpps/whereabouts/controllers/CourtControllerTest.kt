@@ -20,7 +20,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
-import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.persistence.EntityNotFoundException
 
@@ -259,21 +258,32 @@ class CourtControllerTest : TestController() {
   inner class `Get a booking` {
 
 
-
     private fun passWithJson(videoBookingId: Long, json: String) {
       whenever(courtService.getVideoLinkBooking(any())).thenReturn(VideoLinkBookingResponse(
+        videoLinkBookingId = 1,
         bookingId = 100,
         court = "Test Court",
         pre = VideoLinkBookingResponse.VideoLinkAppointmentDto(
           locationId = 10,
-          startTime = LocalDateTime.of(2020, 2, 7, 12, 0 ),
-          endTime = LocalDateTime.of(2020, 2, 7, 13, 0 ),
-        ))
+          startTime = LocalDateTime.of(2020, 2, 7, 12, 0),
+          endTime = LocalDateTime.of(2020, 2, 7, 13, 0),
+        ),
+        main = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+          locationId = 10,
+          startTime = LocalDateTime.of(2020, 2, 7, 13, 0),
+          endTime = LocalDateTime.of(2020, 2, 7, 14, 0),
+        ),
+        post = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+          locationId = 10,
+          startTime = LocalDateTime.of(2020, 2, 7, 14, 0),
+          endTime = LocalDateTime.of(2020, 2, 7, 15, 0),
+        )
+      ))
 
-      mockMvc.perform(
+        mockMvc.perform (
         get("/court/video-link-bookings/{videoBookingId}", videoBookingId)
           .contentType(MediaType.APPLICATION_JSON)
-      )
+        )
         .andExpect(status().isOk)
         .andExpect(jsonPath("$").value(1))
       )
@@ -290,7 +300,7 @@ class CourtControllerTest : TestController() {
     }
   }
 
-    @Nested
+  @Nested
   inner class `Deleting a booking` {
     @Test
     @WithMockUser(username = "ITAG_USER")
@@ -302,7 +312,7 @@ class CourtControllerTest : TestController() {
       )
         .andExpect(status().isNoContent)
 
-        verify(courtService).deleteVideoLinkBooking(1)
+      verify(courtService).deleteVideoLinkBooking(1)
     }
 
     @Test
