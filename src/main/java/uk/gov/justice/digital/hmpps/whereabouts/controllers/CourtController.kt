@@ -67,8 +67,8 @@ class CourtController(
   @PostMapping(path = ["/appointment-linker"])
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ApiOperation(value = "Create Video Link Bookings for dangling Video Link Appointments")
-  fun linkDanglingAppointments() {
-    appointmentLinker.linkAppointments()
+  fun linkDanglingAppointments(@RequestBody chunkSize: Int?) {
+    appointmentLinker.linkAppointments(chunkSize)
   }
 
   @DeleteMapping(path = ["/video-link-bookings/{videoBookingId}"])

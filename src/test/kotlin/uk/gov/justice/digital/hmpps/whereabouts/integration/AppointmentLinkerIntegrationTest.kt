@@ -82,6 +82,16 @@ class AppointmentLinkerIntegrationTest : IntegrationTest() {
         it.setBearerAuth(appointmentLinkerToken!!)
         it.setContentType(MediaType.APPLICATION_JSON)
       }
+      .bodyValue(1)
+      .exchange()
+      .expectStatus().isNoContent
+
+    webTestClient.post()
+      .uri("/court/appointment-linker")
+      .headers {
+        it.setBearerAuth(appointmentLinkerToken!!)
+        it.setContentType(MediaType.APPLICATION_JSON)
+      }
       .exchange()
       .expectStatus().isNoContent
 
