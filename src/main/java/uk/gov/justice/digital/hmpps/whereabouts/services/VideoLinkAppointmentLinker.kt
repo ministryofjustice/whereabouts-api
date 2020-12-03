@@ -21,18 +21,16 @@ class VideoLinkAppointmentLinker(
 ) {
 
   @PreAuthorize("hasAnyRole('ROLE_VIDEO_APPOINTMENT_LINKER')")
-  fun linkAppointments() {
+  fun linkAppointments(chunkSize: Int?) {
     getBookingIdsOfUnlinkedAppointments()
-      .also { log.info("Found unlinked MAIN appointments for ${it.size} booking Ids") }
+      .also { log.info("Trying to link unlinked MAIN appointments for ${chunkSize ?: DEFAULT_CHUNK_SIZE} of ${it.size} booking Ids") }
+      .take(chunkSize ?: DEFAULT_CHUNK_SIZE)
       .forEach { linkAppointmentsForOffenderBookingId(it) }
   }
 
   @Transactional
-  fun getBookingIdsOfUnlinkedAppointments(): List<Long> {
-    val bookingIds = videoLinkAppointmentRepository.bookingIdsOfUnlinkedAppointments()
-    log.info("Found unlinked VideoLinkAppointments for ${bookingIds.size} bookingIds")
-    return bookingIds
-  }
+  fun getBookingIdsOfUnlinkedAppointments(): List<Long> =
+    videoLinkAppointmentRepository.bookingIdsOfUnlinkedAppointments()
 
   @Transactional
   fun linkAppointmentsForOffenderBookingId(bookingId: Long) {
@@ -45,8 +43,6 @@ class VideoLinkAppointmentLinker(
 
   fun videoLinkBookingsForOffenderBookingId(bookingId: Long): List<VideoLinkBooking> {
     val mainAppointments = videoLinkAppointmentRepository.unlinkedMainAppointmentsForBookingId(bookingId)
-
-    log.info("bookingId $bookingId: Found ${mainAppointments.size} MAIN VideoLinkAppointments")
 
     val prisonAppointmentsById = getPrisonAppointments(mainAppointments.map { it.appointmentId })
       .associateBy { it.eventId }
@@ -65,6 +61,7 @@ class VideoLinkAppointmentLinker(
           post = findPostAppointmentFor(mainPrisonAppointment),
         )
       }
+      .also { log.info("bookingId $bookingId: Matched ${it.size} of ${mainAppointments.size} MAIN VideoLinkAppointments with prison appointments") }
   }
 
   private fun getPrisonAppointments(appointmentIds: List<Long>) =
@@ -81,7 +78,7 @@ class VideoLinkAppointmentLinker(
       .associateBy({ it.endTime }, { appointmentsByAppointmentId[it.eventId] })
       .toMutableMap()
 
-    log.info("bookingId $bookingId: Found ${appointmentsByAppointmentId.size} PRE VideoLinkAppointments, Matched ${appointmentsByEndTime.size} with prison appointments")
+    log.info("bookingId $bookingId: Matched ${appointmentsByEndTime.size} of ${appointmentsByAppointmentId.size} PRE VideoLinkAppointments with prison appointments")
 
     return ({ mainAppointment -> appointmentsByEndTime.remove(mainAppointment?.startTime) })
   }
@@ -95,13 +92,13 @@ class VideoLinkAppointmentLinker(
       .associateBy({ it.startTime }, { appointmentsByAppointmentId[it.eventId] })
       .toMutableMap()
 
-    log.info("bookingId $bookingId: Found ${appointmentsByAppointmentId.size} POST VideoLinkAppointments, Matched ${appointmentsByStartTime.size} with prison appointments")
+    log.info("bookingId $bookingId: Matched ${appointmentsByStartTime.size} of ${appointmentsByAppointmentId.size} POST VideoLinkAppointments with prison appointments")
 
     return ({ mainAppointment -> appointmentsByStartTime.remove(mainAppointment?.endTime) })
   }
 
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
-    const val CHUNK_SIZE = 200
+    const val DEFAULT_CHUNK_SIZE = 60
   }
 }
