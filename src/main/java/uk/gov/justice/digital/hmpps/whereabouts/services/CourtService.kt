@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import javax.persistence.EntityNotFoundException
 import javax.transaction.Transactional
 
 const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
@@ -147,4 +148,43 @@ class CourtService(
       hearingType = type,
       madeByTheCourt = specification.madeByTheCourt
     )
+
+    @Transactional
+    fun deleteVideoLinkBooking(videoBookingId: Long) {
+      val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
+        EntityNotFoundException("Video link booking with id $videoBookingId not found")
+      }
+
+      booking.toAppointments().forEach { prisonApiService.deleteAppointment(it.appointmentId) }
+      videoLinkBookingRepository.deleteById(booking.id!!)
+
+      trackVideoLinkBookingDeleted(booking)
+    }
+
+  private fun trackVideoLinkBookingDeleted(
+    booking: VideoLinkBooking
+  ) {
+    val properties = mutableMapOf(
+      "id" to (booking.id?.toString()),
+      "bookingId" to booking.main.bookingId.toString(),
+      "court" to booking.main.court,
+      "user" to authenticationFacade.currentUsername,
+    )
+
+    properties.putAll(deletedAppointmentDetail(booking.main))
+    booking.pre?.also { properties.putAll(deletedAppointmentDetail(it)) }
+    booking.post?.also { properties.putAll(deletedAppointmentDetail(it)) }
+
+    telemetryClient.trackEvent("VideoLinkBookingDeleted", properties, null)
+  }
+
+  private fun deletedAppointmentDetail(
+    appointment: VideoLinkAppointment,
+  ): Map<String, String> {
+    val prefix = appointment.hearingType.name.toLowerCase()
+    return mapOf(
+      "${prefix}AppointmentId" to appointment.appointmentId.toString(),
+      "${prefix}Id" to appointment.id.toString(),
+    )
+  }
 }

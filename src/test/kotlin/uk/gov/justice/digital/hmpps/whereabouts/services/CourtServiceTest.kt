@@ -8,6 +8,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.groups.Tuple
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
@@ -23,6 +24,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentR
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 import java.time.LocalDateTime
+import java.util.Optional
+import javax.persistence.EntityNotFoundException
 
 const val YORK_CC = "York Crown Court"
 const val VLB_APPOINTMENT_TYPE = "VLB"
@@ -450,6 +453,83 @@ class CourtServiceTest {
         ),
         null
       )
+    }
+  }
+
+  @Nested
+  inner class DeleteVideoLinkBooking {
+    val service = service("")
+
+    private val mainAppointmentId = 12L
+    private val mainVideoLinkAppointment = VideoLinkAppointment(
+      id = 222,
+      appointmentId = mainAppointmentId,
+      bookingId = 1,
+      court = YORK_CC,
+      hearingType = HearingType.MAIN
+    )
+
+    private val preAppointmentId = 13L
+    private val preVideoLinkAppointment = VideoLinkAppointment(
+      id = 111,
+      appointmentId = preAppointmentId,
+      bookingId = 1,
+      court = YORK_CC,
+      hearingType = HearingType.PRE
+    )
+
+    private val postAppointmentId = 14L
+    private val postVideoLinkAppointment = VideoLinkAppointment(
+      id = 333,
+      appointmentId = postAppointmentId,
+      bookingId = 1,
+      court = YORK_CC,
+      hearingType = HearingType.POST
+    )
+
+    private val videoLinkBooking = VideoLinkBooking(
+      pre = preVideoLinkAppointment,
+      main = mainVideoLinkAppointment,
+      post = postVideoLinkAppointment,
+      id = 100
+    )
+
+    @Test
+    fun `when there is no video link booking it throws an exception`() {
+
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.empty())
+      Assertions.assertThrows(EntityNotFoundException::class.java) {
+        service.deleteVideoLinkBooking(videoLinkBooking.id!!)
+      }
+    }
+
+    @Test
+    fun `happy path`() {
+
+      whenever(authenticationFacade.currentUsername).thenReturn("A_USER")
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
+
+      service.deleteVideoLinkBooking(videoLinkBooking.id!!)
+
+      verify(prisonApiService).deleteAppointment(preVideoLinkAppointment.appointmentId)
+      verify(prisonApiService).deleteAppointment(mainVideoLinkAppointment.appointmentId)
+      verify(prisonApiService).deleteAppointment(postVideoLinkAppointment.appointmentId)
+
+      verify(videoLinkBookingRepository).deleteById(videoLinkBooking.id!!)
+
+      verify(telemetryClient).trackEvent("VideoLinkBookingDeleted", mapOf(
+        "id" to "${videoLinkBooking.id}",
+        "bookingId" to "${videoLinkBooking.main.bookingId}",
+        "court" to videoLinkBooking.main.court,
+        "user" to "A_USER",
+        "mainAppointmentId" to "${videoLinkBooking.main.appointmentId}",
+        "mainId" to "${videoLinkBooking.main.id}",
+        "preAppointmentId" to "${videoLinkBooking.pre?.appointmentId}",
+        "preId" to "${videoLinkBooking.pre?.id}",
+        "postAppointmentId" to "${videoLinkBooking.post?.appointmentId}",
+        "postId" to "${videoLinkBooking.post?.id}",
+      ), null)
+
     }
   }
 

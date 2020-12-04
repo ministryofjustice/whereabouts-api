@@ -11,6 +11,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import java.util.Optional
 
 class CourtIntegrationTest : IntegrationTest() {
 
@@ -155,5 +156,64 @@ class CourtIntegrationTest : IntegrationTest() {
       .expectBody().json("1")
 
     verify(videoLinkBookingRepository).save(theVideoLinkBooking)
+  }
+
+  @Test
+  fun `Returns 404 when trying to delete a non-existent video link booking`() {
+    val bookingId: Long = 1
+
+    webTestClient.delete()
+      .uri("/court/video-link-bookings/$bookingId")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isNotFound
+      .expectBody()
+      .jsonPath("$.developerMessage").isEqualTo("Video link booking with id $bookingId not found")
+
+  }
+
+  @Test
+  fun `Returns 204 when successfully deleting a booking`() {
+    val videoBookingId: Long = 1
+    val preAppointmentId: Long = 2
+    val mainAppointmentId: Long = 3
+
+    val theVideoLinkBooking = VideoLinkBooking(
+      id = videoBookingId,
+      pre = VideoLinkAppointment(
+        id = 10,
+        bookingId = 4,
+        appointmentId = preAppointmentId,
+        court = "Test Court 1",
+        hearingType = HearingType.PRE
+      ),
+      main = VideoLinkAppointment(
+        id = 11,
+        bookingId = 4,
+        appointmentId = mainAppointmentId,
+        court = "Test Court 2",
+        hearingType = HearingType.MAIN
+      )
+    )
+
+    whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(theVideoLinkBooking))
+
+    prisonApiMockServer.stubDeleteAppointment(preAppointmentId, 200)
+    prisonApiMockServer.stubDeleteAppointment(mainAppointmentId, 404)
+
+    webTestClient.delete()
+      .uri("/court/video-link-bookings/$videoBookingId")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isNoContent
+
+    prisonApiMockServer.verify(
+      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/${preAppointmentId}"))
+    )
+    prisonApiMockServer.verify(
+      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/${mainAppointmentId}"))
+    )
+
+    verify(videoLinkBookingRepository).deleteById(videoBookingId)
   }
 }

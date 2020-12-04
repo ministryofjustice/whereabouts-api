@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 public class PrisonApiService {
+    private static final Logger logger = LoggerFactory.getLogger(PrisonApiService.class);
     private final WebClient webClient;
 
     public PrisonApiService(@Qualifier("elite2WebClient") final WebClient webClient) {
@@ -211,6 +214,19 @@ public class PrisonApiService {
                 .onErrorResume(WebClientResponseException.NotFound.class, notFound -> Mono.empty())
                 .blockOptional()
                 .orElse(null);
+    }
+
+    public void deleteAppointment(final Long appointmentId) {
+
+        webClient.delete()
+                .uri("/appointments/{appointmentId}", appointmentId)
+                .retrieve()
+                .toBodilessEntity()
+                .onErrorResume(WebClientResponseException.NotFound.class, notFound -> {
+                    logger.info("Ignoring appointment with id: '{}' that does not exist in nomis", appointmentId);
+                    return Mono.empty();
+                })
+                .block();
     }
 }
 

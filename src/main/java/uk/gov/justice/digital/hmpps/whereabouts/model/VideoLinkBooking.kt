@@ -28,4 +28,9 @@ data class VideoLinkBooking(
   @OneToOne(optional = true, cascade = [PERSIST, REMOVE])
   @JoinColumn(name = "POST_APPOINTMENT", nullable = true, updatable = true, unique = true)
   val post: VideoLinkAppointment? = null
-)
+
+){
+  fun toAppointments(): List<VideoLinkAppointment> {
+    return listOfNotNull(pre, main, post)
+  }
+}
