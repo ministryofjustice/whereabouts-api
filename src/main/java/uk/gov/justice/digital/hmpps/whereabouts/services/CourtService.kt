@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import java.lang.RuntimeException
 import javax.persistence.EntityNotFoundException
 import javax.transaction.Transactional
 
@@ -152,10 +153,14 @@ class CourtService(
 
     @Transactional
     fun getVideoLinkBooking(videoBookingId: Long): VideoLinkBookingResponse {
-//      val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
-//        EntityNotFoundException("Video link booking with id $videoBookingId not found")
-//      }
-      throw EntityNotFoundException("Video link booking with id $videoBookingId not found")
+      val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
+        EntityNotFoundException("Video link booking with id $videoBookingId not found")
+      }
+      val mainEvent = prisonApiService.getPrisonAppointment(booking.main.appointmentId)
+      val preEvent = booking.pre?.let {prisonApiService.getPrisonAppointment(it.appointmentId)}
+      val postEvent = booking.post?.let {prisonApiService.getPrisonAppointment(it.appointmentId)}
+
+      TODO("Video link booking with id $videoBookingId not yet implemented")
     }
 
     @Transactional

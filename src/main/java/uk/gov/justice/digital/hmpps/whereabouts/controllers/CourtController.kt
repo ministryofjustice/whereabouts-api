@@ -59,7 +59,7 @@ class CourtController(
     return VideoLinkAppointmentsResponse(appointments = courtAppointments)
   }
 
-  @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings/{videoBookingId} "])
+  @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings/{videoBookingId}"])
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation(
     value = "A video Link Booking",

@@ -16,8 +16,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
+import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
@@ -531,6 +533,117 @@ class CourtServiceTest {
       ), null)
 
     }
+  }
+
+  @Nested
+  inner class GetVideoLinkBooking {
+    val service = service("")
+
+    private val mainAppointmentId = 12L
+    private val mainVideoLinkAppointment = VideoLinkAppointment(
+      id = 222,
+      appointmentId = mainAppointmentId,
+      bookingId = 1,
+      court = YORK_CC,
+      hearingType = HearingType.MAIN
+    )
+
+    private val preAppointmentId = 13L
+    private val preVideoLinkAppointment = VideoLinkAppointment(
+      id = 111,
+      appointmentId = preAppointmentId,
+      bookingId = 1,
+      court = YORK_CC,
+      hearingType = HearingType.PRE
+    )
+
+    private val postAppointmentId = 14L
+    private val postVideoLinkAppointment = VideoLinkAppointment(
+      id = 333,
+      appointmentId = postAppointmentId,
+      bookingId = 1,
+      court = YORK_CC,
+      hearingType = HearingType.POST
+    )
+
+    private val videoLinkBooking = VideoLinkBooking(
+      pre = preVideoLinkAppointment,
+      main = mainVideoLinkAppointment,
+      post = postVideoLinkAppointment,
+      id = 100
+    )
+
+    private val preAppointment = PrisonAppointment(
+      bookingId = 1,
+      eventId = preAppointmentId,
+      startTime = LocalDateTime.of(2020, 12, 2, 12, 0,0),
+      endTime = LocalDateTime.of(2020, 12, 2, 13, 0,0),
+      eventSubType = "VLB",
+      agencyId = "WWI",
+      eventLocationId = 10,
+    )
+
+    private val mainAppointment = PrisonAppointment(
+      bookingId = 1,
+      eventId = mainAppointmentId,
+      startTime = LocalDateTime.of(2020, 12, 2, 13, 0,0),
+      endTime = LocalDateTime.of(2020, 12, 2, 14, 0,0),
+      eventSubType = "VLB",
+      agencyId = "WWI",
+      eventLocationId = 9,
+    )
+
+    private val postAppointment = PrisonAppointment(
+      bookingId = 1,
+      eventId = postAppointmentId,
+      startTime = LocalDateTime.of(2020, 12, 2, 14, 0,0),
+      endTime = LocalDateTime.of(2020, 12, 2, 15, 0,0),
+      eventSubType = "VLB",
+      agencyId = "WWI",
+      eventLocationId = 5 )
+
+    @Test
+    fun `when there is no video link booking it throws an exception`() {
+
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.empty())
+      Assertions.assertThrows(EntityNotFoundException::class.java) {
+        service.getVideoLinkBooking(videoLinkBooking.id!!)
+      }
+    }
+
+    @Test
+    fun `when there is a video link booking with pre, main and post`() {
+
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
+
+      whenever(prisonApiService.getPrisonAppointment(videoLinkBooking.main.appointmentId)).thenReturn(mainAppointment)
+      whenever(prisonApiService.getPrisonAppointment(videoLinkBooking.pre!!.appointmentId)).thenReturn(preAppointment)
+      whenever(prisonApiService.getPrisonAppointment(videoLinkBooking.post!!.appointmentId)).thenReturn(postAppointment)
+      val result = service.getVideoLinkBooking(videoLinkBooking.id!!)
+
+      assertThat(result).isEqualTo(VideoLinkBookingResponse(
+        bookingId = 1,
+        videoLinkBookingId = 100,
+        court = mainVideoLinkAppointment.court,
+        pre = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+          locationId = preAppointment.eventLocationId,
+          startTime = preAppointment.startTime,
+          endTime = preAppointment.endTime
+          ),
+        main = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+          locationId = mainAppointment.eventLocationId,
+          startTime = mainAppointment.startTime,
+          endTime = mainAppointment.endTime
+        ),
+        post = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+          locationId = postAppointment.eventLocationId,
+          startTime = postAppointment.startTime,
+          endTime = postAppointment.endTime
+        ),
+      ))
+    }
+
+
   }
 
   private fun service(courts: String) = CourtService(
