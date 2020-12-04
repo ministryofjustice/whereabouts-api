@@ -18,7 +18,7 @@ dependencies {
 
   runtimeOnly("com.h2database:h2:1.4.200")
   runtimeOnly("org.flywaydb:flyway-core:6.5.5")
-  runtimeOnly("org.postgresql:postgresql:42.2.18")
+  runtimeOnly("org.postgresql:postgresql:42.2.16")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-cache")
