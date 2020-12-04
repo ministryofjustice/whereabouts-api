@@ -160,7 +160,27 @@ class CourtService(
       val preEvent = booking.pre?.let {prisonApiService.getPrisonAppointment(it.appointmentId)}
       val postEvent = booking.post?.let {prisonApiService.getPrisonAppointment(it.appointmentId)}
 
-      TODO("Video link booking with id $videoBookingId not yet implemented")
+      return VideoLinkBookingResponse(
+        bookingId = booking.main.bookingId,
+        videoLinkBookingId = booking.id!!,
+        court = booking.main.court,
+        comment = mainEvent.comment,
+        pre = preEvent?.let {VideoLinkBookingResponse.VideoLinkAppointmentDto(
+          locationId = it.eventLocationId,
+          startTime = it.startTime,
+          endTime = it.endTime
+        )},
+        main = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+          locationId = mainEvent.eventLocationId,
+          startTime = mainEvent.startTime,
+          endTime = mainEvent.endTime
+        ),
+        post = postEvent?.let {VideoLinkBookingResponse.VideoLinkAppointmentDto(
+          locationId = it.eventLocationId,
+          startTime = it.startTime,
+          endTime = it.endTime
+        )}
+      )
     }
 
     @Transactional

@@ -581,6 +581,7 @@ class CourtServiceTest {
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 10,
+      comment = "any comment"
     )
 
     private val mainAppointment = PrisonAppointment(
@@ -591,6 +592,7 @@ class CourtServiceTest {
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 9,
+      comment = "any comment",
     )
 
     private val postAppointment = PrisonAppointment(
@@ -600,7 +602,9 @@ class CourtServiceTest {
       endTime = LocalDateTime.of(2020, 12, 2, 15, 0,0),
       eventSubType = "VLB",
       agencyId = "WWI",
-      eventLocationId = 5 )
+      eventLocationId = 5,
+      comment = "any comment"
+    )
 
     @Test
     fun `when there is no video link booking it throws an exception`() {
@@ -625,6 +629,7 @@ class CourtServiceTest {
         bookingId = 1,
         videoLinkBookingId = 100,
         court = mainVideoLinkAppointment.court,
+        comment = "any comment",
         pre = VideoLinkBookingResponse.VideoLinkAppointmentDto(
           locationId = preAppointment.eventLocationId,
           startTime = preAppointment.startTime,
@@ -639,6 +644,24 @@ class CourtServiceTest {
           locationId = postAppointment.eventLocationId,
           startTime = postAppointment.startTime,
           endTime = postAppointment.endTime
+        ),
+      ))
+    }
+
+    @Test
+    fun `when there is a video link booking with main appointment only`() {
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
+      whenever(prisonApiService.getPrisonAppointment(videoLinkBooking.main.appointmentId)).thenReturn(mainAppointment)
+      val result = service.getVideoLinkBooking(videoLinkBooking.id!!)
+      assertThat(result).isEqualTo(VideoLinkBookingResponse(
+        bookingId = 1,
+        videoLinkBookingId = 100,
+        court = mainVideoLinkAppointment.court,
+        comment = "any comment",
+        main = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+          locationId = mainAppointment.eventLocationId,
+          startTime = mainAppointment.startTime,
+          endTime = mainAppointment.endTime
         ),
       ))
     }

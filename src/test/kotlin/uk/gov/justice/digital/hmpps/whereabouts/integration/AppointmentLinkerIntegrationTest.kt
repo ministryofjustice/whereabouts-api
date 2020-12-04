@@ -128,6 +128,7 @@ class AppointmentLinkerIntegrationTest : IntegrationTest() {
       eventId,
       objectMapper.writeValueAsString(
         PrisonAppointment(
+          comment = null,
           bookingId = bookingId,
           eventId = eventId,
           startTime = startTime,
