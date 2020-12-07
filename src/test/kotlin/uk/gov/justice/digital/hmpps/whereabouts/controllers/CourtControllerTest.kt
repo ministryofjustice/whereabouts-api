@@ -256,26 +256,26 @@ class CourtControllerTest : TestController() {
 
   @Nested
   inner class `Get a booking` {
-  val videoLinkBookingResponse = VideoLinkBookingResponse(
-    videoLinkBookingId = 1,
-    bookingId = 100,
-    comment = "any comment",
-    court = "Test Court",
-    pre = VideoLinkBookingResponse.VideoLinkAppointmentDto(
-      locationId = 10,
-      startTime = LocalDateTime.of(2020, 2, 7, 12, 0),
-      endTime = LocalDateTime.of(2020, 2, 7, 13, 0),
-    ),
-    main = VideoLinkBookingResponse.VideoLinkAppointmentDto(
-      locationId = 9,
-      startTime = LocalDateTime.of(2020, 2, 7, 13, 0),
-      endTime = LocalDateTime.of(2020, 2, 7, 14, 0),
-    ),
-    post = VideoLinkBookingResponse.VideoLinkAppointmentDto(
-      locationId = 5,
-      startTime = LocalDateTime.of(2020, 2, 7, 14, 0),
-      endTime = LocalDateTime.of(2020, 2, 7, 15, 0),
-    ))
+    val videoLinkBookingResponse = VideoLinkBookingResponse(
+      videoLinkBookingId = 1,
+      bookingId = 100,
+      comment = "any comment",
+      court = "Test Court",
+      pre = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+        locationId = 10,
+        startTime = LocalDateTime.of(2020, 2, 7, 12, 0),
+        endTime = LocalDateTime.of(2020, 2, 7, 13, 0),
+      ),
+      main = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+        locationId = 9,
+        startTime = LocalDateTime.of(2020, 2, 7, 13, 0),
+        endTime = LocalDateTime.of(2020, 2, 7, 14, 0),
+      ),
+      post = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+        locationId = 5,
+        startTime = LocalDateTime.of(2020, 2, 7, 14, 0),
+        endTime = LocalDateTime.of(2020, 2, 7, 15, 0),
+      ))
 
     @Test
     @WithMockUser(username = "ITAG_USER")
@@ -294,7 +294,7 @@ class CourtControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `the booking does exist`() {
       val bookingId = 1L
-      whenever(courtService.getVideoLinkBooking(bookingId)).thenReturn(videoLinkBookingResponse)
+      whenever(courtService.getVideoLinkBooking(any())).thenReturn(videoLinkBookingResponse)
 
       mockMvc.perform(
         get("/court/video-link-bookings/$bookingId")
