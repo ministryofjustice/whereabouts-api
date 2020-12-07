@@ -16,7 +16,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
-import java.lang.RuntimeException
 import javax.persistence.EntityNotFoundException
 import javax.transaction.Transactional
 
@@ -162,8 +161,8 @@ class CourtService(
       val postEvent = booking.post?.let {prisonApiService.getPrisonAppointment(it.appointmentId)}
 
       return VideoLinkBookingResponse(
+        videoLinkBookingId = videoBookingId,
         bookingId = booking.main.bookingId,
-        videoLinkBookingId = booking.id!!,
         court = booking.main.court,
         comment = mainEvent.comment,
         pre = preEvent?.let {VideoLinkBookingResponse.VideoLinkAppointmentDto(
@@ -222,5 +221,4 @@ class CourtService(
       "${prefix}Id" to appointment.id.toString(),
     )
   }
-
 }

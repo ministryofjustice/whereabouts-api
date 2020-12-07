@@ -678,8 +678,6 @@ class CourtServiceTest {
         service.getVideoLinkBooking(videoLinkBooking.id!!)
       }
     }
-
-
   }
 
   private fun service(courts: String) = CourtService(

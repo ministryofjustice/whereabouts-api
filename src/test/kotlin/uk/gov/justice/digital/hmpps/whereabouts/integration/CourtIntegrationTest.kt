@@ -16,7 +16,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Optional
 
 class CourtIntegrationTest : IntegrationTest() {
 
@@ -146,7 +146,6 @@ class CourtIntegrationTest : IntegrationTest() {
 
       whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(theVideoLinkBooking))
 
-
       prisonApiMockServer.stubGetPrisonAppointment(
         mainAppointmentId,
         objectMapper.writeValueAsString(
@@ -162,7 +161,6 @@ class CourtIntegrationTest : IntegrationTest() {
         .expectBody()
         .json(loadJsonFile("videoBooking-mainOnly.json"))
     }
-
 
     @Test
     fun `should get booking when only pre and post appointments exist`() {
@@ -328,7 +326,6 @@ class CourtIntegrationTest : IntegrationTest() {
       .expectStatus().isNotFound
       .expectBody()
       .jsonPath("$.developerMessage").isEqualTo("Video link booking with id $bookingId not found")
-
   }
 
   @Test
