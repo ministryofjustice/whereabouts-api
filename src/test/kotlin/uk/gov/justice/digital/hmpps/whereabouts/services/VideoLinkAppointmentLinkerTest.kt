@@ -201,6 +201,7 @@ class VideoLinkAppointmentLinkerTest {
 
   private fun prisonAppointment(appointmentId: Long, startTime: LocalDateTime) =
     PrisonAppointment(
+      comment = null,
       agencyId = "WWI",
       bookingId = 1L,
       startTime = startTime,

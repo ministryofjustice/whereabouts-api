@@ -12,12 +12,15 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
+import java.time.LocalDateTime
 import javax.persistence.EntityNotFoundException
 
 @WebMvcTest(CourtController::class)
@@ -252,6 +255,80 @@ class CourtControllerTest : TestController() {
   }
 
   @Nested
+  inner class `Get a booking` {
+    val videoLinkBookingResponse = VideoLinkBookingResponse(
+      videoLinkBookingId = 1,
+      bookingId = 100,
+      comment = "any comment",
+      court = "Test Court",
+      pre = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+        locationId = 10,
+        startTime = LocalDateTime.of(2020, 2, 7, 12, 0),
+        endTime = LocalDateTime.of(2020, 2, 7, 13, 0),
+      ),
+      main = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+        locationId = 9,
+        startTime = LocalDateTime.of(2020, 2, 7, 13, 0),
+        endTime = LocalDateTime.of(2020, 2, 7, 14, 0),
+      ),
+      post = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+        locationId = 5,
+        startTime = LocalDateTime.of(2020, 2, 7, 14, 0),
+        endTime = LocalDateTime.of(2020, 2, 7, 15, 0),
+      ))
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `the booking does not exist`() {
+      val bookingId = 1L
+      doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(courtService).getVideoLinkBooking(bookingId)
+
+      mockMvc.perform(
+        get("/court/video-link-bookings/$bookingId")
+          .contentType(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(status().`is`(404))
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `the booking does exist`() {
+      val bookingId = 1L
+      whenever(courtService.getVideoLinkBooking(any())).thenReturn(videoLinkBookingResponse)
+
+      mockMvc.perform(
+        get("/court/video-link-bookings/$bookingId")
+          .contentType(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(status().isOk)
+        .andExpect(jsonPath("$.videoLinkBookingId").value(1))
+        .andExpect(jsonPath("$.bookingId").value(100))
+        .andExpect(jsonPath("$.comment").value("any comment"))
+        .andExpect(jsonPath("$.court").value("Test Court"))
+        .andExpect(jsonPath("$.pre.locationId").value(10))
+        .andExpect(jsonPath("$.pre.startTime").value("2020-02-07T12:00:00"))
+        .andExpect(jsonPath("$.pre.endTime").value("2020-02-07T13:00:00"))
+        .andExpect(jsonPath("$.main.locationId").value(9))
+        .andExpect(jsonPath("$.main.startTime").value("2020-02-07T13:00:00"))
+        .andExpect(jsonPath("$.main.endTime").value("2020-02-07T14:00:00"))
+        .andExpect(jsonPath("$.post.locationId").value(5))
+        .andExpect(jsonPath("$.post.startTime").value("2020-02-07T14:00:00"))
+        .andExpect(jsonPath("$.post.endTime").value("2020-02-07T15:00:00"))
+    }
+
+    @Test
+    fun `there is no user`() {
+      val bookingId = 1L
+
+      mockMvc.perform(
+        get("/court/video-link-bookings/$bookingId")
+          .contentType(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(status().`is`(401))
+    }
+  }
+
+  @Nested
   inner class `Deleting a booking` {
     @Test
     @WithMockUser(username = "ITAG_USER")
@@ -263,7 +340,7 @@ class CourtControllerTest : TestController() {
       )
         .andExpect(status().isNoContent)
 
-        verify(courtService).deleteVideoLinkBooking(1)
+      verify(courtService).deleteVideoLinkBooking(1)
     }
 
     @Test

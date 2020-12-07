@@ -8,6 +8,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
@@ -148,6 +149,39 @@ class CourtService(
       hearingType = type,
       madeByTheCourt = specification.madeByTheCourt
     )
+
+    @Transactional
+    fun getVideoLinkBooking(videoBookingId: Long): VideoLinkBookingResponse {
+      val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
+        EntityNotFoundException("Video link booking with id $videoBookingId not found")
+      }
+      val mainEvent = prisonApiService.getPrisonAppointment(booking.main.appointmentId)
+              ?: throw EntityNotFoundException("main appointment with id ${booking.main.appointmentId} not found in nomis")
+      val preEvent = booking.pre?.let {prisonApiService.getPrisonAppointment(it.appointmentId)}
+      val postEvent = booking.post?.let {prisonApiService.getPrisonAppointment(it.appointmentId)}
+
+      return VideoLinkBookingResponse(
+        videoLinkBookingId = videoBookingId,
+        bookingId = booking.main.bookingId,
+        court = booking.main.court,
+        comment = mainEvent.comment,
+        pre = preEvent?.let {VideoLinkBookingResponse.VideoLinkAppointmentDto(
+          locationId = it.eventLocationId,
+          startTime = it.startTime,
+          endTime = it.endTime
+        )},
+        main = VideoLinkBookingResponse.VideoLinkAppointmentDto(
+          locationId = mainEvent.eventLocationId,
+          startTime = mainEvent.startTime,
+          endTime = mainEvent.endTime
+        ),
+        post = postEvent?.let {VideoLinkBookingResponse.VideoLinkAppointmentDto(
+          locationId = it.eventLocationId,
+          startTime = it.startTime,
+          endTime = it.endTime
+        )}
+      )
+    }
 
     @Transactional
     fun deleteVideoLinkBooking(videoBookingId: Long) {
