@@ -157,6 +157,7 @@ class CourtService(
         EntityNotFoundException("Video link booking with id $videoBookingId not found")
       }
       val mainEvent = prisonApiService.getPrisonAppointment(booking.main.appointmentId)
+              ?: throw EntityNotFoundException("main appointment with id ${booking.main.appointmentId} not found in nomis")
       val preEvent = booking.pre?.let {prisonApiService.getPrisonAppointment(it.appointmentId)}
       val postEvent = booking.post?.let {prisonApiService.getPrisonAppointment(it.appointmentId)}
 

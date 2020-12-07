@@ -652,6 +652,8 @@ class CourtServiceTest {
     fun `when there is a video link booking with main appointment only`() {
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
       whenever(prisonApiService.getPrisonAppointment(videoLinkBooking.main.appointmentId)).thenReturn(mainAppointment)
+      whenever(prisonApiService.getPrisonAppointment(videoLinkBooking.pre!!.appointmentId)).thenReturn(null)
+      whenever(prisonApiService.getPrisonAppointment(videoLinkBooking.post!!.appointmentId)).thenReturn(null)
       val result = service.getVideoLinkBooking(videoLinkBooking.id!!)
       assertThat(result).isEqualTo(VideoLinkBookingResponse(
         bookingId = 1,
@@ -664,6 +666,17 @@ class CourtServiceTest {
           endTime = mainAppointment.endTime
         ),
       ))
+    }
+
+    @Test
+    fun `when there is a video link booking with pre and post appointments and no main appointment`() {
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
+      whenever(prisonApiService.getPrisonAppointment(videoLinkBooking.main.appointmentId)).thenReturn(null)
+      whenever(prisonApiService.getPrisonAppointment(videoLinkBooking.pre!!.appointmentId)).thenReturn(preAppointment)
+      whenever(prisonApiService.getPrisonAppointment(videoLinkBooking.post!!.appointmentId)).thenReturn(postAppointment)
+      Assertions.assertThrows(EntityNotFoundException::class.java) {
+        service.getVideoLinkBooking(videoLinkBooking.id!!)
+      }
     }
 
 
