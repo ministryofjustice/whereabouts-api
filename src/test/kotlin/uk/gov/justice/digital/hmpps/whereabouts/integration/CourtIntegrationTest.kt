@@ -16,7 +16,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import java.time.LocalDateTime
-import java.util.Optional
+import java.util.*
 
 class CourtIntegrationTest : IntegrationTest() {
 
@@ -39,6 +39,7 @@ class CourtIntegrationTest : IntegrationTest() {
       .expectBody()
       .json(loadJsonFile("courtLocations.json"))
   }
+
   @Nested
   inner class GetAppointment {
 
@@ -47,33 +48,33 @@ class CourtIntegrationTest : IntegrationTest() {
     val mainAppointmentId: Long = 3
     val postAppointmentId: Long = 4
 
-    private val preAppointment = PrisonAppointment(
+    val preAppointment = PrisonAppointment(
       bookingId = 100,
       eventId = preAppointmentId,
-      startTime = LocalDateTime.of(2020, 12, 2, 12, 0,0),
-      endTime = LocalDateTime.of(2020, 12, 2, 13, 0,0),
+      startTime = LocalDateTime.of(2020, 12, 2, 12, 0, 0),
+      endTime = LocalDateTime.of(2020, 12, 2, 13, 0, 0),
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 10,
       comment = "any comment"
     )
 
-    private val mainAppointment = PrisonAppointment(
+    val mainAppointment = PrisonAppointment(
       bookingId = 100,
       eventId = mainAppointmentId,
-      startTime = LocalDateTime.of(2020, 12, 2, 13, 0,0),
-      endTime = LocalDateTime.of(2020, 12, 2, 14, 0,0),
+      startTime = LocalDateTime.of(2020, 12, 2, 13, 0, 0),
+      endTime = LocalDateTime.of(2020, 12, 2, 14, 0, 0),
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 9,
       comment = "any comment",
     )
 
-    private val postAppointment = PrisonAppointment(
+    val postAppointment = PrisonAppointment(
       bookingId = 100,
       eventId = postAppointmentId,
-      startTime = LocalDateTime.of(2020, 12, 2, 14, 0,0),
-      endTime = LocalDateTime.of(2020, 12, 2, 15, 0,0),
+      startTime = LocalDateTime.of(2020, 12, 2, 14, 0, 0),
+      endTime = LocalDateTime.of(2020, 12, 2, 15, 0, 0),
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 5,
@@ -95,27 +96,39 @@ class CourtIntegrationTest : IntegrationTest() {
         appointmentId = mainAppointmentId,
         court = "Test Court 2",
         hearingType = HearingType.MAIN
-      )
+      ),
+      post = VideoLinkAppointment(
+        id = 12,
+        bookingId = 100,
+        appointmentId = postAppointmentId,
+        court = "Test Court 1",
+        hearingType = HearingType.POST
+      ),
     )
 
     @Test
-    fun `should get appointments for booking from prison api`() {
+    fun `should get booking`() {
 
       whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(theVideoLinkBooking))
 
       prisonApiMockServer.stubGetPrisonAppointment(
         preAppointmentId,
         objectMapper.writeValueAsString(
-          PrisonAppointment(
-            comment = preAppointment.comment,
-            bookingId = preAppointment.bookingId,
-            eventId = preAppointmentId,
-            startTime = preAppointment.startTime,
-            endTime = preAppointment.endTime,
-            eventSubType = preAppointment.eventSubType,
-            agencyId = preAppointment.agencyId,
-            eventLocationId = preAppointment.eventLocationId,
-          )
+          preAppointment
+        )
+      )
+
+      prisonApiMockServer.stubGetPrisonAppointment(
+        mainAppointmentId,
+        objectMapper.writeValueAsString(
+          mainAppointment
+        )
+      )
+
+      prisonApiMockServer.stubGetPrisonAppointment(
+        postAppointmentId,
+        objectMapper.writeValueAsString(
+          postAppointment
         )
       )
 
@@ -126,8 +139,55 @@ class CourtIntegrationTest : IntegrationTest() {
         .expectStatus().isOk
         .expectBody()
         .json(loadJsonFile("videoBooking.json"))
+    }
+
+    @Test
+    fun `should get booking when only main appointment exists`() {
+
+      whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(theVideoLinkBooking))
 
 
+      prisonApiMockServer.stubGetPrisonAppointment(
+        mainAppointmentId,
+        objectMapper.writeValueAsString(
+          mainAppointment
+        )
+      )
+
+      webTestClient.get()
+        .uri("/court/video-link-bookings/$videoBookingId")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(loadJsonFile("videoBooking-mainOnly.json"))
+    }
+
+
+    @Test
+    fun `should get booking when only pre and post appointments exist`() {
+
+      whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(theVideoLinkBooking))
+
+      prisonApiMockServer.stubGetPrisonAppointment(
+        preAppointmentId,
+        objectMapper.writeValueAsString(
+          preAppointment
+        )
+      )
+
+      prisonApiMockServer.stubGetPrisonAppointment(
+        postAppointmentId,
+        objectMapper.writeValueAsString(
+          postAppointment
+        )
+      )
+
+      webTestClient.get()
+        .uri("/court/video-link-bookings/$videoBookingId")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isNotFound
     }
   }
 
