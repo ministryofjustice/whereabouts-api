@@ -259,6 +259,7 @@ class CourtControllerTest : TestController() {
     val videoLinkBookingResponse = VideoLinkBookingResponse(
       videoLinkBookingId = 1,
       bookingId = 100,
+      agencyId = "MDI",
       comment = "any comment",
       court = "Test Court",
       pre = VideoLinkBookingResponse.VideoLinkAppointmentDto(
