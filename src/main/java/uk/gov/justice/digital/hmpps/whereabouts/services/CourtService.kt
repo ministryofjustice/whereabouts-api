@@ -163,6 +163,7 @@ class CourtService(
       return VideoLinkBookingResponse(
         videoLinkBookingId = videoBookingId,
         bookingId = booking.main.bookingId,
+        agencyId = mainEvent.agencyId,
         court = booking.main.court,
         comment = mainEvent.comment,
         pre = preEvent?.let {VideoLinkBookingResponse.VideoLinkAppointmentDto(

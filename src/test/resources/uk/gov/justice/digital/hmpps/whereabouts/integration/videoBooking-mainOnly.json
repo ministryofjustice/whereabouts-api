@@ -1,6 +1,7 @@
 {
   "videoLinkBookingId": 1,
   "bookingId": 100,
+  "agencyId": "WWI",
   "court": "Test Court 2",
   "comment": "any comment",
   "main": {

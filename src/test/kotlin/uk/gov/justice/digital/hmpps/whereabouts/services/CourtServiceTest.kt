@@ -626,8 +626,9 @@ class CourtServiceTest {
       val result = service.getVideoLinkBooking(videoLinkBooking.id!!)
 
       assertThat(result).isEqualTo(VideoLinkBookingResponse(
-        bookingId = 1,
         videoLinkBookingId = 100,
+        bookingId = 1,
+        agencyId = "WWI",
         court = mainVideoLinkAppointment.court,
         comment = "any comment",
         pre = VideoLinkBookingResponse.VideoLinkAppointmentDto(
@@ -656,8 +657,9 @@ class CourtServiceTest {
       whenever(prisonApiService.getPrisonAppointment(videoLinkBooking.post!!.appointmentId)).thenReturn(null)
       val result = service.getVideoLinkBooking(videoLinkBooking.id!!)
       assertThat(result).isEqualTo(VideoLinkBookingResponse(
-        bookingId = 1,
         videoLinkBookingId = 100,
+        bookingId = 1,
+        agencyId = "WWI",
         court = mainVideoLinkAppointment.court,
         comment = "any comment",
         main = VideoLinkBookingResponse.VideoLinkAppointmentDto(

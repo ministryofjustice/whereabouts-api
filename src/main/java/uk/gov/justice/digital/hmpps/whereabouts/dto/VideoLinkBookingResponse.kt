@@ -13,6 +13,9 @@ data class VideoLinkBookingResponse(
   @ApiModelProperty(value = "Offender booking Id", example = "1")
   val bookingId: Long,
 
+  @ApiModelProperty(value = "Agency Id", example = "WWI")
+  val agencyId: String,
+
   @ApiModelProperty(
     value = "The location of the court that requires the appointment",
     example = "York Crown Court",
