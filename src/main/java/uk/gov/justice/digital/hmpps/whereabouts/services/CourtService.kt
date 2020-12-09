@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
@@ -34,32 +33,6 @@ class CourtService(
 ) {
 
   fun getCourtLocations() = courts.split(",").toSet()
-
-  @Transactional
-  fun createVideoLinkAppointment(createVideoLinkAppointment: CreateVideoLinkAppointment) {
-
-    val event = prisonApiService.postAppointment(
-      createVideoLinkAppointment.bookingId,
-      CreateBookingAppointment(
-        appointmentType = VIDEO_LINK_APPOINTMENT_TYPE,
-        locationId = createVideoLinkAppointment.locationId,
-        comment = createVideoLinkAppointment.comment,
-        startTime = createVideoLinkAppointment.startTime.toString(),
-        endTime = createVideoLinkAppointment.endTime.toString()
-      )
-    )
-
-    videoLinkAppointmentRepository.save(
-      VideoLinkAppointment(
-        appointmentId = event.eventId,
-        bookingId = createVideoLinkAppointment.bookingId,
-        court = createVideoLinkAppointment.court,
-        hearingType = createVideoLinkAppointment.hearingType,
-        createdByUsername = authenticationFacade.currentUsername,
-        madeByTheCourt = createVideoLinkAppointment.madeByTheCourt
-      )
-    )
-  }
 
   @Transactional(readOnly = true)
   fun getVideoLinkAppointments(appointmentIds: Set<Long>): Set<VideoLinkAppointmentDto> {

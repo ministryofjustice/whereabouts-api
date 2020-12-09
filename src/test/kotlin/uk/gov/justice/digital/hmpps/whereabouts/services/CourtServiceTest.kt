@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateVideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
@@ -44,66 +43,6 @@ class CourtServiceTest {
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
   private val telemetryClient: TelemetryClient = mock()
-
-  @Test
-  fun `should push an appointment to elite2`() {
-    val service = service(YORK_CC)
-    val bookingId: Long = 1
-
-    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(Event(1L, AGENCY_WANDSWORTH))
-
-    service.createVideoLinkAppointment(
-      CreateVideoLinkAppointment(
-        bookingId = bookingId,
-        locationId = 1,
-        comment = "test",
-        startTime = LocalDateTime.of(2019, 10, 10, 10, 0),
-        endTime = LocalDateTime.of(2019, 10, 10, 11, 0),
-        court = YORK_CC
-      )
-    )
-
-    verify(prisonApiService).postAppointment(
-      bookingId,
-      CreateBookingAppointment(
-        appointmentType = VLB_APPOINTMENT_TYPE,
-        locationId = 1,
-        comment = "test",
-        startTime = "2019-10-10T10:00",
-        endTime = "2019-10-10T11:00"
-      )
-    )
-  }
-
-  @Test
-  fun `should create video link appointment using the event id returned from elite2`() {
-    val service = service(YORK_CC)
-    val bookingId: Long = 1
-
-    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(Event(1L, AGENCY_WANDSWORTH))
-    whenever(authenticationFacade.currentUsername).thenReturn("username1")
-
-    service.createVideoLinkAppointment(
-      CreateVideoLinkAppointment(
-        bookingId = bookingId,
-        locationId = 1,
-        comment = "test",
-        startTime = LocalDateTime.of(2019, 10, 10, 10, 0),
-        endTime = LocalDateTime.of(2019, 10, 10, 11, 0),
-        court = YORK_CC
-      )
-    )
-
-    verify(videoLinkAppointmentRepository).save(
-      VideoLinkAppointment(
-        appointmentId = 1,
-        court = YORK_CC,
-        bookingId = bookingId,
-        hearingType = HearingType.MAIN,
-        createdByUsername = "username1"
-      )
-    )
-  }
 
   @Test
   fun `should return NO video link appointments`() {
@@ -138,69 +77,6 @@ class CourtServiceTest {
         Tuple.tuple(1L, 2L, 3L, HearingType.MAIN, "YORK", true),
         Tuple.tuple(2L, 3L, 4L, HearingType.PRE, "YORK", false)
       )
-  }
-
-  @Test
-  fun `should record if the appointment was made by the court`() {
-    val service = service(YORK_CC)
-    val bookingId: Long = 1
-
-    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(Event(1L, AGENCY_WANDSWORTH))
-    whenever(authenticationFacade.currentUsername).thenReturn("username1")
-
-    service.createVideoLinkAppointment(
-      CreateVideoLinkAppointment(
-        bookingId = bookingId,
-        locationId = 1,
-        comment = "test",
-        startTime = LocalDateTime.of(2019, 10, 10, 10, 0),
-        endTime = LocalDateTime.of(2019, 10, 10, 11, 0),
-        court = YORK_CC
-      )
-    )
-
-    verify(videoLinkAppointmentRepository).save(
-      VideoLinkAppointment(
-        appointmentId = 1,
-        court = YORK_CC,
-        bookingId = bookingId,
-        hearingType = HearingType.MAIN,
-        createdByUsername = "username1",
-        madeByTheCourt = true
-      )
-    )
-  }
-
-  @Test
-  fun `should record if the appointment was made by the prison on behalf of the court`() {
-    val service = service(YORK_CC)
-    val bookingId: Long = 1
-
-    whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(Event(1L, AGENCY_WANDSWORTH))
-    whenever(authenticationFacade.currentUsername).thenReturn("username1")
-
-    service.createVideoLinkAppointment(
-      CreateVideoLinkAppointment(
-        bookingId = bookingId,
-        locationId = 1,
-        comment = "test",
-        startTime = LocalDateTime.of(2019, 10, 10, 10, 0),
-        endTime = LocalDateTime.of(2019, 10, 10, 11, 0),
-        court = YORK_CC,
-        madeByTheCourt = false
-      )
-    )
-
-    verify(videoLinkAppointmentRepository).save(
-      VideoLinkAppointment(
-        appointmentId = 1,
-        court = YORK_CC,
-        bookingId = bookingId,
-        hearingType = HearingType.MAIN,
-        createdByUsername = "username1",
-        madeByTheCourt = false
-      )
-    )
   }
 
   @Nested

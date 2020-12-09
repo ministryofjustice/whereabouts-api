@@ -190,46 +190,6 @@ class CourtIntegrationTest : IntegrationTest() {
   }
 
   @Test
-  fun `should post an appointment to prison api`() {
-    val bookingId: Long = 1
-
-    prisonApiMockServer.stubAddAppointment(bookingId, eventId = 1)
-
-    webTestClient.post()
-      .uri("/court/add-video-link-appointment")
-      .headers(setHeaders())
-      .bodyValue(
-        mapOf(
-          "bookingId" to bookingId,
-          "court" to "Test Court 1",
-          "locationId" to 1,
-          "comment" to "test",
-          "startTime" to "2019-10-10T10:00:00",
-          "endTime" to "2019-10-10T10:00:00"
-        )
-      )
-      .exchange()
-      .expectStatus().isCreated
-
-    prisonApiMockServer.verify(
-      WireMock.postRequestedFor(WireMock.urlEqualTo("/api/bookings/$bookingId/appointments"))
-        .withRequestBody(
-          WireMock.equalToJson(
-            gson.toJson(
-              mapOf(
-                "appointmentType" to "VLB",
-                "locationId" to 1,
-                "comment" to "test",
-                "startTime" to "2019-10-10T10:00",
-                "endTime" to "2019-10-10T10:00"
-              )
-            )
-          )
-        )
-    )
-  }
-
-  @Test
   fun `should return video link appointment by appointment id`() {
     whenever(videoLinkAppointmentRepository.findVideoLinkAppointmentByAppointmentIdIn(setOf(1L)))
       .thenReturn(
