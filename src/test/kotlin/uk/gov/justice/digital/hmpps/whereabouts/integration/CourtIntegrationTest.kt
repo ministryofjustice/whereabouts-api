@@ -364,10 +364,10 @@ class CourtIntegrationTest : IntegrationTest() {
       .expectStatus().isNoContent
 
     prisonApiMockServer.verify(
-      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/${preAppointmentId}"))
+      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/$preAppointmentId"))
     )
     prisonApiMockServer.verify(
-      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/${mainAppointmentId}"))
+      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/$mainAppointmentId"))
     )
 
     verify(videoLinkBookingRepository).deleteById(videoBookingId)

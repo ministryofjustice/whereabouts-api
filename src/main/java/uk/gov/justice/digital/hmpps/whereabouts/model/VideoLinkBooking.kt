@@ -29,7 +29,7 @@ data class VideoLinkBooking(
   @JoinColumn(name = "POST_APPOINTMENT", nullable = true, updatable = true, unique = true)
   val post: VideoLinkAppointment? = null
 
-){
+) {
   fun toAppointments(): List<VideoLinkAppointment> {
     return listOfNotNull(pre, main, post)
   }
