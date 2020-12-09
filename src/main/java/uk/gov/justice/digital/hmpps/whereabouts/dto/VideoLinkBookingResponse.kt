@@ -27,25 +27,25 @@ data class VideoLinkBookingResponse(
   val comment: String? = null,
 
   @ApiModelProperty(value = "Pre-hearing appointment")
-  val pre: VideoLinkAppointmentDto? = null,
+  val pre: LocationTimeslot? = null,
 
   @ApiModelProperty(value = "Main appointment", required = true)
-  val main: VideoLinkAppointmentDto,
+  val main: LocationTimeslot,
 
   @ApiModelProperty(value = "Post-hearing appointment")
-  val post: VideoLinkAppointmentDto? = null
+  val post: LocationTimeslot? = null
 ) {
 
-  @ApiModel(description = "Detail of a single Video Link Appointment, either pre, main or post")
-  data class VideoLinkAppointmentDto(
+  @ApiModel(description = "Detail of a booked location, either pre, main or post")
+  data class LocationTimeslot(
 
-    @ApiModelProperty(value = "The identifier of the appointment's location", example = "1", required = true)
+    @ApiModelProperty(value = "The location identifier", example = "1", required = true)
     val locationId: Long,
 
-    @ApiModelProperty(value = "Start Time of the appointment. ISO-8601 date-time format", example = "2020-12-23T09:00:00", required = true)
+    @ApiModelProperty(value = "Start Time. ISO-8601 date-time format", example = "2020-12-23T09:00:00", required = true)
     val startTime: LocalDateTime,
 
-    @ApiModelProperty(value = "Finish Time of the appointment. ISO-8601 date-time format", example = "2020-12-23T09:30:00", required = true)
+    @ApiModelProperty(value = "Finish Time. ISO-8601 date-time format", example = "2020-12-23T09:30:00", required = true)
     val endTime: LocalDateTime
   )
 }

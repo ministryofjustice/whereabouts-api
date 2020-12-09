@@ -2,24 +2,29 @@ package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doThrow
+import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.web.servlet.ResultMatcher.matchAll
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
+import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.persistence.EntityNotFoundException
 
@@ -31,6 +36,29 @@ class CourtControllerTest : TestController() {
 
   @MockBean
   lateinit var videoLinkAppointmentLinker: VideoLinkAppointmentLinker
+
+  val videoLinkBookingResponse = VideoLinkBookingResponse(
+    videoLinkBookingId = 1,
+    bookingId = 100,
+    agencyId = "MDI",
+    comment = "any comment",
+    court = "Test Court",
+    pre = VideoLinkBookingResponse.LocationTimeslot(
+      locationId = 10,
+      startTime = LocalDateTime.of(2020, 2, 7, 12, 0),
+      endTime = LocalDateTime.of(2020, 2, 7, 13, 0),
+    ),
+    main = VideoLinkBookingResponse.LocationTimeslot(
+      locationId = 9,
+      startTime = LocalDateTime.of(2020, 2, 7, 13, 0),
+      endTime = LocalDateTime.of(2020, 2, 7, 14, 0),
+    ),
+    post = VideoLinkBookingResponse.LocationTimeslot(
+      locationId = 5,
+      startTime = LocalDateTime.of(2020, 2, 7, 14, 0),
+      endTime = LocalDateTime.of(2020, 2, 7, 15, 0),
+    )
+  )
 
   @Nested
   inner class `Creating a booking` {
@@ -256,33 +284,12 @@ class CourtControllerTest : TestController() {
 
   @Nested
   inner class `Get a booking` {
-    val videoLinkBookingResponse = VideoLinkBookingResponse(
-      videoLinkBookingId = 1,
-      bookingId = 100,
-      agencyId = "MDI",
-      comment = "any comment",
-      court = "Test Court",
-      pre = VideoLinkBookingResponse.VideoLinkAppointmentDto(
-        locationId = 10,
-        startTime = LocalDateTime.of(2020, 2, 7, 12, 0),
-        endTime = LocalDateTime.of(2020, 2, 7, 13, 0),
-      ),
-      main = VideoLinkBookingResponse.VideoLinkAppointmentDto(
-        locationId = 9,
-        startTime = LocalDateTime.of(2020, 2, 7, 13, 0),
-        endTime = LocalDateTime.of(2020, 2, 7, 14, 0),
-      ),
-      post = VideoLinkBookingResponse.VideoLinkAppointmentDto(
-        locationId = 5,
-        startTime = LocalDateTime.of(2020, 2, 7, 14, 0),
-        endTime = LocalDateTime.of(2020, 2, 7, 15, 0),
-      ))
-
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `the booking does not exist`() {
       val bookingId = 1L
-      doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(courtService).getVideoLinkBooking(bookingId)
+      doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(courtService)
+        .getVideoLinkBooking(bookingId)
 
       mockMvc.perform(
         get("/court/video-link-bookings/$bookingId")
@@ -323,9 +330,9 @@ class CourtControllerTest : TestController() {
 
       mockMvc.perform(
         get("/court/video-link-bookings/$bookingId")
-          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
       )
-        .andExpect(status().`is`(401))
+        .andExpect(status().isUnauthorized)
     }
   }
 
@@ -348,7 +355,8 @@ class CourtControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `the booking does not exist`() {
       val bookingId = 1L
-      doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(courtService).deleteVideoLinkBooking(bookingId)
+      doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(courtService)
+        .deleteVideoLinkBooking(bookingId)
 
       mockMvc.perform(
         delete("/court/video-link-bookings/$bookingId")
@@ -367,6 +375,75 @@ class CourtControllerTest : TestController() {
       )
         .andExpect(status().`is`(401))
     }
+  }
 
+  @Nested
+  inner class GetBookingsByDateAndCourt {
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `get bookings on date`() {
+      whenever(courtService.getVideoLinkBookingsForDateAndCourt(any(), isNull()))
+        .thenReturn(listOf(videoLinkBookingResponse))
+
+      mockMvc.perform(
+        get("/court/video-link-bookings/date/2020-12-25").accept(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(
+          matchAll(
+            status().isOk,
+            content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
+            content().json(
+              """
+              [
+                {
+                  "videoLinkBookingId": 1,
+                  "bookingId": 100,
+                  "comment": "any comment",
+                  "court": "Test Court",
+                  "agencyId": "MDI",
+                  "pre": {
+                    "locationId": 10,
+                    "startTime": "2020-02-07T12:00:00",
+                    "endTime": "2020-02-07T13:00:00"
+                  },
+                  "main": {
+                    "locationId": 9,
+                    "startTime": "2020-02-07T13:00:00",
+                    "endTime": "2020-02-07T14:00:00"
+                  },
+                  "post": {
+                    "locationId": 5,
+                    "startTime": "2020-02-07T14:00:00",
+                    "endTime": "2020-02-07T15:00:00"
+                  }
+                }
+              ]"""
+            )
+          )
+        )
+
+      verify(courtService)
+        .getVideoLinkBookingsForDateAndCourt(LocalDate.of(2020, 12, 25), null)
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `get bookings on date for court`() {
+      whenever(courtService.getVideoLinkBookingsForDateAndCourt(any(), anyString()))
+        .thenReturn(listOf())
+
+      mockMvc.perform(
+        get("/court/video-link-bookings/date/2020-12-25?court=The Court").accept(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(
+          matchAll(
+            status().isOk,
+            content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+          )
+        )
+
+      verify(courtService)
+        .getVideoLinkBookingsForDateAndCourt(LocalDate.of(2020, 12, 25), "The Court")
+    }
   }
 }

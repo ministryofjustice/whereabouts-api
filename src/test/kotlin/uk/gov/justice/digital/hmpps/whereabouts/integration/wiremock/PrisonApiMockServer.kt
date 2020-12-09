@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.delete
-import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
@@ -47,7 +46,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
   }
 
   fun stubDeleteAppointment(appointmentId: Long, status: Int) {
-    val deleteAppointmentUrl = "/api/appointments/${appointmentId}"
+    val deleteAppointmentUrl = "/api/appointments/$appointmentId"
 
     stubFor(
       delete(urlPathEqualTo(deleteAppointmentUrl))
@@ -73,6 +72,39 @@ class PrisonApiMockServer : WireMockServer(8999) {
                 listOf(
                   mapOf("bookingId" to 1L),
                   mapOf("bookingId" to 2L)
+                )
+              )
+            )
+            .withStatus(200)
+        )
+    )
+  }
+
+  fun stubGetScheduledAppointmentsByAgencyAndDate(agencyId: String) {
+    stubFor(
+      get(urlEqualTo("/api/schedules/$agencyId/appointments?date=2020-12-25"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(
+              gson.toJson(
+                listOf(
+                  mapOf(
+                    "id" to 1L,
+                    "agencyId" to agencyId,
+                    "locationId" to 10L,
+                    "appointmentTypeCode" to "VLB",
+                    "startTime" to "2020-12-25T09:00:00",
+                    "endTime" to "2020-12-25T09:30:00"
+                  ),
+                  mapOf(
+                    "id" to 2L,
+                    "agencyId" to agencyId,
+                    "locationId" to 11L,
+                    "appointmentTypeCode" to "MEH",
+                    "startTime" to "2020-12-25T10:00:00",
+                    "endTime" to "2020-12-25T10:30:00"
+                  )
                 )
               )
             )
@@ -328,19 +360,6 @@ class PrisonApiMockServer : WireMockServer(8999) {
                 )
               )
             )
-            .withStatus(200)
-        )
-    )
-  }
-
-  fun stubGetPrisonAppointmentsForBookingId(bookingId: Long, offset: Int, responseJson: String) {
-    stubFor(
-      get(urlPathEqualTo("/api/bookings/$bookingId/appointments"))
-        .withHeader("Page-Offset", equalTo(offset.toString()))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withBody(responseJson)
             .withStatus(200)
         )
     )
