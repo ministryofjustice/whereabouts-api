@@ -32,9 +32,16 @@ class VideoLinkBookingRepositoryTest {
   @MockBean
   lateinit var authenticationFacade: AuthenticationFacade
 
+  fun deleteAll() {
+    JdbcTestUtils.deleteFromTables(jdbcTemplate, "VIDEO_LINK_BOOKING", "VIDEO_LINK_APPOINTMENT")
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+  }
+
   @Test
   fun `should persist a booking (main only)`() {
-    repository.deleteAll()
+    deleteAll()
 
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
@@ -64,7 +71,7 @@ class VideoLinkBookingRepositoryTest {
 
   @Test
   fun `should persist a booking (main, pre and post)`() {
-    repository.deleteAll()
+    deleteAll()
 
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
@@ -109,13 +116,10 @@ class VideoLinkBookingRepositoryTest {
     assertThat(hearingTypes).contains("PRE", "MAIN", "POST")
   }
 
-
   @Test
   fun `Deleting a booking should delete its appointments`() {
-    JdbcTestUtils.deleteFromTables(jdbcTemplate, "VIDEO_LINK_BOOKING", "VIDEO_LINK_APPOINTMENT")
-    TestTransaction.flagForCommit()
-    TestTransaction.end()
-    TestTransaction.start()
+    deleteAll()
+
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_BOOKING")).isEqualTo(0)
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
     val id = repository.save(
@@ -155,4 +159,33 @@ class VideoLinkBookingRepositoryTest {
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_BOOKING")).isEqualTo(0)
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
   }
+
+  @Test
+  fun `findByMainAppointmentIds no Ids`() {
+    deleteAll()
+    assertThat(repository.findByMainAppointmentIds(listOf())).isEmpty()
+  }
+
+  @Test
+  fun `findByMainAppointmentIds sparse`() {
+    deleteAll()
+    repository.saveAll(videoLinkBookings())
+
+    assertThat(repository.findByMainAppointmentIds((-999L..1000L step 2).map { it }))
+      .hasSize(5)
+      .extracting("main.appointmentId").containsExactlyInAnyOrder(1L, 3L, 5L, 7L, 9L)
+  }
+
+  fun videoLinkBookings(): List<VideoLinkBooking> =
+    (1..10L).map {
+      VideoLinkBooking(
+        main = VideoLinkAppointment(
+          bookingId = it * 100L,
+          appointmentId = it,
+          court = "Court",
+          hearingType = HearingType.MAIN,
+          madeByTheCourt = true
+        )
+      )
+    }
 }
