@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.google.gson.Gson
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.jupiter.api.Test
 import wiremock.org.apache.commons.io.IOUtils
 import java.nio.charset.StandardCharsets

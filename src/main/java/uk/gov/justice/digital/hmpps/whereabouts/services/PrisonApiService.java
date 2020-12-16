@@ -1,20 +1,26 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.reactive.function.client.WebClientResponseException.NotFound;
+import reactor.core.publisher.Mono;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto;
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
+import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import javax.persistence.EntityNotFoundException;
@@ -29,6 +35,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 public class PrisonApiService {
+    private static final Logger logger = LoggerFactory.getLogger(PrisonApiService.class);
     private final WebClient webClient;
 
     public PrisonApiService(@Qualifier("elite2WebClient") final WebClient webClient) {
@@ -161,7 +168,7 @@ public class PrisonApiService {
         }
     }
 
-    public Long postAppointment(final long bookingId, @NotNull CreateBookingAppointment createbookingAppointment) {
+    public Event postAppointment(final long bookingId, @NotNull CreateBookingAppointment createbookingAppointment) {
         final var responseType = new ParameterizedTypeReference<Event>() {
         };
 
@@ -170,7 +177,6 @@ public class PrisonApiService {
                 .bodyValue(createbookingAppointment)
                 .retrieve()
                 .bodyToMono(responseType)
-                .map(Event::getEventId)
                 .block();
     }
 
@@ -183,6 +189,53 @@ public class PrisonApiService {
                         bookingId, internalLocationDescription, reasonCode)
                 .retrieve()
                 .bodyToMono(responseType)
+                .block();
+    }
+
+    public List<PrisonAppointment> getPrisonAppointmentsForBookingId(long bookingId, int offset, int limit) {
+        final var responseType = new ParameterizedTypeReference<List<PrisonAppointment>>() {
+        };
+
+        return webClient.get()
+                .uri("/bookings/{bookingId}/appointments", bookingId)
+                .header("fromDate", "2019-01-01")
+                .header("toDate", "2050-01-01")
+                .header("Page-Offset", Integer.toString(offset))
+                .header("Page-Limit", Integer.toString(limit))
+                .header("Sort-Fields", "startTime")
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
+    }
+
+    public PrisonAppointment getPrisonAppointment(long appointmentId) {
+        return webClient.get()
+                .uri("/appointments/{appointmentId}", appointmentId)
+                .retrieve()
+                .bodyToMono(PrisonAppointment.class)
+                .onErrorResume(WebClientResponseException.NotFound.class, notFound -> Mono.empty())
+                .blockOptional()
+                .orElse(null);
+    }
+
+    public void deleteAppointment(final Long appointmentId) {
+
+        webClient.delete()
+                .uri("/appointments/{appointmentId}", appointmentId)
+                .retrieve()
+                .toBodilessEntity()
+                .onErrorResume(WebClientResponseException.NotFound.class, notFound -> {
+                    logger.info("Ignoring appointment with id: '{}' that does not exist in nomis", appointmentId);
+                    return Mono.empty();
+                })
+                .block();
+    }
+
+    public List<ScheduledAppointmentDto> getScheduledAppointmentsByAgencyAndDate(String agencyId, LocalDate date) {
+        return webClient.get()
+                .uri("/schedules/{agencyId}/appointments?date={date}", agencyId, date)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<ScheduledAppointmentDto>>() {})
                 .block();
     }
 }

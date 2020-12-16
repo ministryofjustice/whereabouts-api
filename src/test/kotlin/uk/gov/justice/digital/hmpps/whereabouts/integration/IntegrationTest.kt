@@ -92,7 +92,7 @@ abstract class IntegrationTest {
 
   internal fun setHeaders(): (HttpHeaders) -> Unit {
     return {
-      it.setBearerAuth(token)
+      it.setBearerAuth(token!!)
       it.setContentType(MediaType.APPLICATION_JSON)
     }
   }

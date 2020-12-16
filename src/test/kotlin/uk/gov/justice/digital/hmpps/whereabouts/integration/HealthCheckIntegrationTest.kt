@@ -6,7 +6,7 @@ import com.amazonaws.services.sqs.model.GetQueueAttributesResult
 import com.amazonaws.services.sqs.model.QueueAttributeName
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -112,7 +112,7 @@ class HealthCheckIntegrationTest : IntegrationTest() {
       .expectStatus().is5xxServerError
       .expectBody()
       .jsonPath("$.components.prisonApiHealth.details.error")
-      .isEqualTo("java.lang.IllegalStateException: Timeout on blocking read for 1000 MILLISECONDS")
+      .isEqualTo("java.lang.IllegalStateException: Timeout on blocking read for 1000000000 NANOSECONDS")
       .jsonPath("$.components.OAuthApiHealth.details.HttpStatus").isEqualTo("OK")
       .jsonPath("$.components.caseNotesApiHealth.details.HttpStatus").isEqualTo("OK")
       .jsonPath("$.status").isEqualTo("DOWN")

@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.repository
 
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.Test
@@ -30,6 +30,8 @@ class VideoLinkAppointmentRepositoryTest {
   fun `should return all video link appointments`() {
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
+    val preAppointments = videoLinkAppointmentRepository.findAll()
+
     videoLinkAppointmentRepository.save(
       VideoLinkAppointment(
         appointmentId = 1,
@@ -41,8 +43,8 @@ class VideoLinkAppointmentRepositoryTest {
 
     videoLinkAppointmentRepository.save(
       VideoLinkAppointment(
-        appointmentId = 2,
-        bookingId = 3,
+        appointmentId = 3,
+        bookingId = 4,
         court = "York 2",
         hearingType = HearingType.MAIN,
         createdByUsername = "username1",
@@ -53,12 +55,12 @@ class VideoLinkAppointmentRepositoryTest {
     TestTransaction.flagForCommit()
     TestTransaction.end()
 
-    val appointments = videoLinkAppointmentRepository.findAll()
+    val appointments = videoLinkAppointmentRepository.findAll().minus(preAppointments)
 
     assertThat(appointments).extracting("appointmentId", "bookingId", "court", "createdByUsername", "madeByTheCourt")
       .containsExactlyInAnyOrder(
         Tuple.tuple(1L, 2L, "York", null, true),
-        Tuple.tuple(2L, 3L, "York 2", "username1", false)
+        Tuple.tuple(3L, 4L, "York 2", "username1", false)
       )
   }
 }

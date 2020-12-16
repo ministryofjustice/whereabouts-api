@@ -2,13 +2,13 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.delete
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellAttribute
@@ -45,6 +45,18 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
+  fun stubDeleteAppointment(appointmentId: Long, status: Int) {
+    val deleteAppointmentUrl = "/api/appointments/$appointmentId"
+
+    stubFor(
+      delete(urlPathEqualTo(deleteAppointmentUrl))
+        .willReturn(
+          aResponse()
+            .withStatus(status)
+        )
+    )
+  }
+
   fun stubGetScheduledActivities(
     prisonId: String = "MDI",
     date: LocalDate = LocalDate.now(),
@@ -60,6 +72,39 @@ class PrisonApiMockServer : WireMockServer(8999) {
                 listOf(
                   mapOf("bookingId" to 1L),
                   mapOf("bookingId" to 2L)
+                )
+              )
+            )
+            .withStatus(200)
+        )
+    )
+  }
+
+  fun stubGetScheduledAppointmentsByAgencyAndDate(agencyId: String) {
+    stubFor(
+      get(urlEqualTo("/api/schedules/$agencyId/appointments?date=2020-12-25"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(
+              gson.toJson(
+                listOf(
+                  mapOf(
+                    "id" to 1L,
+                    "agencyId" to agencyId,
+                    "locationId" to 10L,
+                    "appointmentTypeCode" to "VLB",
+                    "startTime" to "2020-12-25T09:00:00",
+                    "endTime" to "2020-12-25T09:30:00"
+                  ),
+                  mapOf(
+                    "id" to 2L,
+                    "agencyId" to agencyId,
+                    "locationId" to 11L,
+                    "appointmentTypeCode" to "MEH",
+                    "startTime" to "2020-12-25T10:00:00",
+                    "endTime" to "2020-12-25T10:30:00"
+                  )
                 )
               )
             )
@@ -284,7 +329,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withHeader("Content-type", "application/json")
             .withBody(
               gson.toJson(
-                Event(eventId = eventId)
+                Event(eventId = eventId, agencyId = "WWI")
               )
             )
             .withStatus(201)
@@ -296,7 +341,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
     bookingId: Long,
     internalLocationDescription: String,
     assignedLivingUnitId: Long,
-    agencyId: String
+    agencyId: String,
+    bedAssignmentHistorySequence: Int
   ) {
     stubFor(
       put(urlPathEqualTo("/api/bookings/$bookingId/living-unit/$internalLocationDescription"))
@@ -305,16 +351,33 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withHeader("Content-type", "application/json")
             .withBody(
               gson.toJson(
-                CellMoveResult(
-                  bookingId = bookingId,
-                  agencyId = agencyId,
-                  assignedLivingUnitDesc = internalLocationDescription,
-                  assignedLivingUnitId = assignedLivingUnitId
+                mapOf(
+                  "bookingId" to bookingId,
+                  "agencyId" to agencyId,
+                  "assignedLivingUnitDesc" to internalLocationDescription,
+                  "assignedLivingUnitId" to assignedLivingUnitId,
+                  "bedAssignmentHistorySequence" to bedAssignmentHistorySequence
                 )
               )
             )
             .withStatus(200)
         )
     )
+  }
+
+  fun stubGetPrisonAppointment(appointmentId: Long, responseJson: String) {
+    stubFor(
+      get(urlPathEqualTo("/api/appointments/$appointmentId"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(responseJson)
+            .withStatus(200)
+        )
+    )
+  }
+
+  fun stubGetPrisonAppointmentNotFound(appointmentId: Long) {
+    stubFor(get(urlPathEqualTo("/api/appointments/$appointmentId")).willReturn(aResponse().withStatus(404)))
   }
 }
