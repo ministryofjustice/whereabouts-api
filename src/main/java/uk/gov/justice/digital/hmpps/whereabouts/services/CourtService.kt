@@ -74,9 +74,12 @@ class CourtService(
 
   @Transactional
   fun updateVideoLinkBooking(videoBookingId: Long, specification: VideoLinkBookingUpdateSpecification) {
-    val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
-      EntityNotFoundException("Video link booking with id $videoBookingId not found")
-    }
+    val booking = videoLinkBookingRepository
+      .findById(videoBookingId)
+      .orElseThrow {
+        EntityNotFoundException("Video link booking with id $videoBookingId not found")
+      }
+
     booking.pre?.let { prisonApiService.deleteAppointment(it.appointmentId) }
     booking.main.let { prisonApiService.deleteAppointment(it.appointmentId) }
     booking.post?.let { prisonApiService.deleteAppointment(it.appointmentId) }

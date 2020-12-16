@@ -25,6 +25,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker
 import java.time.LocalDate
 import javax.validation.Valid
+import javax.validation.constraints.NotNull
 
 @Api(tags = ["court"])
 @RestController
@@ -106,13 +107,14 @@ class CourtController(
   fun updateVideoLinkBooking(
     @ApiParam(value = "Video link booking id", required = true)
     @PathVariable("videoBookingId")
-    videoBookingId: Long,
+    @NotNull
+    videoBookingId: Long?,
 
     @RequestBody
     @Valid
-    videoLinkBookingUpdateSpecification: VideoLinkBookingUpdateSpecification
+    videoLinkBookingUpdateSpecification: VideoLinkBookingUpdateSpecification?
   ) {
-    courtService.updateVideoLinkBooking(videoBookingId, videoLinkBookingUpdateSpecification)
+    courtService.updateVideoLinkBooking(videoBookingId!!, videoLinkBookingUpdateSpecification!!)
   }
 
   @DeleteMapping(path = ["/video-link-bookings/{videoBookingId}"])
