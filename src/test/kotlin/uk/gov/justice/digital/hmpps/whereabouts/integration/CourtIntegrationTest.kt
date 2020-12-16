@@ -111,26 +111,9 @@ class CourtIntegrationTest : IntegrationTest() {
 
       whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(theVideoLinkBooking))
 
-      prisonApiMockServer.stubGetPrisonAppointment(
-        preAppointmentId,
-        objectMapper.writeValueAsString(
-          preAppointment
-        )
-      )
-
-      prisonApiMockServer.stubGetPrisonAppointment(
-        mainAppointmentId,
-        objectMapper.writeValueAsString(
-          mainAppointment
-        )
-      )
-
-      prisonApiMockServer.stubGetPrisonAppointment(
-        postAppointmentId,
-        objectMapper.writeValueAsString(
-          postAppointment
-        )
-      )
+      prisonApiMockServer.stubGetPrisonAppointment(preAppointmentId, objectMapper.writeValueAsString(preAppointment))
+      prisonApiMockServer.stubGetPrisonAppointment(mainAppointmentId, objectMapper.writeValueAsString(mainAppointment))
+      prisonApiMockServer.stubGetPrisonAppointment(postAppointmentId, objectMapper.writeValueAsString(postAppointment))
 
       webTestClient.get()
         .uri("/court/video-link-bookings/$videoBookingId")
@@ -146,12 +129,7 @@ class CourtIntegrationTest : IntegrationTest() {
 
       whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(theVideoLinkBooking))
 
-      prisonApiMockServer.stubGetPrisonAppointment(
-        mainAppointmentId,
-        objectMapper.writeValueAsString(
-          mainAppointment
-        )
-      )
+      prisonApiMockServer.stubGetPrisonAppointment(mainAppointmentId, objectMapper.writeValueAsString(mainAppointment))
 
       webTestClient.get()
         .uri("/court/video-link-bookings/$videoBookingId")
@@ -167,19 +145,8 @@ class CourtIntegrationTest : IntegrationTest() {
 
       whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(theVideoLinkBooking))
 
-      prisonApiMockServer.stubGetPrisonAppointment(
-        preAppointmentId,
-        objectMapper.writeValueAsString(
-          preAppointment
-        )
-      )
-
-      prisonApiMockServer.stubGetPrisonAppointment(
-        postAppointmentId,
-        objectMapper.writeValueAsString(
-          postAppointment
-        )
-      )
+      prisonApiMockServer.stubGetPrisonAppointment(preAppointmentId, objectMapper.writeValueAsString(preAppointment))
+      prisonApiMockServer.stubGetPrisonAppointment(postAppointmentId, objectMapper.writeValueAsString(postAppointment))
 
       webTestClient.get()
         .uri("/court/video-link-bookings/$videoBookingId")
@@ -331,5 +298,52 @@ class CourtIntegrationTest : IntegrationTest() {
     )
 
     verify(videoLinkBookingRepository).deleteById(videoBookingId)
+  }
+
+  @Nested
+  inner class UpdateBooking {
+    @Test
+    fun `Updates a booking`() {
+      val offenderBookingId = 1L
+      val oldAppointmentId = 1L
+      val newAppointmentId = 2L
+
+      prisonApiMockServer.stubDeleteAppointment(oldAppointmentId, status = 204)
+      prisonApiMockServer.stubAddAppointment(offenderBookingId, eventId = newAppointmentId)
+
+      val theVideoLinkBooking = VideoLinkBooking(
+        main = VideoLinkAppointment(
+          bookingId = offenderBookingId,
+          appointmentId = newAppointmentId,
+          court = "Test Court 1",
+          madeByTheCourt = false,
+          hearingType = HearingType.MAIN
+        )
+      )
+
+      whenever(videoLinkBookingRepository.findById(1L))
+        .thenReturn(Optional.of(theVideoLinkBooking.copy(id = 1)))
+
+      webTestClient.put()
+        .uri("/court/video-link-bookings/1")
+        .bodyValue(
+          """
+              {
+                "comment": "New comment",
+                "madeByTheCourt": false,
+                "main": {
+                  "locationId" : 2,
+                  "startTime" : "2020-01-01T13:00",
+                  "endTime": "2020-01-01T13:30"
+                }
+              }
+            """
+        )
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isNoContent
+
+      verify(videoLinkBookingRepository).findById(1L)
+    }
   }
 }
