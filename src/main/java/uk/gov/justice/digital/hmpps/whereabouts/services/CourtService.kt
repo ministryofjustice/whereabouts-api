@@ -18,7 +18,9 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import java.time.Clock
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.EntityNotFoundException
 
 const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
@@ -29,6 +31,7 @@ class CourtService(
   private val prisonApiService: PrisonApiService,
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
+  private val clock: Clock,
   private val telemetryClient: TelemetryClient,
   @Value("\${courts}") private val courts: String
 ) {
@@ -55,6 +58,7 @@ class CourtService(
 
   @Transactional
   fun createVideoLinkBooking(specification: VideoLinkBookingSpecification): Long {
+    validateVideoLinkBookingSpecification(specification)
     val bookingId = specification.bookingId!!
     val comment = specification.comment
     val mainEvent = savePrisonAppointment(bookingId, comment, specification.main)
@@ -74,6 +78,7 @@ class CourtService(
 
   @Transactional
   fun updateVideoLinkBooking(videoBookingId: Long, specification: VideoLinkBookingUpdateSpecification) {
+    validateVideoLinkBookingUpdateSpecification(specification)
     val booking = videoLinkBookingRepository
       .findById(videoBookingId)
       .orElseThrow {
@@ -235,6 +240,27 @@ class CourtService(
         endTime = it.endTime
       )
     }
+
+  private fun validateVideoLinkBookingSpecification(specification: VideoLinkBookingSpecification) {
+    validateVideoLinkAppointment(specification.main, "Main")
+    specification.pre?.let { validateVideoLinkAppointment(it, "Pre") }
+    specification.post?.let { validateVideoLinkAppointment(it, "Post") }
+  }
+
+  private fun validateVideoLinkBookingUpdateSpecification(specification: VideoLinkBookingUpdateSpecification) {
+    validateVideoLinkAppointment(specification.main, "Main")
+    specification.pre?.let { validateVideoLinkAppointment(it, "Pre") }
+    specification.post?.let { validateVideoLinkAppointment(it, "Post") }
+  }
+
+  private fun validateVideoLinkAppointment(appointment: VideoLinkAppointmentSpecification, prefix: String) {
+    if (appointment.startTime.isBefore(LocalDateTime.now(clock))) {
+      throw ValidationException("$prefix appointment start time must be in the future.")
+    }
+    if (!appointment.startTime.isBefore(appointment.endTime)) {
+      throw ValidationException("$prefix appointment start time must precede end time.")
+    }
+  }
 
   private fun trackVideoLinkBookingCreated(
     booking: VideoLinkBooking,
