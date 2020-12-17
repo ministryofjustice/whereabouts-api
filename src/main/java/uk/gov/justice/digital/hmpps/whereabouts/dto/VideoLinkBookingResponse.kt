@@ -7,13 +7,13 @@ import java.time.LocalDateTime
 @ApiModel(description = "Video Link Booking details")
 data class VideoLinkBookingResponse(
 
-  @ApiModelProperty(value = "Video Link booking Id", example = "1")
+  @ApiModelProperty(value = "Video Link booking Id", example = "1", required = true)
   val videoLinkBookingId: Long,
 
-  @ApiModelProperty(value = "Offender booking Id", example = "1")
+  @ApiModelProperty(value = "Offender booking Id", example = "1", required = true)
   val bookingId: Long,
 
-  @ApiModelProperty(value = "Agency Id", example = "WWI")
+  @ApiModelProperty(value = "Agency Id", example = "WWI", required = true)
   val agencyId: String,
 
   @ApiModelProperty(
