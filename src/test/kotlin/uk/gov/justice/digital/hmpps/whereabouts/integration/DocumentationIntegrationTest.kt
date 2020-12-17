@@ -10,7 +10,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.util.MimeType
 
 @ExtendWith(SpringExtension::class)
 @ActiveProfiles("test")
