@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -19,10 +20,12 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtLocationResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker
 import java.time.LocalDate
 import javax.validation.Valid
+import javax.validation.constraints.NotNull
 
 @Api(tags = ["court"])
 @RestController
@@ -91,14 +94,27 @@ class CourtController(
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings"])
   @ResponseStatus(HttpStatus.CREATED)
   @ApiOperation(value = "Create a Video Link Booking")
-  fun createVideoLinkBooking(@RequestBody @Valid videoLinkBookingSpecification: VideoLinkBookingSpecification) =
+  fun createVideoLinkBooking(
+    @RequestBody
+    @Valid
+    videoLinkBookingSpecification: VideoLinkBookingSpecification
+  ) =
     courtService.createVideoLinkBooking(videoLinkBookingSpecification)
 
-  @PostMapping(path = ["/appointment-linker"])
+  @PutMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings/{videoBookingId}"])
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @ApiOperation(value = "Create Video Link Bookings for dangling Video Link Appointments")
-  fun linkDanglingAppointments(@RequestBody chunkSize: Int?) {
-    appointmentLinker.linkAppointments(chunkSize)
+  @ApiOperation(value = "Update a Video Link Booking")
+  fun updateVideoLinkBooking(
+    @ApiParam(value = "Video link booking id", required = true)
+    @PathVariable("videoBookingId")
+    @NotNull
+    videoBookingId: Long?,
+
+    @RequestBody
+    @Valid
+    videoLinkBookingUpdateSpecification: VideoLinkBookingUpdateSpecification?
+  ) {
+    courtService.updateVideoLinkBooking(videoBookingId!!, videoLinkBookingUpdateSpecification!!)
   }
 
   @DeleteMapping(path = ["/video-link-bookings/{videoBookingId}"])
@@ -109,4 +125,11 @@ class CourtController(
     @PathVariable("videoBookingId")
     videoBookingId: Long
   ) = courtService.deleteVideoLinkBooking(videoBookingId)
+
+  @PostMapping(path = ["/appointment-linker"])
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @ApiOperation(value = "Create Video Link Bookings for dangling Video Link Appointments")
+  fun linkDanglingAppointments(@RequestBody chunkSize: Int?) {
+    appointmentLinker.linkAppointments(chunkSize)
+  }
 }

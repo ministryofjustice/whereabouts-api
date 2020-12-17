@@ -17,17 +17,17 @@ data class VideoLinkBooking(
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   val id: Long? = null,
 
-  @OneToOne(optional = false, cascade = [PERSIST, REMOVE])
-  @JoinColumn(name = "MAIN_APPOINTMENT", nullable = false, updatable = false, unique = true)
-  val main: VideoLinkAppointment,
+  @OneToOne(optional = false, orphanRemoval = true, cascade = [PERSIST, REMOVE])
+  @JoinColumn(name = "MAIN_APPOINTMENT")
+  var main: VideoLinkAppointment,
 
-  @OneToOne(optional = true, cascade = [PERSIST, REMOVE])
-  @JoinColumn(name = "PRE_APPOINTMENT", nullable = true, updatable = true, unique = true)
-  val pre: VideoLinkAppointment? = null,
+  @OneToOne(optional = true, orphanRemoval = true, cascade = [PERSIST, REMOVE])
+  @JoinColumn(name = "PRE_APPOINTMENT")
+  var pre: VideoLinkAppointment? = null,
 
-  @OneToOne(optional = true, cascade = [PERSIST, REMOVE])
-  @JoinColumn(name = "POST_APPOINTMENT", nullable = true, updatable = true, unique = true)
-  val post: VideoLinkAppointment? = null
+  @OneToOne(optional = true, orphanRemoval = true, cascade = [PERSIST, REMOVE])
+  @JoinColumn(name = "POST_APPOINTMENT")
+  var post: VideoLinkAppointment? = null
 
 ) {
   fun toAppointments(): List<VideoLinkAppointment> {

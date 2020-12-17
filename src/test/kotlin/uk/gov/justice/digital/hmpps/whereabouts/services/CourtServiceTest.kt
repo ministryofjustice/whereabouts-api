@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
@@ -335,6 +336,194 @@ class CourtServiceTest {
         ),
         null
       )
+    }
+  }
+
+  @Nested
+  inner class UpdateVideoLinkBooking {
+    @Test
+    fun `Happy flow - update main`() {
+      val service = service("")
+
+      val theBooking = VideoLinkBooking(
+        id = 1L,
+        main = VideoLinkAppointment(
+          id = 2L,
+          bookingId = 30L,
+          appointmentId = 40L,
+          court = "The court",
+          hearingType = HearingType.MAIN,
+          madeByTheCourt = true
+        )
+      )
+
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(theBooking))
+      whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(Event(3L, "WRI"))
+
+      service.updateVideoLinkBooking(
+        1L,
+        VideoLinkBookingUpdateSpecification(
+          comment = "New Comment",
+          madeByTheCourt = false,
+          main = VideoLinkAppointmentSpecification(
+            locationId = 99L,
+            startTime = LocalDateTime.of(2020, 10, 1, 9, 0),
+            endTime = LocalDateTime.of(2020, 10, 1, 9, 30),
+          )
+        )
+      )
+
+      verify(prisonApiService).deleteAppointment(40L)
+      verify(prisonApiService).postAppointment(
+        30L,
+        CreateBookingAppointment(
+          appointmentType = "VLB",
+          locationId = 99L,
+          startTime = "2020-10-01T09:00",
+          endTime = "2020-10-01T09:30",
+          comment = "New Comment"
+        )
+      )
+
+      assertThat(theBooking)
+        .usingRecursiveComparison()
+        .isEqualTo(
+          VideoLinkBooking(
+            id = 1L,
+            main = VideoLinkAppointment(
+              bookingId = 30L,
+              appointmentId = 3L,
+              court = "The court",
+              hearingType = HearingType.MAIN,
+              madeByTheCourt = false
+            )
+          )
+        )
+    }
+
+    @Test
+    fun `Happy flow - update pre, main and post`() {
+      val service = service("")
+
+      val theBooking = VideoLinkBooking(
+        id = 1L,
+        pre = VideoLinkAppointment(
+          id = 2L,
+          bookingId = 30L,
+          appointmentId = 40L,
+          court = "The court",
+          hearingType = HearingType.PRE,
+          madeByTheCourt = true
+        ),
+        main = VideoLinkAppointment(
+          id = 3L,
+          bookingId = 30L,
+          appointmentId = 41L,
+          court = "The court",
+          hearingType = HearingType.MAIN,
+          madeByTheCourt = true
+        ),
+        post = VideoLinkAppointment(
+          id = 4L,
+          bookingId = 30L,
+          appointmentId = 42L,
+          court = "The court",
+          hearingType = HearingType.POST,
+          madeByTheCourt = true
+        )
+      )
+
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(theBooking))
+      whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(Event(3L, "WRI"))
+
+      service.updateVideoLinkBooking(
+        1L,
+        VideoLinkBookingUpdateSpecification(
+          comment = "New Comment",
+          madeByTheCourt = false,
+          pre = VideoLinkAppointmentSpecification(
+            locationId = 99L,
+            startTime = LocalDateTime.of(2020, 10, 1, 9, 0),
+            endTime = LocalDateTime.of(2020, 10, 1, 9, 30),
+          ),
+          main = VideoLinkAppointmentSpecification(
+            locationId = 98L,
+            startTime = LocalDateTime.of(2020, 10, 1, 9, 30),
+            endTime = LocalDateTime.of(2020, 10, 1, 10, 0),
+          ),
+          post = VideoLinkAppointmentSpecification(
+            locationId = 97L,
+            startTime = LocalDateTime.of(2020, 10, 1, 10, 0),
+            endTime = LocalDateTime.of(2020, 10, 1, 10, 30),
+          )
+        )
+      )
+
+      verify(prisonApiService).deleteAppointment(40L)
+      verify(prisonApiService).deleteAppointment(41L)
+      verify(prisonApiService).deleteAppointment(42L)
+
+      verify(prisonApiService).postAppointment(
+        30L,
+        CreateBookingAppointment(
+          appointmentType = "VLB",
+          locationId = 99L,
+          startTime = "2020-10-01T09:00",
+          endTime = "2020-10-01T09:30",
+          comment = "New Comment"
+        )
+      )
+
+      verify(prisonApiService).postAppointment(
+        30L,
+        CreateBookingAppointment(
+          appointmentType = "VLB",
+          locationId = 98L,
+          startTime = "2020-10-01T09:30",
+          endTime = "2020-10-01T10:00",
+          comment = "New Comment"
+        )
+      )
+
+      verify(prisonApiService).postAppointment(
+        30L,
+        CreateBookingAppointment(
+          appointmentType = "VLB",
+          locationId = 97L,
+          startTime = "2020-10-01T10:00",
+          endTime = "2020-10-01T10:30",
+          comment = "New Comment"
+        )
+      )
+
+      assertThat(theBooking)
+        .usingRecursiveComparison()
+        .isEqualTo(
+          VideoLinkBooking(
+            id = 1L,
+            pre = VideoLinkAppointment(
+              bookingId = 30L,
+              appointmentId = 3L,
+              court = "The court",
+              hearingType = HearingType.PRE,
+              madeByTheCourt = false
+            ),
+            main = VideoLinkAppointment(
+              bookingId = 30L,
+              appointmentId = 3L,
+              court = "The court",
+              hearingType = HearingType.MAIN,
+              madeByTheCourt = false
+            ),
+            post = VideoLinkAppointment(
+              bookingId = 30L,
+              appointmentId = 3L,
+              court = "The court",
+              hearingType = HearingType.POST,
+              madeByTheCourt = false
+            )
+          )
+        )
     }
   }
 
