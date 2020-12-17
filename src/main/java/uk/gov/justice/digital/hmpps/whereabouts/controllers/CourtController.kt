@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -113,8 +114,9 @@ class CourtController(
     @RequestBody
     @Valid
     videoLinkBookingUpdateSpecification: VideoLinkBookingUpdateSpecification?
-  ) {
+  ): ResponseEntity<Void> {
     courtService.updateVideoLinkBooking(videoBookingId!!, videoLinkBookingUpdateSpecification!!)
+    return ResponseEntity.noContent().build()
   }
 
   @DeleteMapping(path = ["/video-link-bookings/{videoBookingId}"])
