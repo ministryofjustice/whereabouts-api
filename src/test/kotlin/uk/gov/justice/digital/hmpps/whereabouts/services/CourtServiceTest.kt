@@ -4,13 +4,13 @@ import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.api.Assertions.tuple
 import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecific
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
@@ -123,6 +124,11 @@ class CourtServiceTest {
 
     private val expectedVideoLinkBookingId = 11L
 
+    @BeforeEach
+    fun stubLocations() {
+      whenever(prisonApiService.getLocation(anyLong())).thenAnswer { locationDto(it.arguments[0] as Long) }
+    }
+
     @Test
     fun `happy flow - Main appointment only - madeByTheCourt`() {
 
@@ -165,7 +171,6 @@ class CourtServiceTest {
           endTime = "2020-10-09T11:00"
         )
       )
-      verifyNoMoreInteractions(prisonApiService)
 
       verify(videoLinkBookingRepository).save(booking.copy(id = null))
     }
@@ -302,6 +307,48 @@ class CourtServiceTest {
           )
         )
       }.isInstanceOf(ValidationException::class.java).hasMessage("Post appointment start time must precede end time.")
+    }
+
+    @Test
+    fun `Validation failure - main locationId not found`() {
+      whenever(prisonApiService.getLocation(anyLong())).thenReturn(null)
+
+      assertThatThrownBy {
+        service.createVideoLinkBooking(
+          VideoLinkBookingSpecification(
+            bookingId = 1L,
+            court = YORK_CC,
+            comment = "Comment",
+            madeByTheCourt = true,
+            main = VideoLinkAppointmentSpecification(
+              locationId = 2L,
+              startTime = referenceNow.plusSeconds(1),
+              endTime = referenceNow.plusSeconds(2)
+            )
+          )
+        )
+      }.isInstanceOf(ValidationException::class.java).hasMessage("Main locationId 2 not found in NOMIS.")
+    }
+
+    @Test
+    fun `Validation failure - main locationId has wrong type`() {
+      whenever(prisonApiService.getLocation(anyLong())).thenAnswer { locationDto(it.arguments[0] as Long, "XXX") }
+
+      assertThatThrownBy {
+        service.createVideoLinkBooking(
+          VideoLinkBookingSpecification(
+            bookingId = 1L,
+            court = YORK_CC,
+            comment = "Comment",
+            madeByTheCourt = true,
+            main = VideoLinkAppointmentSpecification(
+              locationId = 2L,
+              startTime = referenceNow.plusSeconds(1),
+              endTime = referenceNow.plusSeconds(2)
+            )
+          )
+        )
+      }.isInstanceOf(ValidationException::class.java).hasMessage("Main locationId 2 selects a location of the wrong type. Expected 'VIDE', found 'XXX'.")
     }
 
     @Test
@@ -493,6 +540,11 @@ class CourtServiceTest {
       .plusMinutes(30)
 
     private val referenceNow = LocalDateTime.now(clock)
+
+    @BeforeEach
+    fun stubLocations() {
+      whenever(prisonApiService.getLocation(anyLong())).thenAnswer { locationDto(it.arguments[0] as Long) }
+    }
 
     @Test
     fun `Happy flow - update main`() {
@@ -938,7 +990,7 @@ class CourtServiceTest {
   @Nested
   inner class GetVideoLinkBookingsForDateAndCourt {
     val service = service("")
-    val date = LocalDate.of(2020, 12, 25)
+    val date: LocalDate = LocalDate.of(2020, 12, 25)
 
     @Test
     fun `no prison appointments, no VLBs`() {
@@ -1015,6 +1067,32 @@ class CourtServiceTest {
       val bookings = service.getVideoLinkBookingsForDateAndCourt(date, null)
       assertThat(bookings).isEmpty()
     }
+  }
+
+  private fun service(courts: String) = CourtService(
+    authenticationFacade,
+    prisonApiService,
+    videoLinkAppointmentRepository,
+    videoLinkBookingRepository,
+    clock,
+    telemetryClient,
+    courts
+  )
+
+  companion object {
+    fun locationDto(locationId: Long, type: String = VIDEO_LINK_APPOINTMENT_LOCATION_TYPE) = LocationDto(
+      locationId = locationId,
+      locationType = type,
+      agencyId = "WWI",
+      description = null,
+      parentLocationId = null,
+      currentOccupancy = null,
+      locationPrefix = null,
+      internalLocationCode = null,
+      userDescription = null,
+      locationUsage = null,
+      operationalCapacity = null
+    )
 
     fun scheduledAppointments(
       type: String,
@@ -1065,14 +1143,4 @@ class CourtServiceTest {
         )
       }
   }
-
-  private fun service(courts: String) = CourtService(
-    authenticationFacade,
-    prisonApiService,
-    videoLinkAppointmentRepository,
-    videoLinkBookingRepository,
-    clock,
-    telemetryClient,
-    courts
-  )
 }

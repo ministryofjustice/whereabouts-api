@@ -24,6 +24,7 @@ import java.time.LocalDateTime
 import javax.persistence.EntityNotFoundException
 
 const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
+const val VIDEO_LINK_APPOINTMENT_LOCATION_TYPE = "VIDE"
 
 @Service
 class CourtService(
@@ -259,6 +260,12 @@ class CourtService(
     }
     if (!appointment.startTime.isBefore(appointment.endTime)) {
       throw ValidationException("$prefix appointment start time must precede end time.")
+    }
+    appointment.locationId?.let {
+      val location = prisonApiService.getLocation(it) ?: throw ValidationException("$prefix locationId $it not found in NOMIS.")
+      if (VIDEO_LINK_APPOINTMENT_LOCATION_TYPE != location.locationType) {
+        throw ValidationException("$prefix locationId $it selects a location of the wrong type. Expected '$VIDEO_LINK_APPOINTMENT_LOCATION_TYPE', found '${location.locationType}'.")
+      }
     }
   }
 
