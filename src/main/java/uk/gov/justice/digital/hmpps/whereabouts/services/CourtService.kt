@@ -24,7 +24,6 @@ import java.time.LocalDateTime
 import javax.persistence.EntityNotFoundException
 
 const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
-const val VIDEO_LINK_APPOINTMENT_LOCATION_TYPE = "VIDE"
 
 @Service
 class CourtService(
@@ -59,7 +58,7 @@ class CourtService(
 
   @Transactional
   fun createVideoLinkBooking(specification: VideoLinkBookingSpecification): Long {
-    validateVideoLinkBookingSpecification(specification)
+    specification.validate()
     val bookingId = specification.bookingId!!
     val comment = specification.comment
     val mainEvent = savePrisonAppointment(bookingId, comment, specification.main)
@@ -79,7 +78,7 @@ class CourtService(
 
   @Transactional
   fun updateVideoLinkBooking(videoBookingId: Long, specification: VideoLinkBookingUpdateSpecification) {
-    validateVideoLinkBookingUpdateSpecification(specification)
+    specification.validate()
     val booking = videoLinkBookingRepository
       .findById(videoBookingId)
       .orElseThrow {
@@ -93,7 +92,7 @@ class CourtService(
     val bookingId = booking.main.bookingId
     val comment = specification.comment
 
-    val mainEvent = specification.main.let { savePrisonAppointment(bookingId, comment, it) }
+    val mainEvent = savePrisonAppointment(bookingId, comment, specification.main)
     val preEvent = specification.pre?.let { savePrisonAppointment(bookingId, comment, it) }
     val postEvent = specification.post?.let { savePrisonAppointment(bookingId, comment, it) }
 
@@ -160,7 +159,7 @@ class CourtService(
       EntityNotFoundException("Video link booking with id $videoBookingId not found")
     }
     val mainEvent = prisonApiService.getPrisonAppointment(booking.main.appointmentId)
-      ?: throw EntityNotFoundException("main appointment with id ${booking.main.appointmentId} not found in nomis")
+      ?: throw EntityNotFoundException("main appointment with id ${booking.main.appointmentId} not found in NOMIS")
     val preEvent = booking.pre?.let { prisonApiService.getPrisonAppointment(it.appointmentId) }
     val postEvent = booking.post?.let { prisonApiService.getPrisonAppointment(it.appointmentId) }
 
@@ -242,30 +241,27 @@ class CourtService(
       )
     }
 
-  private fun validateVideoLinkBookingSpecification(specification: VideoLinkBookingSpecification) {
-    validateVideoLinkAppointment(specification.main, "Main")
-    specification.pre?.let { validateVideoLinkAppointment(it, "Pre") }
-    specification.post?.let { validateVideoLinkAppointment(it, "Post") }
+  private fun VideoLinkBookingSpecification.validate() {
+    main.validate("Main")
+    pre?.validate("Pre")
+    post?.validate("Post")
   }
 
-  private fun validateVideoLinkBookingUpdateSpecification(specification: VideoLinkBookingUpdateSpecification) {
-    validateVideoLinkAppointment(specification.main, "Main")
-    specification.pre?.let { validateVideoLinkAppointment(it, "Pre") }
-    specification.post?.let { validateVideoLinkAppointment(it, "Post") }
+  private fun VideoLinkBookingUpdateSpecification.validate() {
+    main.validate("Main")
+    pre?.validate("Pre")
+    post?.validate("Post")
   }
 
-  private fun validateVideoLinkAppointment(appointment: VideoLinkAppointmentSpecification, prefix: String) {
-    if (appointment.startTime.isBefore(LocalDateTime.now(clock))) {
+  private fun VideoLinkAppointmentSpecification.validate(prefix: String) {
+    if (startTime.isBefore(LocalDateTime.now(clock))) {
       throw ValidationException("$prefix appointment start time must be in the future.")
     }
-    if (!appointment.startTime.isBefore(appointment.endTime)) {
+    if (!startTime.isBefore(endTime)) {
       throw ValidationException("$prefix appointment start time must precede end time.")
     }
-    appointment.locationId?.let {
-      val location = prisonApiService.getLocation(it) ?: throw ValidationException("$prefix locationId $it not found in NOMIS.")
-      if (VIDEO_LINK_APPOINTMENT_LOCATION_TYPE != location.locationType) {
-        throw ValidationException("$prefix locationId $it selects a location of the wrong type. Expected '$VIDEO_LINK_APPOINTMENT_LOCATION_TYPE', found '${location.locationType}'.")
-      }
+    locationId?.let {
+      prisonApiService.getLocation(it) ?: throw ValidationException("$prefix locationId $it not found in NOMIS.")
     }
   }
 

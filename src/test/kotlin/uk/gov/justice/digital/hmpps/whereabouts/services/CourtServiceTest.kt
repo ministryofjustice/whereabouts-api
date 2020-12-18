@@ -331,27 +331,6 @@ class CourtServiceTest {
     }
 
     @Test
-    fun `Validation failure - main locationId has wrong type`() {
-      whenever(prisonApiService.getLocation(anyLong())).thenAnswer { locationDto(it.arguments[0] as Long, "XXX") }
-
-      assertThatThrownBy {
-        service.createVideoLinkBooking(
-          VideoLinkBookingSpecification(
-            bookingId = 1L,
-            court = YORK_CC,
-            comment = "Comment",
-            madeByTheCourt = true,
-            main = VideoLinkAppointmentSpecification(
-              locationId = 2L,
-              startTime = referenceNow.plusSeconds(1),
-              endTime = referenceNow.plusSeconds(2)
-            )
-          )
-        )
-      }.isInstanceOf(ValidationException::class.java).hasMessage("Main locationId 2 selects a location of the wrong type. Expected 'VIDE', found 'XXX'.")
-    }
-
-    @Test
     fun `happy flow - telemetry`() {
 
       val endTime = referenceTime.plusMinutes(20)
@@ -1080,9 +1059,9 @@ class CourtServiceTest {
   )
 
   companion object {
-    fun locationDto(locationId: Long, type: String = VIDEO_LINK_APPOINTMENT_LOCATION_TYPE) = LocationDto(
+    fun locationDto(locationId: Long) = LocationDto(
       locationId = locationId,
-      locationType = type,
+      locationType = "VIDE",
       agencyId = "WWI",
       description = null,
       parentLocationId = null,
