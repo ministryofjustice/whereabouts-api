@@ -16,6 +16,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
+import java.time.temporal.ChronoUnit
 import java.util.Optional
 
 class CourtIntegrationTest : IntegrationTest() {
@@ -28,6 +30,10 @@ class CourtIntegrationTest : IntegrationTest() {
 
   @Autowired
   lateinit var objectMapper: ObjectMapper
+
+  val tomorrow: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).plusDays(1)
+  val yesterday: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).minusDays(1)
+  val referenceTime: LocalDateTime = tomorrow.plusHours(9)
 
   @Test
   fun `should list all courts`() {
@@ -51,8 +57,8 @@ class CourtIntegrationTest : IntegrationTest() {
     val preAppointment = PrisonAppointment(
       bookingId = 100,
       eventId = preAppointmentId,
-      startTime = LocalDateTime.of(2020, 12, 2, 12, 0, 0),
-      endTime = LocalDateTime.of(2020, 12, 2, 13, 0, 0),
+      startTime = referenceTime,
+      endTime = referenceTime.plusMinutes(30),
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 10,
@@ -62,8 +68,8 @@ class CourtIntegrationTest : IntegrationTest() {
     val mainAppointment = PrisonAppointment(
       bookingId = 100,
       eventId = mainAppointmentId,
-      startTime = LocalDateTime.of(2020, 12, 2, 13, 0, 0),
-      endTime = LocalDateTime.of(2020, 12, 2, 14, 0, 0),
+      startTime = referenceTime.plusMinutes(30),
+      endTime = referenceTime.plusMinutes(60),
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 9,
@@ -73,8 +79,8 @@ class CourtIntegrationTest : IntegrationTest() {
     val postAppointment = PrisonAppointment(
       bookingId = 100,
       eventId = postAppointmentId,
-      startTime = LocalDateTime.of(2020, 12, 2, 14, 0, 0),
-      endTime = LocalDateTime.of(2020, 12, 2, 15, 0, 0),
+      startTime = referenceTime.plusMinutes(60),
+      endTime = referenceTime.plusMinutes(90),
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 5,
@@ -121,7 +127,32 @@ class CourtIntegrationTest : IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json(loadJsonFile("videoBooking.json"))
+        .json(
+          """
+          {
+            "videoLinkBookingId": 1,
+            "bookingId": 100,
+            "agencyId" : "WWI",
+            "court": "Test Court 2",
+            "comment": "any comment",
+            "pre": {
+              "locationId": 10,
+              "startTime": "${referenceTime.format(ISO_LOCAL_DATE_TIME)}",
+              "endTime": "${referenceTime.plusMinutes(30).format(ISO_LOCAL_DATE_TIME)}"
+            },
+            "main": {
+              "locationId": 9,
+              "startTime": "${referenceTime.plusMinutes(30).format(ISO_LOCAL_DATE_TIME)}",
+              "endTime": "${referenceTime.plusMinutes(60).format(ISO_LOCAL_DATE_TIME)}"
+            },
+            "post": {
+              "locationId": 5,
+              "startTime": "${referenceTime.plusMinutes(60).format(ISO_LOCAL_DATE_TIME)}",
+              "endTime": "${referenceTime.plusMinutes(90).format(ISO_LOCAL_DATE_TIME)}"
+            }
+          }
+        """
+        )
     }
 
     @Test
@@ -137,7 +168,22 @@ class CourtIntegrationTest : IntegrationTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json(loadJsonFile("videoBooking-mainOnly.json"))
+        .json(
+          """
+          {
+            "videoLinkBookingId": 1,
+            "bookingId": 100,
+            "agencyId": "WWI",
+            "court": "Test Court 2",
+            "comment": "any comment",
+            "main": {
+              "locationId": 9,
+              "startTime": "${referenceTime.plusMinutes(30).format(ISO_LOCAL_DATE_TIME)}",
+              "endTime": "${referenceTime.plusMinutes(60).format(ISO_LOCAL_DATE_TIME)}"
+            }
+          }
+        """
+        )
     }
 
     @Test
@@ -206,6 +252,7 @@ class CourtIntegrationTest : IntegrationTest() {
     val bookingId = 1L
     val mainAppointmentId = 1L
 
+    prisonApiMockServer.stubGetLocation(1L)
     prisonApiMockServer.stubAddAppointment(bookingId, eventId = mainAppointmentId)
 
     val theVideoLinkBooking = VideoLinkBooking(
@@ -230,8 +277,8 @@ class CourtIntegrationTest : IntegrationTest() {
           "madeByTheCourt" to false,
           "main" to mapOf(
             "locationId" to 1,
-            "startTime" to "2020-12-01T09:00",
-            "endTime" to "2020-12-01T09:30"
+            "startTime" to referenceTime.plusMinutes(30).format(ISO_LOCAL_DATE_TIME),
+            "endTime" to referenceTime.plusMinutes(60).format(ISO_LOCAL_DATE_TIME)
           )
         )
       )
@@ -240,6 +287,29 @@ class CourtIntegrationTest : IntegrationTest() {
       .expectBody().json("1")
 
     verify(videoLinkBookingRepository).save(theVideoLinkBooking)
+  }
+
+  @Test
+  fun `Failed POST video-link-bookings, invalid main start time`() {
+    val bookingId = 1L
+
+    webTestClient.post()
+      .uri("/court/video-link-bookings")
+      .headers(setHeaders())
+      .bodyValue(
+        mapOf(
+          "bookingId" to bookingId,
+          "court" to "Test Court 1",
+          "madeByTheCourt" to false,
+          "main" to mapOf(
+            "locationId" to 1,
+            "startTime" to yesterday.plusMinutes(30).format(ISO_LOCAL_DATE_TIME),
+            "endTime" to yesterday.plusMinutes(60).format(ISO_LOCAL_DATE_TIME)
+          )
+        )
+      )
+      .exchange()
+      .expectStatus().isBadRequest
   }
 
   @Test
@@ -308,6 +378,7 @@ class CourtIntegrationTest : IntegrationTest() {
       val oldAppointmentId = 1L
       val newAppointmentId = 2L
 
+      prisonApiMockServer.stubGetLocation(2)
       prisonApiMockServer.stubDeleteAppointment(oldAppointmentId, status = 204)
       prisonApiMockServer.stubAddAppointment(offenderBookingId, eventId = newAppointmentId)
 
@@ -333,8 +404,8 @@ class CourtIntegrationTest : IntegrationTest() {
                 "madeByTheCourt": false,
                 "main": {
                   "locationId" : 2,
-                  "startTime" : "2020-01-01T13:00",
-                  "endTime": "2020-01-01T13:30"
+                  "startTime" : "${referenceTime.format(ISO_LOCAL_DATE_TIME)}",
+                  "endTime": "${referenceTime.plusMinutes(30).format(ISO_LOCAL_DATE_TIME)}"
                 }
               }
             """
@@ -344,6 +415,38 @@ class CourtIntegrationTest : IntegrationTest() {
         .expectStatus().isNoContent
 
       verify(videoLinkBookingRepository).findById(1L)
+    }
+
+    @Test
+    fun `Rejects invalid end time`() {
+
+      webTestClient.put()
+        .uri("/court/video-link-bookings/1")
+        .bodyValue(
+          """
+              {
+                "comment": "New comment",
+                "madeByTheCourt": false,
+                "main": {
+                  "locationId" : 2,
+                  "startTime" : "${referenceTime.format(ISO_LOCAL_DATE_TIME)}",
+                  "endTime": "${referenceTime.minusSeconds(1).format(ISO_LOCAL_DATE_TIME)}"
+                }
+              }
+            """
+        )
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().json(
+          """
+            {
+              "status":400,
+              "userMessage":"Main appointment start time must precede end time.",
+              "developerMessage":"Main appointment start time must precede end time."
+            }
+          """
+        )
     }
   }
 }

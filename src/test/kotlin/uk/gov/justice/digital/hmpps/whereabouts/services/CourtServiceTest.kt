@@ -4,12 +4,13 @@ import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.api.Assertions.tuple
 import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
@@ -20,6 +21,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecific
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
@@ -28,8 +30,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import java.time.Clock
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.Optional
 import javax.persistence.EntityNotFoundException
 
@@ -44,6 +49,7 @@ class CourtServiceTest {
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
   private val telemetryClient: TelemetryClient = mock()
+  private val clock: Clock = Clock.fixed(Instant.parse("2020-10-01T00:00:00Z"), ZoneId.of("UTC"))
 
   @Test
   fun `should return NO video link appointments`() {
@@ -84,7 +90,13 @@ class CourtServiceTest {
   inner class CreateVideoLinkBooking {
     val service = service("")
 
-    private val startTime = LocalDateTime.of(2020, 10, 9, 10, 30)
+    private val referenceTime = LocalDateTime
+      .now(clock)
+      .plusDays(8)
+      .plusHours(10)
+      .plusMinutes(30)
+
+    private val referenceNow = LocalDateTime.now(clock)
 
     private val mainAppointmentId = 12L
     private val mainVideoLinkAppointment = VideoLinkAppointment(
@@ -112,6 +124,11 @@ class CourtServiceTest {
 
     private val expectedVideoLinkBookingId = 11L
 
+    @BeforeEach
+    fun stubLocations() {
+      whenever(prisonApiService.getLocation(anyLong())).thenAnswer { locationDto(it.arguments[0] as Long) }
+    }
+
     @Test
     fun `happy flow - Main appointment only - madeByTheCourt`() {
 
@@ -136,8 +153,8 @@ class CourtServiceTest {
           madeByTheCourt = true,
           main = VideoLinkAppointmentSpecification(
             locationId = 2L,
-            startTime = startTime,
-            endTime = startTime.plusMinutes(30)
+            startTime = referenceTime,
+            endTime = referenceTime.plusMinutes(30)
           )
         )
       )
@@ -154,15 +171,169 @@ class CourtServiceTest {
           endTime = "2020-10-09T11:00"
         )
       )
-      verifyNoMoreInteractions(prisonApiService)
 
       verify(videoLinkBookingRepository).save(booking.copy(id = null))
     }
 
     @Test
+    fun `Validation failure - Main appointment starts in past`() {
+      assertThatThrownBy {
+        service.createVideoLinkBooking(
+          VideoLinkBookingSpecification(
+            bookingId = 1L,
+            court = YORK_CC,
+            comment = "Comment",
+            madeByTheCourt = true,
+            main = VideoLinkAppointmentSpecification(
+              locationId = 2L,
+              startTime = referenceNow.minusSeconds(1),
+              endTime = referenceNow.plusSeconds(1)
+            )
+          )
+        )
+      }.isInstanceOf(ValidationException::class.java).hasMessage("Main appointment start time must be in the future.")
+    }
+
+    @Test
+    fun `Validation failure - Main appointment end time not after start time`() {
+      assertThatThrownBy {
+        service.createVideoLinkBooking(
+          VideoLinkBookingSpecification(
+            bookingId = 1L,
+            court = YORK_CC,
+            comment = "Comment",
+            madeByTheCourt = true,
+            main = VideoLinkAppointmentSpecification(
+              locationId = 2L,
+              startTime = referenceTime,
+              endTime = referenceTime
+            )
+          )
+        )
+      }.isInstanceOf(ValidationException::class.java).hasMessage("Main appointment start time must precede end time.")
+    }
+
+    @Test
+    fun `Validation failure - Pre appointment starts in past`() {
+      assertThatThrownBy {
+        service.createVideoLinkBooking(
+          VideoLinkBookingSpecification(
+            bookingId = 1L,
+            court = YORK_CC,
+            comment = "Comment",
+            madeByTheCourt = true,
+            pre = VideoLinkAppointmentSpecification(
+              locationId = 2L,
+              startTime = referenceNow.minusSeconds(1),
+              endTime = referenceNow.plusSeconds(1)
+            ),
+            main = VideoLinkAppointmentSpecification(
+              locationId = 2L,
+              startTime = referenceTime,
+              endTime = referenceTime.plusSeconds(1)
+            )
+          )
+        )
+      }.isInstanceOf(ValidationException::class.java).hasMessage("Pre appointment start time must be in the future.")
+    }
+
+    @Test
+    fun `Validation failure - Pre appointment end time not after start time`() {
+      assertThatThrownBy {
+        service.createVideoLinkBooking(
+          VideoLinkBookingSpecification(
+            bookingId = 1L,
+            court = YORK_CC,
+            comment = "Comment",
+            madeByTheCourt = true,
+            pre = VideoLinkAppointmentSpecification(
+              locationId = 2L,
+              startTime = referenceNow.plusSeconds(1),
+              endTime = referenceNow
+            ),
+            main = VideoLinkAppointmentSpecification(
+              locationId = 2L,
+              startTime = referenceTime,
+              endTime = referenceTime.plusSeconds(1)
+            )
+          )
+        )
+      }.isInstanceOf(ValidationException::class.java).hasMessage("Pre appointment start time must precede end time.")
+    }
+
+    @Test
+    fun `Validation failure - Post appointment starts in past`() {
+      assertThatThrownBy {
+        service.createVideoLinkBooking(
+          VideoLinkBookingSpecification(
+            bookingId = 1L,
+            court = YORK_CC,
+            comment = "Comment",
+            madeByTheCourt = true,
+            post = VideoLinkAppointmentSpecification(
+              locationId = 2L,
+              startTime = referenceNow.minusSeconds(1),
+              endTime = referenceNow.plusSeconds(1)
+            ),
+            main = VideoLinkAppointmentSpecification(
+              locationId = 2L,
+              startTime = referenceTime,
+              endTime = referenceTime.plusSeconds(1)
+            )
+          )
+        )
+      }.isInstanceOf(ValidationException::class.java).hasMessage("Post appointment start time must be in the future.")
+    }
+
+    @Test
+    fun `Validation failure - Post appointment end time not after start time`() {
+      assertThatThrownBy {
+        service.createVideoLinkBooking(
+          VideoLinkBookingSpecification(
+            bookingId = 1L,
+            court = YORK_CC,
+            comment = "Comment",
+            madeByTheCourt = true,
+            post = VideoLinkAppointmentSpecification(
+              locationId = 2L,
+              startTime = referenceNow.plusSeconds(1),
+              endTime = referenceNow
+            ),
+            main = VideoLinkAppointmentSpecification(
+              locationId = 2L,
+              startTime = referenceTime,
+              endTime = referenceTime.plusSeconds(1)
+            )
+          )
+        )
+      }.isInstanceOf(ValidationException::class.java).hasMessage("Post appointment start time must precede end time.")
+    }
+
+    @Test
+    fun `Validation failure - main locationId not found`() {
+      whenever(prisonApiService.getLocation(anyLong())).thenReturn(null)
+
+      assertThatThrownBy {
+        service.createVideoLinkBooking(
+          VideoLinkBookingSpecification(
+            bookingId = 1L,
+            court = YORK_CC,
+            comment = "Comment",
+            madeByTheCourt = true,
+            main = VideoLinkAppointmentSpecification(
+              locationId = 2L,
+              startTime = referenceNow.plusSeconds(1),
+              endTime = referenceNow.plusSeconds(2)
+            )
+          )
+        )
+      }.isInstanceOf(ValidationException::class.java).hasMessage("Main locationId 2 not found in NOMIS.")
+    }
+
+    @Test
     fun `happy flow - telemetry`() {
 
-      val endTime = startTime.plusMinutes(20)
+      val endTime = referenceTime.plusMinutes(20)
 
       whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(
         Event(
@@ -187,7 +358,7 @@ class CourtServiceTest {
           madeByTheCourt = true,
           main = VideoLinkAppointmentSpecification(
             locationId = 2L,
-            startTime = startTime,
+            startTime = referenceTime,
             endTime = endTime
           )
         )
@@ -204,7 +375,7 @@ class CourtServiceTest {
           "madeByTheCourt" to "true",
           "mainAppointmentId" to "12",
           "mainId" to "12",
-          "mainStart" to startTime.toString(),
+          "mainStart" to referenceTime.toString(),
           "mainEnd" to endTime.toString(),
         ),
         null
@@ -278,18 +449,18 @@ class CourtServiceTest {
           madeByTheCourt = false,
           pre = VideoLinkAppointmentSpecification(
             locationId = 1L,
-            startTime = startTime.minusMinutes(20),
-            endTime = startTime
+            startTime = referenceTime.minusMinutes(20),
+            endTime = referenceTime
           ),
           main = VideoLinkAppointmentSpecification(
             locationId = 2L,
-            startTime = startTime,
-            endTime = startTime.plusMinutes(30)
+            startTime = referenceTime,
+            endTime = referenceTime.plusMinutes(30)
           ),
           post = VideoLinkAppointmentSpecification(
             locationId = 3L,
-            startTime = startTime.plusMinutes(30),
-            endTime = startTime.plusMinutes(50)
+            startTime = referenceTime.plusMinutes(30),
+            endTime = referenceTime.plusMinutes(50)
           )
         )
       )
@@ -321,8 +492,8 @@ class CourtServiceTest {
 
           "mainAppointmentId" to "12",
           "mainId" to "21",
-          "mainStart" to startTime.toString(),
-          "mainEnd" to startTime.plusMinutes(30).toString(),
+          "mainStart" to referenceTime.toString(),
+          "mainEnd" to referenceTime.plusMinutes(30).toString(),
 
           "preAppointmentId" to "13",
           "preId" to "20",
@@ -341,6 +512,19 @@ class CourtServiceTest {
 
   @Nested
   inner class UpdateVideoLinkBooking {
+    private val referenceTime = LocalDateTime
+      .now(clock)
+      .plusDays(8)
+      .plusHours(10)
+      .plusMinutes(30)
+
+    private val referenceNow = LocalDateTime.now(clock)
+
+    @BeforeEach
+    fun stubLocations() {
+      whenever(prisonApiService.getLocation(anyLong())).thenAnswer { locationDto(it.arguments[0] as Long) }
+    }
+
     @Test
     fun `Happy flow - update main`() {
       val service = service("")
@@ -367,8 +551,8 @@ class CourtServiceTest {
           madeByTheCourt = false,
           main = VideoLinkAppointmentSpecification(
             locationId = 99L,
-            startTime = LocalDateTime.of(2020, 10, 1, 9, 0),
-            endTime = LocalDateTime.of(2020, 10, 1, 9, 30),
+            startTime = referenceTime,
+            endTime = referenceTime.plusMinutes(30),
           )
         )
       )
@@ -379,8 +563,8 @@ class CourtServiceTest {
         CreateBookingAppointment(
           appointmentType = "VLB",
           locationId = 99L,
-          startTime = "2020-10-01T09:00",
-          endTime = "2020-10-01T09:30",
+          startTime = "2020-10-09T10:30",
+          endTime = "2020-10-09T11:00",
           comment = "New Comment"
         )
       )
@@ -399,6 +583,30 @@ class CourtServiceTest {
             )
           )
         )
+    }
+
+    /**
+     * Other validations are the same as for Create Booking, so not tested here.
+     */
+    @Test
+    fun `Validation - main appointment start time in the past`() {
+      val service = service("")
+      assertThatThrownBy {
+        service.updateVideoLinkBooking(
+          1L,
+          VideoLinkBookingUpdateSpecification(
+            comment = "New Comment",
+            madeByTheCourt = false,
+            main = VideoLinkAppointmentSpecification(
+              locationId = 99L,
+              startTime = referenceNow.minusSeconds(1),
+              endTime = referenceNow.plusSeconds(1),
+            )
+          )
+        )
+      }
+        .isInstanceOf(ValidationException::class.java)
+        .hasMessage("Main appointment start time must be in the future.")
     }
 
     @Test
@@ -443,18 +651,18 @@ class CourtServiceTest {
           madeByTheCourt = false,
           pre = VideoLinkAppointmentSpecification(
             locationId = 99L,
-            startTime = LocalDateTime.of(2020, 10, 1, 9, 0),
-            endTime = LocalDateTime.of(2020, 10, 1, 9, 30),
+            startTime = referenceTime,
+            endTime = referenceTime.plusMinutes(30),
           ),
           main = VideoLinkAppointmentSpecification(
             locationId = 98L,
-            startTime = LocalDateTime.of(2020, 10, 1, 9, 30),
-            endTime = LocalDateTime.of(2020, 10, 1, 10, 0),
+            startTime = referenceTime.plusMinutes(30),
+            endTime = referenceTime.plusMinutes(60),
           ),
           post = VideoLinkAppointmentSpecification(
             locationId = 97L,
-            startTime = LocalDateTime.of(2020, 10, 1, 10, 0),
-            endTime = LocalDateTime.of(2020, 10, 1, 10, 30),
+            startTime = referenceTime.plusMinutes(60),
+            endTime = referenceTime.plusMinutes(90),
           )
         )
       )
@@ -468,8 +676,8 @@ class CourtServiceTest {
         CreateBookingAppointment(
           appointmentType = "VLB",
           locationId = 99L,
-          startTime = "2020-10-01T09:00",
-          endTime = "2020-10-01T09:30",
+          startTime = "2020-10-09T10:30",
+          endTime = "2020-10-09T11:00",
           comment = "New Comment"
         )
       )
@@ -479,8 +687,8 @@ class CourtServiceTest {
         CreateBookingAppointment(
           appointmentType = "VLB",
           locationId = 98L,
-          startTime = "2020-10-01T09:30",
-          endTime = "2020-10-01T10:00",
+          startTime = "2020-10-09T11:00",
+          endTime = "2020-10-09T11:30",
           comment = "New Comment"
         )
       )
@@ -490,8 +698,8 @@ class CourtServiceTest {
         CreateBookingAppointment(
           appointmentType = "VLB",
           locationId = 97L,
-          startTime = "2020-10-01T10:00",
-          endTime = "2020-10-01T10:30",
+          startTime = "2020-10-09T11:30",
+          endTime = "2020-10-09T12:00",
           comment = "New Comment"
         )
       )
@@ -761,7 +969,7 @@ class CourtServiceTest {
   @Nested
   inner class GetVideoLinkBookingsForDateAndCourt {
     val service = service("")
-    val date = LocalDate.of(2020, 12, 25)
+    val date: LocalDate = LocalDate.of(2020, 12, 25)
 
     @Test
     fun `no prison appointments, no VLBs`() {
@@ -838,6 +1046,32 @@ class CourtServiceTest {
       val bookings = service.getVideoLinkBookingsForDateAndCourt(date, null)
       assertThat(bookings).isEmpty()
     }
+  }
+
+  private fun service(courts: String) = CourtService(
+    authenticationFacade,
+    prisonApiService,
+    videoLinkAppointmentRepository,
+    videoLinkBookingRepository,
+    clock,
+    telemetryClient,
+    courts
+  )
+
+  companion object {
+    fun locationDto(locationId: Long) = LocationDto(
+      locationId = locationId,
+      locationType = "VIDE",
+      agencyId = "WWI",
+      description = null,
+      parentLocationId = null,
+      currentOccupancy = null,
+      locationPrefix = null,
+      internalLocationCode = null,
+      userDescription = null,
+      locationUsage = null,
+      operationalCapacity = null
+    )
 
     fun scheduledAppointments(
       type: String,
@@ -888,13 +1122,4 @@ class CourtServiceTest {
         )
       }
   }
-
-  private fun service(courts: String) = CourtService(
-    authenticationFacade,
-    prisonApiService,
-    videoLinkAppointmentRepository,
-    videoLinkBookingRepository,
-    telemetryClient,
-    courts
-  )
 }

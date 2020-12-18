@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto;
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
@@ -237,6 +238,16 @@ public class PrisonApiService {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<ScheduledAppointmentDto>>() {})
                 .block();
+    }
+
+    public LocationDto getLocation(long locationId) {
+        return webClient.get()
+                .uri("/locations/{locationId}", locationId)
+                .retrieve()
+                .bodyToMono(LocationDto.class)
+                .onErrorResume(WebClientResponseException.NotFound.class, notFound -> Mono.empty())
+                .blockOptional()
+                .orElse(null);
     }
 }
 

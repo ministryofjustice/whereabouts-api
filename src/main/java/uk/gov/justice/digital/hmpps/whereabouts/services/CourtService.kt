@@ -18,7 +18,9 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import java.time.Clock
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.EntityNotFoundException
 
 const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
@@ -29,6 +31,7 @@ class CourtService(
   private val prisonApiService: PrisonApiService,
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
+  private val clock: Clock,
   private val telemetryClient: TelemetryClient,
   @Value("\${courts}") private val courts: String
 ) {
@@ -55,6 +58,7 @@ class CourtService(
 
   @Transactional
   fun createVideoLinkBooking(specification: VideoLinkBookingSpecification): Long {
+    specification.validate()
     val bookingId = specification.bookingId!!
     val comment = specification.comment
     val mainEvent = savePrisonAppointment(bookingId, comment, specification.main)
@@ -74,6 +78,7 @@ class CourtService(
 
   @Transactional
   fun updateVideoLinkBooking(videoBookingId: Long, specification: VideoLinkBookingUpdateSpecification) {
+    specification.validate()
     val booking = videoLinkBookingRepository
       .findById(videoBookingId)
       .orElseThrow {
@@ -87,7 +92,7 @@ class CourtService(
     val bookingId = booking.main.bookingId
     val comment = specification.comment
 
-    val mainEvent = specification.main.let { savePrisonAppointment(bookingId, comment, it) }
+    val mainEvent = savePrisonAppointment(bookingId, comment, specification.main)
     val preEvent = specification.pre?.let { savePrisonAppointment(bookingId, comment, it) }
     val postEvent = specification.post?.let { savePrisonAppointment(bookingId, comment, it) }
 
@@ -154,7 +159,7 @@ class CourtService(
       EntityNotFoundException("Video link booking with id $videoBookingId not found")
     }
     val mainEvent = prisonApiService.getPrisonAppointment(booking.main.appointmentId)
-      ?: throw EntityNotFoundException("main appointment with id ${booking.main.appointmentId} not found in nomis")
+      ?: throw EntityNotFoundException("main appointment with id ${booking.main.appointmentId} not found in NOMIS")
     val preEvent = booking.pre?.let { prisonApiService.getPrisonAppointment(it.appointmentId) }
     val postEvent = booking.post?.let { prisonApiService.getPrisonAppointment(it.appointmentId) }
 
@@ -235,6 +240,30 @@ class CourtService(
         endTime = it.endTime
       )
     }
+
+  private fun VideoLinkBookingSpecification.validate() {
+    main.validate("Main")
+    pre?.validate("Pre")
+    post?.validate("Post")
+  }
+
+  private fun VideoLinkBookingUpdateSpecification.validate() {
+    main.validate("Main")
+    pre?.validate("Pre")
+    post?.validate("Post")
+  }
+
+  private fun VideoLinkAppointmentSpecification.validate(prefix: String) {
+    if (startTime.isBefore(LocalDateTime.now(clock))) {
+      throw ValidationException("$prefix appointment start time must be in the future.")
+    }
+    if (!startTime.isBefore(endTime)) {
+      throw ValidationException("$prefix appointment start time must precede end time.")
+    }
+    locationId?.let {
+      prisonApiService.getLocation(it) ?: throw ValidationException("$prefix locationId $it not found in NOMIS.")
+    }
+  }
 
   private fun trackVideoLinkBookingCreated(
     booking: VideoLinkBooking,
