@@ -204,9 +204,9 @@ class CourtService(
   }
 
   @Transactional(readOnly = true)
-  fun getVideoLinkBookingsForDateAndCourt(date: LocalDate, court: String?): List<VideoLinkBookingResponse> {
+  fun getVideoLinkBookingsForPrisonAndDateAndCourt(agencyId: String, date: LocalDate, court: String?): List<VideoLinkBookingResponse> {
     val scheduledAppointments = prisonApiService
-      .getScheduledAppointmentsByAgencyAndDate("WWI", date)
+      .getScheduledAppointmentsByAgencyAndDate(agencyId, date)
       .filter { it.appointmentTypeCode == "VLB" }
 
     val scheduledAppointmentIds = scheduledAppointments.map { it.id }
