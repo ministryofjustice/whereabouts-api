@@ -72,9 +72,10 @@ class CourtController(
     videoBookingId: Long
   ) = courtService.getVideoLinkBooking(videoBookingId)
 
+  @Deprecated("This only retrieves bookings for Wandsworth, Move to requesting bookings for a specific prison")
   @GetMapping(path = ["/video-link-bookings/date/{date}"], produces = [MediaType.APPLICATION_JSON_VALUE])
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("Get all video link bookings for the specified date, optionally filtering by court.")
+  @ApiOperation("Get all video link bookings at Wandsworth for the specified date, optionally filtering by court.")
   fun getVideoLinkBookingsByDateAndCourt(
     @ApiParam(value = "Return video link bookings for this date only. ISO-8601 date format")
     @PathVariable(name = "date")
@@ -89,7 +90,31 @@ class CourtController(
     @RequestParam(name = "court", required = false)
     court: String?
   ): List<VideoLinkBookingResponse> {
-    return courtService.getVideoLinkBookingsForDateAndCourt(date, court)
+    return courtService.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, court)
+  }
+
+  @GetMapping(path = ["/video-link-bookings/prison/{agencyId}/date/{date}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+  @ResponseStatus(HttpStatus.OK)
+  @ApiOperation("Get all video link bookings for the specified date and prison, optionally filtering by court.")
+  fun getVideoLinkBookingsByPrisonDateAndCourt(
+    @ApiParam(value = "Return video link bookings for this prison only")
+    @PathVariable(name = "agencyId")
+    agencyId: String,
+
+    @ApiParam(value = "Return video link bookings for this date only. ISO-8601 date format")
+    @PathVariable(name = "date")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    date: LocalDate,
+
+    @ApiParam(
+      value = "The identifier for a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned.",
+      required = false,
+      example = "Wimbledon"
+    )
+    @RequestParam(name = "court", required = false)
+    court: String?
+  ): List<VideoLinkBookingResponse> {
+    return courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(agencyId, date, court)
   }
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings"])

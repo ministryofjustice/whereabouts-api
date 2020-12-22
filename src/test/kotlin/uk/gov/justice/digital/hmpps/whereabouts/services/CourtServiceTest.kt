@@ -976,7 +976,7 @@ class CourtServiceTest {
       whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any())).thenReturn(listOf())
       whenever(videoLinkBookingRepository.findByMainAppointmentIds(any())).thenReturn(listOf())
 
-      val bookings = service.getVideoLinkBookingsForDateAndCourt(date, null)
+      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null)
       assertThat(bookings).isEmpty()
       verify(prisonApiService).getScheduledAppointmentsByAgencyAndDate("WWI", date)
     }
@@ -992,7 +992,7 @@ class CourtServiceTest {
       whenever(videoLinkBookingRepository.findByMainAppointmentIds(any()))
         .thenReturn(videoLinkBookings("Wimbledon", 1, 10))
 
-      val bookings = service.getVideoLinkBookingsForDateAndCourt(date, null)
+      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null)
       assertThat(bookings)
         .extracting("main.locationId", "pre.locationId", "post.locationId")
         .containsExactlyInAnyOrder(
@@ -1031,7 +1031,7 @@ class CourtServiceTest {
             videoLinkBookings("Windsor", 6, 10)
         )
 
-      val bookings = service.getVideoLinkBookingsForDateAndCourt(date, "Wimbledon")
+      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, "Wimbledon")
       assertThat(bookings)
         .extracting("main.locationId").containsExactlyInAnyOrder(1001L, 1002L, 1003L, 1004L, 1005L)
     }
@@ -1043,7 +1043,7 @@ class CourtServiceTest {
       whenever(videoLinkBookingRepository.findByMainAppointmentIds(any()))
         .thenReturn(videoLinkBookings("Wimbledon", 1, 10))
 
-      val bookings = service.getVideoLinkBookingsForDateAndCourt(date, null)
+      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null)
       assertThat(bookings).isEmpty()
     }
   }
