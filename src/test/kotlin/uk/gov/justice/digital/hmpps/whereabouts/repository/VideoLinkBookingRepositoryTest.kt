@@ -61,12 +61,12 @@ class VideoLinkBookingRepositoryTest {
     TestTransaction.flagForCommit()
     TestTransaction.end()
 
-    val persistentBooking = repository.findById(id)
-    assertThat(persistentBooking).isNotEmpty
-    val main = persistentBooking.get().main
-    assertThat(main).isNotNull
-    assertThat(main.id).isNotNull
-    assertThat(main).isEqualToIgnoringGivenFields(transientBooking.main, "id")
+    val persistentBooking = repository.getOne(id)
+
+    assertThat(persistentBooking)
+      .usingRecursiveComparison()
+      .ignoringFields("id", "main.id")
+      .isEqualTo(transientBooking)
   }
 
   @Test
@@ -105,12 +105,12 @@ class VideoLinkBookingRepositoryTest {
     TestTransaction.flagForCommit()
     TestTransaction.end()
 
-    val persistentBookingOptional = repository.findById(id)
-    assertThat(persistentBookingOptional).isNotEmpty
+    val persistentBooking = repository.getOne(id)
 
-    val persistentBooking = persistentBookingOptional.get()
-
-    assertThat(persistentBooking).isEqualToIgnoringGivenFields(transientBooking, "id")
+    assertThat(persistentBooking)
+      .usingRecursiveComparison()
+      .ignoringFields("id", "pre.id", "main.id", "post.id")
+      .isEqualTo(transientBooking)
 
     val hearingTypes = jdbcTemplate.queryForList("select hearing_type from video_link_appointment", String::class.java)
     assertThat(hearingTypes).contains("PRE", "MAIN", "POST")
@@ -174,6 +174,121 @@ class VideoLinkBookingRepositoryTest {
     assertThat(repository.findByMainAppointmentIds((-999L..1000L step 2).map { it }))
       .hasSize(5)
       .extracting("main.appointmentId").containsExactlyInAnyOrder(1L, 3L, 5L, 7L, 9L)
+  }
+
+  @Test
+  fun `Removing appointments from a booking should delete the appointments`() {
+    deleteAll()
+    val id = repository.save(
+      VideoLinkBooking(
+        main = VideoLinkAppointment(
+          bookingId = 1,
+          appointmentId = 4,
+          court = "A Court",
+          hearingType = HearingType.MAIN,
+          madeByTheCourt = true
+        ),
+        pre = VideoLinkAppointment(
+          bookingId = 1,
+          appointmentId = 12,
+          court = "A Court",
+          hearingType = HearingType.PRE,
+          madeByTheCourt = true
+        ),
+        post = VideoLinkAppointment(
+          bookingId = 1,
+          appointmentId = 22,
+          court = "A Court",
+          hearingType = HearingType.POST,
+          madeByTheCourt = true
+        ),
+      )
+    ).id!!
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+
+    val booking = repository.getOne(id)
+
+    booking.pre = null
+    booking.post = null
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+    assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(1)
+  }
+
+  @Test
+  fun `Replacing appointments should delete old and persist new`() {
+    deleteAll()
+
+    val id = repository.save(
+      VideoLinkBooking(
+        main = VideoLinkAppointment(
+          bookingId = 1,
+          appointmentId = 4,
+          court = "A Court",
+          hearingType = HearingType.MAIN,
+          madeByTheCourt = true
+        ),
+        pre = VideoLinkAppointment(
+          bookingId = 1,
+          appointmentId = 12,
+          court = "A Court",
+          hearingType = HearingType.PRE,
+          madeByTheCourt = true
+        ),
+        post = VideoLinkAppointment(
+          bookingId = 1,
+          appointmentId = 22,
+          court = "A Court",
+          hearingType = HearingType.POST,
+          madeByTheCourt = true
+        ),
+      )
+    ).id!!
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+
+    val booking = repository.getOne(id)
+
+    booking.main = VideoLinkAppointment(
+      bookingId = 1,
+      appointmentId = 100,
+      court = "A Court",
+      hearingType = HearingType.MAIN,
+      madeByTheCourt = false
+    )
+
+    booking.pre = VideoLinkAppointment(
+      bookingId = 1,
+      appointmentId = 101,
+      court = "A Court",
+      hearingType = HearingType.PRE,
+      madeByTheCourt = false
+    )
+
+    booking.post = VideoLinkAppointment(
+      bookingId = 1,
+      appointmentId = 102,
+      court = "A Court",
+      hearingType = HearingType.POST,
+      madeByTheCourt = false
+    )
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+    assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(3)
+
+    val updatedBooking = repository.getOne(id)
+    assertThat(updatedBooking.main.appointmentId).isEqualTo(100)
+    assertThat(updatedBooking.pre?.appointmentId).isEqualTo(101)
+    assertThat(updatedBooking.post?.appointmentId).isEqualTo(102)
   }
 
   fun videoLinkBookings(): List<VideoLinkBooking> =

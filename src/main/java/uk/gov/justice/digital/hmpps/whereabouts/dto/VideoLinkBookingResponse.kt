@@ -1,19 +1,21 @@
 package uk.gov.justice.digital.hmpps.whereabouts.dto
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import java.time.LocalDateTime
 
 @ApiModel(description = "Video Link Booking details")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class VideoLinkBookingResponse(
 
-  @ApiModelProperty(value = "Video Link booking Id", example = "1")
+  @ApiModelProperty(value = "Video Link booking Id", example = "1", required = true)
   val videoLinkBookingId: Long,
 
-  @ApiModelProperty(value = "Offender booking Id", example = "1")
+  @ApiModelProperty(value = "Offender booking Id", example = "1", required = true)
   val bookingId: Long,
 
-  @ApiModelProperty(value = "Agency Id", example = "WWI")
+  @ApiModelProperty(value = "Agency Id", example = "WWI", required = true)
   val agencyId: String,
 
   @ApiModelProperty(

@@ -49,6 +49,7 @@ public class ResourceServerConfiguration extends WebSecurityConfigurerAdapter {
                         auth.antMatchers("/webjars/**", "/favicon.ico", "/csrf",
                                 "/health/**", "/info", "/ping", "/h2-console/**",
                                 "/v2/api-docs",
+                                "/v3/api-docs",
                                 "/swagger-ui/**", "/swagger-resources", "/swagger-resources/configuration/ui",
                                 "/swagger-resources/configuration/security")
                                 .permitAll().anyRequest().authenticated()
@@ -66,7 +67,7 @@ public class ResourceServerConfiguration extends WebSecurityConfigurerAdapter {
                 getVersion(), "", contactInfo(), "", "",
                 Collections.emptyList());
 
-        final var docket = new Docket(DocumentationType.SWAGGER_2)
+        final var docket = new Docket(DocumentationType.OAS_30)
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo)
                 .select()

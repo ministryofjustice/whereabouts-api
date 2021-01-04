@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
@@ -17,7 +18,9 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import java.time.Clock
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.EntityNotFoundException
 
 const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
@@ -28,6 +31,7 @@ class CourtService(
   private val prisonApiService: PrisonApiService,
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
+  private val clock: Clock,
   private val telemetryClient: TelemetryClient,
   @Value("\${courts}") private val courts: String
 ) {
@@ -54,9 +58,12 @@ class CourtService(
 
   @Transactional
   fun createVideoLinkBooking(specification: VideoLinkBookingSpecification): Long {
-    val mainEvent = savePrisonAppointment(specification, specification.main)
-    val preEvent = specification.pre?.let { savePrisonAppointment(specification, it) }
-    val postEvent = specification.post?.let { savePrisonAppointment(specification, it) }
+    specification.validate()
+    val bookingId = specification.bookingId!!
+    val comment = specification.comment
+    val mainEvent = savePrisonAppointment(bookingId, comment, specification.main)
+    val preEvent = specification.pre?.let { savePrisonAppointment(bookingId, comment, it) }
+    val postEvent = specification.post?.let { savePrisonAppointment(bookingId, comment, it) }
 
     val persistentBooking = videoLinkBookingRepository.save(
       VideoLinkBooking(
@@ -69,51 +76,71 @@ class CourtService(
     return persistentBooking.id!!
   }
 
-  private fun trackVideoLinkBookingCreated(
-    booking: VideoLinkBooking,
-    specification: VideoLinkBookingSpecification,
-    agencyId: String
-  ) {
-    val properties = mutableMapOf(
-      "id" to (booking.id?.toString()),
-      "bookingId" to booking.main.bookingId.toString(),
-      "court" to booking.main.court,
-      "user" to authenticationFacade.currentUsername,
-      "agencyId" to agencyId,
-      "madeByTheCourt" to booking.main.madeByTheCourt.toString(),
+  @Transactional
+  fun updateVideoLinkBooking(videoBookingId: Long, specification: VideoLinkBookingUpdateSpecification) {
+    specification.validate()
+    val booking = videoLinkBookingRepository
+      .findById(videoBookingId)
+      .orElseThrow {
+        EntityNotFoundException("Video link booking with id $videoBookingId not found")
+      }
+
+    booking.pre?.let { prisonApiService.deleteAppointment(it.appointmentId) }
+    booking.main.let { prisonApiService.deleteAppointment(it.appointmentId) }
+    booking.post?.let { prisonApiService.deleteAppointment(it.appointmentId) }
+
+    val bookingId = booking.main.bookingId
+    val comment = specification.comment
+
+    val mainEvent = savePrisonAppointment(bookingId, comment, specification.main)
+    val preEvent = specification.pre?.let { savePrisonAppointment(bookingId, comment, it) }
+    val postEvent = specification.post?.let { savePrisonAppointment(bookingId, comment, it) }
+
+    val court = booking.main.court
+
+    booking.main = VideoLinkAppointment(
+      bookingId = bookingId,
+      appointmentId = mainEvent.eventId,
+      court = court,
+      hearingType = HearingType.MAIN,
+      madeByTheCourt = specification.madeByTheCourt
     )
 
-    properties.putAll(appointmentDetail(booking.main, specification.main))
-    booking.pre?.also { properties.putAll(appointmentDetail(it, specification.pre!!)) }
-    booking.post?.also { properties.putAll(appointmentDetail(it, specification.post!!)) }
+    booking.pre = preEvent?.let {
+      VideoLinkAppointment(
+        bookingId = bookingId,
+        appointmentId = it.eventId,
+        court = court,
+        hearingType = HearingType.PRE,
+        madeByTheCourt = specification.madeByTheCourt
+      )
+    }
 
-    telemetryClient.trackEvent("VideoLinkBookingCreated", properties, null)
-  }
+    booking.post = postEvent?.let {
+      VideoLinkAppointment(
+        bookingId = bookingId,
+        appointmentId = it.eventId,
+        court = court,
+        hearingType = HearingType.POST,
+        madeByTheCourt = specification.madeByTheCourt
+      )
+    }
 
-  private fun appointmentDetail(
-    appointment: VideoLinkAppointment,
-    specification: VideoLinkAppointmentSpecification
-  ): Map<String, String> {
-    val prefix = appointment.hearingType.name.toLowerCase()
-    return mapOf(
-      "${prefix}AppointmentId" to appointment.appointmentId.toString(),
-      "${prefix}Id" to appointment.id.toString(),
-      "${prefix}Start" to specification.startTime.toString(),
-      "${prefix}End" to specification.endTime.toString(),
-    )
+    trackVideoLinkBookingUpdated(booking)
   }
 
   private fun savePrisonAppointment(
-    bookingSpec: VideoLinkBookingSpecification,
+    bookingId: Long,
+    comment: String?,
     appointmentSpec: VideoLinkAppointmentSpecification
   ): Event = prisonApiService.postAppointment(
-    bookingSpec.bookingId!!,
+    bookingId,
     CreateBookingAppointment(
       appointmentType = VIDEO_LINK_APPOINTMENT_TYPE,
       locationId = appointmentSpec.locationId!!,
       startTime = appointmentSpec.startTime.toString(),
       endTime = appointmentSpec.endTime.toString(),
-      comment = bookingSpec.comment
+      comment = comment
     )
   )
 
@@ -132,7 +159,7 @@ class CourtService(
       EntityNotFoundException("Video link booking with id $videoBookingId not found")
     }
     val mainEvent = prisonApiService.getPrisonAppointment(booking.main.appointmentId)
-      ?: throw EntityNotFoundException("main appointment with id ${booking.main.appointmentId} not found in nomis")
+      ?: throw EntityNotFoundException("main appointment with id ${booking.main.appointmentId} not found in NOMIS")
     val preEvent = booking.pre?.let { prisonApiService.getPrisonAppointment(it.appointmentId) }
     val postEvent = booking.post?.let { prisonApiService.getPrisonAppointment(it.appointmentId) }
 
@@ -177,9 +204,9 @@ class CourtService(
   }
 
   @Transactional(readOnly = true)
-  fun getVideoLinkBookingsForDateAndCourt(date: LocalDate, court: String?): List<VideoLinkBookingResponse> {
+  fun getVideoLinkBookingsForPrisonAndDateAndCourt(agencyId: String, date: LocalDate, court: String?): List<VideoLinkBookingResponse> {
     val scheduledAppointments = prisonApiService
-      .getScheduledAppointmentsByAgencyAndDate("WWI", date)
+      .getScheduledAppointmentsByAgencyAndDate(agencyId, date)
       .filter { it.appointmentTypeCode == "VLB" }
 
     val scheduledAppointmentIds = scheduledAppointments.map { it.id }
@@ -214,9 +241,60 @@ class CourtService(
       )
     }
 
-  private fun trackVideoLinkBookingDeleted(
-    booking: VideoLinkBooking
+  private fun VideoLinkBookingSpecification.validate() {
+    main.validate("Main")
+    pre?.validate("Pre")
+    post?.validate("Post")
+  }
+
+  private fun VideoLinkBookingUpdateSpecification.validate() {
+    main.validate("Main")
+    pre?.validate("Pre")
+    post?.validate("Post")
+  }
+
+  private fun VideoLinkAppointmentSpecification.validate(prefix: String) {
+    if (startTime.isBefore(LocalDateTime.now(clock))) {
+      throw ValidationException("$prefix appointment start time must be in the future.")
+    }
+    if (!startTime.isBefore(endTime)) {
+      throw ValidationException("$prefix appointment start time must precede end time.")
+    }
+    locationId?.let {
+      prisonApiService.getLocation(it) ?: throw ValidationException("$prefix locationId $it not found in NOMIS.")
+    }
+  }
+
+  private fun trackVideoLinkBookingCreated(
+    booking: VideoLinkBooking,
+    specification: VideoLinkBookingSpecification,
+    agencyId: String
   ) {
+    val properties = mutableMapOf(
+      "id" to (booking.id?.toString()),
+      "bookingId" to booking.main.bookingId.toString(),
+      "court" to booking.main.court,
+      "user" to authenticationFacade.currentUsername,
+      "agencyId" to agencyId,
+      "madeByTheCourt" to booking.main.madeByTheCourt.toString(),
+    )
+
+    properties.putAll(appointmentDetail(booking.main, specification.main))
+    booking.pre?.also { properties.putAll(appointmentDetail(it, specification.pre!!)) }
+    booking.post?.also { properties.putAll(appointmentDetail(it, specification.post!!)) }
+
+    telemetryClient.trackEvent("VideoLinkBookingCreated", properties, null)
+  }
+
+  private fun trackVideoLinkBookingUpdated(booking: VideoLinkBooking) {
+    telemetryClient.trackEvent("VideoLinkBookingUpdated", telemetryProperties(booking), null)
+  }
+
+  private fun trackVideoLinkBookingDeleted(booking: VideoLinkBooking) {
+    telemetryClient.trackEvent("VideoLinkBookingDeleted", telemetryProperties(booking), null)
+  }
+
+  private fun telemetryProperties(booking: VideoLinkBooking): MutableMap<String, String?> {
     val properties = mutableMapOf(
       "id" to (booking.id?.toString()),
       "bookingId" to booking.main.bookingId.toString(),
@@ -224,16 +302,26 @@ class CourtService(
       "user" to authenticationFacade.currentUsername,
     )
 
-    properties.putAll(deletedAppointmentDetail(booking.main))
-    booking.pre?.also { properties.putAll(deletedAppointmentDetail(it)) }
-    booking.post?.also { properties.putAll(deletedAppointmentDetail(it)) }
-
-    telemetryClient.trackEvent("VideoLinkBookingDeleted", properties, null)
+    properties.putAll(appointmentDetail(booking.main))
+    booking.pre?.also { properties.putAll(appointmentDetail(it)) }
+    booking.post?.also { properties.putAll(appointmentDetail(it)) }
+    return properties
   }
 
-  private fun deletedAppointmentDetail(
+  private fun appointmentDetail(
     appointment: VideoLinkAppointment,
+    specification: VideoLinkAppointmentSpecification
   ): Map<String, String> {
+    val prefix = appointment.hearingType.name.toLowerCase()
+    return mapOf(
+      "${prefix}AppointmentId" to appointment.appointmentId.toString(),
+      "${prefix}Id" to appointment.id.toString(),
+      "${prefix}Start" to specification.startTime.toString(),
+      "${prefix}End" to specification.endTime.toString(),
+    )
+  }
+
+  private fun appointmentDetail(appointment: VideoLinkAppointment): Map<String, String> {
     val prefix = appointment.hearingType.name.toLowerCase()
     return mapOf(
       "${prefix}AppointmentId" to appointment.appointmentId.toString(),
