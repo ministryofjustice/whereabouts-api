@@ -77,7 +77,3 @@ management:
 sqs:
   provider: aws
   endpoint.region: eu-west-2
-
-
-  config:
-    use-legacy-processing: true
