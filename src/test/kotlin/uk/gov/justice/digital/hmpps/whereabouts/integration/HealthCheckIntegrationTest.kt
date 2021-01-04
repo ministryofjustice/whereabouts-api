@@ -112,7 +112,7 @@ class HealthCheckIntegrationTest : IntegrationTest() {
       .expectStatus().is5xxServerError
       .expectBody()
       .jsonPath("$.components.prisonApiHealth.details.error")
-      .isEqualTo("java.lang.IllegalStateException: Timeout on blocking read for 1000 MILLISECONDS")
+      .isEqualTo("java.lang.IllegalStateException: Timeout on blocking read for 1000000000 NANOSECONDS")
       .jsonPath("$.components.OAuthApiHealth.details.HttpStatus").isEqualTo("OK")
       .jsonPath("$.components.caseNotesApiHealth.details.HttpStatus").isEqualTo("OK")
       .jsonPath("$.status").isEqualTo("DOWN")
