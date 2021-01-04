@@ -1,12 +1,7 @@
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.2"
-<<<<<<< HEAD
   kotlin("plugin.spring") version "1.4.21"
   kotlin("plugin.jpa") version "1.4.21"
-=======
-  kotlin("plugin.spring") version "1.4.10"
-  kotlin("plugin.jpa") version "1.4.10"
->>>>>>> 26ebea9... NN-3083 use latest dps plugin
 }
 
 configurations {
@@ -16,14 +11,9 @@ configurations {
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-<<<<<<< HEAD
   annotationProcessor("org.projectlombok:lombok:1.18.16")
 
   compileOnly("org.projectlombok:lombok:1.18.16")
-=======
-  annotationProcessor("org.projectlombok:lombok:1.18.12")
-  compileOnly("org.projectlombok:lombok:1.18.12")
->>>>>>> 26ebea9... NN-3083 use latest dps plugin
 
   runtimeOnly("com.h2database:h2")
   runtimeOnly("org.flywaydb:flyway-core")
