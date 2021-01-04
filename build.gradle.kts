@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.2"
   kotlin("plugin.spring") version "1.4.21"
   kotlin("plugin.jpa") version "1.4.21"
 }
@@ -31,22 +31,22 @@ dependencies {
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
-  implementation("com.sun.xml.bind:jaxb-impl:3.0.0")
-  implementation("com.sun.xml.bind:jaxb-core:3.0.0")
+  implementation("com.sun.xml.bind:jaxb-impl:3.0.0-M4")
+  implementation("com.sun.xml.bind:jaxb-core:3.0.0-M4")
   implementation("javax.activation:activation:1.1.1")
   implementation("javax.transaction:javax.transaction-api:1.3")
-  implementation("javax.validation:validation-api")
+  implementation("javax.validation:validation-api:2.0.1.Final")
 
   implementation("io.springfox:springfox-boot-starter:3.0.0")
 
-  implementation("net.sf.ehcache:ehcache")
-  implementation("org.apache.commons:commons-lang3")
+  implementation("net.sf.ehcache:ehcache:2.10.6")
+  implementation("org.apache.commons:commons-lang3:3.11")
   implementation("org.apache.commons:commons-text:1.9")
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.2")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.2")
   implementation("com.pauldijou:jwt-core_2.11:4.3.0")
-  implementation("com.google.code.gson:gson")
-  implementation("com.google.guava:guava")
+  implementation("com.google.code.gson:gson:2.8.6")
+  implementation("com.google.guava:guava:29.0-jre")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
 
   implementation("org.springframework:spring-jms")
