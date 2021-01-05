@@ -4,6 +4,7 @@ import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -1045,6 +1046,80 @@ class CourtServiceTest {
 
       val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null)
       assertThat(bookings).isEmpty()
+    }
+  }
+
+  @Nested
+  inner class UpdateVideoLinkBookingComment {
+
+    @Test
+    fun `Happy flow - Pre, main and post appointments`() {
+      val service = service("")
+      val newComment = "New comment"
+
+      whenever(videoLinkBookingRepository.findById(1L))
+        .thenReturn(
+          Optional.of(
+            VideoLinkBooking(
+              id = 1L,
+              pre = VideoLinkAppointment(
+                id = 100L,
+                appointmentId = 10L,
+                bookingId = 999L,
+                hearingType = HearingType.PRE,
+                court = "The Court"
+              ),
+              main = VideoLinkAppointment(
+                id = 101L,
+                appointmentId = 11L,
+                bookingId = 999L,
+                hearingType = HearingType.MAIN,
+                court = "The Court"
+              ),
+              post = VideoLinkAppointment(
+                id = 102L,
+                appointmentId = 12L,
+                bookingId = 999L,
+                hearingType = HearingType.POST,
+                court = "The Court"
+              ),
+            )
+          )
+        )
+
+      service.updateVideoLinkBookingComment(1L, newComment)
+
+      verify(prisonApiService).updateAppointmentComment(10L, newComment)
+      verify(prisonApiService).updateAppointmentComment(11L, newComment)
+      verify(prisonApiService).updateAppointmentComment(12L, newComment)
+      verifyNoMoreInteractions(prisonApiService)
+    }
+
+    @Test
+    fun `Happy flow - main appointment only, no comment`() {
+      val service = service("")
+      val newComment = ""
+
+      whenever(videoLinkBookingRepository.findById(1L))
+        .thenReturn(
+          Optional.of(
+            VideoLinkBooking(
+              id = 1L,
+              main = VideoLinkAppointment(
+                id = 101L,
+                appointmentId = 11L,
+                bookingId = 999L,
+                hearingType = HearingType.MAIN,
+                court = "The Court"
+              ),
+            )
+          )
+        )
+
+      service.updateVideoLinkBookingComment(1L, newComment)
+
+      verify(prisonApiService).updateAppointmentComment(11L, newComment)
+      verifyNoMoreInteractions(prisonApiService)
     }
   }
 

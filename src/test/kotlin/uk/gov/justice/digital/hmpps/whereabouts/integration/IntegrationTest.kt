@@ -33,7 +33,7 @@ abstract class IntegrationTest {
   lateinit var gson: Gson
 
   @Value("\${token}")
-  private val token: String? = null
+  protected val token: String? = null
 
   companion object {
     @JvmField
@@ -93,7 +93,7 @@ abstract class IntegrationTest {
   internal fun setHeaders(): (HttpHeaders) -> Unit {
     return {
       it.setBearerAuth(token!!)
-      it.setContentType(MediaType.APPLICATION_JSON)
+      it.contentType = MediaType.APPLICATION_JSON
     }
   }
 
