@@ -1,6 +1,10 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
-import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.absent
+import com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
@@ -46,7 +50,7 @@ class PrisonApiServiceTest {
     prisonApiMockServer.stubDeleteAppointment(appointmentId, 200)
     prisonApiService.deleteAppointment(appointmentId)
     prisonApiMockServer.verify(
-      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/$appointmentId"))
+      deleteRequestedFor(urlEqualTo("/api/appointments/$appointmentId"))
     )
   }
 
@@ -56,7 +60,7 @@ class PrisonApiServiceTest {
     prisonApiMockServer.stubDeleteAppointment(appointmentId, 404)
     prisonApiService.deleteAppointment(appointmentId)
     prisonApiMockServer.verify(
-      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/$appointmentId"))
+      deleteRequestedFor(urlEqualTo("/api/appointments/$appointmentId"))
     )
   }
 
@@ -68,7 +72,33 @@ class PrisonApiServiceTest {
       prisonApiService.deleteAppointment(appointmentId)
     }
     prisonApiMockServer.verify(
-      WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/$appointmentId"))
+      deleteRequestedFor(urlEqualTo("/api/appointments/$appointmentId"))
+    )
+  }
+
+  @Test
+  fun `update appointment comment - main flow`() {
+    val appointmentId = 100L
+    val comment = "New comment"
+
+    prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
+    prisonApiService.updateAppointmentComment(appointmentId, comment)
+    prisonApiMockServer.verify(
+      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
+        .withRequestBody(equalTo(comment))
+    )
+  }
+
+  @Test
+  fun `update appointment comment - empty comment`() {
+    val appointmentId = 100L
+    val comment = ""
+
+    prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
+    prisonApiService.updateAppointmentComment(appointmentId, comment)
+    prisonApiMockServer.verify(
+      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
+        .withRequestBody(absent())
     )
   }
 

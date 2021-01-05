@@ -93,7 +93,10 @@ class CourtController(
     return courtService.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, court)
   }
 
-  @GetMapping(path = ["/video-link-bookings/prison/{agencyId}/date/{date}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+  @GetMapping(
+    path = ["/video-link-bookings/prison/{agencyId}/date/{date}"],
+    produces = [MediaType.APPLICATION_JSON_VALUE]
+  )
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation("Get all video link bookings for the specified date and prison, optionally filtering by court.")
   fun getVideoLinkBookingsByPrisonDateAndCourt(
@@ -141,6 +144,12 @@ class CourtController(
     videoLinkBookingUpdateSpecification: VideoLinkBookingUpdateSpecification?
   ): ResponseEntity<Void> {
     courtService.updateVideoLinkBooking(videoBookingId!!, videoLinkBookingUpdateSpecification!!)
+    /**
+     * The Open API implementation used to document this resource contains a bug which manifests
+     * when a PUT operation has a Unit return type. For that reason this method returns a ResponseEntity<Void>.
+     * When bug is fixed the following line should be removed along with the return type of this method
+     * so that it reverts to an implicit type of :Unit
+     */
     return ResponseEntity.noContent().build()
   }
 
@@ -158,5 +167,29 @@ class CourtController(
   @ApiOperation(value = "Create Video Link Bookings for dangling Video Link Appointments")
   fun linkDanglingAppointments(@RequestBody chunkSize: Int?) {
     appointmentLinker.linkAppointments(chunkSize)
+  }
+
+  @PutMapping(
+    path = ["/video-link-bookings/{videoLinkBookingId}/comment"],
+    consumes = [MediaType.TEXT_PLAIN_VALUE]
+  )
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @ApiOperation(value = "Update the comment for a Video Link Booking")
+  fun updateVideoLinkBookingComment(
+    @ApiParam(value = "Video link booking id", required = true)
+    @PathVariable("videoLinkBookingId")
+    videoLinkBookingId: Long,
+
+    @RequestBody
+    comment: String?
+  ): ResponseEntity<Void> {
+    courtService.updateVideoLinkBookingComment(videoLinkBookingId, comment)
+    /**
+     * The Open API implementation used to document this resource contains a bug which manifests
+     * when a PUT operation has a Unit return type. For that reason this method returns a ResponseEntity<Void>.
+     * When bug is fixed the following line should be removed along with the return type of this method
+     * so that it reverts to an implicit type of :Unit
+     */
+    return ResponseEntity.noContent().build()
   }
 }

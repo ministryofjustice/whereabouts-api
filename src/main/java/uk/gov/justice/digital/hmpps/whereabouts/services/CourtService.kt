@@ -204,7 +204,11 @@ class CourtService(
   }
 
   @Transactional(readOnly = true)
-  fun getVideoLinkBookingsForPrisonAndDateAndCourt(agencyId: String, date: LocalDate, court: String?): List<VideoLinkBookingResponse> {
+  fun getVideoLinkBookingsForPrisonAndDateAndCourt(
+    agencyId: String,
+    date: LocalDate,
+    court: String?
+  ): List<VideoLinkBookingResponse> {
     val scheduledAppointments = prisonApiService
       .getScheduledAppointmentsByAgencyAndDate(agencyId, date)
       .filter { it.appointmentTypeCode == "VLB" }
@@ -230,6 +234,15 @@ class CourtService(
           post = toVideoLinkAppointmentDto(scheduledAppointmentsById[b.post?.appointmentId])
         )
       }
+  }
+
+  fun updateVideoLinkBookingComment(videoLinkBookingId: Long, comment: String?) {
+    val booking = videoLinkBookingRepository.findById(videoLinkBookingId).orElseThrow {
+      EntityNotFoundException("Video link booking with id $videoLinkBookingId not found")
+    }
+    booking.main.apply { prisonApiService.updateAppointmentComment(appointmentId, comment) }
+    booking.pre?.apply { prisonApiService.updateAppointmentComment(appointmentId, comment) }
+    booking.post?.apply { prisonApiService.updateAppointmentComment(appointmentId, comment) }
   }
 
   private fun toVideoLinkAppointmentDto(scheduledAppointment: ScheduledAppointmentDto?) =

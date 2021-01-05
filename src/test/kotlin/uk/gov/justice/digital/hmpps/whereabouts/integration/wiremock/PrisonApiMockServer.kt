@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
+import wiremock.org.eclipse.jetty.http.HttpStatus
 import java.time.LocalDate
 
 class PrisonApiMockServer : WireMockServer(8999) {
@@ -53,6 +54,17 @@ class PrisonApiMockServer : WireMockServer(8999) {
         .willReturn(
           aResponse()
             .withStatus(status)
+        )
+    )
+  }
+
+  fun stubUpdateAppointmentComment(appointmentId: Long, status: Int = HttpStatus.NO_CONTENT_204) {
+    val updateAppointmentUrl = "/api/appointments/$appointmentId/comment"
+
+    stubFor(
+      put(urlPathEqualTo(updateAppointmentUrl))
+        .willReturn(
+          aResponse().withStatus(status)
         )
     )
   }
