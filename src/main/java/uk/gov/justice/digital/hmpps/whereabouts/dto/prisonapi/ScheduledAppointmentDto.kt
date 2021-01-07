@@ -8,5 +8,5 @@ data class ScheduledAppointmentDto(
   val locationId: Long,
   val appointmentTypeCode: String,
   val startTime: LocalDateTime,
-  val endTime: LocalDateTime,
+  val endTime: LocalDateTime?,
 )
