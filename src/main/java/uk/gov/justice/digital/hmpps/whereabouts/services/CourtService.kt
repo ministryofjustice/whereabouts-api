@@ -228,6 +228,7 @@ class CourtService(
     return bookings
       .filter { scheduledAppointmentsById.containsKey(it.main.appointmentId) }
       .filter { if (court == null) true else it.main.court == court }
+      .filter { hasAnEndDate(scheduledAppointmentsById[it.main.appointmentId]!!) }
       .map { b ->
         val prisonMain = scheduledAppointmentsById[b.main.appointmentId]!!
         VideoLinkBookingResponse(
