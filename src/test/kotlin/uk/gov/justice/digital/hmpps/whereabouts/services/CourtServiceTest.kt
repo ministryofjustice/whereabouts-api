@@ -1047,6 +1047,74 @@ class CourtServiceTest {
       val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null)
       assertThat(bookings).isEmpty()
     }
+
+    @Test
+    fun `appointments with missing end times are filtered out`() {
+      whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any()))
+        .thenReturn(
+          listOf(
+            ScheduledAppointmentDto(
+              id = 1001,
+              agencyId = "WEI",
+              locationId = 1001,
+              appointmentTypeCode = "VLB",
+              startTime = LocalDateTime.of(2020, 1, 1, 9, 40),
+              endTime = LocalDateTime.of(2020, 1, 1, 10, 0)
+            ),
+            ScheduledAppointmentDto(
+              id = 1002,
+              agencyId = "WEI",
+              locationId = 1002,
+              appointmentTypeCode = "VLB",
+              startTime = LocalDateTime.of(2020, 1, 1, 10, 0),
+              endTime = LocalDateTime.of(2020, 1, 1, 10, 30)
+            ),
+            ScheduledAppointmentDto(
+              id = 1003,
+              agencyId = "WEI",
+              locationId = 1003,
+              appointmentTypeCode = "VLB",
+              startTime = LocalDateTime.of(2020, 1, 1, 10, 30),
+              endTime = null
+            )
+          )
+        )
+      whenever(videoLinkBookingRepository.findByMainAppointmentIds(any()))
+        .thenReturn(
+          listOf(
+            VideoLinkBooking(
+              id = 1000L,
+              pre = VideoLinkAppointment(
+                id = 10001,
+                bookingId = 1000,
+                appointmentId = 1001,
+                court = "Wimbledon",
+                hearingType = HearingType.PRE
+              ),
+              main = VideoLinkAppointment(
+                id = 20000,
+                bookingId = 1000,
+                appointmentId = 1002,
+                court = "Wimbledon",
+                hearingType = HearingType.MAIN
+              ),
+              post = VideoLinkAppointment(
+                id = 30000,
+                bookingId = 1000,
+                appointmentId = 1003,
+                court = "Wimbledon",
+                hearingType = HearingType.POST
+              )
+            )
+          )
+        )
+
+      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, "Wimbledon")
+      assertThat(bookings).hasSize(1)
+      assertThat(bookings[0].pre).isNotNull
+      assertThat(bookings[0].main).isNotNull
+      assertThat(bookings[0].post).isNull()
+    }
   }
 
   @Nested

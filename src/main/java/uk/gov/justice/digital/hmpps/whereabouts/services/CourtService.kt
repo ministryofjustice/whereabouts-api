@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.microsoft.applicationinsights.TelemetryClient
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -35,6 +37,10 @@ class CourtService(
   private val telemetryClient: TelemetryClient,
   @Value("\${courts}") private val courts: String
 ) {
+
+  companion object {
+    val log: Logger = LoggerFactory.getLogger(this::class.java)
+  }
 
   fun getCourtLocations() = courts.split(",").toSet()
 
@@ -246,13 +252,19 @@ class CourtService(
   }
 
   private fun toVideoLinkAppointmentDto(scheduledAppointment: ScheduledAppointmentDto?) =
-    scheduledAppointment?.let {
+    scheduledAppointment?.takeIf { hasAnEndDate(it) }?.let {
       VideoLinkBookingResponse.LocationTimeslot(
         locationId = it.locationId,
         startTime = it.startTime,
-        endTime = it.endTime
+        endTime = it.endTime!!
       )
     }
+
+  private fun hasAnEndDate(it: ScheduledAppointmentDto): Boolean {
+    val hasEndDate = it.endTime != null
+    if (!hasEndDate) log.error("Appointment with id ${it.id} has no end date")
+    return hasEndDate
+  }
 
   private fun VideoLinkBookingSpecification.validate() {
     main.validate("Main")
