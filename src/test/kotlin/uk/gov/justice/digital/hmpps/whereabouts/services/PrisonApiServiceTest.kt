@@ -15,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
+import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import java.time.LocalDate
 
 class PrisonApiServiceTest {
@@ -127,5 +128,23 @@ class PrisonApiServiceTest {
         endTime = date.atTime(10, 30)
       )
     )
+  }
+
+  @Test
+  fun `get Agency Locations for type, unrestricted`() {
+    prisonApiMockServer.stubGetAgencyLocationsForTypeUnrestricted("WWI")
+    val locations = prisonApiService.getAgencyLocationsForTypeUnrestricted("WWI", "APP")
+    assertThat(locations)
+      .containsExactly(
+        Location(
+          locationId = 1L,
+          locationType = "VIDE",
+          description = "A VLB location",
+          agencyId = "WWI",
+          currentOccupancy = 0,
+          locationPrefix = "XXX",
+          operationalCapacity = 10
+        )
+      )
   }
 }

@@ -414,13 +414,27 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
-  fun stubGetAgencyLocationsForTypeUnrestricted(agencyId: String, responseJson: String) {
+  fun stubGetAgencyLocationsForTypeUnrestricted(agencyId: String) {
     stubFor(
-      get(urlPathEqualTo("/agencies/$agencyId/locations?eventType=APP"))
+      get(urlEqualTo("/api/agencies/$agencyId/locations?eventType=APP"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withBody(responseJson)
+            .withBody(
+              gson.toJson(
+                listOf(
+                  mapOf(
+                    "locationId" to "1",
+                    "locationType" to "VIDE",
+                    "description" to "A VLB location",
+                    "agencyId" to agencyId,
+                    "currentOccupancy" to "0",
+                    "locationPrefix" to "XXX",
+                    "operationalCapacity" to "10",
+                  )
+                )
+              )
+            )
             .withStatus(200)
         )
     )
