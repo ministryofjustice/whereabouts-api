@@ -17,7 +17,12 @@ class AppointmentLocationsService(
       .filterNot { excludedAppointmentIds.contains(it.id) }
 
     val locationsForAppointmentIntervals =
-      appointmentLocationsFinderService.find(specification, allLocations, scheduledAppointments)
+      appointmentLocationsFinderService.find(
+        specification.appointmentIntervals,
+        allLocations.map { it.locationId },
+        scheduledAppointments
+      )
+
     return toAvailableLocations(locationsForAppointmentIntervals, allLocations)
   }
 

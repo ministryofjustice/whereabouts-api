@@ -92,8 +92,8 @@ class AppointmentLocationsServiceTest {
     verify(prisonApiService).getAgencyLocationsForTypeUnrestricted("WWI", "APP")
     verify(appointmentLocationsFinderService)
       .find(
-        eq(specification),
-        eq(listOf(Location(2L, "A VIDE location"))),
+        eq(listOf()),
+        eq(listOf(2L)),
         eq(listOf())
       )
   }
@@ -148,7 +148,7 @@ class AppointmentLocationsServiceTest {
 
     verify(appointmentLocationsFinderService)
       .find(
-        eq(specification),
+        eq(listOf()),
         eq(emptyList()),
         eq(
           listOf(
@@ -263,7 +263,7 @@ class AppointmentLocationsServiceTest {
 
     verify(appointmentLocationsFinderService)
       .find(
-        eq(specification),
+        eq(listOf()),
         eq(emptyList()),
         eq(
           listOf(

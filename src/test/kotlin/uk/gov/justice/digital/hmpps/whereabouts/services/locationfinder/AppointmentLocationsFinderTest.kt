@@ -8,6 +8,8 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 class AppointmentLocationsFinderTest {
+  val service = AppointmentLocationsFinderService()
+
   @Test
   fun `no new appointments, no locations, no scheduled appointments`() {
     assertLocationsForAppointments(
@@ -272,11 +274,11 @@ class AppointmentLocationsFinderTest {
     scheduledAppointments: List<ScheduledAppointmentDto>
   ) =
     assertThat(
-      AppointmentLocationsFinder(
+      service.find(
         appointmentIntervals,
         locationIds,
         scheduledAppointments
-      ).findLocationsForAppointmentIntervals()
+      )
     )
 
   companion object {
