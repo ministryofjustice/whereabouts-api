@@ -163,7 +163,7 @@ public class PrisonApiService {
 
         try {
             return webClient.get()
-                    .uri("/agencies/{agencyId}/locations?eventType={locationType}", agencyId)
+                    .uri("/agencies/{agencyId}/locations?eventType={locationType}", agencyId, locationType)
                     .retrieve()
                     .bodyToMono(responseType)
                     .block();
