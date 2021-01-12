@@ -3,9 +3,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 
-/**
- * Wrap the AppointmentLocationsFinder and present as a function.
- */
 @Service
 class AppointmentLocationsFinderService {
   fun find(

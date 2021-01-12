@@ -10,6 +10,10 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyList
 import org.mockito.ArgumentMatchers.anyString
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
+import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -20,6 +24,7 @@ class AppointmentLocationsServiceTest {
 
   private val prisonApiService: PrisonApiService = mock()
   private val appointmentLocationsFinderService: AppointmentLocationsFinderService = mock()
+  private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
 
   @Test
   fun `it does not fall over`() {
@@ -28,7 +33,7 @@ class AppointmentLocationsServiceTest {
     whenever(appointmentLocationsFinderService.find(any(), anyList(), anyList())).thenReturn(listOf())
 
     assertThat(
-      AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService)
+      AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository)
         .findLocationsForAppointmentIntervals(
           AppointmentLocationsSpecification(
             LocalDate.now(),
@@ -81,7 +86,7 @@ class AppointmentLocationsServiceTest {
       listOf(),
       listOf()
     )
-    AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService)
+    AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository)
       .findLocationsForAppointmentIntervals(specification)
 
     verify(prisonApiService).getAgencyLocationsForTypeUnrestricted("WWI", "APP")
@@ -135,7 +140,7 @@ class AppointmentLocationsServiceTest {
       listOf()
     )
 
-    AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService)
+    AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository)
       .findLocationsForAppointmentIntervals(specification)
 
     verify(prisonApiService)
@@ -154,6 +159,121 @@ class AppointmentLocationsServiceTest {
               appointmentTypeCode = "VLB",
               startTime = LocalDateTime.of(2020, 1, 1, 0, 0),
               endTime = LocalDateTime.of(2020, 1, 1, 1, 0)
+            )
+          )
+        )
+      )
+  }
+
+  @Test
+  fun `it excludes ScheduledAppointmentDtos that correspond with excluded videoLinkBookingIds`() {
+    whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted(anyString(), anyString())).thenReturn(listOf())
+    whenever(appointmentLocationsFinderService.find(any(), anyList(), anyList())).thenReturn(listOf())
+
+    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any()))
+      .thenReturn(
+        listOf(
+          ScheduledAppointmentDto(
+            id = 1L,
+            agencyId = "WWI",
+            locationId = 10L,
+            appointmentTypeCode = "VLB",
+            startTime = LocalDateTime.of(2020, 1, 1, 0, 0),
+            endTime = LocalDateTime.of(2020, 1, 1, 1, 0)
+          ),
+          ScheduledAppointmentDto(
+            id = 2L,
+            agencyId = "WWI",
+            locationId = 11L,
+            appointmentTypeCode = "VLB",
+            startTime = LocalDateTime.of(2020, 1, 1, 1, 0),
+            endTime = LocalDateTime.of(2020, 1, 1, 2, 0)
+          ),
+          ScheduledAppointmentDto(
+            id = 3L,
+            agencyId = "WWI",
+            locationId = 12L,
+            appointmentTypeCode = "VLB",
+            startTime = LocalDateTime.of(2020, 1, 1, 2, 0),
+            endTime = LocalDateTime.of(2020, 1, 1, 3, 0),
+          ),
+          ScheduledAppointmentDto(
+            id = 4L,
+            agencyId = "WWI",
+            locationId = 13L,
+            appointmentTypeCode = "VLB",
+            startTime = LocalDateTime.of(2020, 1, 1, 3, 0),
+            endTime = LocalDateTime.of(2020, 1, 1, 4, 0),
+          ),
+        )
+      )
+
+    whenever(videoLinkBookingRepository.findAllById(anyList()))
+      .thenReturn(
+        listOf(
+          VideoLinkBooking(
+            id = 1L,
+            main = VideoLinkAppointment(
+              appointmentId = 1L,
+              id = 1L,
+              bookingId = 9999L,
+              court = "Don't care",
+              hearingType = HearingType.MAIN
+            )
+          ),
+          VideoLinkBooking(
+            id = 2L,
+            main = VideoLinkAppointment(
+              appointmentId = 10L,
+              id = 2L,
+              bookingId = 9999L,
+              court = "Don't care",
+              hearingType = HearingType.MAIN
+            ),
+            pre = VideoLinkAppointment(
+              appointmentId = 3L,
+              id = 3L,
+              bookingId = 9999L,
+              court = "Don't care",
+              hearingType = HearingType.PRE
+            ),
+            post = VideoLinkAppointment(
+              appointmentId = 4L,
+              id = 4L,
+              bookingId = 9999L,
+              court = "Don't care",
+              hearingType = HearingType.POST
+            ),
+          )
+
+        )
+      )
+
+    val specification = AppointmentLocationsSpecification(
+      LocalDate.of(2021, 1, 1),
+      "WWI",
+      listOf(1L, 2L),
+      listOf()
+    )
+
+    AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository)
+      .findLocationsForAppointmentIntervals(specification)
+
+    verify(videoLinkBookingRepository).findAllById(listOf(1L, 2L))
+
+    verify(appointmentLocationsFinderService)
+      .find(
+        eq(specification),
+        eq(emptyList()),
+        eq(
+          listOf(
+            ScheduledAppointmentDto(
+              id = 2L,
+              agencyId = "WWI",
+              locationId = 11L,
+              appointmentTypeCode = "VLB",
+              startTime = LocalDateTime.of(2020, 1, 1, 1, 0),
+              endTime = LocalDateTime.of(2020, 1, 1, 2, 0)
             )
           )
         )
@@ -205,10 +325,11 @@ class AppointmentLocationsServiceTest {
         )
       )
 
-    val availableLocations = AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService)
-      .findLocationsForAppointmentIntervals(
-        AppointmentLocationsSpecification(LocalDate.now(), "WWI", listOf(), listOf())
-      )
+    val availableLocations =
+      AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository)
+        .findLocationsForAppointmentIntervals(
+          AppointmentLocationsSpecification(LocalDate.now(), "WWI", listOf(), listOf())
+        )
 
     assertThat(availableLocations).containsExactly(
       AvailableLocations(
