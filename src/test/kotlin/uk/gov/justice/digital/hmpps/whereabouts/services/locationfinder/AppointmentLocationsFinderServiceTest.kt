@@ -7,7 +7,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-class AppointmentLocationsFinderTest {
+class AppointmentLocationsFinderServiceTest {
   val service = AppointmentLocationsFinderService()
 
   @Test
@@ -26,7 +26,7 @@ class AppointmentLocationsFinderTest {
       listOf(appointmentInterval),
       listOf(),
       listOf()
-    ).containsExactly(LocationsForAppointmentIntervals(appointmentInterval))
+    ).containsExactly(AppointmentIntervalLocations(appointmentInterval))
   }
 
   @Test
@@ -36,7 +36,7 @@ class AppointmentLocationsFinderTest {
       listOf(appointmentInterval),
       listOf(1L),
       listOf()
-    ).containsExactly(LocationsForAppointmentIntervals(appointmentInterval, 1L))
+    ).containsExactly(AppointmentIntervalLocations(appointmentInterval, 1L))
   }
 
   @Test
@@ -46,7 +46,7 @@ class AppointmentLocationsFinderTest {
       listOf(appointmentInterval),
       listOf(1L, 2L, 3L),
       listOf()
-    ).containsExactly(LocationsForAppointmentIntervals(appointmentInterval, 1L, 2L, 3L))
+    ).containsExactly(AppointmentIntervalLocations(appointmentInterval, 1L, 2L, 3L))
   }
 
   @Test
@@ -66,7 +66,7 @@ class AppointmentLocationsFinderTest {
       listOf(appointmentInterval),
       listOf(1L),
       listOf(scheduledAppointment(1L, T10_00, T10_30))
-    ).containsExactly(LocationsForAppointmentIntervals(appointmentInterval, 1L))
+    ).containsExactly(AppointmentIntervalLocations(appointmentInterval, 1L))
   }
 
   @Test
@@ -77,7 +77,7 @@ class AppointmentLocationsFinderTest {
       listOf(appointmentInterval),
       listOf(1L),
       listOf(scheduledAppointment(1L, T09_30, T10_00))
-    ).containsExactly(LocationsForAppointmentIntervals(appointmentInterval, 1L))
+    ).containsExactly(AppointmentIntervalLocations(appointmentInterval, 1L))
   }
 
   @Test
@@ -88,7 +88,7 @@ class AppointmentLocationsFinderTest {
       listOf(appointmentInterval),
       listOf(1L),
       listOf(scheduledAppointment(1L, T09_30, T10_00))
-    ).containsExactly(LocationsForAppointmentIntervals(appointmentInterval))
+    ).containsExactly(AppointmentIntervalLocations(appointmentInterval))
   }
 
   @Test
@@ -99,7 +99,7 @@ class AppointmentLocationsFinderTest {
       listOf(appointmentInterval),
       listOf(1L),
       listOf(scheduledAppointment(1L, T09_20, T09_40))
-    ).containsExactly(LocationsForAppointmentIntervals(appointmentInterval))
+    ).containsExactly(AppointmentIntervalLocations(appointmentInterval))
   }
 
   @Test
@@ -110,7 +110,7 @@ class AppointmentLocationsFinderTest {
       listOf(appointmentInterval),
       listOf(1L),
       listOf(scheduledAppointment(1L, T09_00, T10_30))
-    ).containsExactly(LocationsForAppointmentIntervals(appointmentInterval))
+    ).containsExactly(AppointmentIntervalLocations(appointmentInterval))
   }
 
   @Test
@@ -121,7 +121,7 @@ class AppointmentLocationsFinderTest {
       listOf(appointmentInterval),
       listOf(1L),
       listOf(scheduledAppointment(1L, T09_00, T10_00))
-    ).containsExactly(LocationsForAppointmentIntervals(appointmentInterval))
+    ).containsExactly(AppointmentIntervalLocations(appointmentInterval))
   }
 
   @Test
@@ -132,7 +132,7 @@ class AppointmentLocationsFinderTest {
       listOf(appointmentInterval),
       listOf(1L),
       listOf(scheduledAppointment(1L, T09_00, T09_30))
-    ).containsExactly(LocationsForAppointmentIntervals(appointmentInterval, 1L))
+    ).containsExactly(AppointmentIntervalLocations(appointmentInterval, 1L))
   }
 
   @Test
@@ -146,7 +146,7 @@ class AppointmentLocationsFinderTest {
         scheduledAppointment(1L, T09_00, T09_30),
         scheduledAppointment(1L, T10_00, T10_30)
       )
-    ).containsExactly(LocationsForAppointmentIntervals(appointmentInterval, 1L))
+    ).containsExactly(AppointmentIntervalLocations(appointmentInterval, 1L))
   }
 
   @Test
@@ -157,7 +157,7 @@ class AppointmentLocationsFinderTest {
       listOf(appointmentInterval),
       listOf(1L, 2L, 3L),
       listOf(scheduledAppointment(2L, T09_30, T10_00))
-    ).containsExactly(LocationsForAppointmentIntervals(appointmentInterval, 1L, 3L))
+    ).containsExactly(AppointmentIntervalLocations(appointmentInterval, 1L, 3L))
   }
 
   @Test
@@ -170,8 +170,8 @@ class AppointmentLocationsFinderTest {
       listOf(1L),
       listOf()
     ).containsExactly(
-      LocationsForAppointmentIntervals(a1, 1L),
-      LocationsForAppointmentIntervals(a2, 1L)
+      AppointmentIntervalLocations(a1, 1L),
+      AppointmentIntervalLocations(a2, 1L)
     )
   }
 
@@ -186,9 +186,9 @@ class AppointmentLocationsFinderTest {
       listOf(1L),
       listOf()
     ).containsExactly(
-      LocationsForAppointmentIntervals(a1, 1L),
-      LocationsForAppointmentIntervals(a2, 1L),
-      LocationsForAppointmentIntervals(a3, 1L)
+      AppointmentIntervalLocations(a1, 1L),
+      AppointmentIntervalLocations(a2, 1L),
+      AppointmentIntervalLocations(a3, 1L)
     )
   }
 
@@ -204,10 +204,10 @@ class AppointmentLocationsFinderTest {
       listOf(1L),
       listOf(scheduledAppointment(1L, T09_30, T09_40))
     ).containsExactly(
-      LocationsForAppointmentIntervals(a1, 1L),
-      LocationsForAppointmentIntervals(a2),
-      LocationsForAppointmentIntervals(a3),
-      LocationsForAppointmentIntervals(a4, 1L)
+      AppointmentIntervalLocations(a1, 1L),
+      AppointmentIntervalLocations(a2),
+      AppointmentIntervalLocations(a3),
+      AppointmentIntervalLocations(a4, 1L)
     )
   }
 
@@ -224,8 +224,8 @@ class AppointmentLocationsFinderTest {
         scheduledAppointment(2L, T09_30, T09_40),
       )
     ).containsExactly(
-      LocationsForAppointmentIntervals(a1, 2L),
-      LocationsForAppointmentIntervals(a2, 1L)
+      AppointmentIntervalLocations(a1, 2L),
+      AppointmentIntervalLocations(a2, 1L)
     )
   }
 
@@ -242,8 +242,8 @@ class AppointmentLocationsFinderTest {
         scheduledAppointment(2L, T09_30, T09_40),
       )
     ).containsExactly(
-      LocationsForAppointmentIntervals(a1, 2L),
-      LocationsForAppointmentIntervals(a2)
+      AppointmentIntervalLocations(a1, 2L),
+      AppointmentIntervalLocations(a2)
     )
   }
 
@@ -262,9 +262,9 @@ class AppointmentLocationsFinderTest {
         scheduledAppointment(2L, T10_00, T10_30),
       )
     ).containsExactly(
-      LocationsForAppointmentIntervals(a1, 1L),
-      LocationsForAppointmentIntervals(a2, 2L),
-      LocationsForAppointmentIntervals(a3, 1L),
+      AppointmentIntervalLocations(a1, 1L),
+      AppointmentIntervalLocations(a2, 2L),
+      AppointmentIntervalLocations(a3, 1L),
     )
   }
 

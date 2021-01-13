@@ -32,12 +32,8 @@ class AppointmentLocationsService(
     else
       videoLinkBookingRepository
         .findAllById(vlbIdsToExclude)
-        .flatMap { booking ->
-          val ids = mutableListOf(booking.main.appointmentId)
-          booking.pre?.apply { ids.add(appointmentId) }
-          booking.post?.apply { ids.add(appointmentId) }
-          ids
-        }.toSet()
+        .flatMap { booking -> booking.toAppointments().map { it.appointmentId } }
+        .toSet()
 
   private fun fetchVideoLinkBookingLocations(specification: AppointmentLocationsSpecification) =
     prisonApiService
@@ -53,7 +49,7 @@ class AppointmentLocationsService(
 
   companion object {
     private fun toAvailableLocations(
-      locationsForAppointmentIntervals: List<LocationsForAppointmentIntervals>,
+      locationsForAppointmentIntervals: List<AppointmentIntervalLocations>,
       locations: List<Location>
     ): List<AvailableLocations> {
       val locationsById = locations.associateBy { it.locationId }

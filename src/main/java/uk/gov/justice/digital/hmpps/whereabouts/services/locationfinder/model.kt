@@ -46,7 +46,7 @@ data class Interval(
  *
  * TODO: I'd give this package visibility, but I 'm not sure know how to do that in Kotlin.
  */
-data class LocationsForAppointmentIntervals(
+data class AppointmentIntervalLocations(
   val appointmentInterval: Interval,
   var locationIds: MutableSet<Long>?
 ) {

@@ -320,8 +320,8 @@ class AppointmentLocationsServiceTest {
     whenever(appointmentLocationsFinderService.find(any(), anyList(), anyList()))
       .thenReturn(
         listOf(
-          LocationsForAppointmentIntervals(interval1, 1L, 2L, 3L),
-          LocationsForAppointmentIntervals(interval2, 2L),
+          AppointmentIntervalLocations(interval1, 1L, 2L, 3L),
+          AppointmentIntervalLocations(interval2, 2L),
         )
       )
 
