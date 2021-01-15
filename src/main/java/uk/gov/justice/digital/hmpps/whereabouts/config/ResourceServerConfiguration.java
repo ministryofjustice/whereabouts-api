@@ -20,7 +20,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uk.gov.justice.digital.hmpps.whereabouts.controllers.AttendanceController;
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthAwareTokenConverter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -76,8 +78,11 @@ public class ResourceServerConfiguration extends WebSecurityConfigurerAdapter {
                 .build();
 
         docket.genericModelSubstitutes(Optional.class);
-        docket.directModelSubstitute(ZonedDateTime.class, java.util.Date.class);
-        docket.directModelSubstitute(LocalDateTime.class, java.util.Date.class);
+
+        docket.directModelSubstitute(ZonedDateTime.class, String.class);
+        docket.directModelSubstitute(LocalDateTime.class, String.class);
+        docket.directModelSubstitute(LocalDate.class, String.class);
+        docket.directModelSubstitute(LocalTime.class, String.class);
 
         return docket;
     }
