@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.2"
   kotlin("plugin.spring") version "1.4.21"
@@ -62,4 +64,15 @@ dependencies {
 
   testCompileOnly("org.projectlombok:lombok:1.18.16")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
+}
+
+/**
+ * Without this Kotlin compiler setting Java Bean validator annotations do not work on Kotlin lists.
+ * See for example AppointmentLocationsSpecification#appointmentIntervals
+ * The alternative ito this is to use Java classes instead.
+ */
+tasks.withType<KotlinCompile>().configureEach {
+  kotlinOptions {
+    freeCompilerArgs += "-Xemit-jvm-type-annotations"
+  }
 }
