@@ -39,7 +39,7 @@ class AppointmentLocationsService(
     prisonApiService
       .getAgencyLocationsForTypeUnrestricted(specification.agencyId, "APP")
       .filter { it.locationType == "VIDE" }
-      .map { Location(it.locationId, it.description) }
+      .map { LocationIdAndDescription(it.locationId, it.description) }
 
   private fun fetchScheduledAppointments(specification: AppointmentLocationsSpecification) =
     prisonApiService
@@ -50,7 +50,7 @@ class AppointmentLocationsService(
   companion object {
     private fun toAvailableLocations(
       locationsForAppointmentIntervals: List<AppointmentIntervalLocations>,
-      locations: List<Location>
+      locations: List<LocationIdAndDescription>
     ): List<AvailableLocations> {
       val locationsById = locations.associateBy { it.locationId }
       return locationsForAppointmentIntervals

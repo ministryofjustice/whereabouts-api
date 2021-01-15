@@ -30,7 +30,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Appointm
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableLocations
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Interval
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Location
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationIdAndDescription
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -613,14 +613,14 @@ class CourtControllerTest : TestController() {
             AvailableLocations(
               Interval(LocalTime.of(9, 30), LocalTime.of(10, 0)),
               listOf(
-                Location(1L, "Location 1")
+                LocationIdAndDescription(1L, "Location 1")
               )
             ),
             AvailableLocations(
               Interval(LocalTime.of(12, 30), LocalTime.of(13, 0)),
               listOf(
-                Location(2L, "Location 2"),
-                Location(3L, "Location 3")
+                LocationIdAndDescription(2L, "Location 2"),
+                LocationIdAndDescription(3L, "Location 3")
               )
             )
           )

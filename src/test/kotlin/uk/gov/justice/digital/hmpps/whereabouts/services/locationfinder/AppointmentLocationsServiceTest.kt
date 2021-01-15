@@ -335,14 +335,14 @@ class AppointmentLocationsServiceTest {
       AvailableLocations(
         interval1,
         listOf(
-          Location(1L, "L1"),
-          Location(2L, "L2")
+          LocationIdAndDescription(1L, "L1"),
+          LocationIdAndDescription(2L, "L2")
         )
       ),
       AvailableLocations(
         interval2,
         listOf(
-          Location(2L, "L2")
+          LocationIdAndDescription(2L, "L2")
         )
       )
     )
