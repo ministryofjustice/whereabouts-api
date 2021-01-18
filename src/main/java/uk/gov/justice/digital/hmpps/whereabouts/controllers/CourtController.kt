@@ -23,11 +23,12 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService
-import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableLocations
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableVideoLinkBookingLocations
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.VideoLinkBookingLocationsSpecification
 import java.time.LocalDate
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
@@ -213,13 +214,29 @@ class CourtController(
     @RequestBody
     specification: AppointmentLocationsSpecification
   ): List<AvailableLocations> {
-    validateSpecification(specification)
     return appointmentLocationsService.findLocationsForAppointmentIntervals(specification)
   }
 
-  private fun validateSpecification(specification: AppointmentLocationsSpecification) {
-    specification.appointmentIntervals
-      .filterNot { it.start.isBefore(it.end) }
-      .forEach { throw ValidationException("Invalid $it. Start must precede end") }
+  @PostMapping(
+    path = ["/vlb-appointment-location-finder"],
+    consumes = [MediaType.APPLICATION_JSON_VALUE],
+    produces = [MediaType.APPLICATION_JSON_VALUE]
+  )
+  @ApiOperation(
+    value = "Request the locations that could be used for a new Video Link Booking, optionally including locations currently assigned to selected current video link bookings.",
+    response = AvailableVideoLinkBookingLocations::class
+  )
+  fun findLocationsForVideoLinkBookingIntervals(
+    @Valid
+    @RequestBody
+    specification: VideoLinkBookingLocationsSpecification
+  ): AvailableVideoLinkBookingLocations {
+    val availableLocations = appointmentLocationsService
+      .findLocationsForAppointmentIntervals(specification.toAppointmentLocationsSpecification())
+
+    return AvailableVideoLinkBookingLocations.fromAvailableLocations(
+      availableLocations,
+      specification.preInterval != null
+    )
   }
 }
