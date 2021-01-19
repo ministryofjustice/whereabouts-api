@@ -39,7 +39,7 @@ class AppointmentLocationsService(
     prisonApiService
       .getAgencyLocationsForTypeUnrestricted(specification.agencyId, "APP")
       .filter { it.locationType == "VIDE" }
-      .map { LocationIdAndDescription(it.locationId, it.description) }
+      .map { LocationIdAndDescription(it.locationId, it.userDescription ?: it.description) }
 
   private fun fetchScheduledAppointments(specification: AppointmentLocationsSpecification) =
     prisonApiService

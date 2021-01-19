@@ -68,13 +68,13 @@ class AppointmentLocationsServiceTest {
           PrisonApiLocation(
             locationId = 2L,
             locationType = "VIDE",
-            description = "A VIDE location",
+            description = "A VIDE LOCATION",
             locationUsage = "Not Used",
             agencyId = "WWI",
             currentOccupancy = 0,
             locationPrefix = "Not Used",
             operationalCapacity = 0,
-            userDescription = "Not Used",
+            userDescription = "A VIDE location",
             internalLocationCode = "Not Used"
           )
         )
@@ -290,25 +290,25 @@ class AppointmentLocationsServiceTest {
           PrisonApiLocation(
             locationId = 1L,
             locationType = "VIDE",
-            description = "L1",
+            description = "ROOM 1",
             locationUsage = "Not Used",
             agencyId = "WWI",
             currentOccupancy = 0,
             locationPrefix = "Not Used",
             operationalCapacity = 0,
-            userDescription = "Not Used",
+            userDescription = "Room 1",
             internalLocationCode = "Not Used"
           ),
           PrisonApiLocation(
             locationId = 2L,
             locationType = "VIDE",
-            description = "L2",
+            description = "ROOM 2",
             locationUsage = "Not Used",
             agencyId = "WWI",
             currentOccupancy = 0,
             locationPrefix = "Not Used",
             operationalCapacity = 0,
-            userDescription = "Not Used",
+            userDescription = "Room 2",
             internalLocationCode = "Not Used"
           )
         )
@@ -335,14 +335,14 @@ class AppointmentLocationsServiceTest {
       AvailableLocations(
         interval1,
         listOf(
-          LocationIdAndDescription(1L, "L1"),
-          LocationIdAndDescription(2L, "L2")
+          LocationIdAndDescription(1L, "Room 1"),
+          LocationIdAndDescription(2L, "Room 2")
         )
       ),
       AvailableLocations(
         interval2,
         listOf(
-          LocationIdAndDescription(2L, "L2")
+          LocationIdAndDescription(2L, "Room 2")
         )
       )
     )
