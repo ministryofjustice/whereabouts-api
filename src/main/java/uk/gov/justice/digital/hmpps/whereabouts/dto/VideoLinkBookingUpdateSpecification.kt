@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto
 
 import io.swagger.annotations.ApiModelProperty
 import javax.validation.Valid
-import javax.validation.constraints.NotNull
 
 data class VideoLinkBookingUpdateSpecification(
 
