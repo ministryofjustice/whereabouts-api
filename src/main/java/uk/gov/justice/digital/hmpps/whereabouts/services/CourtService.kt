@@ -103,13 +103,14 @@ class CourtService(
     val postEvent = specification.post?.let { savePrisonAppointment(bookingId, comment, it) }
 
     val court = booking.main.court
+    val madeByTheCourt = booking.main.madeByTheCourt
 
     booking.main = VideoLinkAppointment(
       bookingId = bookingId,
       appointmentId = mainEvent.eventId,
       court = court,
       hearingType = HearingType.MAIN,
-      madeByTheCourt = specification.madeByTheCourt
+      madeByTheCourt = madeByTheCourt
     )
 
     booking.pre = preEvent?.let {
@@ -118,7 +119,7 @@ class CourtService(
         appointmentId = it.eventId,
         court = court,
         hearingType = HearingType.PRE,
-        madeByTheCourt = specification.madeByTheCourt
+        madeByTheCourt = madeByTheCourt
       )
     }
 
@@ -128,7 +129,7 @@ class CourtService(
         appointmentId = it.eventId,
         court = court,
         hearingType = HearingType.POST,
-        madeByTheCourt = specification.madeByTheCourt
+        madeByTheCourt = madeByTheCourt
       )
     }
 

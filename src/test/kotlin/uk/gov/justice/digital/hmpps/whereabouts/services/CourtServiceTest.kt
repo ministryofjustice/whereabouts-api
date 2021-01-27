@@ -549,7 +549,6 @@ class CourtServiceTest {
         1L,
         VideoLinkBookingUpdateSpecification(
           comment = "New Comment",
-          madeByTheCourt = false,
           main = VideoLinkAppointmentSpecification(
             locationId = 99L,
             startTime = referenceTime,
@@ -580,7 +579,7 @@ class CourtServiceTest {
               appointmentId = 3L,
               court = "The court",
               hearingType = HearingType.MAIN,
-              madeByTheCourt = false
+              madeByTheCourt = true
             )
           )
         )
@@ -597,7 +596,6 @@ class CourtServiceTest {
           1L,
           VideoLinkBookingUpdateSpecification(
             comment = "New Comment",
-            madeByTheCourt = false,
             main = VideoLinkAppointmentSpecification(
               locationId = 99L,
               startTime = referenceNow.minusSeconds(1),
@@ -649,7 +647,6 @@ class CourtServiceTest {
         1L,
         VideoLinkBookingUpdateSpecification(
           comment = "New Comment",
-          madeByTheCourt = false,
           pre = VideoLinkAppointmentSpecification(
             locationId = 99L,
             startTime = referenceTime,
@@ -715,21 +712,21 @@ class CourtServiceTest {
               appointmentId = 3L,
               court = "The court",
               hearingType = HearingType.PRE,
-              madeByTheCourt = false
+              madeByTheCourt = true
             ),
             main = VideoLinkAppointment(
               bookingId = 30L,
               appointmentId = 3L,
               court = "The court",
               hearingType = HearingType.MAIN,
-              madeByTheCourt = false
+              madeByTheCourt = true
             ),
             post = VideoLinkAppointment(
               bookingId = 30L,
               appointmentId = 3L,
               court = "The court",
               hearingType = HearingType.POST,
-              madeByTheCourt = false
+              madeByTheCourt = true
             )
           )
         )
