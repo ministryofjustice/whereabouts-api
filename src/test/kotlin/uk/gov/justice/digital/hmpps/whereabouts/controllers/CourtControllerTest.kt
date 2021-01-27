@@ -361,7 +361,6 @@ class CourtControllerTest : TestController() {
             """
               {
                 "comment": "New comment",
-                "madeByTheCourt": false,
                 "pre": {
                   "locationId" : 1,
                   "startTime" : "2020-01-01T12:00",
@@ -387,7 +386,6 @@ class CourtControllerTest : TestController() {
         1L,
         VideoLinkBookingUpdateSpecification(
           comment = "New comment",
-          madeByTheCourt = false,
           pre = VideoLinkAppointmentSpecification(
             locationId = 1L,
             startTime = LocalDateTime.of(2020, 1, 1, 12, 0),
