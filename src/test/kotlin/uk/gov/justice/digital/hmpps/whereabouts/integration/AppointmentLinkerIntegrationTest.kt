@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.MediaType
 import org.springframework.test.context.transaction.TestTransaction
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
@@ -17,9 +15,6 @@ import javax.transaction.Transactional
 
 @Transactional
 class AppointmentLinkerIntegrationTest : IntegrationTest() {
-
-  @Value("\${appointmentLinkerToken}")
-  private val appointmentLinkerToken: String? = null
 
   @Autowired
   lateinit var videoLinkAppointmentRepository: VideoLinkAppointmentRepository
@@ -78,20 +73,14 @@ class AppointmentLinkerIntegrationTest : IntegrationTest() {
 
     webTestClient.post()
       .uri("/court/appointment-linker")
-      .headers {
-        it.setBearerAuth(appointmentLinkerToken!!)
-        it.setContentType(MediaType.APPLICATION_JSON)
-      }
+      .headers(setAppointmentLinkerToken())
       .bodyValue(1)
       .exchange()
       .expectStatus().isNoContent
 
     webTestClient.post()
       .uri("/court/appointment-linker")
-      .headers {
-        it.setBearerAuth(appointmentLinkerToken!!)
-        it.setContentType(MediaType.APPLICATION_JSON)
-      }
+      .headers(setAppointmentLinkerToken())
       .exchange()
       .expectStatus().isNoContent
 
@@ -106,7 +95,7 @@ class AppointmentLinkerIntegrationTest : IntegrationTest() {
   private fun videoLinkAppointments(
     hearingType: HearingType,
     bookingId: Long,
-    vararg appointmentIds: Long
+    vararg appointmentIds: Long,
   ): List<VideoLinkAppointment> =
     appointmentIds.map { appointmentId ->
       VideoLinkAppointment(
@@ -122,7 +111,7 @@ class AppointmentLinkerIntegrationTest : IntegrationTest() {
     bookingId: Long,
     eventId: Long,
     startTime: LocalDateTime,
-    endTimeOffsetMinutes: Long
+    endTimeOffsetMinutes: Long,
   ) {
     prisonApiMockServer.stubGetPrisonAppointment(
       eventId,

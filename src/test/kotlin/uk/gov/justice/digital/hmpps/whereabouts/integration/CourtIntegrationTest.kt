@@ -475,10 +475,7 @@ class CourtIntegrationTest : IntegrationTest() {
       webTestClient.put()
         .uri("/court/video-link-bookings/1/comment")
         .bodyValue("New Comment")
-        .headers {
-          it.setBearerAuth(token!!)
-          it.contentType = MediaType.TEXT_PLAIN
-        }
+        .headers(setHeaders(contentType = MediaType.TEXT_PLAIN))
         .exchange()
         .expectStatus().isNoContent
 
