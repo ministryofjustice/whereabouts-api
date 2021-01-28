@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@2.1.0
-  owasp: entur/owasp@0.0.10
+  hmpps: ministryofjustice/hmpps@2.2
+  owasp: entur/owasp@0.0.14
 
 executors:
   validator:
@@ -52,6 +52,8 @@ workflows:
           filters:
             tags:
               ignore: /.*/
+      - hmpps/helm_lint:
+          name: helm_lint
       - hmpps/build_docker:
           name: build_docker
           filters:
@@ -69,6 +71,7 @@ workflows:
                 - main
           requires:
             - validate
+            - helm_lint
             - build_docker
       - request-preprod-approval:
           type: approval
