@@ -104,6 +104,19 @@ class PrisonApiServiceTest {
   }
 
   @Test
+  fun `update appointment comment - null comment`() {
+    val appointmentId = 100L
+    val comment = null
+
+    prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
+    prisonApiService.updateAppointmentComment(appointmentId, comment)
+    prisonApiMockServer.verify(
+      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
+        .withRequestBody(absent())
+    )
+  }
+
+  @Test
   fun `get appointments for agency on date`() {
     val date = LocalDate.of(2020, 12, 25)
     val agencyId = "WWI"

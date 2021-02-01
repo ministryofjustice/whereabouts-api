@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -153,7 +154,8 @@ public class PrisonApiService {
 
     /**
      * Version of getAgencyLocationsForType that does not check that the invoker has the selected agency in their caseload.
-     * @param agencyId 'WWI' etc.
+     *
+     * @param agencyId     'WWI' etc.
      * @param locationType 'APP', 'CELL'
      * @return set of matching locations.
      */
@@ -245,7 +247,7 @@ public class PrisonApiService {
         webClient.put()
                 .uri("/appointments/{appointmentId}/comment", appointmentId)
                 .contentType(MediaType.TEXT_PLAIN)
-                .bodyValue(comment)
+                .body(comment != null ? BodyInserters.fromValue(comment) : BodyInserters.empty())
                 .retrieve()
                 .toBodilessEntity()
                 .onErrorResume(WebClientResponseException.NotFound.class, notFound -> {
