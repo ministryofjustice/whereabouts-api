@@ -186,7 +186,7 @@ class CourtController(
     @PathVariable("videoLinkBookingId")
     videoLinkBookingId: Long,
 
-    @RequestBody
+    @RequestBody(required = false)
     comment: String?
   ): ResponseEntity<Void> {
     courtService.updateVideoLinkBookingComment(videoLinkBookingId, comment)
