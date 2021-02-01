@@ -420,6 +420,44 @@ class CourtControllerTest : TestController() {
   }
 
   @Nested
+  inner class `Update a comment` {
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `Can update`() {
+
+      mockMvc.perform(
+        put("/court/video-link-bookings/1/comment")
+          .contentType(MediaType.TEXT_PLAIN)
+          .content(
+            "Some Content"
+          )
+      )
+        .andExpect(status().isNoContent)
+
+      verify(courtService).updateVideoLinkBookingComment(
+        1L,
+        "Some Content"
+      )
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `Can clear comment`() {
+
+      mockMvc.perform(
+        put("/court/video-link-bookings/1/comment")
+          .contentType(MediaType.TEXT_PLAIN)
+      )
+        .andExpect(status().isNoContent)
+
+      verify(courtService).updateVideoLinkBookingComment(
+        1L,
+        null
+      )
+    }
+  }
+
+  @Nested
   inner class `Deleting a booking` {
     @Test
     @WithMockUser(username = "ITAG_USER")
