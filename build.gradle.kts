@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.1.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.1.1"
   kotlin("plugin.spring") version "1.4.30"
   kotlin("plugin.jpa") version "1.4.30"
 }
@@ -13,9 +13,9 @@ configurations {
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.16")
+  annotationProcessor("org.projectlombok:lombok:1.18.18")
 
-  compileOnly("org.projectlombok:lombok:1.18.16")
+  compileOnly("org.projectlombok:lombok:1.18.18")
 
   runtimeOnly("com.h2database:h2")
   runtimeOnly("org.flywaydb:flyway-core")
@@ -57,11 +57,11 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
 
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.23.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.24.0")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 
-  testCompileOnly("org.projectlombok:lombok:1.18.16")
+  testCompileOnly("org.projectlombok:lombok:1.18.18")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
 }
 
