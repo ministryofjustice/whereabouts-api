@@ -110,7 +110,7 @@ class AppointmentLocationsServiceTest {
             id = 1L,
             agencyId = "WWI",
             locationId = 10L,
-            appointmentTypeCode = "XXX",
+            appointmentTypeCode = "VLAA",
             startTime = LocalDateTime.of(2020, 1, 1, 0, 0),
             endTime = LocalDateTime.of(2020, 1, 1, 1, 0)
           ),
@@ -153,13 +153,21 @@ class AppointmentLocationsServiceTest {
         eq(
           listOf(
             ScheduledAppointmentDto(
+              id = 1L,
+              agencyId = "WWI",
+              locationId = 10L,
+              appointmentTypeCode = "VLAA",
+              startTime = LocalDateTime.of(2020, 1, 1, 0, 0),
+              endTime = LocalDateTime.of(2020, 1, 1, 1, 0)
+            ),
+            ScheduledAppointmentDto(
               id = 2L,
               agencyId = "WWI",
               locationId = 11L,
               appointmentTypeCode = "VLB",
               startTime = LocalDateTime.of(2020, 1, 1, 0, 0),
               endTime = LocalDateTime.of(2020, 1, 1, 1, 0)
-            )
+            ),
           )
         )
       )
