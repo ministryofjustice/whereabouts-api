@@ -87,11 +87,6 @@ abstract class IntegrationTest {
     it.contentType = contentType
   }
 
-  internal fun setAppointmentLinkerToken(contentType: MediaType = MediaType.APPLICATION_JSON): (HttpHeaders) -> Unit = {
-    it.setBearerAuth(jwtAuthHelper.createJwt(subject = "APPOINTMENT_LINKER", roles = listOf("ROLE_VIDEO_APPOINTMENT_LINKER"), clientId = "elite2apiclient"))
-    it.contentType = contentType
-  }
-
   fun loadJsonFile(jsonFile: String): String =
     IOUtils.toString(javaClass.getResourceAsStream(jsonFile), StandardCharsets.UTF_8.toString())
 }

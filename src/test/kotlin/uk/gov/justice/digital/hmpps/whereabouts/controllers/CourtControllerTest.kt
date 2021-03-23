@@ -24,8 +24,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService
-import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableLocations
@@ -42,9 +41,6 @@ import javax.persistence.EntityNotFoundException
 class CourtControllerTest : TestController() {
   @MockBean
   lateinit var courtService: CourtService
-
-  @MockBean
-  lateinit var videoLinkAppointmentLinker: VideoLinkAppointmentLinker
 
   @MockBean
   lateinit var appointmentLocationsService: AppointmentLocationsService

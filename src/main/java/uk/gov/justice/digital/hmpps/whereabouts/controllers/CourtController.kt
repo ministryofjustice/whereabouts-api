@@ -22,8 +22,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsRespons
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService
-import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableLocations
@@ -38,7 +37,6 @@ import javax.validation.constraints.NotNull
 @RequestMapping(value = ["court"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class CourtController(
   private val courtService: CourtService,
-  private val appointmentLinker: VideoLinkAppointmentLinker,
   private val appointmentLocationsService: AppointmentLocationsService
 ) {
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/all-courts"])
@@ -167,13 +165,6 @@ class CourtController(
     @PathVariable("videoBookingId")
     videoBookingId: Long
   ) = courtService.deleteVideoLinkBooking(videoBookingId)
-
-  @PostMapping(path = ["/appointment-linker"])
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  @ApiOperation(value = "Create Video Link Bookings for dangling Video Link Appointments")
-  fun linkDanglingAppointments(@RequestBody chunkSize: Int?) {
-    appointmentLinker.linkAppointments(chunkSize)
-  }
 
   @PutMapping(
     path = ["/video-link-bookings/{videoLinkBookingId}/comment"],

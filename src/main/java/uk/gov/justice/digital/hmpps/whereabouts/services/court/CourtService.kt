@@ -1,6 +1,5 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services
+package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
-import com.microsoft.applicationinsights.TelemetryClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -19,7 +18,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
-import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
+import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -29,12 +29,11 @@ const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
 
 @Service
 class CourtService(
-  private val authenticationFacade: AuthenticationFacade,
   private val prisonApiService: PrisonApiService,
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val clock: Clock,
-  private val telemetryClient: TelemetryClient,
+  private val eventListener: VideoLinkBookingEventListener,
   @Value("\${courts}") private val courts: String
 ) {
 
@@ -78,7 +77,8 @@ class CourtService(
         post = postEvent?.let { toAppointment(postEvent.eventId, HearingType.POST, specification) }
       )
     )
-    trackVideoLinkBookingCreated(persistentBooking, specification, mainEvent.agencyId)
+    videoLinkBookingRepository.flush() // Force ids to be populated
+    eventListener.bookingCreated(persistentBooking, specification, mainEvent.agencyId)
     return persistentBooking.id!!
   }
 
@@ -133,7 +133,9 @@ class CourtService(
       )
     }
 
-    trackVideoLinkBookingUpdated(booking)
+    videoLinkBookingRepository.flush()
+
+    eventListener.bookingUpdated(booking, specification)
   }
 
   private fun savePrisonAppointment(
@@ -207,7 +209,7 @@ class CourtService(
     booking.toAppointments().forEach { prisonApiService.deleteAppointment(it.appointmentId) }
     videoLinkBookingRepository.deleteById(booking.id!!)
 
-    trackVideoLinkBookingDeleted(booking)
+    eventListener.bookingDeleted(booking)
   }
 
   @Transactional(readOnly = true)
@@ -290,69 +292,5 @@ class CourtService(
     locationId?.let {
       prisonApiService.getLocation(it) ?: throw ValidationException("$prefix locationId $it not found in NOMIS.")
     }
-  }
-
-  private fun trackVideoLinkBookingCreated(
-    booking: VideoLinkBooking,
-    specification: VideoLinkBookingSpecification,
-    agencyId: String
-  ) {
-    val properties = mutableMapOf(
-      "id" to (booking.id?.toString()),
-      "bookingId" to booking.main.bookingId.toString(),
-      "court" to booking.main.court,
-      "user" to authenticationFacade.currentUsername,
-      "agencyId" to agencyId,
-      "madeByTheCourt" to booking.main.madeByTheCourt.toString(),
-    )
-
-    properties.putAll(appointmentDetail(booking.main, specification.main))
-    booking.pre?.also { properties.putAll(appointmentDetail(it, specification.pre!!)) }
-    booking.post?.also { properties.putAll(appointmentDetail(it, specification.post!!)) }
-
-    telemetryClient.trackEvent("VideoLinkBookingCreated", properties, null)
-  }
-
-  private fun trackVideoLinkBookingUpdated(booking: VideoLinkBooking) {
-    telemetryClient.trackEvent("VideoLinkBookingUpdated", telemetryProperties(booking), null)
-  }
-
-  private fun trackVideoLinkBookingDeleted(booking: VideoLinkBooking) {
-    telemetryClient.trackEvent("VideoLinkBookingDeleted", telemetryProperties(booking), null)
-  }
-
-  private fun telemetryProperties(booking: VideoLinkBooking): MutableMap<String, String?> {
-    val properties = mutableMapOf(
-      "id" to (booking.id?.toString()),
-      "bookingId" to booking.main.bookingId.toString(),
-      "court" to booking.main.court,
-      "user" to authenticationFacade.currentUsername,
-    )
-
-    properties.putAll(appointmentDetail(booking.main))
-    booking.pre?.also { properties.putAll(appointmentDetail(it)) }
-    booking.post?.also { properties.putAll(appointmentDetail(it)) }
-    return properties
-  }
-
-  private fun appointmentDetail(
-    appointment: VideoLinkAppointment,
-    specification: VideoLinkAppointmentSpecification
-  ): Map<String, String> {
-    val prefix = appointment.hearingType.name.toLowerCase()
-    return mapOf(
-      "${prefix}AppointmentId" to appointment.appointmentId.toString(),
-      "${prefix}Id" to appointment.id.toString(),
-      "${prefix}Start" to specification.startTime.toString(),
-      "${prefix}End" to specification.endTime.toString(),
-    )
-  }
-
-  private fun appointmentDetail(appointment: VideoLinkAppointment): Map<String, String> {
-    val prefix = appointment.hearingType.name.toLowerCase()
-    return mapOf(
-      "${prefix}AppointmentId" to appointment.appointmentId.toString(),
-      "${prefix}Id" to appointment.id.toString(),
-    )
   }
 }
