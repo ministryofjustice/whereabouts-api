@@ -48,7 +48,8 @@ class CourtServiceTest {
   private val prisonApiService: PrisonApiService = mock()
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
-  private val eventListener: VideoLinkBookingEventListener = mock()
+  private val eventStoreListener: VideoLinkBookingEventListener = mock()
+  private val appInsightsEventListener: VideoLinkBookingEventListener = mock()
   private val clock: Clock = Clock.fixed(Instant.parse("2020-10-01T00:00:00Z"), ZoneId.of("UTC"))
 
   @Test
@@ -172,7 +173,8 @@ class CourtServiceTest {
       )
 
       verify(videoLinkBookingRepository).save(booking.copy(id = null))
-      verify(eventListener).bookingCreated(booking, specification, AGENCY_WANDSWORTH)
+      verify(appInsightsEventListener).bookingCreated(booking, specification, AGENCY_WANDSWORTH)
+      verify(eventStoreListener).bookingCreated(booking, specification, AGENCY_WANDSWORTH)
     }
 
     @Test
@@ -500,7 +502,8 @@ class CourtServiceTest {
         .usingRecursiveComparison()
         .isEqualTo(expectedAfterUpdate)
 
-      verify(eventListener).bookingUpdated(expectedAfterUpdate, updateSpecification)
+      verify(appInsightsEventListener).bookingUpdated(expectedAfterUpdate, updateSpecification)
+      verify(eventStoreListener).bookingUpdated(expectedAfterUpdate, updateSpecification)
     }
 
     /**
@@ -710,7 +713,8 @@ class CourtServiceTest {
       verify(prisonApiService).deleteAppointment(postVideoLinkAppointment.appointmentId)
 
       verify(videoLinkBookingRepository).deleteById(videoLinkBooking.id!!)
-      verify(eventListener).bookingDeleted(videoLinkBooking)
+      verify(appInsightsEventListener).bookingDeleted(videoLinkBooking)
+      verify(eventStoreListener).bookingDeleted(videoLinkBooking)
     }
   }
 
@@ -1159,7 +1163,8 @@ class CourtServiceTest {
     videoLinkAppointmentRepository,
     videoLinkBookingRepository,
     clock,
-    eventListener,
+    eventStoreListener,
+    appInsightsEventListener,
     courts
   )
 

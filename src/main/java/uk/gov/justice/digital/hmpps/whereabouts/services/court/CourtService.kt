@@ -33,7 +33,8 @@ class CourtService(
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val clock: Clock,
-  private val eventListener: VideoLinkBookingEventListener,
+  private val eventStoreListener: VideoLinkBookingEventListener,
+  private val applicationInsightsEventListener: VideoLinkBookingEventListener,
   @Value("\${courts}") private val courts: String
 ) {
 
@@ -61,7 +62,6 @@ class CourtService(
       }.toSet()
   }
 
-  @Transactional
   fun createVideoLinkBooking(specification: VideoLinkBookingSpecification): Long {
     specification.validate()
     val bookingId = specification.bookingId!!
@@ -70,20 +70,39 @@ class CourtService(
     val preEvent = specification.pre?.let { savePrisonAppointment(bookingId, comment, it) }
     val postEvent = specification.post?.let { savePrisonAppointment(bookingId, comment, it) }
 
-    val persistentBooking = videoLinkBookingRepository.save(
-      VideoLinkBooking(
-        pre = preEvent?.let { toAppointment(preEvent.eventId, HearingType.PRE, specification) },
-        main = toAppointment(mainEvent.eventId, HearingType.MAIN, specification),
-        post = postEvent?.let { toAppointment(postEvent.eventId, HearingType.POST, specification) }
-      )
+    val videoLinkBooking = VideoLinkBooking(
+      pre = preEvent?.let { toAppointment(preEvent.eventId, HearingType.PRE, specification) },
+      main = toAppointment(mainEvent.eventId, HearingType.MAIN, specification),
+      post = postEvent?.let { toAppointment(postEvent.eventId, HearingType.POST, specification) }
     )
-    videoLinkBookingRepository.flush() // Force ids to be populated
-    eventListener.bookingCreated(persistentBooking, specification, mainEvent.agencyId)
+    val agencyId = mainEvent.agencyId
+
+    val persistentBooking = makePersistentVideoLinkBooking(videoLinkBooking, specification, agencyId)
+    applicationInsightsEventListener.bookingCreated(persistentBooking, specification, agencyId)
     return persistentBooking.id!!
   }
 
   @Transactional
+  fun makePersistentVideoLinkBooking(
+    videoLinkBooking: VideoLinkBooking,
+    specification: VideoLinkBookingSpecification,
+    agencyId: String
+  ): VideoLinkBooking {
+    val persistentBooking = videoLinkBookingRepository.save(videoLinkBooking)!!
+    eventStoreListener.bookingCreated(persistentBooking, specification, agencyId)
+    return persistentBooking
+  }
+
   fun updateVideoLinkBooking(videoBookingId: Long, specification: VideoLinkBookingUpdateSpecification) {
+    val booking = doUpdateVideoLinkBooking(videoBookingId, specification)
+    applicationInsightsEventListener.bookingUpdated(booking, specification)
+  }
+
+  @Transactional
+  fun doUpdateVideoLinkBooking(
+    videoBookingId: Long,
+    specification: VideoLinkBookingUpdateSpecification
+  ): VideoLinkBooking {
     specification.validate()
     val booking = videoLinkBookingRepository
       .findById(videoBookingId)
@@ -133,9 +152,8 @@ class CourtService(
       )
     }
 
-    videoLinkBookingRepository.flush()
-
-    eventListener.bookingUpdated(booking, specification)
+    eventStoreListener.bookingUpdated(booking, specification)
+    return booking
   }
 
   private fun savePrisonAppointment(
@@ -200,8 +218,13 @@ class CourtService(
     )
   }
 
-  @Transactional
   fun deleteVideoLinkBooking(videoBookingId: Long) {
+    val booking = doDeleteVideoLinkBooking(videoBookingId)
+    applicationInsightsEventListener.bookingDeleted(booking)
+  }
+
+  @Transactional
+  fun doDeleteVideoLinkBooking(videoBookingId: Long): VideoLinkBooking {
     val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
       EntityNotFoundException("Video link booking with id $videoBookingId not found")
     }
@@ -209,7 +232,8 @@ class CourtService(
     booking.toAppointments().forEach { prisonApiService.deleteAppointment(it.appointmentId) }
     videoLinkBookingRepository.deleteById(booking.id!!)
 
-    eventListener.bookingDeleted(booking)
+    eventStoreListener.bookingDeleted(booking)
+    return booking
   }
 
   @Transactional(readOnly = true)

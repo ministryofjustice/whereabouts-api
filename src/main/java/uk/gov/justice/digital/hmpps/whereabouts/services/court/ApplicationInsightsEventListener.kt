@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
 import com.microsoft.applicationinsights.TelemetryClient
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
@@ -11,7 +10,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 
 @Component
-@Qualifier("delegate")
 class ApplicationInsightsEventListener(
   private val authenticationFacade: AuthenticationFacade,
   private val telemetryClient: TelemetryClient,

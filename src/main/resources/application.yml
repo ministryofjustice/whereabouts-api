@@ -2,6 +2,7 @@ spring:
   application:
     name: whereabouts-api
   jpa:
+    open-in-view: false
     show-sql: false
     generate-ddl: false
     hibernate:

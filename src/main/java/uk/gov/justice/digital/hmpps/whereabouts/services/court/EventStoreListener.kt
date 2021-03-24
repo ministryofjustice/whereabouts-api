@@ -1,8 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
@@ -14,8 +12,6 @@ import java.time.Clock
 import java.time.LocalDateTime
 
 @Component
-@Transactional
-@Qualifier("delegate")
 class EventStoreListener(
   val repository: VideoLinkBookingEventRepository,
   val clock: Clock,
