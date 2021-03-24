@@ -30,6 +30,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
+import uk.gov.justice.digital.hmpps.whereabouts.services.TransactionHandler
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import java.time.Clock
 import java.time.Instant
@@ -144,6 +145,7 @@ class CourtServiceTest {
           endTime = referenceTime.plusMinutes(30)
         )
       )
+
       val booking = VideoLinkBooking(
         id = expectedVideoLinkBookingId,
         main = mainVideoLinkAppointment
@@ -1159,6 +1161,7 @@ class CourtServiceTest {
   }
 
   private fun service(courts: String) = CourtService(
+    TransactionHandler(),
     prisonApiService,
     videoLinkAppointmentRepository,
     videoLinkBookingRepository,
