@@ -32,7 +32,18 @@ class ApplicationInsightsEventListener(
   }
 
   override fun bookingUpdated(booking: VideoLinkBooking, specification: VideoLinkBookingUpdateSpecification) {
-    telemetryClient.trackEvent("VideoLinkBookingUpdated", telemetryProperties(booking), null)
+    val properties = mutableMapOf(
+      "id" to (booking.id?.toString()),
+      "bookingId" to booking.main.bookingId.toString(),
+      "court" to booking.main.court,
+      "user" to authenticationFacade.currentUsername,
+    )
+
+    properties.putAll(appointmentDetail(booking.main, specification.main))
+    booking.pre?.also { properties.putAll(appointmentDetail(it, specification.pre!!)) }
+    booking.post?.also { properties.putAll(appointmentDetail(it, specification.post!!)) }
+
+    telemetryClient.trackEvent("VideoLinkBookingUpdated", properties, null)
   }
 
   override fun bookingDeleted(booking: VideoLinkBooking) {

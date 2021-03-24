@@ -18,12 +18,12 @@ import java.time.LocalDateTime
 @ActiveProfiles("test")
 @DataJpaTest
 @Transactional
-class VideoLinkVideoLinkBookingEventRepositoryTest(
+class VideoLinkBookingEventRepositoryTest(
   @Autowired val repository: VideoLinkBookingEventRepository,
   @Autowired val jdbcTemplate: JdbcTemplate
 ) {
 
-  val aTimestamp = LocalDateTime.of(2021, 3, 1, 12, 0)
+  private val aTimestamp: LocalDateTime = LocalDateTime.of(2021, 3, 1, 12, 0)
 
   val createEvent = VideoLinkBookingEvent(
     timestamp = aTimestamp,
@@ -59,7 +59,6 @@ class VideoLinkVideoLinkBookingEventRepositoryTest(
 
   @Test
   fun `persist Create event`() {
-
     repository.save(createEvent.copy())
     TestTransaction.flagForCommit()
     TestTransaction.end()
@@ -70,6 +69,7 @@ class VideoLinkVideoLinkBookingEventRepositoryTest(
 
     val event = events[0]
     assertThat(event).usingRecursiveComparison().ignoringFields("eventId").isEqualTo(createEvent)
+    assertThat(event.eventId).isNotNull
   }
 
   @Test
