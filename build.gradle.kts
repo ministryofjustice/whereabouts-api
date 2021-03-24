@@ -46,6 +46,7 @@ dependencies {
   implementation("org.apache.commons:commons-text:1.9")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+  implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
   implementation("com.google.code.gson:gson")
   implementation("com.google.guava:guava")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
