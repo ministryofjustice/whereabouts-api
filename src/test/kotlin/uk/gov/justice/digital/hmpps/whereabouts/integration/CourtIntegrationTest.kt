@@ -6,7 +6,6 @@ import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,26 +33,12 @@ class CourtIntegrationTest : IntegrationTest() {
   @Autowired
   lateinit var objectMapper: ObjectMapper
 
-  @Autowired
+  @MockBean
   lateinit var telemetryClient: TelemetryClient
 
   val tomorrow: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).plusDays(1)
   val yesterday: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).minusDays(1)
   val referenceTime: LocalDateTime = tomorrow.plusHours(9)
-
-  /**
-   * The 'Returns 204 when successfully deleting a booking' test below was failing on a 5 sec timeout in webTestClient,
-   * but only when all the tests were run.
-   * I think the problem might be that TelemetryClient#trackEvent is blocking for at least 5 seconds.
-   * Is that because a buffer has filled?.
-   * The call to telemetryClient.isDisabled below takes 5 seconds to return when run as a test according to the gradle build output.
-   * Making this call in place prior to each test being run seems to prevent the tests failing due to webTestClient timeouts.
-   * TODO: Find out what's really going on and fix it!
-   */
-  @BeforeEach
-  fun checkTelemetryClient() {
-    telemetryClient.isDisabled
-  }
 
   @Test
   fun `should list all courts`() {
