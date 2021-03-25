@@ -33,11 +33,9 @@ class CourtService(
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val clock: Clock,
-  private val eventStoreListener: VideoLinkBookingEventListener,
-  private val applicationInsightsEventListener: VideoLinkBookingEventListener,
+  private val videoLinkBookingEventListener: VideoLinkBookingEventListener,
   @Value("\${courts}") private val courts: String
 ) {
-
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
@@ -62,6 +60,7 @@ class CourtService(
       }.toSet()
   }
 
+  @Transactional
   fun createVideoLinkBooking(specification: VideoLinkBookingSpecification): Long {
     specification.validate()
     val bookingId = specification.bookingId!!
@@ -77,29 +76,15 @@ class CourtService(
     )
     val agencyId = mainEvent.agencyId
 
-    val persistentBooking = makePersistentVideoLinkBooking(videoLinkBooking, specification, agencyId)
-    applicationInsightsEventListener.bookingCreated(persistentBooking, specification, agencyId)
+    val persistentBooking = videoLinkBookingRepository.save(videoLinkBooking)!!
+
+    videoLinkBookingEventListener.bookingCreated(persistentBooking, specification, agencyId)
+
     return persistentBooking.id!!
   }
 
   @Transactional
-  fun makePersistentVideoLinkBooking(
-    videoLinkBooking: VideoLinkBooking,
-    specification: VideoLinkBookingSpecification,
-    agencyId: String
-  ): VideoLinkBooking {
-    val persistentBooking = videoLinkBookingRepository.save(videoLinkBooking)!!
-    eventStoreListener.bookingCreated(persistentBooking, specification, agencyId)
-    return persistentBooking
-  }
-
-  fun updateVideoLinkBooking(videoBookingId: Long, specification: VideoLinkBookingUpdateSpecification) {
-    val booking = doUpdateVideoLinkBooking(videoBookingId, specification)
-    applicationInsightsEventListener.bookingUpdated(booking, specification)
-  }
-
-  @Transactional
-  fun doUpdateVideoLinkBooking(
+  fun updateVideoLinkBooking(
     videoBookingId: Long,
     specification: VideoLinkBookingUpdateSpecification
   ): VideoLinkBooking {
@@ -152,7 +137,7 @@ class CourtService(
       )
     }
 
-    eventStoreListener.bookingUpdated(booking, specification)
+    videoLinkBookingEventListener.bookingUpdated(booking, specification)
     return booking
   }
 
@@ -218,21 +203,15 @@ class CourtService(
     )
   }
 
-  fun deleteVideoLinkBooking(videoBookingId: Long) {
-    val booking = doDeleteVideoLinkBooking(videoBookingId)
-    applicationInsightsEventListener.bookingDeleted(booking)
-  }
-
   @Transactional
-  fun doDeleteVideoLinkBooking(videoBookingId: Long): VideoLinkBooking {
+  fun deleteVideoLinkBooking(videoBookingId: Long): VideoLinkBooking {
     val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
       EntityNotFoundException("Video link booking with id $videoBookingId not found")
     }
 
     booking.toAppointments().forEach { prisonApiService.deleteAppointment(it.appointmentId) }
     videoLinkBookingRepository.deleteById(booking.id!!)
-
-    eventStoreListener.bookingDeleted(booking)
+    videoLinkBookingEventListener.bookingDeleted(booking)
     return booking
   }
 

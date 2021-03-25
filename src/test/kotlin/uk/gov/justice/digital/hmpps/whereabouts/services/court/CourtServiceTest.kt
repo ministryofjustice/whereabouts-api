@@ -48,8 +48,7 @@ class CourtServiceTest {
   private val prisonApiService: PrisonApiService = mock()
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
-  private val eventStoreListener: VideoLinkBookingEventListener = mock()
-  private val appInsightsEventListener: VideoLinkBookingEventListener = mock()
+  private val videoLinkBookingEventListener: VideoLinkBookingEventListener = mock()
   private val clock: Clock = Clock.fixed(Instant.parse("2020-10-01T00:00:00Z"), ZoneId.of("UTC"))
 
   @Test
@@ -144,6 +143,7 @@ class CourtServiceTest {
           endTime = referenceTime.plusMinutes(30)
         )
       )
+
       val booking = VideoLinkBooking(
         id = expectedVideoLinkBookingId,
         main = mainVideoLinkAppointment
@@ -173,8 +173,7 @@ class CourtServiceTest {
       )
 
       verify(videoLinkBookingRepository).save(booking.copy(id = null))
-      verify(appInsightsEventListener).bookingCreated(booking, specification, AGENCY_WANDSWORTH)
-      verify(eventStoreListener).bookingCreated(booking, specification, AGENCY_WANDSWORTH)
+      verify(videoLinkBookingEventListener).bookingCreated(booking, specification, AGENCY_WANDSWORTH)
     }
 
     @Test
@@ -502,8 +501,7 @@ class CourtServiceTest {
         .usingRecursiveComparison()
         .isEqualTo(expectedAfterUpdate)
 
-      verify(appInsightsEventListener).bookingUpdated(expectedAfterUpdate, updateSpecification)
-      verify(eventStoreListener).bookingUpdated(expectedAfterUpdate, updateSpecification)
+      verify(videoLinkBookingEventListener).bookingUpdated(expectedAfterUpdate, updateSpecification)
     }
 
     /**
@@ -713,8 +711,7 @@ class CourtServiceTest {
       verify(prisonApiService).deleteAppointment(postVideoLinkAppointment.appointmentId)
 
       verify(videoLinkBookingRepository).deleteById(videoLinkBooking.id!!)
-      verify(appInsightsEventListener).bookingDeleted(videoLinkBooking)
-      verify(eventStoreListener).bookingDeleted(videoLinkBooking)
+      verify(videoLinkBookingEventListener).bookingDeleted(videoLinkBooking)
     }
   }
 
@@ -1163,8 +1160,7 @@ class CourtServiceTest {
     videoLinkAppointmentRepository,
     videoLinkBookingRepository,
     clock,
-    eventStoreListener,
-    appInsightsEventListener,
+    videoLinkBookingEventListener,
     courts
   )
 

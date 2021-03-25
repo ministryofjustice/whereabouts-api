@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.client.WireMock
+import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -31,6 +32,9 @@ class CourtIntegrationTest : IntegrationTest() {
 
   @Autowired
   lateinit var objectMapper: ObjectMapper
+
+  @MockBean
+  lateinit var telemetryClient: TelemetryClient
 
   val tomorrow: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).plusDays(1)
   val yesterday: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).minusDays(1)
