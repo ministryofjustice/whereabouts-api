@@ -9,9 +9,9 @@ import java.util.stream.Stream
 
 class EventToCsvConverterTest {
   val expectedHeader =
-    "eventId,timestamp,videoLinkBookingId,eventType,userId,agencyId,court,madeByTheCourt,mainStartTime,mainEndTime,preStartTime,preEndTime,postStartTime,postEndTime\n"
+    "eventId,timestamp,videoLinkBookingId,eventType,agencyId,court,madeByTheCourt,mainStartTime,mainEndTime,preStartTime,preEndTime,postStartTime,postEndTime\n"
   val exepectedRow =
-    "1000,2021-03-01T00:00:00,1,CREATE,X,MDI,\"Court with ,.\"\"' characters\",false,2021-03-01T09:00:00,2021-03-01T10:00:00,2021-03-01T08:00:00,2021-03-01T09:00:00,2021-03-01T10:00:00,2021-03-01T11:00:00\n"
+    "1000,2021-03-01T00:00:00,1,CREATE,MDI,\"Court with ,.\"\"' characters\",false,2021-03-01T09:00:00,2021-03-01T10:00:00,2021-03-01T08:00:00,2021-03-01T09:00:00,2021-03-01T10:00:00,2021-03-01T11:00:00\n"
 
   val event = VideoLinkBookingEvent(
     eventId = 1000L,
@@ -71,7 +71,7 @@ class EventToCsvConverterTest {
         exepectedRow +
         exepectedRow +
         exepectedRow +
-        ",\"2021-03-01T01:01:01.000000001\",99,DELETE,,,,,,,,,,\n"
+        ",\"2021-03-01T01:01:01.000000001\",99,DELETE,,,,,,,,,\n"
     )
   }
 }

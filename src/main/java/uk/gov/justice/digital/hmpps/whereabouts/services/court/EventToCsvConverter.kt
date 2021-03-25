@@ -35,7 +35,6 @@ class EventToCsvConverter {
           .addColumn("timestamp")
           .addColumn("videoLinkBookingId", CsvSchema.ColumnType.NUMBER)
           .addColumn("eventType")
-          .addColumn("userId")
           .addColumn("agencyId")
           .addColumn("court")
           .addColumn("madeByTheCourt", CsvSchema.ColumnType.BOOLEAN)
