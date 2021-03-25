@@ -47,7 +47,7 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
       .expectStatus().isOk
       .expectBody().consumeWith {
         val csv = String(it.responseBody)
-        assertThat(csv).startsWith("eventId,timestamp,videoLinkBookingId,eventType,userId,agencyId,court,madeByTheCourt,mainStartTime,mainEndTime,preStartTime,preEndTime,postStartTime,postEndTime")
+        assertThat(csv).startsWith("eventId,timestamp,videoLinkBookingId,eventType,agencyId,court,madeByTheCourt,mainStartTime,mainEndTime,preStartTime,preEndTime,postStartTime,postEndTime")
         assertThat(csv).hasLineCount((bookingCount + 1).toInt())
       }
   }
