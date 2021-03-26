@@ -136,7 +136,11 @@ class CourtService(
         madeByTheCourt = madeByTheCourt
       )
     }
-
+    /**
+     * Ensure that the new VideoLinkAppointment objects are persistent
+     * and so have ids before the ApplicationInsightsEventListener is called.
+     */
+    videoLinkBookingRepository.flush()
     videoLinkBookingEventListener.bookingUpdated(booking, specification)
     return booking
   }

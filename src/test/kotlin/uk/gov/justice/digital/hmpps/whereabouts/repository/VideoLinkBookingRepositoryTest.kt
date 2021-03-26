@@ -273,6 +273,20 @@ class VideoLinkBookingRepositoryTest(
       madeByTheCourt = false
     )
 
+    /**
+     * Confirm that calling flush() populates ids in the new VideoLinkAppointment objects.
+     * CourtService#updateVideoLinkBooking depends on this behaviour to add those ids to an Application Insights custom
+     * event. Confirming the required behaviour like this is easier than changing the CourtIntegrationTest class so that
+     * it uses this repository instead of a mock.
+     */
+    assertThat(booking.pre?.id).isNull()
+    assertThat(booking.main.id).isNull()
+    assertThat(booking.post?.id).isNull()
+    repository.flush()
+    assertThat(booking.pre?.id).isNotNull
+    assertThat(booking.main.id).isNotNull
+    assertThat(booking.post?.id).isNotNull
+
     TestTransaction.flagForCommit()
     TestTransaction.end()
     TestTransaction.start()
