@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.1.1"
-  kotlin("plugin.spring") version "1.4.30"
-  kotlin("plugin.jpa") version "1.4.30"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.1.2"
+  kotlin("plugin.spring") version "1.4.32"
+  kotlin("plugin.jpa") version "1.4.32"
 }
 
 configurations {
@@ -58,7 +58,7 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
 
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.24.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.25.0")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 
