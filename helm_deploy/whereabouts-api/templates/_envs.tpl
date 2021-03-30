@@ -25,9 +25,6 @@ env:
   - name: OAUTH_ENDPOINT_URL
     value: "{{ .Values.env.OAUTH_ENDPOINT_URL }}"
 
-  - name: OAUTH_CLIENT_ID
-    value: "{{ .Values.env.OAUTH_CLIENT_ID }}"
-
   - name: APPINSIGHTS_INSTRUMENTATIONKEY
     valueFrom:
       secretKeyRef:
@@ -36,6 +33,12 @@ env:
 
   - name: APPLICATIONINSIGHTS_CONNECTION_STRING
     value: "InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"
+
+  - name: OAUTH_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "app.name" . }}
+        key: OAUTH_CLIENT_ID
 
   - name: OAUTH_CLIENT_SECRET
     valueFrom:
