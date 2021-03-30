@@ -1,6 +1,7 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services
+package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
-import com.microsoft.applicationinsights.TelemetryClient
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,7 +18,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
-import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
+import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -27,14 +29,16 @@ const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
 
 @Service
 class CourtService(
-  private val authenticationFacade: AuthenticationFacade,
   private val prisonApiService: PrisonApiService,
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val clock: Clock,
-  private val telemetryClient: TelemetryClient,
+  private val videoLinkBookingEventListener: VideoLinkBookingEventListener,
   @Value("\${courts}") private val courts: String
 ) {
+  companion object {
+    val log: Logger = LoggerFactory.getLogger(this::class.java)
+  }
 
   fun getCourtLocations() = courts.split(",").toSet()
 
@@ -65,19 +69,25 @@ class CourtService(
     val preEvent = specification.pre?.let { savePrisonAppointment(bookingId, comment, it) }
     val postEvent = specification.post?.let { savePrisonAppointment(bookingId, comment, it) }
 
-    val persistentBooking = videoLinkBookingRepository.save(
-      VideoLinkBooking(
-        pre = preEvent?.let { toAppointment(preEvent.eventId, HearingType.PRE, specification) },
-        main = toAppointment(mainEvent.eventId, HearingType.MAIN, specification),
-        post = postEvent?.let { toAppointment(postEvent.eventId, HearingType.POST, specification) }
-      )
+    val videoLinkBooking = VideoLinkBooking(
+      pre = preEvent?.let { toAppointment(preEvent.eventId, HearingType.PRE, specification) },
+      main = toAppointment(mainEvent.eventId, HearingType.MAIN, specification),
+      post = postEvent?.let { toAppointment(postEvent.eventId, HearingType.POST, specification) }
     )
-    trackVideoLinkBookingCreated(persistentBooking, specification, mainEvent.agencyId)
+    val agencyId = mainEvent.agencyId
+
+    val persistentBooking = videoLinkBookingRepository.save(videoLinkBooking)!!
+
+    videoLinkBookingEventListener.bookingCreated(persistentBooking, specification, agencyId)
+
     return persistentBooking.id!!
   }
 
   @Transactional
-  fun updateVideoLinkBooking(videoBookingId: Long, specification: VideoLinkBookingUpdateSpecification) {
+  fun updateVideoLinkBooking(
+    videoBookingId: Long,
+    specification: VideoLinkBookingUpdateSpecification
+  ): VideoLinkBooking {
     specification.validate()
     val booking = videoLinkBookingRepository
       .findById(videoBookingId)
@@ -97,13 +107,14 @@ class CourtService(
     val postEvent = specification.post?.let { savePrisonAppointment(bookingId, comment, it) }
 
     val court = booking.main.court
+    val madeByTheCourt = booking.main.madeByTheCourt
 
     booking.main = VideoLinkAppointment(
       bookingId = bookingId,
       appointmentId = mainEvent.eventId,
       court = court,
       hearingType = HearingType.MAIN,
-      madeByTheCourt = specification.madeByTheCourt
+      madeByTheCourt = madeByTheCourt
     )
 
     booking.pre = preEvent?.let {
@@ -112,7 +123,7 @@ class CourtService(
         appointmentId = it.eventId,
         court = court,
         hearingType = HearingType.PRE,
-        madeByTheCourt = specification.madeByTheCourt
+        madeByTheCourt = madeByTheCourt
       )
     }
 
@@ -122,11 +133,16 @@ class CourtService(
         appointmentId = it.eventId,
         court = court,
         hearingType = HearingType.POST,
-        madeByTheCourt = specification.madeByTheCourt
+        madeByTheCourt = madeByTheCourt
       )
     }
-
-    trackVideoLinkBookingUpdated(booking)
+    /**
+     * Ensure that the new VideoLinkAppointment objects are persistent
+     * and so have ids before the ApplicationInsightsEventListener is called.
+     */
+    videoLinkBookingRepository.flush()
+    videoLinkBookingEventListener.bookingUpdated(booking, specification)
+    return booking
   }
 
   private fun savePrisonAppointment(
@@ -192,19 +208,23 @@ class CourtService(
   }
 
   @Transactional
-  fun deleteVideoLinkBooking(videoBookingId: Long) {
+  fun deleteVideoLinkBooking(videoBookingId: Long): VideoLinkBooking {
     val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
       EntityNotFoundException("Video link booking with id $videoBookingId not found")
     }
 
     booking.toAppointments().forEach { prisonApiService.deleteAppointment(it.appointmentId) }
     videoLinkBookingRepository.deleteById(booking.id!!)
-
-    trackVideoLinkBookingDeleted(booking)
+    videoLinkBookingEventListener.bookingDeleted(booking)
+    return booking
   }
 
   @Transactional(readOnly = true)
-  fun getVideoLinkBookingsForPrisonAndDateAndCourt(agencyId: String, date: LocalDate, court: String?): List<VideoLinkBookingResponse> {
+  fun getVideoLinkBookingsForPrisonAndDateAndCourt(
+    agencyId: String,
+    date: LocalDate,
+    court: String?
+  ): List<VideoLinkBookingResponse> {
     val scheduledAppointments = prisonApiService
       .getScheduledAppointmentsByAgencyAndDate(agencyId, date)
       .filter { it.appointmentTypeCode == "VLB" }
@@ -218,6 +238,7 @@ class CourtService(
     return bookings
       .filter { scheduledAppointmentsById.containsKey(it.main.appointmentId) }
       .filter { if (court == null) true else it.main.court == court }
+      .filter { hasAnEndDate(scheduledAppointmentsById[it.main.appointmentId]!!) }
       .map { b ->
         val prisonMain = scheduledAppointmentsById[b.main.appointmentId]!!
         VideoLinkBookingResponse(
@@ -232,14 +253,29 @@ class CourtService(
       }
   }
 
+  fun updateVideoLinkBookingComment(videoLinkBookingId: Long, comment: String?) {
+    val booking = videoLinkBookingRepository.findById(videoLinkBookingId).orElseThrow {
+      EntityNotFoundException("Video link booking with id $videoLinkBookingId not found")
+    }
+    booking.main.apply { prisonApiService.updateAppointmentComment(appointmentId, comment) }
+    booking.pre?.apply { prisonApiService.updateAppointmentComment(appointmentId, comment) }
+    booking.post?.apply { prisonApiService.updateAppointmentComment(appointmentId, comment) }
+  }
+
   private fun toVideoLinkAppointmentDto(scheduledAppointment: ScheduledAppointmentDto?) =
-    scheduledAppointment?.let {
+    scheduledAppointment?.takeIf { hasAnEndDate(it) }?.let {
       VideoLinkBookingResponse.LocationTimeslot(
         locationId = it.locationId,
         startTime = it.startTime,
-        endTime = it.endTime
+        endTime = it.endTime!!
       )
     }
+
+  private fun hasAnEndDate(it: ScheduledAppointmentDto): Boolean {
+    val hasEndDate = it.endTime != null
+    if (!hasEndDate) log.error("Appointment with id ${it.id} has no end date")
+    return hasEndDate
+  }
 
   private fun VideoLinkBookingSpecification.validate() {
     main.validate("Main")
@@ -263,69 +299,5 @@ class CourtService(
     locationId?.let {
       prisonApiService.getLocation(it) ?: throw ValidationException("$prefix locationId $it not found in NOMIS.")
     }
-  }
-
-  private fun trackVideoLinkBookingCreated(
-    booking: VideoLinkBooking,
-    specification: VideoLinkBookingSpecification,
-    agencyId: String
-  ) {
-    val properties = mutableMapOf(
-      "id" to (booking.id?.toString()),
-      "bookingId" to booking.main.bookingId.toString(),
-      "court" to booking.main.court,
-      "user" to authenticationFacade.currentUsername,
-      "agencyId" to agencyId,
-      "madeByTheCourt" to booking.main.madeByTheCourt.toString(),
-    )
-
-    properties.putAll(appointmentDetail(booking.main, specification.main))
-    booking.pre?.also { properties.putAll(appointmentDetail(it, specification.pre!!)) }
-    booking.post?.also { properties.putAll(appointmentDetail(it, specification.post!!)) }
-
-    telemetryClient.trackEvent("VideoLinkBookingCreated", properties, null)
-  }
-
-  private fun trackVideoLinkBookingUpdated(booking: VideoLinkBooking) {
-    telemetryClient.trackEvent("VideoLinkBookingUpdated", telemetryProperties(booking), null)
-  }
-
-  private fun trackVideoLinkBookingDeleted(booking: VideoLinkBooking) {
-    telemetryClient.trackEvent("VideoLinkBookingDeleted", telemetryProperties(booking), null)
-  }
-
-  private fun telemetryProperties(booking: VideoLinkBooking): MutableMap<String, String?> {
-    val properties = mutableMapOf(
-      "id" to (booking.id?.toString()),
-      "bookingId" to booking.main.bookingId.toString(),
-      "court" to booking.main.court,
-      "user" to authenticationFacade.currentUsername,
-    )
-
-    properties.putAll(appointmentDetail(booking.main))
-    booking.pre?.also { properties.putAll(appointmentDetail(it)) }
-    booking.post?.also { properties.putAll(appointmentDetail(it)) }
-    return properties
-  }
-
-  private fun appointmentDetail(
-    appointment: VideoLinkAppointment,
-    specification: VideoLinkAppointmentSpecification
-  ): Map<String, String> {
-    val prefix = appointment.hearingType.name.toLowerCase()
-    return mapOf(
-      "${prefix}AppointmentId" to appointment.appointmentId.toString(),
-      "${prefix}Id" to appointment.id.toString(),
-      "${prefix}Start" to specification.startTime.toString(),
-      "${prefix}End" to specification.endTime.toString(),
-    )
-  }
-
-  private fun appointmentDetail(appointment: VideoLinkAppointment): Map<String, String> {
-    val prefix = appointment.hearingType.name.toLowerCase()
-    return mapOf(
-      "${prefix}AppointmentId" to appointment.appointmentId.toString(),
-      "${prefix}Id" to appointment.id.toString(),
-    )
   }
 }

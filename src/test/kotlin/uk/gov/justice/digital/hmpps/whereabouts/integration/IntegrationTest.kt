@@ -5,9 +5,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.TestingAuthenticationToken
@@ -18,6 +16,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.CaseNotesMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
+import uk.gov.justice.digital.hmpps.whereabouts.utils.JwtAuthHelper
 import wiremock.org.apache.commons.io.IOUtils
 import java.nio.charset.StandardCharsets
 
@@ -32,8 +31,8 @@ abstract class IntegrationTest {
   @Autowired
   lateinit var gson: Gson
 
-  @Value("\${token}")
-  private val token: String? = null
+  @Autowired
+  lateinit var jwtAuthHelper: JwtAuthHelper
 
   companion object {
     @JvmField
@@ -83,21 +82,11 @@ abstract class IntegrationTest {
     oauthMockServer.stubGrantToken()
   }
 
-  internal fun createHeaderEntity(entity: Any): HttpEntity<*> {
-    val headers = HttpHeaders()
-    headers.add("Authorization", "bearer $token")
-    headers.contentType = MediaType.APPLICATION_JSON
-    return HttpEntity(entity, headers)
+  internal fun setHeaders(contentType: MediaType = MediaType.APPLICATION_JSON): (HttpHeaders) -> Unit = {
+    it.setBearerAuth(jwtAuthHelper.createJwt(subject = "ITAG_USER", roles = listOf("ROLE_LICENCE_CA", "ROLE_KW_ADMIN"), clientId = "elite2apiclient"))
+    it.contentType = contentType
   }
 
-  internal fun setHeaders(): (HttpHeaders) -> Unit {
-    return {
-      it.setBearerAuth(token!!)
-      it.setContentType(MediaType.APPLICATION_JSON)
-    }
-  }
-
-  fun loadJsonFile(jsonFile: String): String {
-    return IOUtils.toString(javaClass.getResourceAsStream(jsonFile), StandardCharsets.UTF_8.toString())
-  }
+  fun loadJsonFile(jsonFile: String): String =
+    IOUtils.toString(javaClass.getResourceAsStream(jsonFile), StandardCharsets.UTF_8.toString())
 }

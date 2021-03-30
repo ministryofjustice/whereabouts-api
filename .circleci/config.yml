@@ -1,8 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@2.1.0
-  owasp: entur/owasp@0.0.10
+  hmpps: ministryofjustice/hmpps@3.0
 
 executors:
   validator:
@@ -52,6 +51,8 @@ workflows:
           filters:
             tags:
               ignore: /.*/
+      - hmpps/helm_lint:
+          name: helm_lint
       - hmpps/build_docker:
           name: build_docker
           filters:
@@ -69,6 +70,7 @@ workflows:
                 - main
           requires:
             - validate
+            - helm_lint
             - build_docker
       - request-preprod-approval:
           type: approval
@@ -96,7 +98,7 @@ workflows:
           requires:
             - request-prod-approval
 
-  scheduled:
+  security:
     triggers:
       - schedule:
           cron: "0 7 * * 1-5"
@@ -105,5 +107,9 @@ workflows:
               only:
                 - main
     jobs:
-      - owasp/gradle_owasp_dependency_check:
-          executor: hmpps/java
+      - hmpps/gradle_owasp_dependency_check:
+          context:
+            - hmpps-common-vars
+      - hmpps/veracode_pipeline_scan:
+          context:
+            - hmpps-common-vars

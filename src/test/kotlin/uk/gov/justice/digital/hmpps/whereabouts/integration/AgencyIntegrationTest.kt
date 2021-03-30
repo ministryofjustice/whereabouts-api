@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class AgencyIntegrationTest : IntegrationTest() {
@@ -28,7 +29,13 @@ class AgencyIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .json(loadJsonFile("MDI_location_groups.json"))
+      .jsonPath("[0].name").isEqualTo("Casu")
+      .jsonPath("[1].name").isEqualTo("Houseblock 1")
+      .jsonPath("[1].key").isEqualTo("Houseblock 1")
+      .jsonPath("[1].children[0].name").isEqualTo("A-Wing")
+      .jsonPath("[1].children[0].key").isEqualTo("A-Wing")
+      .jsonPath("[1].children[0].children").isEmpty
+      .jsonPath("$.length()").value<Int> { assertThat(it).isGreaterThan(2) }
   }
 
   @Test

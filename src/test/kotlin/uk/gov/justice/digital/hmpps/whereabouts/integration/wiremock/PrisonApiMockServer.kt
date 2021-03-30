@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
+import wiremock.org.eclipse.jetty.http.HttpStatus
 import java.time.LocalDate
 
 class PrisonApiMockServer : WireMockServer(8999) {
@@ -53,6 +54,17 @@ class PrisonApiMockServer : WireMockServer(8999) {
         .willReturn(
           aResponse()
             .withStatus(status)
+        )
+    )
+  }
+
+  fun stubUpdateAppointmentComment(appointmentId: Long, status: Int = HttpStatus.NO_CONTENT_204) {
+    val updateAppointmentUrl = "/api/appointments/$appointmentId/comment"
+
+    stubFor(
+      put(urlPathEqualTo(updateAppointmentUrl))
+        .willReturn(
+          aResponse().withStatus(status)
         )
     )
   }
@@ -398,6 +410,32 @@ class PrisonApiMockServer : WireMockServer(8999) {
                 )
               )
             )
+        )
+    )
+  }
+
+  fun stubGetAgencyLocationsForTypeUnrestricted(agencyId: String) {
+    stubFor(
+      get(urlEqualTo("/api/agencies/$agencyId/locations?eventType=APP"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(
+              gson.toJson(
+                listOf(
+                  mapOf(
+                    "locationId" to "1",
+                    "locationType" to "VIDE",
+                    "description" to "A VLB location",
+                    "agencyId" to agencyId,
+                    "currentOccupancy" to "0",
+                    "locationPrefix" to "XXX",
+                    "operationalCapacity" to "10",
+                  )
+                )
+              )
+            )
+            .withStatus(200)
         )
     )
   }

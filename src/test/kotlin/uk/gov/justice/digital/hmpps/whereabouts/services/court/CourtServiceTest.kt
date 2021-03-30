@@ -1,9 +1,9 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services
+package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
-import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -29,7 +29,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
-import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
+import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -45,10 +46,9 @@ const val AGENCY_WANDSWORTH = "WWI"
 class CourtServiceTest {
 
   private val prisonApiService: PrisonApiService = mock()
-  private val authenticationFacade: AuthenticationFacade = mock()
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
-  private val telemetryClient: TelemetryClient = mock()
+  private val videoLinkBookingEventListener: VideoLinkBookingEventListener = mock()
   private val clock: Clock = Clock.fixed(Instant.parse("2020-10-01T00:00:00Z"), ZoneId.of("UTC"))
 
   @Test
@@ -132,6 +132,18 @@ class CourtServiceTest {
     @Test
     fun `happy flow - Main appointment only - madeByTheCourt`() {
 
+      val specification = VideoLinkBookingSpecification(
+        bookingId = 1L,
+        court = YORK_CC,
+        comment = "Comment",
+        madeByTheCourt = true,
+        main = VideoLinkAppointmentSpecification(
+          locationId = 2L,
+          startTime = referenceTime,
+          endTime = referenceTime.plusMinutes(30)
+        )
+      )
+
       val booking = VideoLinkBooking(
         id = expectedVideoLinkBookingId,
         main = mainVideoLinkAppointment
@@ -145,19 +157,7 @@ class CourtServiceTest {
       )
       whenever(videoLinkBookingRepository.save(any())).thenReturn(booking)
 
-      val vlbBookingId = service.createVideoLinkBooking(
-        VideoLinkBookingSpecification(
-          bookingId = 1L,
-          court = YORK_CC,
-          comment = "Comment",
-          madeByTheCourt = true,
-          main = VideoLinkAppointmentSpecification(
-            locationId = 2L,
-            startTime = referenceTime,
-            endTime = referenceTime.plusMinutes(30)
-          )
-        )
-      )
+      val vlbBookingId = service.createVideoLinkBooking(specification)
 
       assertThat(vlbBookingId).isEqualTo(expectedVideoLinkBookingId)
 
@@ -173,6 +173,7 @@ class CourtServiceTest {
       )
 
       verify(videoLinkBookingRepository).save(booking.copy(id = null))
+      verify(videoLinkBookingEventListener).bookingCreated(booking, specification, AGENCY_WANDSWORTH)
     }
 
     @Test
@@ -331,58 +332,6 @@ class CourtServiceTest {
     }
 
     @Test
-    fun `happy flow - telemetry`() {
-
-      val endTime = referenceTime.plusMinutes(20)
-
-      whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(
-        Event(
-          mainAppointmentId,
-          AGENCY_WANDSWORTH
-        )
-      )
-      whenever(videoLinkBookingRepository.save(any()))
-        .thenReturn(
-          VideoLinkBooking(
-            id = expectedVideoLinkBookingId,
-            main = mainVideoLinkAppointment.copy(id = 12L)
-          )
-        )
-      whenever(authenticationFacade.currentUsername).thenReturn("A_USER")
-
-      service.createVideoLinkBooking(
-        VideoLinkBookingSpecification(
-          bookingId = 1L,
-          court = YORK_CC,
-          comment = "Comment",
-          madeByTheCourt = true,
-          main = VideoLinkAppointmentSpecification(
-            locationId = 2L,
-            startTime = referenceTime,
-            endTime = endTime
-          )
-        )
-      )
-
-      verify(telemetryClient).trackEvent(
-        "VideoLinkBookingCreated",
-        mapOf(
-          "id" to "11",
-          "bookingId" to "1",
-          "court" to "York Crown Court",
-          "agencyId" to AGENCY_WANDSWORTH,
-          "user" to "A_USER",
-          "madeByTheCourt" to "true",
-          "mainAppointmentId" to "12",
-          "mainId" to "12",
-          "mainStart" to referenceTime.toString(),
-          "mainEnd" to endTime.toString(),
-        ),
-        null
-      )
-    }
-
-    @Test
     fun `happy flow - pre, main and post appointments - Not madeByTheCourt`() {
 
       val offenderBookingId = 1L
@@ -439,8 +388,6 @@ class CourtServiceTest {
 
       whenever(videoLinkBookingRepository.save(any())).thenReturn(booking)
 
-      whenever(authenticationFacade.currentUsername).thenReturn("A_USER")
-
       val vlbBookingId = service.createVideoLinkBooking(
         VideoLinkBookingSpecification(
           bookingId = offenderBookingId,
@@ -479,34 +426,6 @@ class CourtServiceTest {
           post = booking.post?.copy(id = null)
         )
       )
-
-      verify(telemetryClient).trackEvent(
-        "VideoLinkBookingCreated",
-        mapOf(
-          "id" to "11",
-          "bookingId" to "1",
-          "court" to "York Crown Court",
-          "agencyId" to AGENCY_WANDSWORTH,
-          "user" to "A_USER",
-          "madeByTheCourt" to "false",
-
-          "mainAppointmentId" to "12",
-          "mainId" to "21",
-          "mainStart" to referenceTime.toString(),
-          "mainEnd" to referenceTime.plusMinutes(30).toString(),
-
-          "preAppointmentId" to "13",
-          "preId" to "20",
-          "preStart" to "2020-10-09T10:10",
-          "preEnd" to "2020-10-09T10:30",
-
-          "postAppointmentId" to "14",
-          "postId" to "22",
-          "postStart" to "2020-10-09T11:00",
-          "postEnd" to "2020-10-09T11:20",
-        ),
-        null
-      )
     }
   }
 
@@ -544,18 +463,16 @@ class CourtServiceTest {
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(theBooking))
       whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(Event(3L, "WRI"))
 
-      service.updateVideoLinkBooking(
-        1L,
-        VideoLinkBookingUpdateSpecification(
-          comment = "New Comment",
-          madeByTheCourt = false,
-          main = VideoLinkAppointmentSpecification(
-            locationId = 99L,
-            startTime = referenceTime,
-            endTime = referenceTime.plusMinutes(30),
-          )
+      val updateSpecification = VideoLinkBookingUpdateSpecification(
+        comment = "New Comment",
+        main = VideoLinkAppointmentSpecification(
+          locationId = 99L,
+          startTime = referenceTime,
+          endTime = referenceTime.plusMinutes(30),
         )
       )
+
+      service.updateVideoLinkBooking(1L, updateSpecification)
 
       verify(prisonApiService).deleteAppointment(40L)
       verify(prisonApiService).postAppointment(
@@ -569,20 +486,22 @@ class CourtServiceTest {
         )
       )
 
+      val expectedAfterUpdate = VideoLinkBooking(
+        id = 1L,
+        main = VideoLinkAppointment(
+          bookingId = 30L,
+          appointmentId = 3L,
+          court = "The court",
+          hearingType = HearingType.MAIN,
+          madeByTheCourt = true
+        )
+      )
+
       assertThat(theBooking)
         .usingRecursiveComparison()
-        .isEqualTo(
-          VideoLinkBooking(
-            id = 1L,
-            main = VideoLinkAppointment(
-              bookingId = 30L,
-              appointmentId = 3L,
-              court = "The court",
-              hearingType = HearingType.MAIN,
-              madeByTheCourt = false
-            )
-          )
-        )
+        .isEqualTo(expectedAfterUpdate)
+
+      verify(videoLinkBookingEventListener).bookingUpdated(expectedAfterUpdate, updateSpecification)
     }
 
     /**
@@ -596,7 +515,6 @@ class CourtServiceTest {
           1L,
           VideoLinkBookingUpdateSpecification(
             comment = "New Comment",
-            madeByTheCourt = false,
             main = VideoLinkAppointmentSpecification(
               locationId = 99L,
               startTime = referenceNow.minusSeconds(1),
@@ -648,7 +566,6 @@ class CourtServiceTest {
         1L,
         VideoLinkBookingUpdateSpecification(
           comment = "New Comment",
-          madeByTheCourt = false,
           pre = VideoLinkAppointmentSpecification(
             locationId = 99L,
             startTime = referenceTime,
@@ -714,21 +631,21 @@ class CourtServiceTest {
               appointmentId = 3L,
               court = "The court",
               hearingType = HearingType.PRE,
-              madeByTheCourt = false
+              madeByTheCourt = true
             ),
             main = VideoLinkAppointment(
               bookingId = 30L,
               appointmentId = 3L,
               court = "The court",
               hearingType = HearingType.MAIN,
-              madeByTheCourt = false
+              madeByTheCourt = true
             ),
             post = VideoLinkAppointment(
               bookingId = 30L,
               appointmentId = 3L,
               court = "The court",
               hearingType = HearingType.POST,
-              madeByTheCourt = false
+              madeByTheCourt = true
             )
           )
         )
@@ -785,7 +702,6 @@ class CourtServiceTest {
     @Test
     fun `happy path`() {
 
-      whenever(authenticationFacade.currentUsername).thenReturn("A_USER")
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
 
       service.deleteVideoLinkBooking(videoLinkBooking.id!!)
@@ -795,23 +711,7 @@ class CourtServiceTest {
       verify(prisonApiService).deleteAppointment(postVideoLinkAppointment.appointmentId)
 
       verify(videoLinkBookingRepository).deleteById(videoLinkBooking.id!!)
-
-      verify(telemetryClient).trackEvent(
-        "VideoLinkBookingDeleted",
-        mapOf(
-          "id" to "${videoLinkBooking.id}",
-          "bookingId" to "${videoLinkBooking.main.bookingId}",
-          "court" to videoLinkBooking.main.court,
-          "user" to "A_USER",
-          "mainAppointmentId" to "${videoLinkBooking.main.appointmentId}",
-          "mainId" to "${videoLinkBooking.main.id}",
-          "preAppointmentId" to "${videoLinkBooking.pre?.appointmentId}",
-          "preId" to "${videoLinkBooking.pre?.id}",
-          "postAppointmentId" to "${videoLinkBooking.post?.appointmentId}",
-          "postId" to "${videoLinkBooking.post?.id}"
-        ),
-        null
-      )
+      verify(videoLinkBookingEventListener).bookingDeleted(videoLinkBooking)
     }
   }
 
@@ -1046,15 +946,221 @@ class CourtServiceTest {
       val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null)
       assertThat(bookings).isEmpty()
     }
+
+    @Test
+    fun `appointments with missing end times are filtered out`() {
+      whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any()))
+        .thenReturn(
+          listOf(
+            ScheduledAppointmentDto(
+              id = 1001,
+              agencyId = "WEI",
+              locationId = 1001,
+              appointmentTypeCode = "VLB",
+              startTime = LocalDateTime.of(2020, 1, 1, 9, 40),
+              endTime = LocalDateTime.of(2020, 1, 1, 10, 0)
+            ),
+            ScheduledAppointmentDto(
+              id = 1002,
+              agencyId = "WEI",
+              locationId = 1002,
+              appointmentTypeCode = "VLB",
+              startTime = LocalDateTime.of(2020, 1, 1, 10, 0),
+              endTime = LocalDateTime.of(2020, 1, 1, 10, 30)
+            ),
+            ScheduledAppointmentDto(
+              id = 1003,
+              agencyId = "WEI",
+              locationId = 1003,
+              appointmentTypeCode = "VLB",
+              startTime = LocalDateTime.of(2020, 1, 1, 10, 30),
+              endTime = null
+            )
+          )
+        )
+      whenever(videoLinkBookingRepository.findByMainAppointmentIds(any()))
+        .thenReturn(
+          listOf(
+            VideoLinkBooking(
+              id = 1000L,
+              pre = VideoLinkAppointment(
+                id = 10001,
+                bookingId = 1000,
+                appointmentId = 1001,
+                court = "Wimbledon",
+                hearingType = HearingType.PRE
+              ),
+              main = VideoLinkAppointment(
+                id = 20000,
+                bookingId = 1000,
+                appointmentId = 1002,
+                court = "Wimbledon",
+                hearingType = HearingType.MAIN
+              ),
+              post = VideoLinkAppointment(
+                id = 30000,
+                bookingId = 1000,
+                appointmentId = 1003,
+                court = "Wimbledon",
+                hearingType = HearingType.POST
+              )
+            )
+          )
+        )
+
+      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, "Wimbledon")
+      assertThat(bookings).hasSize(1)
+      assertThat(bookings[0].pre).isNotNull
+      assertThat(bookings[0].main).isNotNull
+      assertThat(bookings[0].post).isNull()
+    }
+
+    @Test
+    fun `bookings with with missing end times on main appointment are filtered out entirely`() {
+      whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any()))
+        .thenReturn(
+          listOf(
+            ScheduledAppointmentDto(
+              id = 1001,
+              agencyId = "WEI",
+              locationId = 1001,
+              appointmentTypeCode = "VLB",
+              startTime = LocalDateTime.of(2020, 1, 1, 9, 40),
+              endTime = LocalDateTime.of(2020, 1, 1, 10, 0)
+            ),
+            ScheduledAppointmentDto(
+              id = 1002,
+              agencyId = "WEI",
+              locationId = 1002,
+              appointmentTypeCode = "VLB",
+              startTime = LocalDateTime.of(2020, 1, 1, 10, 0),
+              endTime = null
+            ),
+            ScheduledAppointmentDto(
+              id = 1003,
+              agencyId = "WEI",
+              locationId = 1003,
+              appointmentTypeCode = "VLB",
+              startTime = LocalDateTime.of(2020, 1, 1, 10, 30),
+              endTime = null
+            )
+          )
+        )
+      whenever(videoLinkBookingRepository.findByMainAppointmentIds(any()))
+        .thenReturn(
+          listOf(
+            VideoLinkBooking(
+              id = 1000L,
+              pre = VideoLinkAppointment(
+                id = 10001,
+                bookingId = 1000,
+                appointmentId = 1001,
+                court = "Wimbledon",
+                hearingType = HearingType.PRE
+              ),
+              main = VideoLinkAppointment(
+                id = 20000,
+                bookingId = 1000,
+                appointmentId = 1002,
+                court = "Wimbledon",
+                hearingType = HearingType.MAIN
+              ),
+              post = VideoLinkAppointment(
+                id = 30000,
+                bookingId = 1000,
+                appointmentId = 1003,
+                court = "Wimbledon",
+                hearingType = HearingType.POST
+              )
+            )
+          )
+        )
+
+      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, "Wimbledon")
+      assertThat(bookings).isEmpty()
+    }
+  }
+
+  @Nested
+  inner class UpdateVideoLinkBookingComment {
+
+    @Test
+    fun `Happy flow - Pre, main and post appointments`() {
+      val service = service("")
+      val newComment = "New comment"
+
+      whenever(videoLinkBookingRepository.findById(1L))
+        .thenReturn(
+          Optional.of(
+            VideoLinkBooking(
+              id = 1L,
+              pre = VideoLinkAppointment(
+                id = 100L,
+                appointmentId = 10L,
+                bookingId = 999L,
+                hearingType = HearingType.PRE,
+                court = "The Court"
+              ),
+              main = VideoLinkAppointment(
+                id = 101L,
+                appointmentId = 11L,
+                bookingId = 999L,
+                hearingType = HearingType.MAIN,
+                court = "The Court"
+              ),
+              post = VideoLinkAppointment(
+                id = 102L,
+                appointmentId = 12L,
+                bookingId = 999L,
+                hearingType = HearingType.POST,
+                court = "The Court"
+              ),
+            )
+          )
+        )
+
+      service.updateVideoLinkBookingComment(1L, newComment)
+
+      verify(prisonApiService).updateAppointmentComment(10L, newComment)
+      verify(prisonApiService).updateAppointmentComment(11L, newComment)
+      verify(prisonApiService).updateAppointmentComment(12L, newComment)
+      verifyNoMoreInteractions(prisonApiService)
+    }
+
+    @Test
+    fun `Happy flow - main appointment only, no comment`() {
+      val service = service("")
+      val newComment = ""
+
+      whenever(videoLinkBookingRepository.findById(1L))
+        .thenReturn(
+          Optional.of(
+            VideoLinkBooking(
+              id = 1L,
+              main = VideoLinkAppointment(
+                id = 101L,
+                appointmentId = 11L,
+                bookingId = 999L,
+                hearingType = HearingType.MAIN,
+                court = "The Court"
+              ),
+            )
+          )
+        )
+
+      service.updateVideoLinkBookingComment(1L, newComment)
+
+      verify(prisonApiService).updateAppointmentComment(11L, newComment)
+      verifyNoMoreInteractions(prisonApiService)
+    }
   }
 
   private fun service(courts: String) = CourtService(
-    authenticationFacade,
     prisonApiService,
     videoLinkAppointmentRepository,
     videoLinkBookingRepository,
     clock,
-    telemetryClient,
+    videoLinkBookingEventListener,
     courts
   )
 

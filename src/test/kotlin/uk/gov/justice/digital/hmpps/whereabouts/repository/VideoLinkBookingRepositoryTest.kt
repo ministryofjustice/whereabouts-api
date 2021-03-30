@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.repository
 
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -21,17 +22,14 @@ import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 @Import(TestAuditConfiguration::class)
 @DataJpaTest
 @Transactional
-class VideoLinkBookingRepositoryTest {
-
-  @Autowired
-  lateinit var repository: VideoLinkBookingRepository
-
-  @Autowired
-  lateinit var jdbcTemplate: JdbcTemplate
-
+class VideoLinkBookingRepositoryTest(
+  @Autowired val repository: VideoLinkBookingRepository,
+  @Autowired val jdbcTemplate: JdbcTemplate
+) {
   @MockBean
   lateinit var authenticationFacade: AuthenticationFacade
 
+  @BeforeEach
   fun deleteAll() {
     JdbcTestUtils.deleteFromTables(jdbcTemplate, "VIDEO_LINK_BOOKING", "VIDEO_LINK_APPOINTMENT")
     TestTransaction.flagForCommit()
@@ -39,11 +37,13 @@ class VideoLinkBookingRepositoryTest {
     TestTransaction.start()
   }
 
+  @BeforeEach
+  fun mockCurrentUsername() {
+    whenever(authenticationFacade.currentUsername).thenReturn("username1")
+  }
+
   @Test
   fun `should persist a booking (main only)`() {
-    deleteAll()
-
-    whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
     val transientBooking = VideoLinkBooking(
       main = VideoLinkAppointment(
@@ -71,9 +71,6 @@ class VideoLinkBookingRepositoryTest {
 
   @Test
   fun `should persist a booking (main, pre and post)`() {
-    deleteAll()
-
-    whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
     val transientBooking = VideoLinkBooking(
       main = VideoLinkAppointment(
@@ -118,7 +115,6 @@ class VideoLinkBookingRepositoryTest {
 
   @Test
   fun `Deleting a booking should delete its appointments`() {
-    deleteAll()
 
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_BOOKING")).isEqualTo(0)
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
@@ -162,13 +158,11 @@ class VideoLinkBookingRepositoryTest {
 
   @Test
   fun `findByMainAppointmentIds no Ids`() {
-    deleteAll()
     assertThat(repository.findByMainAppointmentIds(listOf())).isEmpty()
   }
 
   @Test
   fun `findByMainAppointmentIds sparse`() {
-    deleteAll()
     repository.saveAll(videoLinkBookings())
 
     assertThat(repository.findByMainAppointmentIds((-999L..1000L step 2).map { it }))
@@ -178,7 +172,7 @@ class VideoLinkBookingRepositoryTest {
 
   @Test
   fun `Removing appointments from a booking should delete the appointments`() {
-    deleteAll()
+
     val id = repository.save(
       VideoLinkBooking(
         main = VideoLinkAppointment(
@@ -222,7 +216,6 @@ class VideoLinkBookingRepositoryTest {
 
   @Test
   fun `Replacing appointments should delete old and persist new`() {
-    deleteAll()
 
     val id = repository.save(
       VideoLinkBooking(
@@ -279,6 +272,20 @@ class VideoLinkBookingRepositoryTest {
       hearingType = HearingType.POST,
       madeByTheCourt = false
     )
+
+    /**
+     * Confirm that calling flush() populates ids in the new VideoLinkAppointment objects.
+     * CourtService#updateVideoLinkBooking depends on this behaviour to add those ids to an Application Insights custom
+     * event. Confirming the required behaviour like this is easier than changing the CourtIntegrationTest class so that
+     * it uses this repository instead of a mock.
+     */
+    assertThat(booking.pre?.id).isNull()
+    assertThat(booking.main.id).isNull()
+    assertThat(booking.post?.id).isNull()
+    repository.flush()
+    assertThat(booking.pre?.id).isNotNull
+    assertThat(booking.main.id).isNotNull
+    assertThat(booking.post?.id).isNotNull
 
     TestTransaction.flagForCommit()
     TestTransaction.end()

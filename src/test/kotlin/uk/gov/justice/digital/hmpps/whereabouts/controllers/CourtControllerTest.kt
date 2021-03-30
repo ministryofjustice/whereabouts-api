@@ -24,11 +24,16 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService
-import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsService
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableLocations
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Interval
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationIdAndDescription
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import javax.persistence.EntityNotFoundException
 
 @WebMvcTest(CourtController::class)
@@ -38,7 +43,7 @@ class CourtControllerTest : TestController() {
   lateinit var courtService: CourtService
 
   @MockBean
-  lateinit var videoLinkAppointmentLinker: VideoLinkAppointmentLinker
+  lateinit var appointmentLocationsService: AppointmentLocationsService
 
   val videoLinkBookingResponse = VideoLinkBookingResponse(
     videoLinkBookingId = 1,
@@ -352,7 +357,6 @@ class CourtControllerTest : TestController() {
             """
               {
                 "comment": "New comment",
-                "madeByTheCourt": false,
                 "pre": {
                   "locationId" : 1,
                   "startTime" : "2020-01-01T12:00",
@@ -378,7 +382,6 @@ class CourtControllerTest : TestController() {
         1L,
         VideoLinkBookingUpdateSpecification(
           comment = "New comment",
-          madeByTheCourt = false,
           pre = VideoLinkAppointmentSpecification(
             locationId = 1L,
             startTime = LocalDateTime.of(2020, 1, 1, 12, 0),
@@ -409,6 +412,44 @@ class CourtControllerTest : TestController() {
           .content("{}")
       )
         .andExpect(status().isBadRequest)
+    }
+  }
+
+  @Nested
+  inner class `Update a comment` {
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `Can update`() {
+
+      mockMvc.perform(
+        put("/court/video-link-bookings/1/comment")
+          .contentType(MediaType.TEXT_PLAIN)
+          .content(
+            "Some Content"
+          )
+      )
+        .andExpect(status().isNoContent)
+
+      verify(courtService).updateVideoLinkBookingComment(
+        1L,
+        "Some Content"
+      )
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `Can clear comment`() {
+
+      mockMvc.perform(
+        put("/court/video-link-bookings/1/comment")
+          .contentType(MediaType.TEXT_PLAIN)
+      )
+        .andExpect(status().isNoContent)
+
+      verify(courtService).updateVideoLinkBookingComment(
+        1L,
+        null
+      )
     }
   }
 
@@ -590,6 +631,163 @@ class CourtControllerTest : TestController() {
 
       verify(courtService)
         .getVideoLinkBookingsForPrisonAndDateAndCourt("LEI", LocalDate.of(2020, 12, 25), "The Court")
+    }
+  }
+
+  @Nested
+  inner class FindLocationsForAppointmentIntervals {
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `happy flow`() {
+      whenever(appointmentLocationsService.findLocationsForAppointmentIntervals(any()))
+        .thenReturn(
+          listOf(
+            AvailableLocations(
+              Interval(LocalTime.of(9, 30), LocalTime.of(10, 0)),
+              listOf(
+                LocationIdAndDescription(1L, "Location 1")
+              )
+            ),
+            AvailableLocations(
+              Interval(LocalTime.of(12, 30), LocalTime.of(13, 0)),
+              listOf(
+                LocationIdAndDescription(2L, "Location 2"),
+                LocationIdAndDescription(3L, "Location 3")
+              )
+            )
+          )
+        )
+
+      mockMvc.perform(
+        post("/court/appointment-location-finder")
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+          .content(
+            """
+            {
+              "date": "2020-02-10",
+              "agencyId": "WWI",
+              "vlbIdsToExclude": [1, 2, 3],
+              "appointmentIntervals": [
+                { "start": "09:30", "end": "10:00" },
+                { "start": "12:30", "end": "13:00" }
+              ]
+            }
+            """
+          )
+      )
+        .andExpect(
+          matchAll(
+            status().isOk,
+            content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
+            content().json(
+              """
+                [
+                  {
+                    "appointmentInterval": { "start": "09:30:00", "end": "10:00:00" },
+                    "locations": [
+                      { "locationId": 1, "description": "Location 1" }
+                    ]
+                  },
+                  {
+                    "appointmentInterval": { "start": "12:30:00", "end": "13:00:00" },
+                    "locations": [
+                      { "locationId": 2, "description": "Location 2" },
+                      { "locationId": 3, "description": "Location 3" }
+                    ]
+                  }
+                ]
+                """
+            )
+          )
+        )
+
+      verify(appointmentLocationsService).findLocationsForAppointmentIntervals(
+        AppointmentLocationsSpecification(
+          date = LocalDate.of(2020, 2, 10),
+          agencyId = "WWI",
+          vlbIdsToExclude = listOf(1L, 2L, 3L),
+          appointmentIntervals = listOf(
+            Interval(LocalTime.of(9, 30), LocalTime.of(10, 0)),
+            Interval(LocalTime.of(12, 30), LocalTime.of(13, 0)),
+          )
+        )
+      )
+    }
+  }
+
+  @Nested
+  inner class FindLocationsForVideoLinkBookingIntervals {
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `happy flow`() {
+      whenever(appointmentLocationsService.findLocationsForAppointmentIntervals(any()))
+        .thenReturn(
+          listOf(
+            AvailableLocations(
+              Interval(LocalTime.of(9, 30), LocalTime.of(10, 0)),
+              listOf(
+                LocationIdAndDescription(1L, "Location 1")
+              )
+            ),
+            AvailableLocations(
+              Interval(LocalTime.of(12, 30), LocalTime.of(13, 0)),
+              listOf(
+                LocationIdAndDescription(2L, "Location 2"),
+                LocationIdAndDescription(3L, "Location 3")
+              )
+            )
+          )
+        )
+
+      mockMvc.perform(
+        post("/court/vlb-appointment-location-finder")
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON)
+          .content(
+            """
+            {
+              "date": "2020-02-10",
+              "agencyId": "WWI",
+              "vlbIdsToExclude": [1, 2, 3],
+                "preInterval": { "start": "09:30", "end": "10:00" },
+                "mainInterval": { "start": "12:30", "end": "13:00" }
+            }
+            """
+          )
+      )
+        .andExpect(
+          matchAll(
+            status().isOk,
+            content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
+            content().json(
+              """
+                {
+                  "pre": [
+                    { "locationId": 1, "description": "Location 1" }
+                  ],
+
+                  "main": [
+                    { "locationId": 2, "description": "Location 2" },
+                    { "locationId": 3, "description": "Location 3" }
+                  ]
+                }
+                """
+            )
+          )
+        )
+
+      verify(appointmentLocationsService).findLocationsForAppointmentIntervals(
+        AppointmentLocationsSpecification(
+          date = LocalDate.of(2020, 2, 10),
+          agencyId = "WWI",
+          vlbIdsToExclude = listOf(1L, 2L, 3L),
+          appointmentIntervals = listOf(
+            Interval(LocalTime.of(9, 30), LocalTime.of(10, 0)),
+            Interval(LocalTime.of(12, 30), LocalTime.of(13, 0)),
+          )
+        )
+      )
     }
   }
 }

@@ -1,7 +1,9 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.1"
-  kotlin("plugin.spring") version "1.4.21"
-  kotlin("plugin.jpa") version "1.4.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.1.2"
+  kotlin("plugin.spring") version "1.4.32"
+  kotlin("plugin.jpa") version "1.4.32"
 }
 
 configurations {
@@ -11,9 +13,9 @@ configurations {
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.16")
+  annotationProcessor("org.projectlombok:lombok:1.18.18")
 
-  compileOnly("org.projectlombok:lombok:1.18.16")
+  compileOnly("org.projectlombok:lombok:1.18.18")
 
   runtimeOnly("com.h2database:h2")
   runtimeOnly("org.flywaydb:flyway-core")
@@ -44,7 +46,7 @@ dependencies {
   implementation("org.apache.commons:commons-text:1.9")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-  implementation("com.pauldijou:jwt-core_2.11:4.3.0")
+  implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
   implementation("com.google.code.gson:gson")
   implementation("com.google.guava:guava")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -56,10 +58,21 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
 
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.22.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.25.0")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 
-  testCompileOnly("org.projectlombok:lombok:1.18.16")
+  testCompileOnly("org.projectlombok:lombok:1.18.18")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
+}
+
+/**
+ * Without this Kotlin compiler setting Java Bean validator annotations do not work on Kotlin lists.
+ * See for example AppointmentLocationsSpecification#appointmentIntervals
+ * The alternative ito this is to use Java classes instead.
+ */
+tasks.withType<KotlinCompile>().configureEach {
+  kotlinOptions {
+    freeCompilerArgs += "-Xemit-jvm-type-annotations"
+  }
 }

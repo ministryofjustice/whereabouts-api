@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.client.WireMock
+import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
@@ -30,6 +32,9 @@ class CourtIntegrationTest : IntegrationTest() {
 
   @Autowired
   lateinit var objectMapper: ObjectMapper
+
+  @MockBean
+  lateinit var telemetryClient: TelemetryClient
 
   val tomorrow: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).plusDays(1)
   val yesterday: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).minusDays(1)
@@ -447,6 +452,40 @@ class CourtIntegrationTest : IntegrationTest() {
             }
           """
         )
+    }
+  }
+
+  @Nested
+  inner class UpdateBookingComment {
+
+    val theVideoLinkBooking = VideoLinkBooking(
+      main = VideoLinkAppointment(
+        bookingId = 1L,
+        appointmentId = 10L,
+        court = "Test Court 1",
+        madeByTheCourt = true,
+        hearingType = HearingType.MAIN
+      )
+    )
+
+    @Test
+    fun `Updates a comment`() {
+
+      whenever(videoLinkBookingRepository.findById(1L))
+        .thenReturn(Optional.of(theVideoLinkBooking.copy(id = 1)))
+
+      prisonApiMockServer.stubUpdateAppointmentComment(1L)
+
+      webTestClient.put()
+        .uri("/court/video-link-bookings/1/comment")
+        .bodyValue("New Comment")
+        .headers(setHeaders(contentType = MediaType.TEXT_PLAIN))
+        .exchange()
+        .expectStatus().isNoContent
+
+      prisonApiMockServer.verify(
+        WireMock.putRequestedFor(WireMock.urlEqualTo("/api/appointments/10/comment"))
+      )
     }
   }
 }

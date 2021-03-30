@@ -22,8 +22,12 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsRespons
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.services.CourtService
-import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkAppointmentLinker
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsService
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableLocations
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableVideoLinkBookingLocations
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.VideoLinkBookingLocationsSpecification
 import java.time.LocalDate
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
@@ -33,7 +37,7 @@ import javax.validation.constraints.NotNull
 @RequestMapping(value = ["court"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class CourtController(
   private val courtService: CourtService,
-  private val appointmentLinker: VideoLinkAppointmentLinker
+  private val appointmentLocationsService: AppointmentLocationsService
 ) {
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/all-courts"])
   @ResponseStatus(HttpStatus.OK)
@@ -93,7 +97,10 @@ class CourtController(
     return courtService.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, court)
   }
 
-  @GetMapping(path = ["/video-link-bookings/prison/{agencyId}/date/{date}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+  @GetMapping(
+    path = ["/video-link-bookings/prison/{agencyId}/date/{date}"],
+    produces = [MediaType.APPLICATION_JSON_VALUE]
+  )
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation("Get all video link bookings for the specified date and prison, optionally filtering by court.")
   fun getVideoLinkBookingsByPrisonDateAndCourt(
@@ -141,6 +148,12 @@ class CourtController(
     videoLinkBookingUpdateSpecification: VideoLinkBookingUpdateSpecification?
   ): ResponseEntity<Void> {
     courtService.updateVideoLinkBooking(videoBookingId!!, videoLinkBookingUpdateSpecification!!)
+    /**
+     * The Open API implementation used to document this resource contains a bug which manifests
+     * when a PUT operation has a Unit return type. For that reason this method returns a ResponseEntity<Void>.
+     * When bug is fixed the following line should be removed along with the return type of this method
+     * so that it reverts to an implicit type of :Unit
+     */
     return ResponseEntity.noContent().build()
   }
 
@@ -153,10 +166,68 @@ class CourtController(
     videoBookingId: Long
   ) = courtService.deleteVideoLinkBooking(videoBookingId)
 
-  @PostMapping(path = ["/appointment-linker"])
+  @PutMapping(
+    path = ["/video-link-bookings/{videoLinkBookingId}/comment"],
+    consumes = [MediaType.TEXT_PLAIN_VALUE]
+  )
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @ApiOperation(value = "Create Video Link Bookings for dangling Video Link Appointments")
-  fun linkDanglingAppointments(@RequestBody chunkSize: Int?) {
-    appointmentLinker.linkAppointments(chunkSize)
+  @ApiOperation(value = "Update the comment for a Video Link Booking")
+  fun updateVideoLinkBookingComment(
+    @ApiParam(value = "Video link booking id", required = true)
+    @PathVariable("videoLinkBookingId")
+    videoLinkBookingId: Long,
+
+    @RequestBody(required = false)
+    comment: String?
+  ): ResponseEntity<Void> {
+    courtService.updateVideoLinkBookingComment(videoLinkBookingId, comment)
+    /**
+     * The Open API implementation used to document this resource contains a bug which manifests
+     * when a PUT operation has a Unit return type. For that reason this method returns a ResponseEntity<Void>.
+     * When bug is fixed the following line should be removed along with the return type of this method
+     * so that it reverts to an implicit type of :Unit
+     */
+    return ResponseEntity.noContent().build()
+  }
+
+  @PostMapping(
+    path = ["/appointment-location-finder"],
+    consumes = [MediaType.APPLICATION_JSON_VALUE],
+    produces = [MediaType.APPLICATION_JSON_VALUE]
+  )
+  @ApiOperation(
+    value = "Request the locations that are available for a series of appointment intervals optionally including locations currently assigned to selected video link bookings.",
+    response = AvailableLocations::class,
+    responseContainer = "List"
+  )
+  fun findLocationsForAppointmentIntervals(
+    @Valid
+    @RequestBody
+    specification: AppointmentLocationsSpecification
+  ): List<AvailableLocations> {
+    return appointmentLocationsService.findLocationsForAppointmentIntervals(specification)
+  }
+
+  @PostMapping(
+    path = ["/vlb-appointment-location-finder"],
+    consumes = [MediaType.APPLICATION_JSON_VALUE],
+    produces = [MediaType.APPLICATION_JSON_VALUE]
+  )
+  @ApiOperation(
+    value = "Request the locations that could be used for a new Video Link Booking, optionally including locations currently assigned to selected current video link bookings.",
+    response = AvailableVideoLinkBookingLocations::class
+  )
+  fun findLocationsForVideoLinkBookingIntervals(
+    @Valid
+    @RequestBody
+    specification: VideoLinkBookingLocationsSpecification
+  ): AvailableVideoLinkBookingLocations {
+    val availableLocations = appointmentLocationsService
+      .findLocationsForAppointmentIntervals(specification.toAppointmentLocationsSpecification())
+
+    return AvailableVideoLinkBookingLocations.fromAvailableLocations(
+      availableLocations,
+      specification.preInterval != null
+    )
   }
 }
