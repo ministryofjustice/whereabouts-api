@@ -34,7 +34,7 @@ by whereabouts health monitoring (e.g. pager duty) and not other systems who wis
 
 ### Pre Release Testing
 
-Whereabouts api is best tested by the front end (https://whereabouts-preprod.prison.service.justice.gov.uk).  To manually smoke test / regression test whereabouts api prior to release:
+Whereabouts api is best tested by the front end (https://digital-preprod.prison.service.justice.gov.uk).  To manually smoke test / regression test whereabouts api prior to release:
 
 1. Choose a residential wing and click continue
    1. Check sub locations are shown - selecting one should limit listed prisoners to that location
@@ -42,9 +42,9 @@ Whereabouts api is best tested by the front end (https://whereabouts-preprod.pri
    1. Click attended - select no reason and choose unacceptable so that IEP functionality triggered
 1. Choose activity / appointment and click continue
    1. Click not attended - select yes reason and enter case note
-1. Click [View all appointments](https://whereabouts-preprod.prison.service.justice.gov.uk/appointments) and check page loads with data
-1. Click [View prisoners unaccounted for](https://whereabouts-preprod.prison.service.justice.gov.uk/manage-prisoner-whereabouts/prisoners-unaccounted-for) and check page loads with data
-1. Click [View attendance reason statistics](https://whereabouts-preprod.prison.service.justice.gov.uk/manage-prisoner-whereabouts/attendance-reason-statistics) and check page loads with data (generated from yes / no above)
+1. Click [View all appointments](https://digital-preprod.prison.service.justice.gov.uk/appointments) and check page loads with data
+1. Click [View prisoners unaccounted for](https://digital-preprod.prison.service.justice.gov.uk/manage-prisoner-whereabouts/prisoners-unaccounted-for) and check page loads with data
+1. Click [View attendance reason statistics](https://digital-preprod.prison.service.justice.gov.uk/manage-prisoner-whereabouts/attendance-reason-statistics) and check page loads with data (generated from yes / no above)
 
 ### Running against localstack
 
