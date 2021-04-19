@@ -163,7 +163,7 @@ class CellControllerTest : TestController() {
     cellMoveReason: String?,
     commentText: String?
   ) =
-    gson.toJson(
+    objectMapper.writeValueAsString(
       mapOf(
         "bookingId" to bookingId,
         "offenderNo" to offenderNo,

@@ -53,7 +53,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       putRequestedFor(urlEqualTo(updateAttendanceUrl))
         .withRequestBody(
           equalToJson(
-            gson.toJson(
+            objectMapper.writeValueAsString(
               mapOf(
                 "eventOutcome" to "ATT",
                 "performance" to "STANDARD"
@@ -100,7 +100,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
     prisonApiMockServer.verify(
       putRequestedFor(urlEqualTo(updateAttendanceUrl)).withRequestBody(
         equalToJson(
-          gson.toJson(
+          objectMapper.writeValueAsString(
             mapOf(
               "eventOutcome" to "UNACAB",
               "outcomeComment" to "Test comment"

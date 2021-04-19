@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import com.google.gson.Gson
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
@@ -13,5 +13,5 @@ open class TestController {
   @Autowired
   internal lateinit var mockMvc: MockMvc
   @Autowired
-  internal lateinit var gson: Gson
+  internal lateinit var objectMapper: ObjectMapper
 }

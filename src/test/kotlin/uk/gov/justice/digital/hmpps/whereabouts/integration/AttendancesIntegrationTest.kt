@@ -335,7 +335,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
       WireMock.putRequestedFor(WireMock.urlEqualTo("/api/bookings/activities/attendance"))
         .withRequestBody(
           WireMock.equalToJson(
-            gson.toJson(
+            objectMapper.writeValueAsString(
               mapOf(
                 "performance" to "STANDARD",
                 "bookingActivities" to bookingActivities,

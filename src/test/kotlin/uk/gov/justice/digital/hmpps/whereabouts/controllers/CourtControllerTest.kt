@@ -75,7 +75,7 @@ class CourtControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `Accept a valid request, main appointment only`() {
       passWithJson(
-        gson.toJson(
+        objectMapper.writeValueAsString(
           mapOf(
             "bookingId" to 1,
             "court" to "Test Court 1",
@@ -94,7 +94,7 @@ class CourtControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `Accept a valid request, pre, main and post`() {
       passWithJson(
-        gson.toJson(
+        objectMapper.writeValueAsString(
           mapOf(
             "bookingId" to 1,
             "court" to "Test Court 1",
@@ -124,7 +124,7 @@ class CourtControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `Missing madeByTheCourt doesn't fail`() {
       passWithJson(
-        gson.toJson(
+        objectMapper.writeValueAsString(
           mapOf(
             "bookingId" to 1,
             "court" to "Test Court 1",
@@ -142,7 +142,7 @@ class CourtControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `Reject missing main`() {
       failWithJson(
-        gson.toJson(
+        objectMapper.writeValueAsString(
           mapOf(
             "bookingId" to 1,
             "court" to "Test Court 1"
@@ -156,7 +156,7 @@ class CourtControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `Reject missing bookingId`() {
       failWithJson(
-        gson.toJson(
+        objectMapper.writeValueAsString(
           mapOf(
             "court" to "Test Court 1",
             "madeByTheCourt" to true,
@@ -174,7 +174,7 @@ class CourtControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `Reject missing locationId`() {
       failWithJson(
-        gson.toJson(
+        objectMapper.writeValueAsString(
           mapOf(
             "bookingId" to 1,
             "court" to "Test Court 1",
@@ -193,7 +193,7 @@ class CourtControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `Reject missing startTime`() {
       failWithJson(
-        gson.toJson(
+        objectMapper.writeValueAsString(
           mapOf(
             "bookingId" to 1,
             "court" to "Test Court 1",
@@ -212,7 +212,7 @@ class CourtControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `Reject bad startTime`() {
       failWithJson(
-        gson.toJson(
+        objectMapper.writeValueAsString(
           mapOf(
             "bookingId" to 1,
             "court" to "Test Court 1",
@@ -232,7 +232,7 @@ class CourtControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `Reject missing endTime`() {
       failWithJson(
-        gson.toJson(
+        objectMapper.writeValueAsString(
           mapOf(
             "bookingId" to 1,
             "court" to "Test Court 1",
@@ -250,7 +250,7 @@ class CourtControllerTest : TestController() {
     @Test
     fun `Valid request, no user`() {
       failWithJson(
-        gson.toJson(
+        objectMapper.writeValueAsString(
           mapOf(
             "bookingId" to 1,
             "court" to "Test Court 1",

@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockitokotlin2.any
@@ -8,7 +7,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
@@ -29,9 +27,6 @@ class CourtIntegrationTest : IntegrationTest() {
 
   @MockBean
   lateinit var videoLinkBookingRepository: VideoLinkBookingRepository
-
-  @Autowired
-  lateinit var objectMapper: ObjectMapper
 
   @MockBean
   lateinit var telemetryClient: TelemetryClient
