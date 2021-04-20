@@ -75,7 +75,7 @@ class CellMoveIntegrationTest : IntegrationTest() {
         urlEqualTo("/case-notes/$SOME_OFFENDER_NO")
       ).withRequestBody(
         equalToJson(
-          gson.toJson(
+          objectMapper.writeValueAsString(
             mapOf(
               "type" to "MOVED_CELL",
               "subType" to "ADM",

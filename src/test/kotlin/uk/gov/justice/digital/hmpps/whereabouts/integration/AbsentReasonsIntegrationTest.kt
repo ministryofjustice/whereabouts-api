@@ -38,6 +38,6 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .json(gson.toJson(expected))
+      .json(objectMapper.writeValueAsString(expected))
   }
 }

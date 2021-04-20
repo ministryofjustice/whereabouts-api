@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
-import com.google.gson.Gson
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -29,7 +29,7 @@ abstract class IntegrationTest {
   lateinit var webTestClient: WebTestClient
 
   @Autowired
-  lateinit var gson: Gson
+  lateinit var objectMapper: ObjectMapper
 
   @Autowired
   lateinit var jwtAuthHelper: JwtAuthHelper

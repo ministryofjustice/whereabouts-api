@@ -32,7 +32,7 @@ class AttendanceControllerTest : TestController() {
       post("/attendance")
         .contentType(MediaType.APPLICATION_JSON)
         .content(
-          gson.toJson(
+          objectMapper.writeValueAsString(
             mapOf(
               "bookingId" to 1,
               "prisonId" to "LEI",
@@ -59,7 +59,7 @@ class AttendanceControllerTest : TestController() {
       post("/attendance")
         .contentType(MediaType.APPLICATION_JSON)
         .content(
-          gson.toJson(
+          objectMapper.writeValueAsString(
             mapOf(
               "bookingId" to 1,
               "prisonId" to "LEI",
@@ -86,7 +86,7 @@ class AttendanceControllerTest : TestController() {
       post("/attendance")
         .contentType(MediaType.APPLICATION_JSON)
         .content(
-          gson.toJson(
+          objectMapper.writeValueAsString(
             mapOf(
               "bookingId" to 1,
               "prisonId" to "LEI",
@@ -113,7 +113,7 @@ class AttendanceControllerTest : TestController() {
       post("/attendance")
         .contentType(MediaType.APPLICATION_JSON)
         .content(
-          gson.toJson(
+          objectMapper.writeValueAsString(
             mapOf(
               "bookingId" to 1,
               "prisonId" to "LEI",
@@ -140,7 +140,7 @@ class AttendanceControllerTest : TestController() {
       post("/attendance")
         .contentType(MediaType.APPLICATION_JSON)
         .content(
-          gson.toJson(
+          objectMapper.writeValueAsString(
             mapOf(
               "prisonId" to "LEI",
               "eventId" to 2,
@@ -167,7 +167,7 @@ class AttendanceControllerTest : TestController() {
       post("/attendance")
         .contentType(MediaType.APPLICATION_JSON)
         .content(
-          gson.toJson(
+          objectMapper.writeValueAsString(
             mapOf(
               "bookingId" to 1,
               "eventId" to 2,
@@ -197,7 +197,7 @@ class AttendanceControllerTest : TestController() {
       put("/attendance/1")
         .contentType(MediaType.APPLICATION_JSON)
         .content(
-          gson.toJson(
+          objectMapper.writeValueAsString(
             mapOf(
               "attended" to true,
               "paid" to true
@@ -218,7 +218,7 @@ class AttendanceControllerTest : TestController() {
       post("/attendance")
         .contentType(MediaType.APPLICATION_JSON)
         .content(
-          gson.toJson(
+          objectMapper.writeValueAsString(
             mapOf(
               "prisonId" to "LEI",
               "attended" to true,
@@ -247,7 +247,7 @@ class AttendanceControllerTest : TestController() {
       put("/attendance/1")
         .contentType(MediaType.APPLICATION_JSON)
         .content(
-          gson.toJson(
+          objectMapper.writeValueAsString(
             mapOf(
               "attended" to true,
               "paid" to true,
