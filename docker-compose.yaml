@@ -37,4 +37,4 @@ services:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=stdout,localstack
       - ELITE2_API_BASE_URL=http://elite2:8080
-      - SQS_ENDPOINT_URL=http://localstack:4576
+      - SQS_ENDPOINT_URL=http://localstack:4566

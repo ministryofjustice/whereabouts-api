@@ -30,7 +30,7 @@ spring:
 
 sqs:
   provider: localstack
-  endpoint.url: http://localhost:4576
+  endpoint.url: http://localhost:4566
   queue.name: whereabouts_api_queue
   dlq.name: whereabouts_api_dlq
 
