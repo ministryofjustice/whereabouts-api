@@ -13,13 +13,16 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.test.jdbc.JdbcTestUtils
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 
+const val USERNAME = "username1"
+
 @ActiveProfiles("test")
-@Import(TestAuditConfiguration::class)
+@Import(AuditConfiguration::class)
 @DataJpaTest
 @Transactional
 class VideoLinkBookingRepositoryTest(
@@ -39,7 +42,7 @@ class VideoLinkBookingRepositoryTest(
 
   @BeforeEach
   fun mockCurrentUsername() {
-    whenever(authenticationFacade.currentUsername).thenReturn("username1")
+    whenever(authenticationFacade.currentUsername).thenReturn(USERNAME)
   }
 
   @Test
@@ -67,6 +70,8 @@ class VideoLinkBookingRepositoryTest(
       .usingRecursiveComparison()
       .ignoringFields("id", "main.id")
       .isEqualTo(transientBooking)
+
+    assertThat(persistentBooking.main.createdByUsername).isEqualTo(USERNAME)
   }
 
   @Test
@@ -111,6 +116,18 @@ class VideoLinkBookingRepositoryTest(
 
     val hearingTypes = jdbcTemplate.queryForList("select hearing_type from video_link_appointment", String::class.java)
     assertThat(hearingTypes).contains("PRE", "MAIN", "POST")
+
+    assertThat(persistentBooking)
+      .extracting(
+        "main.createdByUsername",
+        "pre.createdByUsername",
+        "post.createdByUsername"
+      )
+      .containsExactly(
+        USERNAME,
+        USERNAME,
+        USERNAME
+      )
   }
 
   @Test

@@ -11,12 +11,13 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 
 @ActiveProfiles("test")
-@Import(TestAuditConfiguration::class)
+@Import(AuditConfiguration::class)
 @DataJpaTest
 @Transactional
 class VideoLinkAppointmentRepositoryTest {
@@ -47,7 +48,7 @@ class VideoLinkAppointmentRepositoryTest {
         bookingId = 4,
         court = "York 2",
         hearingType = HearingType.MAIN,
-        createdByUsername = "username1",
+        createdByUsername = "username2",
         madeByTheCourt = false
       )
     )
@@ -59,7 +60,7 @@ class VideoLinkAppointmentRepositoryTest {
 
     assertThat(appointments).extracting("appointmentId", "bookingId", "court", "createdByUsername", "madeByTheCourt")
       .containsExactlyInAnyOrder(
-        Tuple.tuple(1L, 2L, "York", null, true),
+        Tuple.tuple(1L, 2L, "York", "username1", true),
         Tuple.tuple(3L, 4L, "York 2", "username1", false)
       )
   }

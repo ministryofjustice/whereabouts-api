@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -25,7 +26,7 @@ import javax.validation.ConstraintViolationException
 
 @ExtendWith(SpringExtension::class)
 @ActiveProfiles("test")
-@Import(TestAuditConfiguration::class)
+@Import(AuditConfiguration::class)
 @DataJpaTest
 @Transactional
 class AttendanceRepositoryTest {
