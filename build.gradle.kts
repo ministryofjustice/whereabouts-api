@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.1.7"
-  kotlin("plugin.spring") version "1.4.32"
-  kotlin("plugin.jpa") version "1.4.32"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.2.0-beta"
+  kotlin("plugin.spring") version "1.5.0"
+  kotlin("plugin.jpa") version "1.5.0"
 }
 
 configurations {
@@ -80,7 +80,7 @@ tasks.withType<KotlinCompile>().configureEach {
 tasks {
   compileKotlin {
     kotlinOptions {
-      jvmTarget = "15"
+      jvmTarget = "16"
     }
   }
 }
