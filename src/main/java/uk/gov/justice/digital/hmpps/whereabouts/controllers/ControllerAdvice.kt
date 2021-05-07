@@ -146,7 +146,7 @@ class ControllerAdvice {
 
   @ExceptionHandler(EntityNotFoundException::class)
   fun handleNotFoundException(e: Exception): ResponseEntity<ErrorResponse> {
-    log.error("Not found returned {}", e.message)
+    log.debug("Not found (404) returned with message {}", e.message)
     return ResponseEntity
       .status(HttpStatus.NOT_FOUND)
       .body(
