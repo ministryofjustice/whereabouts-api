@@ -122,7 +122,7 @@ class PrisonApiServiceTest {
     val agencyId = "WWI"
 
     prisonApiMockServer.stubGetScheduledAppointmentsByAgencyAndDate(agencyId)
-    val scheduledAppointments = prisonApiService.getScheduledAppointmentsByAgencyAndDate(agencyId, date)
+    val scheduledAppointments = prisonApiService.getScheduledAppointmentsByAgencyAndDate(agencyId, date, null, null)
     assertThat(scheduledAppointments).containsExactlyInAnyOrder(
       ScheduledAppointmentDto(
         id = 1L,
@@ -130,7 +130,8 @@ class PrisonApiServiceTest {
         locationId = 10L,
         appointmentTypeCode = "VLB",
         startTime = date.atTime(9, 0),
-        endTime = date.atTime(9, 30)
+        endTime = date.atTime(9, 30),
+        offenderNo = "A1234AA"
       ),
       ScheduledAppointmentDto(
         id = 2L,
@@ -138,7 +139,8 @@ class PrisonApiServiceTest {
         locationId = 11L,
         appointmentTypeCode = "MEH",
         startTime = date.atTime(10, 0),
-        endTime = date.atTime(10, 30)
+        endTime = date.atTime(10, 30),
+        offenderNo = "B2345BB"
       )
     )
   }

@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.BasicBookingDetails;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
@@ -28,9 +29,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -90,6 +93,18 @@ public class PrisonApiService {
                 .bodyToMono(Map.class)
                 .map(entry -> entry.get("offenderNo"))
                 .cast(String.class)
+                .block();
+    }
+
+    public List<BasicBookingDetails> getOffenderDetailsFromOffenderNos(final Collection<String> offenderNos) {
+        final var responseType = new ParameterizedTypeReference<List<BasicBookingDetails>>() {
+        };
+
+        return webClient.post()
+                .uri("/bookings/offenders")
+                .bodyValue(offenderNos)
+                .retrieve()
+                .bodyToMono(responseType)
                 .block();
     }
 
@@ -257,9 +272,14 @@ public class PrisonApiService {
                 .block();
     }
 
-    public List<ScheduledAppointmentDto> getScheduledAppointmentsByAgencyAndDate(String agencyId, LocalDate date) {
+    public List<ScheduledAppointmentDto> getScheduledAppointmentsByAgencyAndDate(String agencyId, LocalDate date, TimePeriod timeSlot, Long locationId) {
         return webClient.get()
-                .uri("/schedules/{agencyId}/appointments?date={date}", agencyId, date)
+                .uri(uriBuilder -> uriBuilder
+                        .path("/schedules/{agencyId}/appointments")
+                        .queryParam("date", "{date}")
+                        .queryParamIfPresent("timeSlot", Optional.ofNullable(timeSlot))
+                        .queryParamIfPresent("locationId", Optional.ofNullable(locationId))
+                        .build(agencyId, date))
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<ScheduledAppointmentDto>>() {
                 })
