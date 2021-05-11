@@ -20,7 +20,7 @@ class AppointmentService(
   fun getAppointments(agencyId: String, date: LocalDate, timeSlot: TimePeriod?, offenderLocationPrefix: String?, locationId: Long?): List<AppointmentDto> {
     val appointmentsFromPrisonApi = prisonApiService.getScheduledAppointmentsByAgencyAndDate(agencyId, date, timeSlot, locationId)
     val locationFilter = generateOffenderLocationFilter(offenderLocationPrefix, appointmentsFromPrisonApi)
-    return appointmentsFromPrisonApi.filter { a -> locationFilter.filterLocations(a)}.map { a -> makeAppointmentDto(a) }.toList()
+    return appointmentsFromPrisonApi.filter { a -> locationFilter.filterLocations(a) }.map { a -> makeAppointmentDto(a) }.toList()
   }
 
   private fun generateOffenderLocationFilter(offenderLocationPrefix: String?, appointmentsFromPrisonApi: List<ScheduledAppointmentDto>): LocationFilter {
