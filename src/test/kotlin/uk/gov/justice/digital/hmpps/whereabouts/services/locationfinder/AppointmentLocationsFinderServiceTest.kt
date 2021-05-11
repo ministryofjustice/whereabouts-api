@@ -301,7 +301,8 @@ class AppointmentLocationsFinderServiceTest {
         endTime = LocalDateTime.of(aDate, endTime),
         id = 0L,
         agencyId = "X",
-        appointmentTypeCode = "X"
+        appointmentTypeCode = "X",
+        offenderNo = "A1234AA"
       )
   }
 }

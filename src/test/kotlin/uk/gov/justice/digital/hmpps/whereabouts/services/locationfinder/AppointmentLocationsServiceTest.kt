@@ -1,7 +1,9 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -29,7 +31,7 @@ class AppointmentLocationsServiceTest {
   @Test
   fun `it does not fall over`() {
     whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted(anyString(), anyString())).thenReturn(listOf())
-    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any())).thenReturn(emptyList())
+    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull())).thenReturn(emptyList())
     whenever(appointmentLocationsFinderService.find(any(), anyList(), anyList())).thenReturn(listOf())
 
     assertThat(
@@ -47,7 +49,7 @@ class AppointmentLocationsServiceTest {
 
   @Test
   fun `it filters and translates locations from prisonApiService`() {
-    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any())).thenReturn(emptyList())
+    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull())).thenReturn(emptyList())
     whenever(appointmentLocationsFinderService.find(any(), anyList(), anyList())).thenReturn(listOf())
 
     whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted(anyString(), anyString()))
@@ -103,7 +105,7 @@ class AppointmentLocationsServiceTest {
     whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted(anyString(), anyString())).thenReturn(listOf())
     whenever(appointmentLocationsFinderService.find(any(), anyList(), anyList())).thenReturn(listOf())
 
-    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any()))
+    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull()))
       .thenReturn(
         listOf(
           ScheduledAppointmentDto(
@@ -112,7 +114,8 @@ class AppointmentLocationsServiceTest {
             locationId = 10L,
             appointmentTypeCode = "VLAA",
             startTime = LocalDateTime.of(2020, 1, 1, 0, 0),
-            endTime = LocalDateTime.of(2020, 1, 1, 1, 0)
+            endTime = LocalDateTime.of(2020, 1, 1, 1, 0),
+            "A1234AA"
           ),
           ScheduledAppointmentDto(
             id = 2L,
@@ -120,7 +123,8 @@ class AppointmentLocationsServiceTest {
             locationId = 11L,
             appointmentTypeCode = "VLB",
             startTime = LocalDateTime.of(2020, 1, 1, 0, 0),
-            endTime = LocalDateTime.of(2020, 1, 1, 1, 0)
+            endTime = LocalDateTime.of(2020, 1, 1, 1, 0),
+            "B2345BB"
           ),
           ScheduledAppointmentDto(
             id = 3L,
@@ -128,7 +132,8 @@ class AppointmentLocationsServiceTest {
             locationId = 12L,
             appointmentTypeCode = "VLB",
             startTime = LocalDateTime.of(2020, 1, 1, 0, 0),
-            endTime = null
+            endTime = null,
+            "C3456CC"
           ),
         )
       )
@@ -144,7 +149,7 @@ class AppointmentLocationsServiceTest {
       .findLocationsForAppointmentIntervals(specification)
 
     verify(prisonApiService)
-      .getScheduledAppointmentsByAgencyAndDate(eq("WWI"), eq(LocalDate.of(2021, 1, 1)))
+      .getScheduledAppointmentsByAgencyAndDate(eq("WWI"), eq(LocalDate.of(2021, 1, 1)), isNull(), isNull())
 
     verify(appointmentLocationsFinderService)
       .find(
@@ -158,7 +163,8 @@ class AppointmentLocationsServiceTest {
               locationId = 10L,
               appointmentTypeCode = "VLAA",
               startTime = LocalDateTime.of(2020, 1, 1, 0, 0),
-              endTime = LocalDateTime.of(2020, 1, 1, 1, 0)
+              endTime = LocalDateTime.of(2020, 1, 1, 1, 0),
+              "A1234AA"
             ),
             ScheduledAppointmentDto(
               id = 2L,
@@ -166,7 +172,8 @@ class AppointmentLocationsServiceTest {
               locationId = 11L,
               appointmentTypeCode = "VLB",
               startTime = LocalDateTime.of(2020, 1, 1, 0, 0),
-              endTime = LocalDateTime.of(2020, 1, 1, 1, 0)
+              endTime = LocalDateTime.of(2020, 1, 1, 1, 0),
+              "B2345BB"
             ),
           )
         )
@@ -178,7 +185,7 @@ class AppointmentLocationsServiceTest {
     whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted(anyString(), anyString())).thenReturn(listOf())
     whenever(appointmentLocationsFinderService.find(any(), anyList(), anyList())).thenReturn(listOf())
 
-    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any()))
+    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull()))
       .thenReturn(
         listOf(
           ScheduledAppointmentDto(
@@ -187,7 +194,8 @@ class AppointmentLocationsServiceTest {
             locationId = 10L,
             appointmentTypeCode = "VLB",
             startTime = LocalDateTime.of(2020, 1, 1, 0, 0),
-            endTime = LocalDateTime.of(2020, 1, 1, 1, 0)
+            endTime = LocalDateTime.of(2020, 1, 1, 1, 0),
+            offenderNo = "A1234AA"
           ),
           ScheduledAppointmentDto(
             id = 2L,
@@ -195,7 +203,8 @@ class AppointmentLocationsServiceTest {
             locationId = 11L,
             appointmentTypeCode = "VLB",
             startTime = LocalDateTime.of(2020, 1, 1, 1, 0),
-            endTime = LocalDateTime.of(2020, 1, 1, 2, 0)
+            endTime = LocalDateTime.of(2020, 1, 1, 2, 0),
+            offenderNo = "B2345BB"
           ),
           ScheduledAppointmentDto(
             id = 3L,
@@ -204,6 +213,7 @@ class AppointmentLocationsServiceTest {
             appointmentTypeCode = "VLB",
             startTime = LocalDateTime.of(2020, 1, 1, 2, 0),
             endTime = LocalDateTime.of(2020, 1, 1, 3, 0),
+            offenderNo = "C3456CC"
           ),
           ScheduledAppointmentDto(
             id = 4L,
@@ -212,6 +222,7 @@ class AppointmentLocationsServiceTest {
             appointmentTypeCode = "VLB",
             startTime = LocalDateTime.of(2020, 1, 1, 3, 0),
             endTime = LocalDateTime.of(2020, 1, 1, 4, 0),
+            offenderNo = "D4567DD"
           ),
         )
       )
@@ -281,7 +292,8 @@ class AppointmentLocationsServiceTest {
               locationId = 11L,
               appointmentTypeCode = "VLB",
               startTime = LocalDateTime.of(2020, 1, 1, 1, 0),
-              endTime = LocalDateTime.of(2020, 1, 1, 2, 0)
+              endTime = LocalDateTime.of(2020, 1, 1, 2, 0),
+              offenderNo = "B2345BB"
             )
           )
         )
@@ -290,7 +302,7 @@ class AppointmentLocationsServiceTest {
 
   @Test
   fun `it translates LocationsForAppointmentIntervals to AvaliableLocations`() {
-    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any())).thenReturn(emptyList())
+    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull())).thenReturn(emptyList())
 
     whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted(anyString(), anyString()))
       .thenReturn(
