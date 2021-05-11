@@ -33,15 +33,19 @@ class AppointmentControllerTest : TestController() {
     val agencyId = "MDI"
     val locationId = 123L
     whenever(appointmentService.getAppointments(anyString(), any(), anyOrNull(), anyOrNull(), anyOrNull()))
-      .thenReturn(listOf(AppointmentDto(
-        id = 1L,
-        agencyId = agencyId,
-        locationId = locationId,
-        appointmentTypeCode = "VLB",
-        startTime = LocalDateTime.of(2020, 1, 2, 12, 0, 0),
-        endTime = LocalDateTime.of(2020, 1, 2, 13, 0, 0),
-        offenderNo = "A1234AA"
-    )))
+      .thenReturn(
+        listOf(
+          AppointmentDto(
+            id = 1L,
+            agencyId = agencyId,
+            locationId = locationId,
+            appointmentTypeCode = "VLB",
+            startTime = LocalDateTime.of(2020, 1, 2, 12, 0, 0),
+            endTime = LocalDateTime.of(2020, 1, 2, 13, 0, 0),
+            offenderNo = "A1234AA"
+          )
+        )
+      )
 
     mockMvc
       .perform(

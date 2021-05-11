@@ -177,19 +177,23 @@ class PrisonApiMockServer : WireMockServer(8999) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withBody(gson.toJson(listOf(
-              mapOf(
-                "bookingId" to 22L,
-                "bookingNo" to "123",
-                "offenderNo" to offenderNo,
-                "firstName" to "A",
-                "lastName" to "Name",
-                "agencyId" to "MDI",
-                "dateOfBirth" to "2000-01-01",
-                "assignedLivingUnitId" to 44L,
-                "assignedLivingUnitDesc" to offenderLocationDescription
+            .withBody(
+              gson.toJson(
+                listOf(
+                  mapOf(
+                    "bookingId" to 22L,
+                    "bookingNo" to "123",
+                    "offenderNo" to offenderNo,
+                    "firstName" to "A",
+                    "lastName" to "Name",
+                    "agencyId" to "MDI",
+                    "dateOfBirth" to "2000-01-01",
+                    "assignedLivingUnitId" to 44L,
+                    "assignedLivingUnitDesc" to offenderLocationDescription
+                  )
+                )
               )
-            )))
+            )
             .withStatus(200)
         )
     )

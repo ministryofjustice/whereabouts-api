@@ -25,7 +25,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
     webTestClient.get()
       .uri {
         it.path("/appointments/MDI")
-          .queryParam("date", LocalDate.of(2020, 12, 25 ))
+          .queryParam("date", LocalDate.of(2020, 12, 25))
           .queryParam("offenderLocationPrefix", "MDI-1")
           .build()
       }
