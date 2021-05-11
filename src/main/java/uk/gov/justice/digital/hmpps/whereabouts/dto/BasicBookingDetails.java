@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 
@@ -13,18 +15,22 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class BasicBookingDetails {
-
+    @NotNull
     private Long bookingId;
+    @NotBlank
     private String bookingNo;
-    private String offenderNo;
+    @NotBlank
+    public String offenderNo;
+    @NotBlank
     private String firstName;
-    private String middleName;
+    @NotBlank
     private String lastName;
+    @NotBlank
     private String agencyId;
-    private Long assignedLivingUnitId;
-    private boolean activeFlag;
-    private Long facialImageId;
+    @NotNull
     private LocalDate dateOfBirth;
-    private Long assignedOfficerId;
+    private Long assignedLivingUnitId;
+    public String assignedLivingUnitDesc;
+
 }
 
