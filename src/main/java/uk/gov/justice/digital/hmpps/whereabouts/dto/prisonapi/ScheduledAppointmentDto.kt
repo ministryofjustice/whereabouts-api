@@ -9,4 +9,5 @@ data class ScheduledAppointmentDto(
   val appointmentTypeCode: String,
   val startTime: LocalDateTime,
   val endTime: LocalDateTime?,
+  val offenderNo: String,
 )

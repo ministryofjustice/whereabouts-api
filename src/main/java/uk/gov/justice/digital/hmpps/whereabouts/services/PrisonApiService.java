@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto;
@@ -28,9 +29,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -93,6 +96,18 @@ public class PrisonApiService {
                 .block();
     }
 
+    public List<OffenderBooking> getOffenderDetailsFromOffenderNos(final Collection<String> offenderNos) {
+        final var responseType = new ParameterizedTypeReference<List<OffenderBooking>>() {
+        };
+
+        return webClient.post()
+                .uri("/bookings/offenders")
+                .bodyValue(offenderNos)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
+    }
+
     public List<OffenderDetails> getScheduleActivityOffenderData(final String prisonId, final LocalDate fromDate, final LocalDate toDate, final TimePeriod period) {
         final var responseType = new ParameterizedTypeReference<List<OffenderDetails>>() {
         };
@@ -101,18 +116,6 @@ public class PrisonApiService {
                 .uri("/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}&includeSuspended=true", prisonId, fromDate, toDate, period)
                 .retrieve()
                 .bodyToMono(responseType)
-                .block();
-    }
-
-    public Long getOffenderBookingId(final String offenderNo) {
-        final var responseType = new ParameterizedTypeReference<OffenderDetails>() {
-        };
-
-        return webClient.get()
-                .uri("/bookings/offenderNo/{offenderNo}?fullInfo=false", offenderNo)
-                .retrieve()
-                .bodyToMono(responseType)
-                .map(OffenderDetails::getBookingId)
                 .block();
     }
 
@@ -257,9 +260,14 @@ public class PrisonApiService {
                 .block();
     }
 
-    public List<ScheduledAppointmentDto> getScheduledAppointmentsByAgencyAndDate(String agencyId, LocalDate date) {
+    public List<ScheduledAppointmentDto> getScheduledAppointmentsByAgencyAndDate(final String agencyId, final LocalDate date, final TimePeriod timeSlot, final Long locationId) {
         return webClient.get()
-                .uri("/schedules/{agencyId}/appointments?date={date}", agencyId, date)
+                .uri(uriBuilder -> uriBuilder
+                        .path("/schedules/{agencyId}/appointments")
+                        .queryParam("date", "{date}")
+                        .queryParamIfPresent("timeSlot", Optional.ofNullable(timeSlot))
+                        .queryParamIfPresent("locationId", Optional.ofNullable(locationId))
+                        .build(agencyId, date))
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<ScheduledAppointmentDto>>() {
                 })

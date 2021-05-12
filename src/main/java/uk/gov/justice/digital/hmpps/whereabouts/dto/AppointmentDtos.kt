@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
+import java.time.LocalDateTime
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class CourtLocationResponse(val courtLocations: Set<String>? = emptySet())
@@ -17,6 +18,24 @@ data class CreateBookingAppointment(
   val comment: String? = null,
   val startTime: String,
   val endTime: String
+)
+
+@ApiModel(description = "The data related to a single appointment.")
+data class AppointmentDto(
+  @ApiModelProperty(required = true, value = "The event Id associated with this appointment")
+  val id: Long,
+  @ApiModelProperty(required = true, value = "The Id of the agency where the appointment is", example = "MDI")
+  val agencyId: String,
+  @ApiModelProperty(required = true, value = "The Id of the location to be used for this appointment")
+  val locationId: Long,
+  @ApiModelProperty(required = true, value = "The code for the type of appointment this is", example = "INTERV")
+  val appointmentTypeCode: String,
+  @ApiModelProperty(required = true, value = "The NOMS Id of the offender who this appointment is for")
+  val offenderNo: String,
+  @ApiModelProperty(required = true, value = "When the appointment is scheduled to start")
+  val startTime: LocalDateTime,
+  @ApiModelProperty(required = true, value = "When the appointment is scheduled to end")
+  val endTime: LocalDateTime?
 )
 
 @ApiModel(description = "Video link appointment details")

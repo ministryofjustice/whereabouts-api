@@ -92,7 +92,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
-  fun stubGetScheduledAppointmentsByAgencyAndDate(agencyId: String) {
+  fun stubGetScheduledAppointmentsByAgencyAndDate(agencyId: String, offenderNo: String = "A1234AA") {
     stubFor(
       get(urlEqualTo("/api/schedules/$agencyId/appointments?date=2020-12-25"))
         .willReturn(
@@ -107,7 +107,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     "locationId" to 10L,
                     "appointmentTypeCode" to "VLB",
                     "startTime" to "2020-12-25T09:00:00",
-                    "endTime" to "2020-12-25T09:30:00"
+                    "endTime" to "2020-12-25T09:30:00",
+                    "offenderNo" to offenderNo
                   ),
                   mapOf(
                     "id" to 2L,
@@ -115,7 +116,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     "locationId" to 11L,
                     "appointmentTypeCode" to "MEH",
                     "startTime" to "2020-12-25T10:00:00",
-                    "endTime" to "2020-12-25T10:30:00"
+                    "endTime" to "2020-12-25T10:30:00",
+                    "offenderNo" to "B2345BB"
                   )
                 )
               )
@@ -164,6 +166,34 @@ class PrisonApiMockServer : WireMockServer(8999) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(mapOf("offenderNo" to offenderNo)))
+            .withStatus(200)
+        )
+    )
+  }
+
+  fun stubGetOffenderBookings(offenderNo: String = "A1234AA", offenderLocationDescription: String = "MDI-1-2") {
+    stubFor(
+      post(urlEqualTo("/api/bookings/offenders"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(
+              gson.toJson(
+                listOf(
+                  mapOf(
+                    "bookingId" to 22L,
+                    "bookingNo" to "123",
+                    "offenderNo" to offenderNo,
+                    "firstName" to "A",
+                    "lastName" to "Name",
+                    "agencyId" to "MDI",
+                    "dateOfBirth" to "2000-01-01",
+                    "assignedLivingUnitId" to 44L,
+                    "assignedLivingUnitDesc" to offenderLocationDescription
+                  )
+                )
+              )
+            )
             .withStatus(200)
         )
     )
