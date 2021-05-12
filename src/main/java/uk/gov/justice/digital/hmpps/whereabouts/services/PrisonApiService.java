@@ -260,7 +260,7 @@ public class PrisonApiService {
                 .block();
     }
 
-    public List<ScheduledAppointmentDto> getScheduledAppointmentsByAgencyAndDate(String agencyId, LocalDate date, TimePeriod timeSlot, Long locationId) {
+    public List<ScheduledAppointmentDto> getScheduledAppointmentsByAgencyAndDate(final String agencyId, final LocalDate date, final TimePeriod timeSlot, final Long locationId) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/schedules/{agencyId}/appointments")
