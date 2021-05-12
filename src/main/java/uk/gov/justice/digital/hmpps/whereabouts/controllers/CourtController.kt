@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtIdsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtLocationResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
@@ -47,6 +48,15 @@ class CourtController(
     notes = "Return all court locations"
   )
   fun getCourtLocations() = CourtLocationResponse(courtLocations = courtService.getCourtLocations())
+
+  @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/courts"])
+  @ResponseStatus(HttpStatus.OK)
+  @ApiOperation(
+    value = "Court Ids",
+    response = CourtIdsResponse::class,
+    notes = "Return court Ids"
+  )
+  fun getCourtIds() = CourtIdsResponse(courtIds = courtService.getCourtIds())
 
   @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-appointments"])
   @ResponseStatus(HttpStatus.OK)
