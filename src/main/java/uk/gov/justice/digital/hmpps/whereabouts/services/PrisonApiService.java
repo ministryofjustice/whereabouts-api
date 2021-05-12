@@ -12,12 +12,12 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.BasicBookingDetails;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto;
@@ -96,8 +96,8 @@ public class PrisonApiService {
                 .block();
     }
 
-    public List<BasicBookingDetails> getOffenderDetailsFromOffenderNos(final Collection<String> offenderNos) {
-        final var responseType = new ParameterizedTypeReference<List<BasicBookingDetails>>() {
+    public List<OffenderBooking> getOffenderDetailsFromOffenderNos(final Collection<String> offenderNos) {
+        final var responseType = new ParameterizedTypeReference<List<OffenderBooking>>() {
         };
 
         return webClient.post()
@@ -116,18 +116,6 @@ public class PrisonApiService {
                 .uri("/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}&includeSuspended=true", prisonId, fromDate, toDate, period)
                 .retrieve()
                 .bodyToMono(responseType)
-                .block();
-    }
-
-    public Long getOffenderBookingId(final String offenderNo) {
-        final var responseType = new ParameterizedTypeReference<OffenderDetails>() {
-        };
-
-        return webClient.get()
-                .uri("/bookings/offenderNo/{offenderNo}?fullInfo=false", offenderNo)
-                .retrieve()
-                .bodyToMono(responseType)
-                .map(OffenderDetails::getBookingId)
                 .block();
     }
 

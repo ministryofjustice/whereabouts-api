@@ -58,9 +58,9 @@ class NoOpFilter : LocationFilter {
 
 class OffenderLocationFilter(
   private val offenderLocationPrefix: String,
-  private val offenderLocationDescriptionByOffenderNo: Map<String, String>
+  private val offenderLocationDescriptionByOffenderNo: Map<String, String?>
 ) : LocationFilter {
   override fun filterLocations(appointment: ScheduledAppointmentDto): Boolean {
-    return offenderLocationDescriptionByOffenderNo.getOrDefault(appointment.offenderNo, "").startsWith(offenderLocationPrefix)
+    return offenderLocationDescriptionByOffenderNo[appointment.offenderNo].orEmpty().startsWith(offenderLocationPrefix)
   }
 }

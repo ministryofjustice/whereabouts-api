@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.BasicBookingDetails
+import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.time.LocalDate
@@ -68,10 +68,10 @@ class AppointmentServiceTest {
     whenever(prisonApiService.getOffenderDetailsFromOffenderNos(any()))
       .thenReturn(
         listOf(
-          BasicBookingDetails(
+          OffenderBooking(
             22L, "123", filteredOffenderNo, "A", "Name", "MDI", LocalDate.of(2000, 1, 2), 44L, filteredOffenderLocation
           ),
-          BasicBookingDetails(
+          OffenderBooking(
             33L, "234", otherOffenderNo, "Another", "Name", "MDI", LocalDate.of(2000, 1, 3), 55L, otherOffenderLocation
           )
         )
