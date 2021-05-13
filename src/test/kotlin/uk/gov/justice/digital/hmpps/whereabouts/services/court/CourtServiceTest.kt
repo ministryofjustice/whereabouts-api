@@ -53,8 +53,30 @@ class CourtServiceTest {
   private val clock: Clock = Clock.fixed(Instant.parse("2020-10-01T00:00:00Z"), ZoneId.of("UTC"))
 
   @Test
+  fun `should return NO courtIds`() {
+    val service = service("", "")
+    val courtIds = service.getCourtIds()
+    assertThat(courtIds).isEqualTo(setOf(""))
+  }
+
+  @Test
+  fun `should return one courtId`() {
+    val service = service("", "courtId_1")
+    val courtIds = service.getCourtIds()
+    assertThat(courtIds).isEqualTo(setOf("courtId_1"))
+  }
+
+  @Test
+  fun `should return more than one courtId`() {
+    val service = service("", "courtId_1,courtId_2")
+    val courtIds = service.getCourtIds()
+    println(setOf("courtId_1", "courtId_2"))
+    assertThat(courtIds).isEqualTo(setOf("courtId_1", "courtId_2"))
+  }
+
+  @Test
   fun `should return NO video link appointments`() {
-    val service = service("")
+    val service = service("", "")
     val appointments = service.getVideoLinkAppointments(setOf(1, 2))
 
     verify(videoLinkAppointmentRepository).findVideoLinkAppointmentByAppointmentIdIn(setOf(1, 2))
@@ -76,7 +98,7 @@ class CourtServiceTest {
         )
       )
     )
-    val service = service("")
+    val service = service("", "")
     val appointments = service.getVideoLinkAppointments(setOf(3, 4))
 
     assertThat(appointments)
@@ -89,7 +111,7 @@ class CourtServiceTest {
 
   @Nested
   inner class CreateVideoLinkBooking {
-    val service = service("")
+    val service = service("", "")
 
     private val referenceTime = LocalDateTime
       .now(clock)
@@ -447,7 +469,7 @@ class CourtServiceTest {
 
     @Test
     fun `Happy flow - update main`() {
-      val service = service("")
+      val service = service("", "")
 
       val theBooking = VideoLinkBooking(
         id = 1L,
@@ -510,7 +532,7 @@ class CourtServiceTest {
      */
     @Test
     fun `Validation - main appointment start time in the past`() {
-      val service = service("")
+      val service = service("", "")
       assertThatThrownBy {
         service.updateVideoLinkBooking(
           1L,
@@ -530,7 +552,7 @@ class CourtServiceTest {
 
     @Test
     fun `Happy flow - update pre, main and post`() {
-      val service = service("")
+      val service = service("", "")
 
       val theBooking = VideoLinkBooking(
         id = 1L,
@@ -655,7 +677,7 @@ class CourtServiceTest {
 
   @Nested
   inner class DeleteVideoLinkBooking {
-    val service = service("")
+    val service = service("", "")
 
     private val mainAppointmentId = 12L
     private val mainVideoLinkAppointment = VideoLinkAppointment(
@@ -718,7 +740,7 @@ class CourtServiceTest {
 
   @Nested
   inner class GetVideoLinkBooking {
-    val service = service("")
+    val service = service("", "")
 
     private val mainAppointmentId = 12L
     private val mainVideoLinkAppointment = VideoLinkAppointment(
@@ -869,7 +891,7 @@ class CourtServiceTest {
 
   @Nested
   inner class GetVideoLinkBookingsForDateAndCourt {
-    val service = service("")
+    val service = service("", "")
     val date: LocalDate = LocalDate.of(2020, 12, 25)
 
     @Test
@@ -1093,7 +1115,7 @@ class CourtServiceTest {
 
     @Test
     fun `Happy flow - Pre, main and post appointments`() {
-      val service = service("")
+      val service = service("", "")
       val newComment = "New comment"
 
       whenever(videoLinkBookingRepository.findById(1L))
@@ -1136,7 +1158,7 @@ class CourtServiceTest {
 
     @Test
     fun `Happy flow - main appointment only, no comment`() {
-      val service = service("")
+      val service = service("", "")
       val newComment = ""
 
       whenever(videoLinkBookingRepository.findById(1L))
@@ -1162,13 +1184,14 @@ class CourtServiceTest {
     }
   }
 
-  private fun service(courts: String) = CourtService(
+  private fun service(courts: String, courtIds: String) = CourtService(
     prisonApiService,
     videoLinkAppointmentRepository,
     videoLinkBookingRepository,
     clock,
     videoLinkBookingEventListener,
-    courts
+    courts,
+    courtIds
   )
 
   companion object {
