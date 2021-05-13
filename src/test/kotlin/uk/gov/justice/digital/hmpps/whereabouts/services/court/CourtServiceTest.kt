@@ -53,6 +53,28 @@ class CourtServiceTest {
   private val clock: Clock = Clock.fixed(Instant.parse("2020-10-01T00:00:00Z"), ZoneId.of("UTC"))
 
   @Test
+  fun `should return NO courtIds`() {
+    val service = service("", "")
+    val courtIds = service.getCourtIds()
+    assertThat(courtIds).isEqualTo(setOf(""))
+  }
+
+  @Test
+  fun `should return one courtId`() {
+    val service = service("", "courtId_1")
+    val courtIds = service.getCourtIds()
+    assertThat(courtIds).isEqualTo(setOf("courtId_1"))
+  }
+
+  @Test
+  fun `should return more than one courtId`() {
+    val service = service("", "courtId_1,courtId_2")
+    val courtIds = service.getCourtIds()
+    println(setOf("courtId_1", "courtId_2"))
+    assertThat(courtIds).isEqualTo(setOf("courtId_1", "courtId_2"))
+  }
+
+  @Test
   fun `should return NO video link appointments`() {
     val service = service("", "")
     val appointments = service.getVideoLinkAppointments(setOf(1, 2))
