@@ -354,7 +354,7 @@ class CourtControllerTest : TestController() {
       whenever(courtService.getCourtIds()).thenReturn(setOf("court_1", "court_2", "court_3"))
 
       mockMvc.perform(
-        get("/court/courts")
+        get("/court/ids")
           .contentType(MediaType.APPLICATION_JSON)
       )
         .andExpect(
@@ -377,7 +377,7 @@ class CourtControllerTest : TestController() {
       whenever(courtService.getCourtIds()).thenReturn(setOf())
 
       mockMvc.perform(
-        get("/court/courts")
+        get("/court/ids")
           .contentType(MediaType.APPLICATION_JSON)
       )
         .andExpect(

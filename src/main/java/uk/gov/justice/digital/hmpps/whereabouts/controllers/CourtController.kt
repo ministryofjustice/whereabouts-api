@@ -49,7 +49,7 @@ class CourtController(
   )
   fun getCourtLocations() = CourtLocationResponse(courtLocations = courtService.getCourtLocations())
 
-  @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/courts"])
+  @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/ids"])
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation(
     value = "Court Ids",
