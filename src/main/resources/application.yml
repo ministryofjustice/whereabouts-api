@@ -46,6 +46,12 @@ spring:
   codec:
     max-in-memory-size: 10MB
 
+
+  profiles:
+    group:
+      test:
+        - "dev"
+
 server:
   port: 8082
   servlet:

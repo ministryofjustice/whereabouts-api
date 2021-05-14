@@ -43,7 +43,7 @@ class AppointmentLocationsService(
 
   private fun fetchScheduledAppointments(specification: AppointmentLocationsSpecification) =
     prisonApiService
-      .getScheduledAppointmentsByAgencyAndDate(specification.agencyId, specification.date, null, null)
+      .getScheduledAppointments(specification.agencyId, specification.date)
       .filter { it.endTime != null }
 
   companion object {

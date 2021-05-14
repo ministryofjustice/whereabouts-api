@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
 import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -874,17 +873,17 @@ class CourtServiceTest {
 
     @Test
     fun `no prison appointments, no VLBs`() {
-      whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull())).thenReturn(listOf())
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any())).thenReturn(listOf())
       whenever(videoLinkBookingRepository.findByMainAppointmentIds(any())).thenReturn(listOf())
 
       val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null)
       assertThat(bookings).isEmpty()
-      verify(prisonApiService).getScheduledAppointmentsByAgencyAndDate("WWI", date, null, null)
+      verify(prisonApiService).getScheduledAppointments("WWI", date)
     }
 
     @Test
     fun `happy flow`() {
-      whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull()))
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
         .thenReturn(
           scheduledAppointments("VLB", "WWI", 1, 10) +
             scheduledAppointments("VLB", "WWI", 1000, 1010) +
@@ -922,7 +921,7 @@ class CourtServiceTest {
 
     @Test
     fun `happy flow - filter by court`() {
-      whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull()))
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
         .thenReturn(
           scheduledAppointments("VLB", "WWI", 1, 10)
         )
@@ -939,7 +938,7 @@ class CourtServiceTest {
 
     @Test
     fun `happy flow - filter appointment type`() {
-      whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull()))
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
         .thenReturn(scheduledAppointments("NOWT", "WWI", 1, 10))
       whenever(videoLinkBookingRepository.findByMainAppointmentIds(any()))
         .thenReturn(videoLinkBookings("Wimbledon", 1, 10))
@@ -950,7 +949,7 @@ class CourtServiceTest {
 
     @Test
     fun `appointments with missing end times are filtered out`() {
-      whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull()))
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
         .thenReturn(
           listOf(
             ScheduledAppointmentDto(
@@ -1021,7 +1020,7 @@ class CourtServiceTest {
 
     @Test
     fun `bookings with with missing end times on main appointment are filtered out entirely`() {
-      whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull()))
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
         .thenReturn(
           listOf(
             ScheduledAppointmentDto(

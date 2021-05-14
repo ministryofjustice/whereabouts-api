@@ -34,8 +34,15 @@ data class AppointmentDto(
   val offenderNo: String,
   @ApiModelProperty(required = true, value = "When the appointment is scheduled to start")
   val startTime: LocalDateTime,
-  @ApiModelProperty(required = true, value = "When the appointment is scheduled to end")
+  @ApiModelProperty(required = false, value = "When the appointment is scheduled to end")
   val endTime: LocalDateTime?
+)
+
+data class VideoLinkBookingDto(
+  val id: Long,
+  val main: VideoLinkAppointmentDto,
+  val pre: VideoLinkAppointmentDto? = null,
+  val post: VideoLinkAppointmentDto? = null
 )
 
 @ApiModel(description = "Video link appointment details")
@@ -54,6 +61,11 @@ data class VideoLinkAppointmentDto(
   val createdByUsername: String?,
   @ApiModelProperty(value = "Determines if the appointment was made by the court")
   val madeByTheCourt: Boolean? = true
+)
+
+data class AppointmentDetailsDto(
+  val appointment: AppointmentDto? = null,
+  val videoLinkBooking: VideoLinkBookingDto? = null
 )
 
 data class Event(
