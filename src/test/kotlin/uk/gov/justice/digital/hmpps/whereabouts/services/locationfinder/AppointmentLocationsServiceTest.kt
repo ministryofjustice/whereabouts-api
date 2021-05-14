@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -31,7 +30,7 @@ class AppointmentLocationsServiceTest {
   @Test
   fun `it does not fall over`() {
     whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted(anyString(), anyString())).thenReturn(listOf())
-    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull())).thenReturn(emptyList())
+    whenever(prisonApiService.getScheduledAppointments(anyString(), any())).thenReturn(emptyList())
     whenever(appointmentLocationsFinderService.find(any(), anyList(), anyList())).thenReturn(listOf())
 
     assertThat(
@@ -49,7 +48,7 @@ class AppointmentLocationsServiceTest {
 
   @Test
   fun `it filters and translates locations from prisonApiService`() {
-    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull())).thenReturn(emptyList())
+    whenever(prisonApiService.getScheduledAppointments(anyString(), any())).thenReturn(emptyList())
     whenever(appointmentLocationsFinderService.find(any(), anyList(), anyList())).thenReturn(listOf())
 
     whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted(anyString(), anyString()))
@@ -105,7 +104,7 @@ class AppointmentLocationsServiceTest {
     whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted(anyString(), anyString())).thenReturn(listOf())
     whenever(appointmentLocationsFinderService.find(any(), anyList(), anyList())).thenReturn(listOf())
 
-    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull()))
+    whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
       .thenReturn(
         listOf(
           ScheduledAppointmentDto(
@@ -149,7 +148,7 @@ class AppointmentLocationsServiceTest {
       .findLocationsForAppointmentIntervals(specification)
 
     verify(prisonApiService)
-      .getScheduledAppointmentsByAgencyAndDate(eq("WWI"), eq(LocalDate.of(2021, 1, 1)), isNull(), isNull())
+      .getScheduledAppointments(eq("WWI"), eq(LocalDate.of(2021, 1, 1)))
 
     verify(appointmentLocationsFinderService)
       .find(
@@ -185,7 +184,7 @@ class AppointmentLocationsServiceTest {
     whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted(anyString(), anyString())).thenReturn(listOf())
     whenever(appointmentLocationsFinderService.find(any(), anyList(), anyList())).thenReturn(listOf())
 
-    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull()))
+    whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
       .thenReturn(
         listOf(
           ScheduledAppointmentDto(
@@ -302,7 +301,7 @@ class AppointmentLocationsServiceTest {
 
   @Test
   fun `it translates LocationsForAppointmentIntervals to AvaliableLocations`() {
-    whenever(prisonApiService.getScheduledAppointmentsByAgencyAndDate(anyString(), any(), anyOrNull(), anyOrNull())).thenReturn(emptyList())
+    whenever(prisonApiService.getScheduledAppointments(anyString(), any(), anyOrNull(), anyOrNull())).thenReturn(emptyList())
 
     whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted(anyString(), anyString()))
       .thenReturn(

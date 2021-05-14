@@ -4,11 +4,15 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestClientResponseException
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceExists
@@ -17,7 +21,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.InvalidCourtLocation
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import javax.persistence.EntityNotFoundException
 
-@RestControllerAdvice(basePackageClasses = [AttendanceController::class, AttendanceStatisticsController::class, AttendancesController::class, CourtController::class, AgencyController::class, LocationController::class, CellMoveController::class])
+@RestControllerAdvice
 class ControllerAdvice {
   @ExceptionHandler(RestClientResponseException::class)
   fun handleException(e: RestClientResponseException): ResponseEntity<ByteArray> {
@@ -100,15 +104,71 @@ class ControllerAdvice {
       )
   }
 
-  @ExceptionHandler(Exception::class)
-  fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
-    log.error("Unexpected exception {}", e.message)
+  @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+  fun handleException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse> {
+    log.debug("Required field missing {}", e.message)
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .body(
         ErrorResponse
           .builder()
           .status(HttpStatus.BAD_REQUEST.value())
+          .developerMessage(e.message)
+          .build()
+      )
+  }
+
+  @ExceptionHandler(MissingServletRequestParameterException::class)
+  fun handleException(e: MissingServletRequestParameterException): ResponseEntity<ErrorResponse> {
+    log.debug("Required field missing {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.BAD_REQUEST)
+      .body(
+        ErrorResponse
+          .builder()
+          .status(HttpStatus.BAD_REQUEST.value())
+          .developerMessage(e.message)
+          .build()
+      )
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException::class)
+  fun handleException(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
+    log.debug("Failed to map into body data structure {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.BAD_REQUEST)
+      .body(
+        ErrorResponse
+          .builder()
+          .status(HttpStatus.BAD_REQUEST.value())
+          .developerMessage(e.message)
+          .build()
+      )
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException::class)
+  fun handleException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
+    log.debug("Request parameters not valid {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.BAD_REQUEST)
+      .body(
+        ErrorResponse
+          .builder()
+          .status(HttpStatus.BAD_REQUEST.value())
+          .developerMessage(e.message)
+          .build()
+      )
+  }
+
+  @ExceptionHandler(Exception::class)
+  fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
+    log.error("Unexpected exception {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .body(
+        ErrorResponse
+          .builder()
+          .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
           .developerMessage(e.message)
           .build()
       )

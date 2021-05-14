@@ -229,7 +229,7 @@ class CourtService(
     court: String?
   ): List<VideoLinkBookingResponse> {
     val scheduledAppointments = prisonApiService
-      .getScheduledAppointmentsByAgencyAndDate(agencyId, date, null, null)
+      .getScheduledAppointments(agencyId, date)
       .filter { it.appointmentTypeCode == "VLB" }
 
     val scheduledAppointmentIds = scheduledAppointments.map { it.id }
