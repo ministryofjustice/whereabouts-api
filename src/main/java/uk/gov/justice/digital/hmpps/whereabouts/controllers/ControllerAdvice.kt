@@ -21,17 +21,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.InvalidCourtLocation
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import javax.persistence.EntityNotFoundException
 
-@RestControllerAdvice(
-  basePackageClasses = [
-    AttendanceController::class,
-    AttendanceStatisticsController::class,
-    AttendancesController::class,
-    CourtController::class,
-    AgencyController::class,
-    LocationController::class,
-    CellMoveController::class
-  ]
-)
+@RestControllerAdvice
 class ControllerAdvice {
   @ExceptionHandler(RestClientResponseException::class)
   fun handleException(e: RestClientResponseException): ResponseEntity<ByteArray> {

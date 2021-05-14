@@ -92,7 +92,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
     private const val APPOINTMENT_ID = 2L
     private const val BOOKING_ID = -1L
     private const val OFFENDER_NO = "A12345"
-    private val START_TIME = LocalDateTime.now()
-    private val END_TIME = LocalDateTime.now()
+    private val START_TIME = LocalDateTime.parse("2020-10-10T20:00:01")
+    private val END_TIME = LocalDateTime.parse("2020-10-10T21:00:02")
   }
 }
