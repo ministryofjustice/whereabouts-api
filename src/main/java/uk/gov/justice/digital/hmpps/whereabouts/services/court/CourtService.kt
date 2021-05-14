@@ -34,13 +34,16 @@ class CourtService(
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val clock: Clock,
   private val videoLinkBookingEventListener: VideoLinkBookingEventListener,
-  @Value("\${courts}") private val courts: String
+  @Value("\${courts}") private val courts: String,
+  @Value("\${courtIds}") private val courtIds: String,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
   fun getCourtLocations() = courts.split(",").toSet()
+
+  fun getCourtIds() = courtIds.split(",").toSet()
 
   @Transactional(readOnly = true)
   fun getVideoLinkAppointments(appointmentIds: Set<Long>): Set<VideoLinkAppointmentDto> {

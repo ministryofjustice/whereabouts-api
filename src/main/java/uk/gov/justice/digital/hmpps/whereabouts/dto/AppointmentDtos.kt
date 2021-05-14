@@ -10,6 +10,9 @@ import java.time.LocalDateTime
 data class CourtLocationResponse(val courtLocations: Set<String>? = emptySet())
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+data class CourtIdsResponse(val courtIds: Set<String>? = emptySet())
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class VideoLinkAppointmentsResponse(val appointments: Set<VideoLinkAppointmentDto>? = emptySet())
 
 data class CreateBookingAppointment(

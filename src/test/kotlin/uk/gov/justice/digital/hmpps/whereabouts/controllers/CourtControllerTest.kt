@@ -345,6 +345,52 @@ class CourtControllerTest : TestController() {
   }
 
   @Nested
+  inner class `Get court Ids` {
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `return court Ids`() {
+
+      whenever(courtService.getCourtIds()).thenReturn(setOf("court_1", "court_2", "court_3"))
+
+      mockMvc.perform(
+        get("/court/ids")
+          .contentType(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(
+          matchAll(
+            status().isOk,
+            content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
+            content().json("""{"courtIds":["court_1","court_2","court_3"]}""")
+          )
+        )
+    }
+  }
+
+  @Nested
+  inner class `Get no court Ids` {
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `return court Ids`() {
+
+      whenever(courtService.getCourtIds()).thenReturn(setOf())
+
+      mockMvc.perform(
+        get("/court/ids")
+          .contentType(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(
+          matchAll(
+            status().isOk,
+            content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
+            content().json("""{"courtIds":[]}""")
+          )
+        )
+    }
+  }
+
+  @Nested
   inner class `Update a Booking` {
     @Test
     @WithMockUser(username = "ITAG_USER")
