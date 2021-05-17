@@ -41,6 +41,34 @@ data class AppointmentDto(
   val endTime: LocalDateTime?
 )
 
+@ApiModel(description = "The data related to a single appointment.")
+data class AppointmentSearchDto(
+  @ApiModelProperty(required = true, value = "The event Id associated with this appointment")
+  val id: Long,
+  @ApiModelProperty(required = true, value = "The Id of the agency where the appointment is", example = "MDI")
+  val agencyId: String,
+  @ApiModelProperty(required = true, value = "The Id of the location to be used for this appointment")
+  val locationId: Long,
+  @ApiModelProperty(required = true, value = "The description of the location")
+  val locationDescription: String,
+  @ApiModelProperty(required = true, value = "The code for the type of appointment this is", example = "INTERV")
+  val appointmentTypeCode: String,
+  @ApiModelProperty(required = true, value = "The description of the appointment type")
+  val appointmentTypeDescription: String,
+  @ApiModelProperty(required = true, value = "The NOMS Id of the offender who this appointment is for")
+  val offenderNo: String,
+  @ApiModelProperty(required = true, value = "Offender first name")
+  val firstName: String,
+  @ApiModelProperty(required = true, value = "Offender last name")
+  val lastName: String,
+  @ApiModelProperty(required = true, value = "When the appointment is scheduled to start")
+  val startTime: LocalDateTime,
+  @ApiModelProperty(required = false, value = "When the appointment is scheduled to end")
+  val endTime: LocalDateTime?,
+  @ApiModelProperty(required = true, value = "The name of the user who created this appointment", example = "ASMITH")
+  val createUserId: String
+)
+
 data class VideoLinkBookingDto(
   val id: Long,
   val main: VideoLinkAppointmentDto,

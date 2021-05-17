@@ -13,9 +13,9 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentSearchDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
-import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
@@ -53,23 +53,33 @@ class AppointmentServiceTest {
       whenever(prisonApiService.getScheduledAppointments(anyString(), any(), anyOrNull(), anyOrNull()))
         .thenReturn(
           listOf(
-            ScheduledAppointmentDto(
+            ScheduledAppointmentSearchDto(
               id = 1L,
               agencyId = AGENCY_ID,
               locationId = 11L,
+              locationDescription = "A location",
               appointmentTypeCode = "VLB",
+              appointmentTypeDescription = "Video Link Booking",
               startTime = LocalDateTime.of(2020, 1, 1, 12, 0, 0),
               endTime = LocalDateTime.of(2020, 1, 1, 13, 0, 0),
-              offenderNo = filteredOffenderNo
+              offenderNo = filteredOffenderNo,
+              firstName = "BILL",
+              lastName = "BENN",
+              createUserId = "ASMITH"
             ),
-            ScheduledAppointmentDto(
+            ScheduledAppointmentSearchDto(
               id = 2L,
               agencyId = AGENCY_ID,
               locationId = 12L,
+              locationDescription = "Another location",
               appointmentTypeCode = "VLB",
+              appointmentTypeDescription = "Video Link Booking",
               startTime = LocalDateTime.of(2020, 1, 2, 12, 0, 0),
               endTime = LocalDateTime.of(2020, 1, 2, 13, 0, 0),
-              offenderNo = otherOffenderNo
+              offenderNo = otherOffenderNo,
+              firstName = "ANY",
+              lastName = "NAME",
+              createUserId = "BSMITH"
             )
           )
         )
@@ -106,14 +116,19 @@ class AppointmentServiceTest {
 
       assertThat(filteredAppointments).isEqualTo(
         listOf(
-          AppointmentDto(
+          AppointmentSearchDto(
             id = 1L,
             agencyId = AGENCY_ID,
             locationId = 11L,
+            locationDescription = "A location",
             appointmentTypeCode = "VLB",
+            appointmentTypeDescription = "Video Link Booking",
             startTime = LocalDateTime.of(2020, 1, 1, 12, 0, 0),
             endTime = LocalDateTime.of(2020, 1, 1, 13, 0, 0),
-            offenderNo = filteredOffenderNo
+            offenderNo = filteredOffenderNo,
+            firstName = "BILL",
+            lastName = "BENN",
+            createUserId = "ASMITH"
           )
         )
       )
@@ -127,17 +142,28 @@ class AppointmentServiceTest {
       val exampleStartTime = LocalDateTime.of(2020, 1, 1, 12, 0, 0)
       val exampleEndTime = LocalDateTime.of(2020, 1, 1, 13, 0, 0)
       val exampleOffenderNo = "A1234AA"
+      val exampleLocationDescription = "A location"
+      val exampleAppointmentTypeDescription = "Video Link Booking"
+      val exampleFirstName = "BILL"
+      val exampleLastName = "BENN"
+      val exampleCreateUserId = "ASMITH"
+
       whenever(prisonApiService.getScheduledAppointments(anyString(), any(), anyOrNull(), anyOrNull()))
         .thenReturn(
           listOf(
-            ScheduledAppointmentDto(
+            ScheduledAppointmentSearchDto(
               id = exampleId,
               agencyId = AGENCY_ID,
               locationId = exampleLocationId,
+              locationDescription = exampleLocationDescription,
               appointmentTypeCode = exampleAppointmentType,
+              appointmentTypeDescription = exampleAppointmentTypeDescription,
               startTime = exampleStartTime,
               endTime = exampleEndTime,
-              offenderNo = exampleOffenderNo
+              offenderNo = exampleOffenderNo,
+              firstName = exampleFirstName,
+              lastName = exampleLastName,
+              createUserId = exampleCreateUserId
             )
           )
         )
@@ -146,14 +172,19 @@ class AppointmentServiceTest {
 
       assertThat(filteredAppointments).isEqualTo(
         listOf(
-          AppointmentDto(
+          AppointmentSearchDto(
             id = exampleId,
             agencyId = AGENCY_ID,
             locationId = exampleLocationId,
+            locationDescription = exampleLocationDescription,
             appointmentTypeCode = exampleAppointmentType,
+            appointmentTypeDescription = exampleAppointmentTypeDescription,
             startTime = exampleStartTime,
             endTime = exampleEndTime,
-            offenderNo = exampleOffenderNo
+            offenderNo = exampleOffenderNo,
+            firstName = exampleFirstName,
+            lastName = exampleLastName,
+            createUserId = exampleCreateUserId
           )
         )
       )
@@ -178,23 +209,33 @@ class AppointmentServiceTest {
       whenever(prisonApiService.getScheduledAppointments(anyString(), any(), anyOrNull(), anyOrNull()))
         .thenReturn(
           listOf(
-            ScheduledAppointmentDto(
+            ScheduledAppointmentSearchDto(
               id = 1L,
               agencyId = AGENCY_ID,
               locationId = LOCATION_ID,
+              locationDescription = "A location",
               appointmentTypeCode = "VLB",
+              appointmentTypeDescription = "Video Link Booking",
               startTime = LocalDateTime.of(2020, 1, 1, 12, 0, 0),
               endTime = LocalDateTime.of(2020, 1, 1, 13, 0, 0),
-              offenderNo = offenderNo1
+              offenderNo = offenderNo1,
+              firstName = "BILL",
+              lastName = "BENN",
+              createUserId = "ASMITH"
             ),
-            ScheduledAppointmentDto(
+            ScheduledAppointmentSearchDto(
               id = 1L,
               agencyId = AGENCY_ID,
               locationId = LOCATION_ID,
+              locationDescription = "Another location",
               appointmentTypeCode = "VLB",
+              appointmentTypeDescription = "Video Link Booking Again",
               startTime = LocalDateTime.of(2020, 1, 1, 12, 0, 0),
               endTime = LocalDateTime.of(2020, 1, 1, 13, 0, 0),
-              offenderNo = offenderNo2
+              offenderNo = offenderNo2,
+              firstName = "BOB",
+              lastName = "BABB",
+              createUserId = "BSMITH"
             )
           )
         )

@@ -5,9 +5,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentSearchDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
@@ -28,7 +29,7 @@ class AppointmentService(
     timeSlot: TimePeriod?,
     offenderLocationPrefix: String?,
     locationId: Long?
-  ): List<AppointmentDto> {
+  ): List<AppointmentSearchDto> {
 
     val appointmentsFromPrisonApi =
       prisonApiService.getScheduledAppointments(agencyId, date, timeSlot, locationId)
@@ -42,7 +43,7 @@ class AppointmentService(
 
   private fun generateOffenderLocationFilter(
     offenderLocationPrefix: String?,
-    appointmentsFromPrisonApi: List<ScheduledAppointmentDto>
+    appointmentsFromPrisonApi: List<ScheduledAppointmentSearchDto>
   ): LocationFilter {
 
     if (offenderLocationPrefix == null) return NoOpFilter()
@@ -74,14 +75,19 @@ class AppointmentService(
   }
 }
 
-private fun makeAppointmentDto(scheduledAppointmentDto: ScheduledAppointmentDto): AppointmentDto = AppointmentDto(
+private fun makeAppointmentDto(scheduledAppointmentDto: ScheduledAppointmentSearchDto): AppointmentSearchDto = AppointmentSearchDto(
   id = scheduledAppointmentDto.id,
   agencyId = scheduledAppointmentDto.agencyId,
   locationId = scheduledAppointmentDto.locationId,
+  locationDescription = scheduledAppointmentDto.locationDescription,
   appointmentTypeCode = scheduledAppointmentDto.appointmentTypeCode,
+  appointmentTypeDescription = scheduledAppointmentDto.appointmentTypeDescription,
   offenderNo = scheduledAppointmentDto.offenderNo,
+  firstName = scheduledAppointmentDto.firstName,
+  lastName = scheduledAppointmentDto.lastName,
   startTime = scheduledAppointmentDto.startTime,
-  endTime = scheduledAppointmentDto.endTime
+  endTime = scheduledAppointmentDto.endTime,
+  createUserId = scheduledAppointmentDto.createUserId
 )
 
 private fun makeAppointmentDto(offenderNo: String, prisonAppointment: PrisonAppointment): AppointmentDto =
