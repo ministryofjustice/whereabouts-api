@@ -105,19 +105,29 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     "id" to 1L,
                     "agencyId" to agencyId,
                     "locationId" to 10L,
+                    "locationDescription" to "Res 1 Education",
                     "appointmentTypeCode" to "VLB",
+                    "appointmentTypeDescription" to "Video Link Nooking",
                     "startTime" to "2020-12-25T09:00:00",
                     "endTime" to "2020-12-25T09:30:00",
-                    "offenderNo" to offenderNo
+                    "offenderNo" to offenderNo,
+                    "firstName" to "BRUNO",
+                    "lastName" to "BEYETTE",
+                    "createUserId" to "ASMITH",
                   ),
                   mapOf(
                     "id" to 2L,
                     "agencyId" to agencyId,
                     "locationId" to 11L,
+                    "locationDescription" to "Res 1 Education",
                     "appointmentTypeCode" to "MEH",
+                    "appointmentTypeDescription" to "Video Link Nooking",
                     "startTime" to "2020-12-25T10:00:00",
                     "endTime" to "2020-12-25T10:30:00",
-                    "offenderNo" to "B2345BB"
+                    "offenderNo" to "B2345BB",
+                    "firstName" to "BILL",
+                    "lastName" to "BENN",
+                    "createUserId" to "BSMITH",
                   )
                 )
               )

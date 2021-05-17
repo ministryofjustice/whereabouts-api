@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentSearchDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
@@ -21,6 +22,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto;
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
@@ -260,7 +262,7 @@ public class PrisonApiService {
                 .block();
     }
 
-    public List<ScheduledAppointmentDto> getScheduledAppointments(final String agencyId, final LocalDate date, final TimePeriod timeSlot, final Long locationId) {
+    public List<ScheduledAppointmentSearchDto> getScheduledAppointments(final String agencyId, final LocalDate date, final TimePeriod timeSlot, final Long locationId) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/schedules/{agencyId}/appointments")
@@ -269,7 +271,7 @@ public class PrisonApiService {
                         .queryParamIfPresent("locationId", Optional.ofNullable(locationId))
                         .build(agencyId, date))
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<ScheduledAppointmentDto>>() {
+                .bodyToMono(new ParameterizedTypeReference<List<ScheduledAppointmentSearchDto>>() {
                 })
                 .block();
     }

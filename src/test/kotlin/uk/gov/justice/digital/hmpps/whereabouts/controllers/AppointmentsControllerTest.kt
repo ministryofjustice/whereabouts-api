@@ -12,7 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentSearchDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentService
 import java.time.LocalDate
@@ -39,14 +39,19 @@ class AppointmentsControllerTest : TestController() {
     )
       .thenReturn(
         listOf(
-          AppointmentDto(
+          AppointmentSearchDto(
             id = 1L,
             agencyId = agencyId,
             locationId = locationId,
+            locationDescription = "A location",
             appointmentTypeCode = "VLB",
+            appointmentTypeDescription = "Video Link Booking",
             startTime = LocalDateTime.of(2020, 1, 2, 12, 0, 0),
             endTime = LocalDateTime.of(2020, 1, 2, 13, 0, 0),
-            offenderNo = "A1234AA"
+            offenderNo = "A1234AA",
+            firstName = "BILL",
+            lastName = "BENN",
+            createUserId = "ASMITH"
           )
         )
       )

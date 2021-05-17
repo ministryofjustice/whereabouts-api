@@ -122,7 +122,7 @@ class PrisonApiServiceTest {
     val agencyId = "WWI"
 
     prisonApiMockServer.stubGetScheduledAppointmentsByAgencyAndDate(agencyId)
-    val scheduledAppointments = prisonApiService.getScheduledAppointments(agencyId, date, null, null)
+    val scheduledAppointments = prisonApiService.getScheduledAppointments(agencyId, date)
     assertThat(scheduledAppointments).containsExactlyInAnyOrder(
       ScheduledAppointmentDto(
         id = 1L,
