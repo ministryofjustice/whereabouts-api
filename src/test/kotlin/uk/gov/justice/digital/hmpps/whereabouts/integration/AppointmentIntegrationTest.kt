@@ -1,5 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
+import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.BeforeEach
@@ -86,6 +89,36 @@ class AppointmentIntegrationTest : IntegrationTest() {
         .jsonPath("$.videoLinkBooking.post.createdByUsername").isEqualTo("SA")
         .jsonPath("$.videoLinkBooking.post.madeByTheCourt").isEqualTo(true)
     }
+  }
+
+  @Test
+  fun `should create an appointment`() {
+    prisonApiMockServer.stubAddAppointment(BOOKING_ID, APPOINTMENT_ID)
+
+    webTestClient.post()
+      .uri("/appointment")
+      .bodyValue(
+        mapOf(
+          "locationId" to 1,
+          "startTime" to START_TIME,
+          "endTime" to END_TIME,
+          "bookingId" to BOOKING_ID,
+          "comment" to "test",
+          "appointmentType" to "ABC"
+        )
+      )
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isCreated
+
+    prisonApiMockServer.verify(
+      postRequestedFor(urlEqualTo("/api/bookings/$BOOKING_ID/appointments"))
+        .withRequestBody(matchingJsonPath("$[?(@.locationId == 1)]"))
+        .withRequestBody(matchingJsonPath("$[?(@.startTime == '2020-10-10T20:00:01')]"))
+        .withRequestBody(matchingJsonPath("$[?(@.endTime == '2020-10-10T21:00:02')]"))
+        .withRequestBody(matchingJsonPath("$[?(@.comment == 'test')]"))
+        .withRequestBody(matchingJsonPath("$[?(@.appointmentType == 'ABC')]"))
+    )
   }
 
   companion object {

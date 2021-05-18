@@ -23,6 +23,15 @@ data class CreateBookingAppointment(
   val endTime: String
 )
 
+data class CreateAppointmentSpecification(
+  val bookingId: Long? = null,
+  val locationId: Long,
+  val appointmentType: String,
+  val comment: String? = null,
+  val startTime: LocalDateTime,
+  val endTime: LocalDateTime? = null
+)
+
 @ApiModel(description = "The data related to a single appointment.")
 data class AppointmentDto(
   @ApiModelProperty(required = true, value = "The event Id associated with this appointment")
@@ -102,4 +111,9 @@ data class AppointmentDetailsDto(
 data class Event(
   val eventId: Long,
   val agencyId: String,
+)
+
+data class AppointmentCreatedDto(
+  val mainAppointmentId: Long,
+  val recurringAppointments: Set<Long>? = null
 )
