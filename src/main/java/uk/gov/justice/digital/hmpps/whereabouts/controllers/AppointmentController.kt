@@ -56,8 +56,8 @@ class AppointmentController(private val appointmentService: AppointmentService) 
     value = [
       ApiResponse(code = 201, message = "CREATED", response = AppointmentCreatedDto::class),
       ApiResponse(
-        code = 404,
-        message = "Appointment not found.",
+        code = 400,
+        message = "Bad request",
         response = ErrorResponse::class
       ),
       ApiResponse(

@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.Nested
@@ -60,6 +61,7 @@ class AppointmentControllerTest : TestController() {
 
   @Nested
   inner class CreatingAnAppointment {
+
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `should create an appointment`() {
@@ -69,18 +71,7 @@ class AppointmentControllerTest : TestController() {
       mockMvc.perform(
         post("/appointment")
           .contentType(MediaType.APPLICATION_JSON)
-          .content(
-            objectMapper.writeValueAsString(
-              mapOf(
-                "locationId" to 1,
-                "startTime" to startTime,
-                "endTime" to endTime,
-                "bookingId" to 1,
-                "comment" to "test",
-                "appointmentType" to "ABC"
-              )
-            )
-          )
+          .content(getJsonBody(startTime = startTime, endTime = endTime))
       )
         .andDo(print())
         .andExpect(status().isCreated)
@@ -96,6 +87,50 @@ class AppointmentControllerTest : TestController() {
         )
       )
     }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `should return a HTTP 500`() {
+      whenever(appointmentService.createAppointment(any())).thenThrow(NullPointerException())
+
+      mockMvc.perform(
+        post("/appointment")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(getJsonBody())
+      )
+        .andDo(print())
+        .andExpect(status().is5xxServerError)
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `should return a HTTP 400`() {
+      mockMvc.perform(
+        post("/appointment")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("")
+      )
+        .andDo(print())
+        .andExpect(status().isBadRequest)
+    }
+
+    private fun getJsonBody(
+      locationId: Long = 1,
+      startTime: LocalDateTime = LocalDateTime.now(),
+      endTime: LocalDateTime = LocalDateTime.now(),
+      bookingId: Long = 1,
+      comment: String = "test",
+      appointmentType: String = "ABC"
+    ): String = objectMapper.writeValueAsString(
+      mapOf(
+        "locationId" to locationId,
+        "startTime" to startTime,
+        "endTime" to endTime,
+        "bookingId" to bookingId,
+        "comment" to comment,
+        "appointmentType" to appointmentType
+      )
+    )
   }
 
   companion object {
