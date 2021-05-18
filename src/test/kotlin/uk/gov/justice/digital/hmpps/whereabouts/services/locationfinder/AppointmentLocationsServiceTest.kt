@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyList
 import org.mockito.ArgumentMatchers.anyString
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
@@ -231,37 +230,17 @@ class AppointmentLocationsServiceTest {
         listOf(
           VideoLinkBooking(
             id = 1L,
-            main = VideoLinkAppointment(
-              appointmentId = 1L,
-              id = 1L,
-              bookingId = 9999L,
-              court = "Don't care",
-              hearingType = HearingType.MAIN
-            )
+            bookingId = 9999L,
+            court = "Don't care",
+            main = VideoLinkAppointment(appointmentId = 1L, id = 1L)
           ),
           VideoLinkBooking(
             id = 2L,
-            main = VideoLinkAppointment(
-              appointmentId = 10L,
-              id = 2L,
-              bookingId = 9999L,
-              court = "Don't care",
-              hearingType = HearingType.MAIN
-            ),
-            pre = VideoLinkAppointment(
-              appointmentId = 3L,
-              id = 3L,
-              bookingId = 9999L,
-              court = "Don't care",
-              hearingType = HearingType.PRE
-            ),
-            post = VideoLinkAppointment(
-              appointmentId = 4L,
-              id = 4L,
-              bookingId = 9999L,
-              court = "Don't care",
-              hearingType = HearingType.POST
-            ),
+            bookingId = 9999L,
+            court = "Don't care",
+            main = VideoLinkAppointment(appointmentId = 10L, id = 2L),
+            pre = VideoLinkAppointment(appointmentId = 3L, id = 3L),
+            post = VideoLinkAppointment(appointmentId = 4L, id = 4L),
           )
 
         )

@@ -14,7 +14,6 @@ import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.test.jdbc.JdbcTestUtils
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
@@ -49,12 +48,11 @@ class VideoLinkBookingRepositoryTest(
   fun `should persist a booking (main only)`() {
 
     val transientBooking = VideoLinkBooking(
+      bookingId = 1,
+      court = "A Court",
+      madeByTheCourt = true,
       main = VideoLinkAppointment(
-        bookingId = 1,
         appointmentId = 2,
-        court = "A Court",
-        hearingType = HearingType.MAIN,
-        madeByTheCourt = true
       )
     )
 
@@ -71,34 +69,19 @@ class VideoLinkBookingRepositoryTest(
       .ignoringFields("id", "main.id")
       .isEqualTo(transientBooking)
 
-    assertThat(persistentBooking.main.createdByUsername).isEqualTo(USERNAME)
+    assertThat(persistentBooking.createdByUsername).isEqualTo(USERNAME)
   }
 
   @Test
   fun `should persist a booking (main, pre and post)`() {
 
     val transientBooking = VideoLinkBooking(
-      main = VideoLinkAppointment(
-        bookingId = 1,
-        appointmentId = 4,
-        court = "A Court",
-        hearingType = HearingType.MAIN,
-        madeByTheCourt = true
-      ),
-      pre = VideoLinkAppointment(
-        bookingId = 1,
-        appointmentId = 12,
-        court = "A Court",
-        hearingType = HearingType.PRE,
-        madeByTheCourt = true
-      ),
-      post = VideoLinkAppointment(
-        bookingId = 1,
-        appointmentId = 22,
-        court = "A Court",
-        hearingType = HearingType.POST,
-        madeByTheCourt = true
-      ),
+      bookingId = 1,
+      court = "A Court",
+      madeByTheCourt = true,
+      main = VideoLinkAppointment(appointmentId = 4),
+      pre = VideoLinkAppointment(appointmentId = 12),
+      post = VideoLinkAppointment(appointmentId = 22),
     )
 
     val id = repository.save(transientBooking).id!!
@@ -114,20 +97,7 @@ class VideoLinkBookingRepositoryTest(
       .ignoringFields("id", "pre.id", "main.id", "post.id")
       .isEqualTo(transientBooking)
 
-    val hearingTypes = jdbcTemplate.queryForList("select hearing_type from video_link_appointment", String::class.java)
-    assertThat(hearingTypes).contains("PRE", "MAIN", "POST")
-
-    assertThat(persistentBooking)
-      .extracting(
-        "main.createdByUsername",
-        "pre.createdByUsername",
-        "post.createdByUsername"
-      )
-      .containsExactly(
-        USERNAME,
-        USERNAME,
-        USERNAME
-      )
+    assertThat(persistentBooking.createdByUsername).isEqualTo(USERNAME)
   }
 
   @Test
@@ -137,27 +107,12 @@ class VideoLinkBookingRepositoryTest(
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
     val id = repository.save(
       VideoLinkBooking(
-        main = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 4,
-          court = "A Court",
-          hearingType = HearingType.MAIN,
-          madeByTheCourt = true
-        ),
-        pre = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 12,
-          court = "A Court",
-          hearingType = HearingType.PRE,
-          madeByTheCourt = true
-        ),
-        post = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 22,
-          court = "A Court",
-          hearingType = HearingType.POST,
-          madeByTheCourt = true
-        ),
+        bookingId = 1,
+        court = "A Court",
+        madeByTheCourt = true,
+        main = VideoLinkAppointment(appointmentId = 4),
+        pre = VideoLinkAppointment(appointmentId = 12),
+        post = VideoLinkAppointment(appointmentId = 22),
       )
     ).id!!
     TestTransaction.flagForCommit()
@@ -192,27 +147,12 @@ class VideoLinkBookingRepositoryTest(
 
     val id = repository.save(
       VideoLinkBooking(
-        main = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 4,
-          court = "A Court",
-          hearingType = HearingType.MAIN,
-          madeByTheCourt = true
-        ),
-        pre = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 12,
-          court = "A Court",
-          hearingType = HearingType.PRE,
-          madeByTheCourt = true
-        ),
-        post = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 22,
-          court = "A Court",
-          hearingType = HearingType.POST,
-          madeByTheCourt = true
-        ),
+        bookingId = 1,
+        court = "A Court",
+        madeByTheCourt = true,
+        main = VideoLinkAppointment(appointmentId = 4),
+        pre = VideoLinkAppointment(appointmentId = 12),
+        post = VideoLinkAppointment(appointmentId = 22),
       )
     ).id!!
 
@@ -236,27 +176,12 @@ class VideoLinkBookingRepositoryTest(
 
     val id = repository.save(
       VideoLinkBooking(
-        main = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 4,
-          court = "A Court",
-          hearingType = HearingType.MAIN,
-          madeByTheCourt = true
-        ),
-        pre = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 12,
-          court = "A Court",
-          hearingType = HearingType.PRE,
-          madeByTheCourt = true
-        ),
-        post = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 22,
-          court = "A Court",
-          hearingType = HearingType.POST,
-          madeByTheCourt = true
-        ),
+        bookingId = 1,
+        court = "A Court",
+        madeByTheCourt = true,
+        main = VideoLinkAppointment(appointmentId = 4),
+        pre = VideoLinkAppointment(appointmentId = 12),
+        post = VideoLinkAppointment(appointmentId = 22),
       )
     ).id!!
 
@@ -266,29 +191,9 @@ class VideoLinkBookingRepositoryTest(
 
     val booking = repository.getOne(id)
 
-    booking.main = VideoLinkAppointment(
-      bookingId = 1,
-      appointmentId = 100,
-      court = "A Court",
-      hearingType = HearingType.MAIN,
-      madeByTheCourt = false
-    )
-
-    booking.pre = VideoLinkAppointment(
-      bookingId = 1,
-      appointmentId = 101,
-      court = "A Court",
-      hearingType = HearingType.PRE,
-      madeByTheCourt = false
-    )
-
-    booking.post = VideoLinkAppointment(
-      bookingId = 1,
-      appointmentId = 102,
-      court = "A Court",
-      hearingType = HearingType.POST,
-      madeByTheCourt = false
-    )
+    booking.main = VideoLinkAppointment(appointmentId = 100)
+    booking.pre = VideoLinkAppointment(appointmentId = 101)
+    booking.post = VideoLinkAppointment(appointmentId = 102)
 
     /**
      * Confirm that calling flush() populates ids in the new VideoLinkAppointment objects.
@@ -318,13 +223,10 @@ class VideoLinkBookingRepositoryTest(
   fun videoLinkBookings(): List<VideoLinkBooking> =
     (1..10L).map {
       VideoLinkBooking(
-        main = VideoLinkAppointment(
-          bookingId = it * 100L,
-          appointmentId = it,
-          court = "Court",
-          hearingType = HearingType.MAIN,
-          madeByTheCourt = true
-        )
+        bookingId = it * 100L,
+        court = "Court",
+        madeByTheCourt = true,
+        main = VideoLinkAppointment(appointmentId = it)
       )
     }
 }

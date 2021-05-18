@@ -32,7 +32,15 @@ class AppointmentLocationsService(
     else
       videoLinkBookingRepository
         .findAllById(vlbIdsToExclude)
-        .flatMap { booking -> booking.toAppointments().map { it.appointmentId } }
+        .asSequence()
+        .flatMap {
+          sequenceOf(
+            it.main.appointmentId,
+            it.post?.appointmentId,
+            it.pre?.appointmentId
+          )
+            .filterNotNull()
+        }
         .toSet()
 
   private fun fetchVideoLinkBookingLocations(specification: AppointmentLocationsSpecification) =

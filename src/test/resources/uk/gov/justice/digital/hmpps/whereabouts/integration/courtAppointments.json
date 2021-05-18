@@ -5,7 +5,7 @@
       "bookingId": 1,
       "appointmentId": 1,
       "court": "York",
-      "hearingType": "PRE"
+      "hearingType": "MAIN"
     }
   ]
 }

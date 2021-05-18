@@ -13,4 +13,15 @@ interface VideoLinkBookingRepository : JpaRepository<VideoLinkBooking, Long> {
     """
   )
   fun findByMainAppointmentIds(ids: List<Long>): List<VideoLinkBooking>
+
+  @Query(
+    """
+      select b
+        from VideoLinkBooking b
+       where b.pre.appointmentId in ?1 or 
+             b.main.appointmentId in ?1 or 
+             b.post.appointmentId in ?1
+    """
+  )
+  fun findByAppointmentIds(ids: Set<Long>): List<VideoLinkBooking>
 }

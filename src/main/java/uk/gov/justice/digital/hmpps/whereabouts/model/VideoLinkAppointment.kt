@@ -1,11 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
-import org.springframework.data.annotation.CreatedBy
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import javax.persistence.Entity
 import javax.persistence.EntityListeners
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
@@ -23,14 +20,6 @@ enum class HearingType {
 data class VideoLinkAppointment(
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
-  val bookingId: Long,
-  val appointmentId: Long,
-  val court: String,
 
-  @Enumerated(EnumType.STRING)
-  val hearingType: HearingType,
-
-  @CreatedBy
-  var createdByUsername: String? = null,
-  val madeByTheCourt: Boolean? = true
+  val appointmentId: Long
 )

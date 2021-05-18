@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.repository
 
+/*
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.groups.Tuple
@@ -65,3 +66,4 @@ class VideoLinkAppointmentRepositoryTest {
       )
   }
 }
+*/

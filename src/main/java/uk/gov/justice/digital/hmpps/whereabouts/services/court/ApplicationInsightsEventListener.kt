@@ -14,19 +14,23 @@ class ApplicationInsightsEventListener(
   private val authenticationFacade: AuthenticationFacade,
   private val telemetryClient: TelemetryClient,
 ) : VideoLinkBookingEventListener {
-  override fun bookingCreated(booking: VideoLinkBooking, specification: VideoLinkBookingSpecification, agencyId: String) {
+  override fun bookingCreated(
+    booking: VideoLinkBooking,
+    specification: VideoLinkBookingSpecification,
+    agencyId: String
+  ) {
     val properties = mutableMapOf(
       "id" to (booking.id?.toString()),
-      "bookingId" to booking.main.bookingId.toString(),
+      "bookingId" to booking.bookingId.toString(),
       "court" to specification.court,
       "user" to authenticationFacade.currentUsername,
       "agencyId" to agencyId,
       "madeByTheCourt" to specification.madeByTheCourt.toString(),
     )
 
-    properties.putAll(appointmentDetail(booking.main, specification.main))
-    booking.pre?.also { properties.putAll(appointmentDetail(it, specification.pre!!)) }
-    booking.post?.also { properties.putAll(appointmentDetail(it, specification.post!!)) }
+    properties.putAll(appointmentDetail(booking.main, specification.main, "main"))
+    booking.pre?.also { properties.putAll(appointmentDetail(it, specification.pre!!, "pre")) }
+    booking.post?.also { properties.putAll(appointmentDetail(it, specification.post!!, "post")) }
 
     telemetryClient.trackEvent("VideoLinkBookingCreated", properties, null)
   }
@@ -34,14 +38,14 @@ class ApplicationInsightsEventListener(
   override fun bookingUpdated(booking: VideoLinkBooking, specification: VideoLinkBookingUpdateSpecification) {
     val properties = mutableMapOf(
       "id" to (booking.id?.toString()),
-      "bookingId" to booking.main.bookingId.toString(),
-      "court" to booking.main.court,
+      "bookingId" to booking.bookingId.toString(),
+      "court" to booking.court,
       "user" to authenticationFacade.currentUsername,
     )
 
-    properties.putAll(appointmentDetail(booking.main, specification.main))
-    booking.pre?.also { properties.putAll(appointmentDetail(it, specification.pre!!)) }
-    booking.post?.also { properties.putAll(appointmentDetail(it, specification.post!!)) }
+    properties.putAll(appointmentDetail(booking.main, specification.main, "main"))
+    booking.pre?.also { properties.putAll(appointmentDetail(it, specification.pre!!, "pre")) }
+    booking.post?.also { properties.putAll(appointmentDetail(it, specification.post!!, "post")) }
 
     telemetryClient.trackEvent("VideoLinkBookingUpdated", properties, null)
   }
@@ -53,22 +57,22 @@ class ApplicationInsightsEventListener(
   private fun telemetryProperties(booking: VideoLinkBooking): MutableMap<String, String?> {
     val properties = mutableMapOf(
       "id" to (booking.id?.toString()),
-      "bookingId" to booking.main.bookingId.toString(),
-      "court" to booking.main.court,
+      "bookingId" to booking.bookingId.toString(),
+      "court" to booking.court,
       "user" to authenticationFacade.currentUsername,
     )
 
-    properties.putAll(appointmentDetail(booking.main))
-    booking.pre?.also { properties.putAll(appointmentDetail(it)) }
-    booking.post?.also { properties.putAll(appointmentDetail(it)) }
+    properties.putAll(appointmentDetail(booking.main, "main"))
+    booking.pre?.also { properties.putAll(appointmentDetail(it, "pre")) }
+    booking.post?.also { properties.putAll(appointmentDetail(it, "post")) }
     return properties
   }
 
   private fun appointmentDetail(
     appointment: VideoLinkAppointment,
-    specification: VideoLinkAppointmentSpecification
+    specification: VideoLinkAppointmentSpecification,
+    prefix: String
   ): Map<String, String> {
-    val prefix = appointment.hearingType.name.toLowerCase()
     return mapOf(
       "${prefix}AppointmentId" to appointment.appointmentId.toString(),
       "${prefix}Id" to appointment.id.toString(),
@@ -77,8 +81,7 @@ class ApplicationInsightsEventListener(
     )
   }
 
-  private fun appointmentDetail(appointment: VideoLinkAppointment): Map<String, String> {
-    val prefix = appointment.hearingType.name.toLowerCase()
+  private fun appointmentDetail(appointment: VideoLinkAppointment, prefix: String): Map<String, String> {
     return mapOf(
       "${prefix}AppointmentId" to appointment.appointmentId.toString(),
       "${prefix}Id" to appointment.id.toString(),

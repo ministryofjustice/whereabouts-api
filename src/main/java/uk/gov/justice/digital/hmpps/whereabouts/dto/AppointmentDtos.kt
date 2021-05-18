@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import java.time.LocalDateTime
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -117,3 +118,38 @@ data class AppointmentCreatedDto(
   val mainAppointmentId: Long,
   val recurringAppointments: Set<Long>? = null
 )
+
+fun VideoLinkBooking.preAppointmentDto() =
+  if (pre != null)
+    VideoLinkAppointmentDto(
+      id = pre!!.id!!,
+      bookingId = bookingId,
+      appointmentId = pre!!.appointmentId,
+      hearingType = HearingType.PRE,
+      court = court,
+      createdByUsername = createdByUsername,
+      madeByTheCourt = madeByTheCourt
+    ) else null
+
+fun VideoLinkBooking.mainAppointmentDto() =
+  VideoLinkAppointmentDto(
+    id = main.id!!,
+    bookingId = bookingId,
+    appointmentId = main.appointmentId,
+    hearingType = HearingType.MAIN,
+    court = court,
+    createdByUsername = createdByUsername,
+    madeByTheCourt = madeByTheCourt
+  )
+
+fun VideoLinkBooking.postAppointmentDto() =
+  if (post != null)
+    VideoLinkAppointmentDto(
+      id = post!!.id!!,
+      bookingId = bookingId,
+      appointmentId = post!!.appointmentId,
+      hearingType = HearingType.POST,
+      court = court,
+      createdByUsername = createdByUsername,
+      madeByTheCourt = madeByTheCourt
+    ) else null

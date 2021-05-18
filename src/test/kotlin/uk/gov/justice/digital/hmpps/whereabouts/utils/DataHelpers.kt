@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.whereabouts.utils
 
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
@@ -8,32 +7,22 @@ import java.time.LocalDateTime
 
 fun makeVideoLinkBooking(
   id: Long,
-  main: VideoLinkAppointment = makeVideoLinkAppointment(id = 1L, appointmentId = 1L, hearingType = HearingType.MAIN),
-  pre: VideoLinkAppointment = makeVideoLinkAppointment(id = 2L, appointmentId = 2L, hearingType = HearingType.PRE),
-  post: VideoLinkAppointment = makeVideoLinkAppointment(id = 3L, appointmentId = 3L, hearingType = HearingType.POST)
+  bookingId: Long = -1L,
+  court: String = "Court 1",
+  createdByUsername: String = "SA",
+  madeByTheCourt: Boolean = true,
+  main: VideoLinkAppointment = VideoLinkAppointment(id = 1L, appointmentId = 1L),
+  pre: VideoLinkAppointment = VideoLinkAppointment(id = 2L, appointmentId = 2L),
+  post: VideoLinkAppointment = VideoLinkAppointment(id = 3L, appointmentId = 3L)
 ): VideoLinkBooking = VideoLinkBooking(
   id = id,
+  bookingId = bookingId,
+  court = court,
+  madeByTheCourt = madeByTheCourt,
+  createdByUsername = createdByUsername,
   main = main,
   pre = pre,
   post = post
-)
-
-fun makeVideoLinkAppointment(
-  id: Long,
-  bookingId: Long = -1L,
-  appointmentId: Long,
-  court: String = "Court 1",
-  hearingType: HearingType,
-  createdByUsername: String = "SA",
-  madeByTheCourt: Boolean = true
-): VideoLinkAppointment = VideoLinkAppointment(
-  id = id,
-  bookingId = bookingId,
-  appointmentId = appointmentId,
-  court = court,
-  hearingType = hearingType,
-  createdByUsername = createdByUsername,
-  madeByTheCourt = madeByTheCourt
 )
 
 fun makePrisonAppointment(

@@ -103,9 +103,7 @@ class CourtController(
     )
     @RequestParam(name = "court", required = false)
     court: String?
-  ): List<VideoLinkBookingResponse> {
-    return courtService.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, court)
-  }
+  ) = courtService.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, court)
 
   @GetMapping(
     path = ["/video-link-bookings/prison/{agencyId}/date/{date}"],
@@ -130,9 +128,7 @@ class CourtController(
     )
     @RequestParam(name = "court", required = false)
     court: String?
-  ): List<VideoLinkBookingResponse> {
-    return courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(agencyId, date, court)
-  }
+  ) = courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(agencyId, date, court)
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings"])
   @ResponseStatus(HttpStatus.CREATED)

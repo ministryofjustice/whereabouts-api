@@ -9,11 +9,9 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
-import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
@@ -21,9 +19,6 @@ import java.time.temporal.ChronoUnit
 import java.util.Optional
 
 class CourtIntegrationTest : IntegrationTest() {
-
-  @MockBean
-  lateinit var videoLinkAppointmentRepository: VideoLinkAppointmentRepository
 
   @MockBean
   lateinit var videoLinkBookingRepository: VideoLinkBookingRepository
@@ -89,27 +84,11 @@ class CourtIntegrationTest : IntegrationTest() {
 
     val theVideoLinkBooking = VideoLinkBooking(
       id = videoBookingId,
-      pre = VideoLinkAppointment(
-        id = 10,
-        bookingId = 100,
-        appointmentId = preAppointmentId,
-        court = "Test Court 1",
-        hearingType = HearingType.PRE
-      ),
-      main = VideoLinkAppointment(
-        id = 11,
-        bookingId = 100,
-        appointmentId = mainAppointmentId,
-        court = "Test Court 2",
-        hearingType = HearingType.MAIN
-      ),
-      post = VideoLinkAppointment(
-        id = 12,
-        bookingId = 100,
-        appointmentId = postAppointmentId,
-        court = "Test Court 1",
-        hearingType = HearingType.POST
-      ),
+      bookingId = 100,
+      court = "Test Court 2",
+      pre = VideoLinkAppointment(id = 10, appointmentId = preAppointmentId),
+      main = VideoLinkAppointment(id = 11, appointmentId = mainAppointmentId),
+      post = VideoLinkAppointment(id = 12, appointmentId = postAppointmentId),
     )
 
     @Test
@@ -187,7 +166,7 @@ class CourtIntegrationTest : IntegrationTest() {
     }
 
     @Test
-    fun `should get booking when only pre and post appointments exist`() {
+    fun `Get booking should return Not Found when only pre and post appointments exist`() {
 
       whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(theVideoLinkBooking))
 
@@ -204,15 +183,14 @@ class CourtIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return video link appointment by appointment id`() {
-    whenever(videoLinkAppointmentRepository.findVideoLinkAppointmentByAppointmentIdIn(setOf(1L)))
+    whenever(videoLinkBookingRepository.findByAppointmentIds(any()))
       .thenReturn(
-        setOf(
-          VideoLinkAppointment(
-            id = 1L,
+        listOf(
+          VideoLinkBooking(
+            id = 10L,
             bookingId = 1L,
-            appointmentId = 1L,
-            hearingType = HearingType.PRE,
-            court = "York"
+            court = "York",
+            main = VideoLinkAppointment(id = 1L, appointmentId = 1L)
           )
         )
       )
@@ -256,13 +234,10 @@ class CourtIntegrationTest : IntegrationTest() {
     prisonApiMockServer.stubAddAppointment(bookingId, eventId = mainAppointmentId)
 
     val theVideoLinkBooking = VideoLinkBooking(
-      main = VideoLinkAppointment(
-        bookingId = bookingId,
-        appointmentId = mainAppointmentId,
-        court = "Test Court 1",
-        madeByTheCourt = false,
-        hearingType = HearingType.MAIN
-      )
+      bookingId = bookingId,
+      court = "Test Court 1",
+      madeByTheCourt = false,
+      main = VideoLinkAppointment(appointmentId = mainAppointmentId)
     )
 
     whenever(videoLinkBookingRepository.save(any())).thenReturn(theVideoLinkBooking.copy(id = 1))
@@ -333,20 +308,10 @@ class CourtIntegrationTest : IntegrationTest() {
 
     val theVideoLinkBooking = VideoLinkBooking(
       id = videoBookingId,
-      pre = VideoLinkAppointment(
-        id = 10,
-        bookingId = 4,
-        appointmentId = preAppointmentId,
-        court = "Test Court 1",
-        hearingType = HearingType.PRE
-      ),
-      main = VideoLinkAppointment(
-        id = 11,
-        bookingId = 4,
-        appointmentId = mainAppointmentId,
-        court = "Test Court 2",
-        hearingType = HearingType.MAIN
-      )
+      bookingId = 4,
+      court = "Test Court 1",
+      pre = VideoLinkAppointment(id = 10, appointmentId = preAppointmentId),
+      main = VideoLinkAppointment(id = 11, appointmentId = mainAppointmentId)
     )
 
     whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(theVideoLinkBooking))
@@ -383,13 +348,10 @@ class CourtIntegrationTest : IntegrationTest() {
       prisonApiMockServer.stubAddAppointment(offenderBookingId, eventId = newAppointmentId)
 
       val theVideoLinkBooking = VideoLinkBooking(
-        main = VideoLinkAppointment(
-          bookingId = offenderBookingId,
-          appointmentId = newAppointmentId,
-          court = "Test Court 1",
-          madeByTheCourt = false,
-          hearingType = HearingType.MAIN
-        )
+        bookingId = offenderBookingId,
+        court = "Test Court 1",
+        madeByTheCourt = false,
+        main = VideoLinkAppointment(appointmentId = oldAppointmentId)
       )
 
       whenever(videoLinkBookingRepository.findById(1L))
@@ -454,13 +416,10 @@ class CourtIntegrationTest : IntegrationTest() {
   inner class UpdateBookingComment {
 
     val theVideoLinkBooking = VideoLinkBooking(
-      main = VideoLinkAppointment(
-        bookingId = 1L,
-        appointmentId = 10L,
-        court = "Test Court 1",
-        madeByTheCourt = true,
-        hearingType = HearingType.MAIN
-      )
+      bookingId = 1L,
+      court = "Test Court 1",
+      madeByTheCourt = true,
+      main = VideoLinkAppointment(appointmentId = 10L)
     )
 
     @Test
@@ -469,7 +428,7 @@ class CourtIntegrationTest : IntegrationTest() {
       whenever(videoLinkBookingRepository.findById(1L))
         .thenReturn(Optional.of(theVideoLinkBooking.copy(id = 1)))
 
-      prisonApiMockServer.stubUpdateAppointmentComment(1L)
+      prisonApiMockServer.stubUpdateAppointmentComment(10L)
 
       webTestClient.put()
         .uri("/court/video-link-bookings/1/comment")

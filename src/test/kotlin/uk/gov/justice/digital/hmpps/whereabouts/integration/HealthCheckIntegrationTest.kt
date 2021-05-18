@@ -17,6 +17,7 @@ import org.springframework.test.util.ReflectionTestUtils
 import uk.gov.justice.digital.hmpps.whereabouts.services.health.DlqStatus
 import uk.gov.justice.digital.hmpps.whereabouts.services.health.QueueAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.services.health.QueueHealth
+import java.time.Duration
 
 class HealthCheckIntegrationTest : IntegrationTest() {
 
@@ -105,7 +106,9 @@ class HealthCheckIntegrationTest : IntegrationTest() {
   fun `Health page reports a timeout`() {
     subPingWithDelay(200)
 
-    webTestClient.get()
+    webTestClient
+      .mutate().responseTimeout(Duration.ofSeconds(6)).build()
+      .get()
       .uri("/health")
       .headers(setHeaders())
       .exchange()
@@ -123,7 +126,8 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     ReflectionTestUtils.setField(queueHealth, "queueName", "missing_queue")
     subPing(200)
 
-    webTestClient.get()
+    webTestClient
+      .get()
       .uri("/health")
       .headers(setHeaders())
       .exchange()
