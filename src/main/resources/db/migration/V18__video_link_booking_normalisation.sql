@@ -22,8 +22,7 @@ set (booking_id,
          select booking_id,
                 court,
                 made_by_the_court,
-                created_by_username,
-                appointment_id
+                created_by_username
          from video_link_appointment vla
          where vlb.main_appointment = vla.id
     );
