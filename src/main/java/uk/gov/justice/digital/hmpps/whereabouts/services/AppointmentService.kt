@@ -7,6 +7,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentCreatedDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentSearchDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAppointmentSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.mainAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.postAppointmentDto
@@ -69,6 +71,23 @@ class AppointmentService(
     return AppointmentDetailsDto(
       appointment = makeAppointmentDto(offenderNo, prisonAppointment),
       videoLinkBooking = videoLinkBooking?.let { makeVideoLinkBookingAppointmentDto(it) }
+    )
+  }
+
+  fun createAppointment(createAppointmentSpecification: CreateAppointmentSpecification): AppointmentCreatedDto {
+    val event = prisonApiService.postAppointment(
+      createAppointmentSpecification.bookingId!!,
+      CreateBookingAppointment(
+        locationId = createAppointmentSpecification.locationId,
+        startTime = createAppointmentSpecification.startTime.toString(),
+        endTime = createAppointmentSpecification.endTime.toString(),
+        comment = createAppointmentSpecification.comment,
+        appointmentType = createAppointmentSpecification.appointmentType,
+      )
+    )
+
+    return AppointmentCreatedDto(
+      mainAppointmentId = event.eventId
     )
   }
 
