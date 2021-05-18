@@ -14,6 +14,9 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentSearchDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAppointmentSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
@@ -321,6 +324,41 @@ class AppointmentServiceTest {
       assertThat(appointmentDetails.videoLinkBooking?.post)
         .extracting("id", "bookingId", "appointmentId", "court", "hearingType", "createdByUsername", "madeByTheCourt")
         .contains(3L, BOOKING_ID, 3L, "Court 1", HearingType.POST, "SA", true)
+    }
+  }
+
+  @Nested
+  inner class CreateAnAppointment {
+    @Test
+    fun `calls prison API to create a new appointment`() {
+
+      whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(
+        Event(1, "MDI")
+      )
+
+      val appointmentDetails = appointmentService.createAppointment(
+        CreateAppointmentSpecification(
+          bookingId = BOOKING_ID,
+          locationId = 1,
+          startTime = START_TIME,
+          endTime = END_TIME,
+          comment = "test",
+          appointmentType = "ABC"
+        )
+      )
+
+      assertThat(appointmentDetails.mainAppointmentId).isEqualTo(1)
+
+      verify(prisonApiService).postAppointment(
+        BOOKING_ID,
+        CreateBookingAppointment(
+          locationId = 1,
+          startTime = START_TIME.toString(),
+          endTime = END_TIME.toString(),
+          comment = "test",
+          appointmentType = "ABC"
+        )
+      )
     }
   }
 

@@ -12,7 +12,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentSearchDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
