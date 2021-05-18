@@ -75,7 +75,6 @@ class AppointmentService(
 
   fun createAppointment(createAppointmentSpecification: CreateAppointmentSpecification): AppointmentCreatedDto {
     val event = prisonApiService.postAppointment(
-
       createAppointmentSpecification.bookingId!!,
       CreateBookingAppointment(
         locationId = createAppointmentSpecification.locationId,
