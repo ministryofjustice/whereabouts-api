@@ -253,7 +253,7 @@ class CourtIntegrationTest : IntegrationTest() {
     val mainAppointmentId = 1L
 
     prisonApiMockServer.stubGetLocation(1L)
-    prisonApiMockServer.stubAddAppointment(bookingId, eventId = mainAppointmentId)
+    prisonApiMockServer.stubAddAppointmentForBooking(bookingId, eventId = mainAppointmentId)
 
     val theVideoLinkBooking = VideoLinkBooking(
       main = VideoLinkAppointment(
@@ -380,7 +380,7 @@ class CourtIntegrationTest : IntegrationTest() {
 
       prisonApiMockServer.stubGetLocation(2)
       prisonApiMockServer.stubDeleteAppointment(oldAppointmentId, status = 204)
-      prisonApiMockServer.stubAddAppointment(offenderBookingId, eventId = newAppointmentId)
+      prisonApiMockServer.stubAddAppointmentForBooking(offenderBookingId, eventId = newAppointmentId)
 
       val theVideoLinkBooking = VideoLinkBooking(
         main = VideoLinkAppointment(

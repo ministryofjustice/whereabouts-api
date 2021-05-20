@@ -1,29 +1,40 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.microsoft.applicationinsights.TelemetryClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentCreatedDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.Appointment
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDefaults
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentSearchDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAppointmentSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatePrisonAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatedAppointmentDetailsDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.RecurringAppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto
+import uk.gov.justice.digital.hmpps.whereabouts.model.MainRecurringAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.RecurringAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
+import uk.gov.justice.digital.hmpps.whereabouts.repository.RecurringAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import java.time.LocalDate
 import javax.persistence.EntityNotFoundException
+import javax.transaction.Transactional
 
 @Service
 class AppointmentService(
   private val prisonApiService: PrisonApiService,
-  private val videoLinkBookingRepository: VideoLinkBookingRepository
+  private val videoLinkBookingRepository: VideoLinkBookingRepository,
+  private val recurringAppointmentRepository: RecurringAppointmentRepository,
+  private val telemetryClient: TelemetryClient
 ) {
 
   fun getAppointments(
@@ -64,29 +75,64 @@ class AppointmentService(
       ?: throw EntityNotFoundException("Appointment $appointmentId does not exist")
 
     val offenderNo = prisonApiService.getOffenderNoFromBookingId(prisonAppointment.bookingId)
+
     val videoLinkBooking: VideoLinkBooking? =
       videoLinkBookingRepository.findByMainAppointmentIds(listOf(appointmentId)).firstOrNull()
 
+    val mainRecurringAppointment: MainRecurringAppointment? =
+      recurringAppointmentRepository.findById(appointmentId).orElse(null)
+
     return AppointmentDetailsDto(
       appointment = makeAppointmentDto(offenderNo, prisonAppointment),
-      videoLinkBooking = videoLinkBooking?.let { makeVideoLinkBookingAppointmentDto(it) }
+      videoLinkBooking = videoLinkBooking?.let { makeVideoLinkBookingAppointmentDto(it) },
+      recurring = mainRecurringAppointment?.let { makeRecurringAppointmentDto(it) }
     )
   }
 
-  fun createAppointment(createAppointmentSpecification: CreateAppointmentSpecification): AppointmentCreatedDto {
-    val event = prisonApiService.postAppointment(
-      createAppointmentSpecification.bookingId!!,
-      CreateBookingAppointment(
-        locationId = createAppointmentSpecification.locationId,
-        startTime = createAppointmentSpecification.startTime.toString(),
-        endTime = createAppointmentSpecification.endTime.toString(),
-        comment = createAppointmentSpecification.comment,
-        appointmentType = createAppointmentSpecification.appointmentType,
-      )
-    )
+  @Transactional
+  fun createAppointment(createAppointmentSpecification: CreateAppointmentSpecification): CreatedAppointmentDetailsDto {
+    val appointmentsCreated = prisonApiService.createAppointments(makePrisonAppointment(createAppointmentSpecification))
 
-    return AppointmentCreatedDto(
-      mainAppointmentId = event.eventId
+    createAppointmentSpecification.repeat?.let {
+      recurringAppointmentRepository.save(
+        makeMainRecurringAppointment(appointmentsCreated, createAppointmentSpecification.repeat)
+      )
+      raiseRecurringAppointmentTrackingEvent(createAppointmentSpecification, createAppointmentSpecification.repeat)
+    }
+
+    return appointmentsCreated
+  }
+
+  private fun makeMainRecurringAppointment(
+    appointmentsCreated: CreatedAppointmentDetailsDto,
+    repeat: Repeat
+  ) = MainRecurringAppointment(
+    id = appointmentsCreated.appointmentEventId,
+    repeatPeriod = repeat.repeatPeriod,
+    count = repeat.count,
+    recurringAppointments = appointmentsCreated.recurringAppointmentEventIds?.let {
+      it.map { id ->
+        RecurringAppointment(
+          id
+        )
+      }
+    }
+  )
+
+  private fun raiseRecurringAppointmentTrackingEvent(
+    createAppointmentSpecification: CreateAppointmentSpecification,
+    repeat: Repeat
+  ) {
+    telemetryClient.trackEvent(
+      "Recurring Appointment created for a prisoner",
+      mapOf(
+        "appointmentType" to createAppointmentSpecification.appointmentType,
+        "repeatPeriod" to repeat.repeatPeriod.toString(),
+        "count" to repeat.count.toString(),
+        "bookingId" to createAppointmentSpecification.bookingId.toString(),
+        "locationId" to createAppointmentSpecification.locationId.toString()
+      ),
+      null
     )
   }
 
@@ -139,5 +185,31 @@ private fun makeVideoLinkAppointmentDto(videoLinkAppointment: VideoLinkAppointme
     hearingType = videoLinkAppointment.hearingType,
     createdByUsername = videoLinkAppointment.createdByUsername,
     madeByTheCourt = videoLinkAppointment.madeByTheCourt
+  )
 
+private fun makeRecurringAppointmentDto(mainRecurringAppointment: MainRecurringAppointment): RecurringAppointmentDto =
+  RecurringAppointmentDto(
+    id = mainRecurringAppointment.id!!,
+    repeatPeriod = mainRecurringAppointment.repeatPeriod,
+    count = mainRecurringAppointment.count
+  )
+
+private fun makePrisonAppointment(createAppointmentSpecification: CreateAppointmentSpecification) =
+  CreatePrisonAppointment(
+    appointmentDefaults = AppointmentDefaults(
+      appointmentType = createAppointmentSpecification.appointmentType,
+      comment = createAppointmentSpecification.comment,
+      startTime = createAppointmentSpecification.startTime,
+      endTime = createAppointmentSpecification.endTime,
+      locationId = createAppointmentSpecification.locationId
+    ),
+    appointments = listOf(
+      Appointment(
+        bookingId = createAppointmentSpecification.bookingId,
+        comment = createAppointmentSpecification.comment,
+        startTime = createAppointmentSpecification.startTime,
+        endTime = createAppointmentSpecification.endTime
+      )
+    ),
+    repeat = createAppointmentSpecification.repeat
   )

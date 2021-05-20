@@ -15,6 +15,8 @@ import reactor.core.publisher.Mono;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatePrisonAppointment;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatedAppointmentDetailsDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking;
@@ -207,6 +209,18 @@ public class PrisonApiService {
         return webClient.post()
                 .uri("/bookings/{bookingId}/appointments", bookingId)
                 .bodyValue(createbookingAppointment)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
+    }
+
+    public CreatedAppointmentDetailsDto createAppointments(final CreatePrisonAppointment createPrisonAppointment) {
+        final var responseType = new ParameterizedTypeReference<CreatedAppointmentDetailsDto>() {
+        };
+
+        return webClient.post()
+                .uri("/appointments")
+                .bodyValue(createPrisonAppointment)
                 .retrieve()
                 .bodyToMono(responseType)
                 .block();
