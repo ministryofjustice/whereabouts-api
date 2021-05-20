@@ -332,8 +332,17 @@ class AppointmentServiceTest {
       val appointmentDetails = appointmentService.getAppointment(MAIN_APPOINTMENT_ID)
 
       assertThat(appointmentDetails.appointment)
-        .extracting("id", "agencyId", "locationId", "appointmentTypeCode", "offenderNo", "startTime", "endTime")
-        .contains(MAIN_APPOINTMENT_ID, AGENCY_ID, EVENT_LOCATION_ID, "INTERV", OFFENDER_NO, START_TIME, END_TIME)
+        .extracting(
+          "id",
+          "agencyId",
+          "locationId",
+          "appointmentTypeCode",
+          "offenderNo",
+          "startTime",
+          "endTime",
+          "createUserId"
+        )
+        .contains(MAIN_APPOINTMENT_ID, AGENCY_ID, EVENT_LOCATION_ID, "INTERV", OFFENDER_NO, START_TIME, END_TIME, "SA")
 
       assertThat(appointmentDetails.videoLinkBooking?.id).isEqualTo(1L)
 
