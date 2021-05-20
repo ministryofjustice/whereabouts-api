@@ -373,7 +373,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
-  fun stubAddAppointment(bookingId: Long, eventId: Long = 1) {
+  fun stubAddAppointmentForBooking(bookingId: Long, eventId: Long = 1) {
     stubFor(
       post(urlEqualTo("/api/bookings/$bookingId/appointments"))
         .willReturn(
@@ -383,6 +383,20 @@ class PrisonApiMockServer : WireMockServer(8999) {
               gson.toJson(
                 Event(eventId = eventId, agencyId = "WWI")
               )
+            )
+            .withStatus(201)
+        )
+    )
+  }
+
+  fun stubAddAppointment(response: Map<String, Any>? = null) {
+    stubFor(
+      post(urlEqualTo("/api/appointments"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-type", "application/json")
+            .withBody(
+              gson.toJson(response)
             )
             .withStatus(201)
         )

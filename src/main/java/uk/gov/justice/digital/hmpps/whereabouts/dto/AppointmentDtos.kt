@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
+import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
 import java.time.LocalDateTime
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -20,16 +21,47 @@ data class CreateBookingAppointment(
   val locationId: Long,
   val comment: String? = null,
   val startTime: String,
-  val endTime: String
+  val endTime: String,
+  val repeat: Repeat? = null
 )
 
+@ApiModel(description = "The data required to create an appointment")
 data class CreateAppointmentSpecification(
-  val bookingId: Long? = null,
+  @ApiModelProperty(required = true, value = "The offender booking id")
+  val bookingId: Long,
+  @ApiModelProperty(required = true, value = "The location id of where the appointment will take place")
   val locationId: Long,
+  @ApiModelProperty(required = true, value = "Appointment type", example = "INST")
   val appointmentType: String,
+  @ApiModelProperty(required = false, value = "Additional information")
   val comment: String? = null,
+  @ApiModelProperty(
+    required = true,
+    value = "The date and time the appointment is scheduled for",
+    example = "2021-05-23T17:00:00"
+  )
   val startTime: LocalDateTime,
-  val endTime: LocalDateTime? = null
+  @ApiModelProperty(
+    required = false,
+    value = "The estimated date time the appointment will finish ",
+    example = "2021-05-23T17:00:00"
+  )
+  val endTime: LocalDateTime? = null,
+  @ApiModelProperty(required = false, value = "Describes how many times this appointment is to be repeated")
+  val repeat: Repeat? = null
+)
+
+@ApiModel(description = "Describes how many times this appointment is to be repeated")
+data class Repeat(
+  @ApiModelProperty(
+    required = true,
+    value = "Repeat period",
+    example = "Daily",
+    allowableValues = "Weekly,Daily,Weekday,Monthly,Fortnightly"
+  )
+  val repeatPeriod: RepeatPeriod,
+  @ApiModelProperty(required = true, value = "Specifies the amount of times the repeat period will be applied")
+  val count: Long
 )
 
 @ApiModel(description = "The data related to a single appointment.")
@@ -78,10 +110,15 @@ data class AppointmentSearchDto(
   val createUserId: String
 )
 
+@ApiModel(description = "Video link appointment booking")
 data class VideoLinkBookingDto(
+  @ApiModelProperty(required = true, value = "id of the video link appointment booking")
   val id: Long,
+  @ApiModelProperty(required = true, value = "Main appointment")
   val main: VideoLinkAppointmentDto,
+  @ApiModelProperty(required = false, value = "Pre appointment")
   val pre: VideoLinkAppointmentDto? = null,
+  @ApiModelProperty(required = false, value = "Post appointment")
   val post: VideoLinkAppointmentDto? = null
 )
 
@@ -103,17 +140,40 @@ data class VideoLinkAppointmentDto(
   val madeByTheCourt: Boolean? = true
 )
 
+@ApiModel(description = "Recurring appointment")
+data class RecurringAppointmentDto(
+  @ApiModelProperty(required = true, value = "Id of the recurring appointment")
+  val id: Long,
+  @ApiModelProperty(
+    required = true,
+    value = "Repeat period",
+    example = "Daily",
+    allowableValues = "Weekly,Daily,Weekday,Monthly,Fortnightly"
+  )
+  val repeatPeriod: RepeatPeriod,
+  @ApiModelProperty(required = true, value = "Specifies the amount of times the repeat period will be applied")
+  val count: Long
+)
+
+@ApiModel(description = "Appointment details, linking video link bookings and recurring appointments")
 data class AppointmentDetailsDto(
-  val appointment: AppointmentDto? = null,
-  val videoLinkBooking: VideoLinkBookingDto? = null
+  @ApiModelProperty(required = true, value = "Appointment details pulled from NOMIS")
+  val appointment: AppointmentDto,
+  @ApiModelProperty(required = false, value = "Video link booking details")
+  val videoLinkBooking: VideoLinkBookingDto? = null,
+  @ApiModelProperty(required = false, value = "Recurring appointment details")
+  val recurring: RecurringAppointmentDto? = null
 )
 
 data class Event(
   val eventId: Long,
-  val agencyId: String,
+  val agencyId: String
 )
 
-data class AppointmentCreatedDto(
-  val mainAppointmentId: Long,
-  val recurringAppointments: Set<Long>? = null
+@ApiModel(description = "The details of an appointment that has just been created")
+data class CreatedAppointmentDetailsDto(
+  @ApiModelProperty(required = true, value = "The id of the appointment that was created.", example = "123456")
+  val appointmentEventId: Long? = null,
+  @ApiModelProperty(value = "The ids of all recurring appointments that were created.", example = "[1,2,3]")
+  val recurringAppointmentEventIds: Set<Long>? = null
 )

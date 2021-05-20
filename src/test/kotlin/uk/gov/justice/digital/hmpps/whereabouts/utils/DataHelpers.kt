@@ -1,5 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.utils
 
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAppointmentSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
@@ -74,4 +77,38 @@ fun makeAppointmentDto(
   bookingId = bookingId,
   comment = comment,
   agencyId = agencyId
+)
+
+fun makeCreateAppointmentSpecification(
+  bookingId: Long = -1,
+  appointmentType: String = "ABC",
+  locationId: Long = 1,
+  comment: String? = "test",
+  startTime: LocalDateTime = LocalDateTime.now(),
+  endTime: LocalDateTime = LocalDateTime.now(),
+  repeat: Repeat? = null
+): CreateAppointmentSpecification = CreateAppointmentSpecification(
+  bookingId = bookingId,
+  appointmentType = appointmentType,
+  locationId = locationId,
+  comment = comment,
+  startTime = startTime,
+  endTime = endTime,
+  repeat = repeat
+)
+
+fun makeCreateBookingAppointment(
+  appointmentType: String = "ABC",
+  locationId: Long = 1,
+  comment: String? = "test",
+  startTime: String = "2020-10-01T20:01",
+  endTime: String = "2020-10-01T21:01",
+  repeat: Repeat? = null
+): CreateBookingAppointment = CreateBookingAppointment(
+  appointmentType = appointmentType,
+  locationId = locationId,
+  comment = comment,
+  startTime = startTime,
+  endTime = endTime,
+  repeat = repeat
 )

@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentCreatedDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAppointmentSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatedAppointmentDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentService
 
@@ -54,7 +54,6 @@ class AppointmentController(private val appointmentService: AppointmentService) 
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 201, message = "CREATED", response = AppointmentCreatedDto::class),
       ApiResponse(
         code = 400,
         message = "Bad request",
@@ -67,6 +66,6 @@ class AppointmentController(private val appointmentService: AppointmentService) 
       )
     ]
   )
-  fun createAppointment(@RequestBody createAppointmentSpecification: CreateAppointmentSpecification): AppointmentCreatedDto =
+  fun createAppointment(@RequestBody createAppointmentSpecification: CreateAppointmentSpecification): CreatedAppointmentDetailsDto =
     appointmentService.createAppointment(createAppointmentSpecification)
 }

@@ -15,6 +15,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAppointmentSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
+import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
 import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentService
 import java.time.LocalDateTime
 import javax.persistence.EntityNotFoundException
@@ -71,7 +73,7 @@ class AppointmentControllerTest : TestController() {
       mockMvc.perform(
         post("/appointment")
           .contentType(MediaType.APPLICATION_JSON)
-          .content(getJsonBody(startTime = startTime, endTime = endTime))
+          .content(getCreateAppointmentSpecificationAsJson(startTime = startTime, endTime = endTime))
       )
         .andDo(print())
         .andExpect(status().isCreated)
@@ -90,13 +92,47 @@ class AppointmentControllerTest : TestController() {
 
     @Test
     @WithMockUser(username = "ITAG_USER")
+    fun `should create a recurring appointment`() {
+      val startTime = LocalDateTime.now()
+      val endTime = LocalDateTime.now()
+
+      mockMvc.perform(
+        post("/appointment")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(
+            getCreateAppointmentSpecificationAsJson(
+              startTime = startTime,
+              endTime = endTime,
+              repeatPeriod = RepeatPeriod.Daily,
+              count = 1
+            )
+          )
+      )
+        .andDo(print())
+        .andExpect(status().isCreated)
+
+      verify(appointmentService).createAppointment(
+        CreateAppointmentSpecification(
+          locationId = 1,
+          startTime = startTime,
+          endTime = endTime,
+          bookingId = 1,
+          comment = "test",
+          appointmentType = "ABC",
+          repeat = Repeat(RepeatPeriod.Daily, 1)
+        )
+      )
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
     fun `should return a HTTP 500`() {
       whenever(appointmentService.createAppointment(any())).thenThrow(NullPointerException())
 
       mockMvc.perform(
         post("/appointment")
           .contentType(MediaType.APPLICATION_JSON)
-          .content(getJsonBody())
+          .content(getCreateAppointmentSpecificationAsJson())
       )
         .andDo(print())
         .andExpect(status().is5xxServerError)
@@ -114,23 +150,29 @@ class AppointmentControllerTest : TestController() {
         .andExpect(status().isBadRequest)
     }
 
-    private fun getJsonBody(
+    private fun getCreateAppointmentSpecificationAsJson(
       locationId: Long = 1,
       startTime: LocalDateTime = LocalDateTime.now(),
       endTime: LocalDateTime = LocalDateTime.now(),
       bookingId: Long = 1,
       comment: String = "test",
-      appointmentType: String = "ABC"
-    ): String = objectMapper.writeValueAsString(
-      mapOf(
+      appointmentType: String = "ABC",
+      repeatPeriod: RepeatPeriod? = null,
+      count: Long? = null
+    ): String {
+      val fields = mutableMapOf<String, Any>(
         "locationId" to locationId,
         "startTime" to startTime,
         "endTime" to endTime,
         "bookingId" to bookingId,
         "comment" to comment,
-        "appointmentType" to appointmentType
+        "appointmentType" to appointmentType,
       )
-    )
+
+      repeatPeriod?.let { fields.set("repeat", mapOf("repeatPeriod" to repeatPeriod, "count" to count)) }
+
+      return objectMapper.writeValueAsString(fields)
+    }
   }
 
   companion object {
