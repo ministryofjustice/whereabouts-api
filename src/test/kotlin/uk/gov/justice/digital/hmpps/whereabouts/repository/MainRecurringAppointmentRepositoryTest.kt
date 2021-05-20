@@ -19,7 +19,7 @@ class MainRecurringAppointmentRepositoryTest {
   lateinit var recurringAppointmentRepository: RecurringAppointmentRepository
 
   @Test
-  fun `can retrieve recurring appointment booking`() {
+  fun `can retrieve main recurring appointment`() {
 
     val recurringAppointmentBookingId = entityManager.persist(
       MainRecurringAppointment(
