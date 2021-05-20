@@ -356,7 +356,7 @@ class AppointmentServiceTest {
         Optional.of(
           MainRecurringAppointment(
             id = 1,
-            repeatPeriod = RepeatPeriod.Fortnightly,
+            repeatPeriod = RepeatPeriod.FORTNIGHTLY,
             count = 1
           )
         )
@@ -366,7 +366,7 @@ class AppointmentServiceTest {
 
       assertThat(appointmentDetails.recurring)
         .extracting("id", "repeatPeriod", "count")
-        .contains(1L, RepeatPeriod.Fortnightly, 1L)
+        .contains(1L, RepeatPeriod.FORTNIGHTLY, 1L)
     }
   }
 
@@ -412,7 +412,7 @@ class AppointmentServiceTest {
           bookingId = BOOKING_ID,
           startTime = START_TIME,
           endTime = END_TIME,
-          repeat = Repeat(RepeatPeriod.Daily, 1)
+          repeat = Repeat(RepeatPeriod.DAILY, 1)
         )
       )
 
@@ -423,7 +423,7 @@ class AppointmentServiceTest {
           bookingId = BOOKING_ID,
           startTime = START_TIME,
           endTime = END_TIME,
-          repeat = Repeat(RepeatPeriod.Daily, 1)
+          repeat = Repeat(RepeatPeriod.DAILY, 1)
         )
       )
     }
@@ -435,14 +435,14 @@ class AppointmentServiceTest {
           bookingId = BOOKING_ID,
           startTime = START_TIME,
           endTime = END_TIME,
-          repeat = Repeat(RepeatPeriod.Daily, 1)
+          repeat = Repeat(RepeatPeriod.DAILY, 1)
         )
       )
 
       verify(recurringAppointmentRepository).save(
         MainRecurringAppointment(
           id = MAIN_APPOINTMENT_ID,
-          repeatPeriod = RepeatPeriod.Daily,
+          repeatPeriod = RepeatPeriod.DAILY,
           count = 1,
           recurringAppointments = listOf(RecurringAppointment(1), RecurringAppointment(2), RecurringAppointment(3))
         )
@@ -456,7 +456,7 @@ class AppointmentServiceTest {
           bookingId = BOOKING_ID,
           startTime = START_TIME,
           endTime = END_TIME,
-          repeat = Repeat(RepeatPeriod.Daily, 1)
+          repeat = Repeat(RepeatPeriod.DAILY, 1)
         )
       )
 

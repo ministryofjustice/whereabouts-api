@@ -7,11 +7,11 @@ import javax.persistence.Id
 import javax.persistence.OneToMany
 
 enum class RepeatPeriod {
-  Weekly,
-  Daily,
-  Weekday,
-  Monthly,
-  Fortnightly,
+  WEEKLY,
+  DAILY,
+  WEEKDAY,
+  MONTHLY,
+  FORTNIGHTLY,
 }
 
 @Entity

@@ -15,7 +15,7 @@
     }
   ],
   "repeat": {
-    "repeatPeriod": "Daily",
+    "repeatPeriod": "DAILY",
     "count": 1
   }
 }
