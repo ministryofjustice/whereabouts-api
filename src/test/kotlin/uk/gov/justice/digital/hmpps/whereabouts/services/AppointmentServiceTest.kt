@@ -473,7 +473,7 @@ class AppointmentServiceTest {
         "Recurring Appointment created for a prisoner",
         mapOf(
           "appointmentType" to "ABC",
-          "repeatPeriod" to "Daily",
+          "repeatPeriod" to "DAILY",
           "count" to "1",
           "bookingId" to BOOKING_ID.toString(),
           "locationId" to "1"
