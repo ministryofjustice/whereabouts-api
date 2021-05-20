@@ -27,6 +27,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.RecurringAppointmentR
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import java.time.LocalDate
 import javax.persistence.EntityNotFoundException
+import javax.transaction.Transactional
 
 @Service
 class AppointmentService(
@@ -88,6 +89,7 @@ class AppointmentService(
     )
   }
 
+  @Transactional
   fun createAppointment(createAppointmentSpecification: CreateAppointmentSpecification): CreatedAppointmentDetailsDto {
     val appointmentsCreated = prisonApiService.createAppointments(makePrisonAppointment(createAppointmentSpecification))
 
