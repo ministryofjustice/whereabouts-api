@@ -3,10 +3,13 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.whereabouts.dto.Appointment
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDefaults
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentSearchDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAppointmentSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatePrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatedAppointmentDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.RecurringAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
@@ -83,7 +86,7 @@ class AppointmentService(
   }
 
   fun createAppointment(createAppointmentSpecification: CreateAppointmentSpecification): CreatedAppointmentDetailsDto {
-    val appointmentsCreated = prisonApiService.createAppointments(createAppointmentSpecification)
+    val appointmentsCreated = prisonApiService.createAppointments(makePrisonAppointment(createAppointmentSpecification))
 
     createAppointmentSpecification.repeat?.let {
       recurringAppointmentRepository.save(
@@ -161,4 +164,24 @@ private fun makeRecurringAppointmentDto(mainRecurringAppointment: MainRecurringA
     id = mainRecurringAppointment.id!!,
     repeatPeriod = mainRecurringAppointment.repeatPeriod,
     count = mainRecurringAppointment.count
+  )
+
+private fun makePrisonAppointment(createAppointmentSpecification: CreateAppointmentSpecification) =
+  CreatePrisonAppointment(
+    appointmentDefaults = AppointmentDefaults(
+      appointmentType = createAppointmentSpecification.appointmentType,
+      comment = createAppointmentSpecification.comment,
+      startTime = createAppointmentSpecification.startTime,
+      endTime = createAppointmentSpecification.endTime,
+      locationId = createAppointmentSpecification.locationId
+    ),
+    appointments = listOf(
+      Appointment(
+        bookingId = createAppointmentSpecification.bookingId,
+        comment = createAppointmentSpecification.comment,
+        startTime = createAppointmentSpecification.startTime,
+        endTime = createAppointmentSpecification.endTime
+      )
+    ),
+    repeat = createAppointmentSpecification.repeat
   )

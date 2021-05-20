@@ -51,6 +51,27 @@ data class CreateAppointmentSpecification(
   val repeat: Repeat? = null
 )
 
+data class CreatePrisonAppointment(
+  val appointmentDefaults: AppointmentDefaults,
+  val appointments: List<Appointment>,
+  val repeat: Repeat?
+)
+
+data class AppointmentDefaults(
+  val appointmentType: String,
+  val comment: String? = null,
+  val startTime: LocalDateTime,
+  val endTime: LocalDateTime?,
+  val locationId: Long
+)
+
+data class Appointment(
+  val bookingId: Long,
+  val comment: String? = null,
+  val startTime: LocalDateTime,
+  val endTime: LocalDateTime?,
+)
+
 @ApiModel(description = "Describes how many times this appointment is to be repeated")
 data class Repeat(
   @ApiModelProperty(

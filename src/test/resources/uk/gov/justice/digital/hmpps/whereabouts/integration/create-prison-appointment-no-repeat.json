@@ -1,0 +1,18 @@
+{
+  "appointmentDefaults": {
+    "appointmentType": "ABC",
+    "comment": "test",
+    "startTime": "2020-10-10T20:00:01",
+    "endTime": "2020-10-10T21:00:02",
+    "locationId": 1
+  },
+  "appointments": [
+    {
+      "bookingId": -1,
+      "comment": "test",
+      "startTime": "2020-10-10T20:00:01",
+      "endTime": "2020-10-10T21:00:02"
+    }
+  ],
+  "repeat": null
+}

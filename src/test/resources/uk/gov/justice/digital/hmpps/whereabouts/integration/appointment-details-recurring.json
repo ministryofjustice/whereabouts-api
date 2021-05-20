@@ -1,0 +1,17 @@
+{
+  "appointment": {
+    "id": 2,
+    "agencyId": "MDI",
+    "locationId": 2,
+    "appointmentTypeCode": "INST",
+    "offenderNo": "A12345",
+    "startTime": "2020-10-10T20:00:01",
+    "endTime": "2020-10-10T21:00:02"
+  },
+  "videoLinkBooking": null,
+  "recurring": {
+    "id": 1,
+    "repeatPeriod": "Fortnightly",
+    "count": 10
+  }
+}

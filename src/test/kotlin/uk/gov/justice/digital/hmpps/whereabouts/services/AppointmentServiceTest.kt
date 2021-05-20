@@ -25,9 +25,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.RecurringAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
-import uk.gov.justice.digital.hmpps.whereabouts.utils.makeAppointmentDto
-import uk.gov.justice.digital.hmpps.whereabouts.utils.makeCreateAppointmentSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.utils.makeVideoLinkBooking
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
@@ -269,7 +267,7 @@ class AppointmentServiceTest {
     @BeforeEach
     fun beforeEach() {
       whenever(prisonApiService.getPrisonAppointment(anyLong())).thenReturn(
-        makeAppointmentDto(bookingId = BOOKING_ID, startTime = START_TIME, endTime = END_TIME)
+        DataHelpers.makeAppointmentDto(bookingId = BOOKING_ID, startTime = START_TIME, endTime = END_TIME)
       )
       whenever(prisonApiService.getOffenderNoFromBookingId(any())).thenReturn(OFFENDER_NO)
     }
@@ -324,7 +322,7 @@ class AppointmentServiceTest {
     fun `transform into video link booking`() {
       whenever(videoLinkBookingRepository.findByMainAppointmentIds(any())).thenReturn(
         listOf(
-          makeVideoLinkBooking(1L)
+          DataHelpers.makeVideoLinkBooking(1L)
         )
       )
 
@@ -386,20 +384,28 @@ class AppointmentServiceTest {
     @Test
     fun `calls prison API to create a new appointment`() {
       val appointmentDetails = appointmentService.createAppointment(
-        makeCreateAppointmentSpecification(bookingId = BOOKING_ID, startTime = START_TIME, endTime = END_TIME)
+        DataHelpers.makeCreateAppointmentSpecification(
+          bookingId = BOOKING_ID,
+          startTime = START_TIME,
+          endTime = END_TIME
+        )
       )
 
       assertThat(appointmentDetails.appointmentEventId).isEqualTo(1)
 
       verify(prisonApiService).createAppointments(
-        makeCreateAppointmentSpecification(bookingId = BOOKING_ID, startTime = START_TIME, endTime = END_TIME)
+        DataHelpers.makePrisonAppointment(
+          bookingId = BOOKING_ID,
+          startTime = START_TIME,
+          endTime = END_TIME
+        )
       )
     }
 
     @Test
     fun `calls prison API to create a set of repeatable appointments`() {
       val appointmentDetails = appointmentService.createAppointment(
-        makeCreateAppointmentSpecification(
+        DataHelpers.makeCreateAppointmentSpecification(
           bookingId = BOOKING_ID,
           startTime = START_TIME,
           endTime = END_TIME,
@@ -410,7 +416,7 @@ class AppointmentServiceTest {
       assertThat(appointmentDetails.appointmentEventId).isEqualTo(1)
 
       verify(prisonApiService).createAppointments(
-        makeCreateAppointmentSpecification(
+        DataHelpers.makePrisonAppointment(
           bookingId = BOOKING_ID,
           startTime = START_TIME,
           endTime = END_TIME,
@@ -422,7 +428,7 @@ class AppointmentServiceTest {
     @Test
     fun `should save the recurring appointment data`() {
       appointmentService.createAppointment(
-        makeCreateAppointmentSpecification(
+        DataHelpers.makeCreateAppointmentSpecification(
           bookingId = BOOKING_ID,
           startTime = START_TIME,
           endTime = END_TIME,

@@ -1,0 +1,42 @@
+{
+  "appointment": {
+    "id": 2,
+    "agencyId": "MDI",
+    "locationId": 2,
+    "appointmentTypeCode": "INST",
+    "offenderNo": "A12345",
+    "startTime": "2020-10-10T20:00:01",
+    "endTime": "2020-10-10T21:00:02"
+  },
+  "videoLinkBooking": {
+    "id": 1,
+    "main": {
+      "id": 1,
+      "bookingId": -1,
+      "appointmentId": 1,
+      "court": "Court 1",
+      "hearingType": "MAIN",
+      "createdByUsername": "SA",
+      "madeByTheCourt": true
+    },
+    "pre": {
+      "id": 2,
+      "bookingId": -1,
+      "appointmentId": 2,
+      "court": "Court 1",
+      "hearingType": "PRE",
+      "createdByUsername": "SA",
+      "madeByTheCourt": true
+    },
+    "post": {
+      "id": 3,
+      "bookingId": -1,
+      "appointmentId": 3,
+      "court": "Court 1",
+      "hearingType": "POST",
+      "createdByUsername": "SA",
+      "madeByTheCourt": true
+    }
+  },
+  "recurring": null
+}
