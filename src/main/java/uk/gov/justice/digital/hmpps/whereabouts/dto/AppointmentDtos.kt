@@ -43,7 +43,7 @@ data class CreateAppointmentSpecification(
   val startTime: LocalDateTime,
   @ApiModelProperty(
     required = false,
-    value = "The estimated date time the appointment will finish ",
+    value = "The estimated date time the appointment will end",
     example = "2021-05-23T17:00:00"
   )
   val endTime: LocalDateTime? = null,
