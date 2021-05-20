@@ -183,7 +183,7 @@ class CourtIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return video link appointment by appointment id`() {
-    whenever(videoLinkBookingRepository.findByAppointmentIds(any()))
+    whenever(videoLinkBookingRepository.findByMainAppointmentIds(any()))
       .thenReturn(
         listOf(
           VideoLinkBooking(
@@ -195,6 +195,9 @@ class CourtIntegrationTest : IntegrationTest() {
         )
       )
 
+    whenever(videoLinkBookingRepository.findByPreAppointmentIds(any())).thenReturn(listOf())
+    whenever(videoLinkBookingRepository.findByPostAppointmentIds(any())).thenReturn(listOf())
+
     webTestClient.post()
       .uri("/court/video-link-appointments")
       .headers(setHeaders())
@@ -202,7 +205,21 @@ class CourtIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .json(loadJsonFile("courtAppointments.json"))
+      .json(
+        """
+        {
+          "appointments": [
+            {
+              "id": 1,
+              "bookingId": 1,
+              "appointmentId": 1,
+              "court": "York",
+              "hearingType": "MAIN"
+            }
+          ]
+        }
+        """
+      )
   }
 
   @Test

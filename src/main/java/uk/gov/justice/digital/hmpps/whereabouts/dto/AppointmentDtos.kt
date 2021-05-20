@@ -119,17 +119,17 @@ data class AppointmentCreatedDto(
   val recurringAppointments: Set<Long>? = null
 )
 
-fun VideoLinkBooking.preAppointmentDto() =
-  if (pre != null)
-    VideoLinkAppointmentDto(
-      id = pre!!.id!!,
-      bookingId = bookingId,
-      appointmentId = pre!!.appointmentId,
-      hearingType = HearingType.PRE,
-      court = court,
-      createdByUsername = createdByUsername,
-      madeByTheCourt = madeByTheCourt
-    ) else null
+fun VideoLinkBooking.preAppointmentDto() = pre?.let {
+  VideoLinkAppointmentDto(
+    id = it.id!!,
+    bookingId = bookingId,
+    appointmentId = it.appointmentId,
+    hearingType = HearingType.PRE,
+    court = court,
+    createdByUsername = createdByUsername,
+    madeByTheCourt = madeByTheCourt
+  )
+}
 
 fun VideoLinkBooking.mainAppointmentDto() =
   VideoLinkAppointmentDto(
@@ -142,14 +142,14 @@ fun VideoLinkBooking.mainAppointmentDto() =
     madeByTheCourt = madeByTheCourt
   )
 
-fun VideoLinkBooking.postAppointmentDto() =
-  if (post != null)
-    VideoLinkAppointmentDto(
-      id = post!!.id!!,
-      bookingId = bookingId,
-      appointmentId = post!!.appointmentId,
-      hearingType = HearingType.POST,
-      court = court,
-      createdByUsername = createdByUsername,
-      madeByTheCourt = madeByTheCourt
-    ) else null
+fun VideoLinkBooking.postAppointmentDto() = post?.let {
+  VideoLinkAppointmentDto(
+    id = it.id!!,
+    bookingId = bookingId,
+    appointmentId = it.appointmentId,
+    hearingType = HearingType.POST,
+    court = court,
+    createdByUsername = createdByUsername,
+    madeByTheCourt = madeByTheCourt
+  )
+}

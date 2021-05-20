@@ -46,18 +46,28 @@ class CourtService(
   fun getCourtIds() = courtIds.split(",").toSet()
 
   @Transactional(readOnly = true)
-  fun getVideoLinkAppointments(appointmentIds: Set<Long>): Set<VideoLinkAppointmentDto> =
-    videoLinkBookingRepository.findByAppointmentIds(appointmentIds)
-      .map {
-        with(it) {
-          when {
-            appointmentIds.contains(main.appointmentId) -> mainAppointmentDto()
-            appointmentIds.contains(pre?.appointmentId) -> preAppointmentDto()
-            appointmentIds.contains(post?.appointmentId) -> postAppointmentDto()
-            else -> null
-          }
-        }
-      }.filterNotNull().toSet()
+  fun getVideoLinkAppointments(appointmentIds: Set<Long>): Set<VideoLinkAppointmentDto> = (
+    findMainAppointmentDtos(appointmentIds) +
+      findPreAppointmentDtos(appointmentIds) +
+      findPostAppointmentDtos(appointmentIds)
+    ).toSet()
+
+  private fun findPostAppointmentDtos(appointmentIds: Set<Long>) =
+    videoLinkBookingRepository.findByPostAppointmentIds(appointmentIds)
+      .asSequence()
+      .map { it.postAppointmentDto() }
+      .filterNotNull()
+
+  private fun findPreAppointmentDtos(appointmentIds: Set<Long>) =
+    videoLinkBookingRepository.findByPreAppointmentIds(appointmentIds)
+      .asSequence()
+      .map { it.preAppointmentDto() }
+      .filterNotNull()
+
+  private fun findMainAppointmentDtos(appointmentIds: Set<Long>) =
+    videoLinkBookingRepository.findByMainAppointmentIds(appointmentIds)
+      .asSequence()
+      .map { it.mainAppointmentDto() }
 
   @Transactional
   fun createVideoLinkBooking(specification: VideoLinkBookingSpecification): Long {
@@ -195,7 +205,7 @@ class CourtService(
       .getScheduledAppointments(agencyId, date)
       .filter { it.appointmentTypeCode == "VLB" }
 
-    val scheduledAppointmentIds = scheduledAppointments.map { it.id }
+    val scheduledAppointmentIds = scheduledAppointments.map { it.id }.toSet()
 
     val bookings = videoLinkBookingRepository.findByMainAppointmentIds(scheduledAppointmentIds)
 

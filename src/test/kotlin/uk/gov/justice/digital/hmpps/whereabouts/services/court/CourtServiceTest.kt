@@ -67,47 +67,57 @@ class CourtServiceTest {
   fun `should return more than one courtId`() {
     val service = service("", "courtId_1,courtId_2")
     val courtIds = service.getCourtIds()
-    println(setOf("courtId_1", "courtId_2"))
     assertThat(courtIds).isEqualTo(setOf("courtId_1", "courtId_2"))
   }
 
   @Test
   fun `should return NO video link appointments`() {
     val service = service("", "")
-    val appointments = service.getVideoLinkAppointments(setOf(1, 2))
+    val ids = setOf(1L, 2L)
+    val appointments = service.getVideoLinkAppointments(ids)
 
-    verify(videoLinkBookingRepository).findByAppointmentIds(setOf(1, 2))
+    verify(videoLinkBookingRepository).findByMainAppointmentIds(ids)
+    verify(videoLinkBookingRepository).findByPreAppointmentIds(ids)
+    verify(videoLinkBookingRepository).findByPostAppointmentIds(ids)
+
     assertThat(appointments).isEmpty()
   }
 
   @Test
   fun `should return and map video link appointments`() {
-    whenever(videoLinkBookingRepository.findByAppointmentIds(setOf(3, 4))).thenReturn(
-      listOf(
-        VideoLinkBooking(
-          id = 100L,
-          bookingId = 2,
-          court = "YORK",
-          main = VideoLinkAppointment(id = 1, appointmentId = 3)
-        ),
-        VideoLinkBooking(
-          id = 101L,
-          bookingId = 3,
-          court = "YORK",
-          madeByTheCourt = false,
-          pre = VideoLinkAppointment(id = 2, appointmentId = 4),
-          main = VideoLinkAppointment(id = 99, appointmentId = 999)
-        )
-      )
+    val appointmentIds = setOf(3L, 4L, 5L, 6L)
+
+    val booking1 = VideoLinkBooking(
+      id = 100L,
+      bookingId = 2,
+      court = "YORK",
+      main = VideoLinkAppointment(id = 10, appointmentId = 3),
+      post = VideoLinkAppointment(id = 20, appointmentId = 4)
     )
+
+    val booking2 = VideoLinkBooking(
+      id = 101L,
+      bookingId = 3,
+      court = "YORK",
+      madeByTheCourt = false,
+      pre = VideoLinkAppointment(id = 30, appointmentId = 5),
+      main = VideoLinkAppointment(id = 40, appointmentId = 6)
+    )
+
+    whenever(videoLinkBookingRepository.findByMainAppointmentIds(appointmentIds)).thenReturn(listOf(booking1, booking2))
+    whenever(videoLinkBookingRepository.findByPreAppointmentIds(appointmentIds)).thenReturn(listOf(booking2))
+    whenever(videoLinkBookingRepository.findByPostAppointmentIds(appointmentIds)).thenReturn(listOf(booking1))
+
     val service = service("", "")
-    val appointments = service.getVideoLinkAppointments(setOf(3, 4))
+    val appointments = service.getVideoLinkAppointments(appointmentIds)
 
     assertThat(appointments)
       .extracting("id", "bookingId", "appointmentId", "hearingType", "court", "madeByTheCourt")
       .containsExactlyInAnyOrder(
-        Tuple.tuple(1L, 2L, 3L, HearingType.MAIN, "YORK", true),
-        Tuple.tuple(2L, 3L, 4L, HearingType.PRE, "YORK", false)
+        Tuple.tuple(10L, 2L, 3L, HearingType.MAIN, "YORK", true),
+        Tuple.tuple(20L, 2L, 4L, HearingType.POST, "YORK", true),
+        Tuple.tuple(30L, 3L, 5L, HearingType.PRE, "YORK", false),
+        Tuple.tuple(40L, 3L, 6L, HearingType.MAIN, "YORK", false)
       )
   }
 
@@ -852,7 +862,7 @@ class CourtServiceTest {
         )
 
       verify(videoLinkBookingRepository).findByMainAppointmentIds(
-        rangesAsList(
+        rangesAsSet(
           (1L..10L),
           (1000L..1010L),
           (2000L..2010L)
@@ -860,7 +870,7 @@ class CourtServiceTest {
       )
     }
 
-    private fun rangesAsList(vararg ranges: LongRange) = ranges.asList().flatMap { range -> range.map { it } }
+    private fun rangesAsSet(vararg ranges: LongRange) = ranges.asSequence().flatMap(LongRange::asSequence).toSet()
 
     @Test
     fun `happy flow - filter by court`() {

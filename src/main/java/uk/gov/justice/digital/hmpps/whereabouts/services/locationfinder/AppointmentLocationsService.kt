@@ -1,8 +1,13 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder
 
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
+
+private fun toAppointmentIds(videoLinkBooking: VideoLinkBooking) = with(videoLinkBooking) {
+  sequenceOf(main.appointmentId, post?.appointmentId, pre?.appointmentId).filterNotNull()
+}
 
 @Service
 class AppointmentLocationsService(
@@ -12,7 +17,7 @@ class AppointmentLocationsService(
 ) {
   fun findLocationsForAppointmentIntervals(specification: AppointmentLocationsSpecification): List<AvailableLocations> {
     val allLocations = fetchVideoLinkBookingLocations(specification)
-    val excludedAppointmentIds = appointmentIdsFromBookingIds(specification.vlbIdsToExclude)
+    val excludedAppointmentIds = appointmentIdsFromVideoLinkBookingIds(specification.vlbIdsToExclude)
     val scheduledAppointments = fetchScheduledAppointments(specification)
       .filterNot { excludedAppointmentIds.contains(it.id) }
 
@@ -26,21 +31,14 @@ class AppointmentLocationsService(
     return toAvailableLocations(locationsForAppointmentIntervals, allLocations)
   }
 
-  private fun appointmentIdsFromBookingIds(vlbIdsToExclude: List<Long>): Set<Long> =
-    if (vlbIdsToExclude.isEmpty())
+  private fun appointmentIdsFromVideoLinkBookingIds(videoLinkBookingIds: List<Long>): Set<Long> =
+    if (videoLinkBookingIds.isEmpty())
       emptySet()
     else
       videoLinkBookingRepository
-        .findAllById(vlbIdsToExclude)
+        .findAllById(videoLinkBookingIds)
         .asSequence()
-        .flatMap {
-          sequenceOf(
-            it.main.appointmentId,
-            it.post?.appointmentId,
-            it.pre?.appointmentId
-          )
-            .filterNotNull()
-        }
+        .flatMap(::toAppointmentIds)
         .toSet()
 
   private fun fetchVideoLinkBookingLocations(specification: AppointmentLocationsSpecification) =

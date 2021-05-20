@@ -67,9 +67,6 @@ class CourtController(
   )
   fun getVideoLinkAppointments(@RequestBody appointmentIds: Set<Long>): VideoLinkAppointmentsResponse {
     val courtAppointments = courtService.getVideoLinkAppointments(appointmentIds)
-
-    if (courtAppointments.isEmpty()) return VideoLinkAppointmentsResponse()
-
     return VideoLinkAppointmentsResponse(appointments = courtAppointments)
   }
 

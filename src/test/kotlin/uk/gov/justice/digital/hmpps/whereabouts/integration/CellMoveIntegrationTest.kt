@@ -92,7 +92,8 @@ class CellMoveIntegrationTest : IntegrationTest() {
   fun `should return cell move details`() {
     stubCellMove()
 
-    webTestClient.post()
+    val wtc = webTestClient
+    wtc.post()
       .uri("/cell/make-cell-move")
       .bodyValue(
         mapOf(
@@ -107,7 +108,7 @@ class CellMoveIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isCreated()
 
-    webTestClient.get()
+    wtc.get()
       .uri("/cell/cell-move-reason/booking/$SOME_BOOKING_ID/bed-assignment-sequence/$SOME_ASSIGNMENT_LIVING_UNIT_ID")
       .headers(setHeaders())
       .exchange()

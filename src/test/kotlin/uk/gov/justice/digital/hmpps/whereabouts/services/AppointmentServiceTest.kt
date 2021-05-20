@@ -278,7 +278,7 @@ class AppointmentServiceTest {
     fun `check to see if the appointment is a video link booking`() {
       appointmentService.getAppointment(MAIN_APPOINTMENT_ID)
 
-      verify(videoLinkBookingRepository).findByMainAppointmentIds(listOf(MAIN_APPOINTMENT_ID))
+      verify(videoLinkBookingRepository).findByMainAppointmentIds(setOf(MAIN_APPOINTMENT_ID))
     }
 
     @Test

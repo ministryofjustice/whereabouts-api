@@ -130,16 +130,34 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `findByMainAppointmentIds no Ids`() {
-    assertThat(repository.findByMainAppointmentIds(listOf())).isEmpty()
+    assertThat(repository.findByMainAppointmentIds(setOf())).isEmpty()
   }
 
   @Test
   fun `findByMainAppointmentIds sparse`() {
     repository.saveAll(videoLinkBookings())
 
-    assertThat(repository.findByMainAppointmentIds((-999L..1000L step 2).map { it }))
+    assertThat(repository.findByMainAppointmentIds((-999L..1000L step 2).toSet()))
       .hasSize(5)
       .extracting("main.appointmentId").containsExactlyInAnyOrder(1L, 3L, 5L, 7L, 9L)
+  }
+
+  @Test
+  fun `findByPreAppointmentIds sparse`() {
+    repository.saveAll(videoLinkBookings())
+
+    assertThat(repository.findByPreAppointmentIds((-999L..1000L step 2).toSet()))
+      .hasSize(5)
+      .extracting("pre.appointmentId").containsExactlyInAnyOrder(101L, 103L, 105L, 107L, 109L)
+  }
+
+  @Test
+  fun `findByPostAppointmentIds sparse`() {
+    repository.saveAll(videoLinkBookings())
+
+    assertThat(repository.findByPreAppointmentIds((-999L..1000L step 2).toSet()))
+      .hasSize(5)
+      .extracting("post.appointmentId").containsExactlyInAnyOrder(201L, 203L, 205L, 207L, 209L)
   }
 
   @Test
@@ -226,7 +244,9 @@ class VideoLinkBookingRepositoryTest(
         bookingId = it * 100L,
         court = "Court",
         madeByTheCourt = true,
-        main = VideoLinkAppointment(appointmentId = it)
+        pre = VideoLinkAppointment(appointmentId = it + 100L),
+        main = VideoLinkAppointment(appointmentId = it),
+        post = VideoLinkAppointment(appointmentId = it + 200L)
       )
     }
 }

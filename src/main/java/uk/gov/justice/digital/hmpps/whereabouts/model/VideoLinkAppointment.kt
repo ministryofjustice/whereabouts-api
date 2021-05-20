@@ -21,5 +21,5 @@ data class VideoLinkAppointment(
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
 
-  val appointmentId: Long
+  val appointmentId: Long,
 )

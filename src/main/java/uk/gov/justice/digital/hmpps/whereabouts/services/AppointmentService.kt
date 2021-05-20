@@ -66,7 +66,7 @@ class AppointmentService(
 
     val offenderNo = prisonApiService.getOffenderNoFromBookingId(prisonAppointment.bookingId)
     val videoLinkBooking: VideoLinkBooking? =
-      videoLinkBookingRepository.findByMainAppointmentIds(listOf(appointmentId)).firstOrNull()
+      videoLinkBookingRepository.findByMainAppointmentIds(setOf(appointmentId)).firstOrNull()
 
     return AppointmentDetailsDto(
       appointment = makeAppointmentDto(offenderNo, prisonAppointment),
