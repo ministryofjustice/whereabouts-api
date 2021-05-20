@@ -95,7 +95,7 @@ class AppointmentService(
       recurringAppointmentRepository.save(
         makeMainRecurringAppointment(appointmentsCreated, createAppointmentSpecification.repeat)
       )
-      raiseRecurringAppointmentEvent(createAppointmentSpecification, createAppointmentSpecification.repeat)
+      raiseRecurringAppointmentTrackingEvent(createAppointmentSpecification, createAppointmentSpecification.repeat)
     }
 
     return appointmentsCreated
@@ -117,7 +117,7 @@ class AppointmentService(
     }
   )
 
-  private fun raiseRecurringAppointmentEvent(
+  private fun raiseRecurringAppointmentTrackingEvent(
     createAppointmentSpecification: CreateAppointmentSpecification,
     repeat: Repeat
   ) {
