@@ -11,7 +11,7 @@
   "videoLinkBooking": null,
   "recurring": {
     "id": 1,
-    "repeatPeriod": "Fortnightly",
+    "repeatPeriod": "FORTNIGHTLY",
     "count": 10
   }
 }
