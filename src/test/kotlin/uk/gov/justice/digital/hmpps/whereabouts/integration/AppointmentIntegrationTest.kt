@@ -82,7 +82,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
         Optional.of(
           MainRecurringAppointment(
             id = 1,
-            repeatPeriod = RepeatPeriod.Fortnightly,
+            repeatPeriod = RepeatPeriod.FORTNIGHTLY,
             count = 10,
             recurringAppointments = listOf(RecurringAppointment(1))
           )
@@ -137,7 +137,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
           makeCreateAppointmentMap(
             startTime = START_TIME,
             endTime = END_TIME,
-            repeatPeriod = RepeatPeriod.Daily,
+            repeatPeriod = RepeatPeriod.DAILY,
             count = 1
           )
         )

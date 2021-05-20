@@ -23,7 +23,7 @@ class MainRecurringAppointmentRepositoryTest {
 
     val recurringAppointmentBookingId = entityManager.persist(
       MainRecurringAppointment(
-        repeatPeriod = RepeatPeriod.Fortnightly, count = 1,
+        repeatPeriod = RepeatPeriod.FORTNIGHTLY, count = 1,
         recurringAppointments = listOf(
           RecurringAppointment(1)
         )
@@ -34,7 +34,7 @@ class MainRecurringAppointmentRepositoryTest {
 
     assertThat(latest)
       .extracting("id", "repeatPeriod", "count")
-      .contains(recurringAppointmentBookingId, RepeatPeriod.Fortnightly, 1L)
+      .contains(recurringAppointmentBookingId, RepeatPeriod.FORTNIGHTLY, 1L)
 
     assertThat(latest.recurringAppointments).containsExactlyElementsOf(listOf(RecurringAppointment(1L)))
   }

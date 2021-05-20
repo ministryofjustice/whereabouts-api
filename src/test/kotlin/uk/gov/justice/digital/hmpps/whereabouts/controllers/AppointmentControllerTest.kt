@@ -103,7 +103,7 @@ class AppointmentControllerTest : TestController() {
             getCreateAppointmentSpecificationAsJson(
               startTime = startTime,
               endTime = endTime,
-              repeatPeriod = RepeatPeriod.Daily,
+              repeatPeriod = RepeatPeriod.DAILY,
               count = 1
             )
           )
@@ -119,7 +119,7 @@ class AppointmentControllerTest : TestController() {
           bookingId = 1,
           comment = "test",
           appointmentType = "ABC",
-          repeat = Repeat(RepeatPeriod.Daily, 1)
+          repeat = Repeat(RepeatPeriod.DAILY, 1)
         )
       )
     }
