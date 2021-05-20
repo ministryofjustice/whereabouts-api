@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.microsoft.applicationinsights.TelemetryClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -12,6 +13,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAppointmentSpecificati
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatePrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatedAppointmentDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.RecurringAppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto
@@ -30,7 +32,8 @@ import javax.persistence.EntityNotFoundException
 class AppointmentService(
   private val prisonApiService: PrisonApiService,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
-  private val recurringAppointmentRepository: RecurringAppointmentRepository
+  private val recurringAppointmentRepository: RecurringAppointmentRepository,
+  private val telemetryClient: TelemetryClient
 ) {
 
   fun getAppointments(
@@ -90,22 +93,45 @@ class AppointmentService(
 
     createAppointmentSpecification.repeat?.let {
       recurringAppointmentRepository.save(
-        MainRecurringAppointment(
-          id = appointmentsCreated.appointmentEventId,
-          repeatPeriod = createAppointmentSpecification.repeat.repeatPeriod,
-          count = createAppointmentSpecification.repeat.count,
-          recurringAppointments = appointmentsCreated.recurringAppointmentEventIds?.let {
-            it.map { id ->
-              RecurringAppointment(
-                id
-              )
-            }
-          }
-        )
+        makeMainRecurringAppointment(appointmentsCreated, createAppointmentSpecification.repeat)
       )
+      raiseRecurringAppointmentEvent(createAppointmentSpecification, createAppointmentSpecification.repeat)
     }
 
     return appointmentsCreated
+  }
+
+  private fun makeMainRecurringAppointment(
+    appointmentsCreated: CreatedAppointmentDetailsDto,
+    repeat: Repeat
+  ) = MainRecurringAppointment(
+    id = appointmentsCreated.appointmentEventId,
+    repeatPeriod = repeat.repeatPeriod,
+    count = repeat.count,
+    recurringAppointments = appointmentsCreated.recurringAppointmentEventIds?.let {
+      it.map { id ->
+        RecurringAppointment(
+          id
+        )
+      }
+    }
+  )
+
+  private fun raiseRecurringAppointmentEvent(
+    createAppointmentSpecification: CreateAppointmentSpecification,
+    repeat: Repeat
+  ) {
+    telemetryClient.trackEvent(
+      "Recurring Appointment created for a prisoner",
+      mapOf(
+        "appointmentType" to createAppointmentSpecification.appointmentType,
+        "repeatPeriod" to repeat.repeatPeriod.toString(),
+        "count" to repeat.count.toString(),
+        "bookingId" to createAppointmentSpecification.bookingId.toString(),
+        "locationId" to createAppointmentSpecification.locationId.toString()
+      ),
+      null
+    )
   }
 
   companion object {

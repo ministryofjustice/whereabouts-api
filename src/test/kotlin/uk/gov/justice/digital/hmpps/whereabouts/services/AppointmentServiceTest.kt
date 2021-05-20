@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
@@ -36,6 +37,7 @@ class AppointmentServiceTest {
   private val prisonApiService: PrisonApiService = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
   private val recurringAppointmentRepository: RecurringAppointmentRepository = mock()
+  private val telemetryClient: TelemetryClient = mock()
 
   private lateinit var appointmentService: AppointmentService
 
@@ -44,7 +46,8 @@ class AppointmentServiceTest {
     appointmentService = AppointmentService(
       prisonApiService,
       videoLinkBookingRepository,
-      recurringAppointmentRepository
+      recurringAppointmentRepository,
+      telemetryClient
     )
   }
 
@@ -443,6 +446,30 @@ class AppointmentServiceTest {
           count = 1,
           recurringAppointments = listOf(RecurringAppointment(1), RecurringAppointment(2), RecurringAppointment(3))
         )
+      )
+    }
+
+    @Test
+    fun `should fire an event when a recurring appointment has been created`() {
+      appointmentService.createAppointment(
+        DataHelpers.makeCreateAppointmentSpecification(
+          bookingId = BOOKING_ID,
+          startTime = START_TIME,
+          endTime = END_TIME,
+          repeat = Repeat(RepeatPeriod.Daily, 1)
+        )
+      )
+
+      verify(telemetryClient).trackEvent(
+        "Recurring Appointment created for a prisoner",
+        mapOf(
+          "appointmentType" to "ABC",
+          "repeatPeriod" to "Daily",
+          "count" to "1",
+          "bookingId" to BOOKING_ID.toString(),
+          "locationId" to "1"
+        ),
+        null
       )
     }
   }
