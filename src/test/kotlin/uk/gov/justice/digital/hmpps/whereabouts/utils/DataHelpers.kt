@@ -58,6 +58,7 @@ class DataHelpers {
       eventSubType: String = "INST",
       comment: String = "test",
       eventLocationId: Long = 2L,
+      createUserId: String = "SA"
     ) = PrisonAppointment(
       eventId = appointmentId,
       eventLocationId = eventLocationId,
@@ -66,7 +67,8 @@ class DataHelpers {
       startTime = startTime,
       endTime = endTime,
       eventSubType = eventSubType,
-      comment = comment
+      comment = comment,
+      createUserId = createUserId
     )
 
     fun makeAppointmentDto(
@@ -77,7 +79,8 @@ class DataHelpers {
       eventLocationId: Long = 1L,
       bookingId: Long = 1L,
       comment: String = "test",
-      agencyId: String = "MDI"
+      agencyId: String = "MDI",
+      createUserId: String = "SA"
     ): PrisonAppointment = PrisonAppointment(
       eventId = eventId,
       eventSubType = eventSubType,
@@ -86,7 +89,8 @@ class DataHelpers {
       eventLocationId = eventLocationId,
       bookingId = bookingId,
       comment = comment,
-      agencyId = agencyId
+      agencyId = agencyId,
+      createUserId = createUserId
     )
 
     fun makeCreateAppointmentSpecification(

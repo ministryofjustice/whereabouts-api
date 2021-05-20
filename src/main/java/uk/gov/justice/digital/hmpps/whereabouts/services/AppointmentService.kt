@@ -165,7 +165,8 @@ private fun makeAppointmentDto(offenderNo: String, prisonAppointment: PrisonAppo
     appointmentTypeCode = prisonAppointment.eventSubType,
     startTime = prisonAppointment.startTime,
     endTime = prisonAppointment.endTime,
-    offenderNo = offenderNo
+    offenderNo = offenderNo,
+    createUserId = prisonAppointment.createUserId
   )
 
 private fun makeVideoLinkBookingAppointmentDto(videoLinkBooking: VideoLinkBooking): VideoLinkBookingDto =
