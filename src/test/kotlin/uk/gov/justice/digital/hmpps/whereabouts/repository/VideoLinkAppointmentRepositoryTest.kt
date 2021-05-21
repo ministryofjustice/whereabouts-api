@@ -38,7 +38,6 @@ class VideoLinkAppointmentRepositoryTest {
         appointmentId = 1,
         bookingId = 2,
         court = "York",
-        courtId = null,
         hearingType = HearingType.MAIN
       )
     )
