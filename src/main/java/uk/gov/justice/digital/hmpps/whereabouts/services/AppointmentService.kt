@@ -70,6 +70,7 @@ class AppointmentService(
     return OffenderLocationFilter(offenderLocationPrefix, offenderLocationDescriptionByOffenderNo)
   }
 
+  @Transactional
   fun getAppointment(appointmentId: Long): AppointmentDetailsDto {
     val prisonAppointment: PrisonAppointment = prisonApiService.getPrisonAppointment(appointmentId)
       ?: throw EntityNotFoundException("Appointment $appointmentId does not exist")
@@ -91,12 +92,15 @@ class AppointmentService(
 
   @Transactional
   fun createAppointment(createAppointmentSpecification: CreateAppointmentSpecification): CreatedAppointmentDetailsDto {
-    val appointmentsCreated = prisonApiService.createAppointments(makePrisonAppointment(createAppointmentSpecification))
+    val appointmentsCreated =
+      prisonApiService.createAppointments(makePrisonAppointment(createAppointmentSpecification)).first()
 
     createAppointmentSpecification.repeat?.let {
-      recurringAppointmentRepository.save(
+      val recurringAppointment =
         makeMainRecurringAppointment(appointmentsCreated, createAppointmentSpecification.repeat)
-      )
+
+      recurringAppointmentRepository.save(recurringAppointment)
+
       raiseRecurringAppointmentTrackingEvent(createAppointmentSpecification, createAppointmentSpecification.repeat)
     }
 
@@ -190,7 +194,6 @@ private fun makeVideoLinkAppointmentDto(videoLinkAppointment: VideoLinkAppointme
 
 private fun makeRecurringAppointmentDto(mainRecurringAppointment: MainRecurringAppointment): RecurringAppointmentDto =
   RecurringAppointmentDto(
-    id = mainRecurringAppointment.id!!,
     repeatPeriod = mainRecurringAppointment.repeatPeriod,
     count = mainRecurringAppointment.count
   )

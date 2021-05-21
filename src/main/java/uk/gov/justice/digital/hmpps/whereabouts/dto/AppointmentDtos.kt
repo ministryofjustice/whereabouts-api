@@ -166,8 +166,6 @@ data class VideoLinkAppointmentDto(
 
 @ApiModel(description = "Recurring appointment")
 data class RecurringAppointmentDto(
-  @ApiModelProperty(required = true, value = "Id of the recurring appointment")
-  val id: Long,
   @ApiModelProperty(
     required = true,
     value = "Repeat period",
@@ -197,7 +195,7 @@ data class Event(
 @ApiModel(description = "The details of an appointment that has just been created")
 data class CreatedAppointmentDetailsDto(
   @ApiModelProperty(required = true, value = "The id of the appointment that was created.", example = "123456")
-  val appointmentEventId: Long? = null,
+  val appointmentEventId: Long,
   @ApiModelProperty(value = "The ids of all recurring appointments that were created.", example = "[1,2,3]")
-  val recurringAppointmentEventIds: Set<Long>? = null
+  val recurringAppointmentEventIds: List<Long>? = null
 )

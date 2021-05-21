@@ -162,6 +162,7 @@ class ControllerAdvice {
 
   @ExceptionHandler(Exception::class)
   fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
+    log.error(e.stackTraceToString())
     log.error("Unexpected exception {}", e.message)
     return ResponseEntity
       .status(HttpStatus.INTERNAL_SERVER_ERROR)

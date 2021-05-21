@@ -374,8 +374,8 @@ class AppointmentServiceTest {
       val appointmentDetails = appointmentService.getAppointment(MAIN_APPOINTMENT_ID)
 
       assertThat(appointmentDetails.recurring)
-        .extracting("id", "repeatPeriod", "count")
-        .contains(1L, RepeatPeriod.FORTNIGHTLY, 1L)
+        .extracting("repeatPeriod", "count")
+        .contains(RepeatPeriod.FORTNIGHTLY, 1L)
     }
   }
 
@@ -386,9 +386,11 @@ class AppointmentServiceTest {
     fun beforeEach() {
       whenever(prisonApiService.createAppointments(any()))
         .thenReturn(
-          CreatedAppointmentDetailsDto(
-            appointmentEventId = MAIN_APPOINTMENT_ID,
-            recurringAppointmentEventIds = setOf(1, 2, 3)
+          listOf(
+            CreatedAppointmentDetailsDto(
+              appointmentEventId = MAIN_APPOINTMENT_ID,
+              recurringAppointmentEventIds = listOf(1, 2, 3)
+            )
           )
         )
     }

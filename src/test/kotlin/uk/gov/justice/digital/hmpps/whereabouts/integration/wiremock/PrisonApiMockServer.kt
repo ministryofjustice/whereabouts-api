@@ -389,7 +389,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
-  fun stubAddAppointment(response: Map<String, Any>? = null) {
+  fun stubAddAppointment(response: List<Map<String, Any>>? = null) {
     stubFor(
       post(urlEqualTo("/api/appointments"))
         .willReturn(

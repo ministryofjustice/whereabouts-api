@@ -104,12 +104,14 @@ class AppointmentIntegrationTest : IntegrationTest() {
     @BeforeEach
     fun beforeEach() {
       prisonApiMockServer.stubAddAppointment(
-        mapOf(
-          "appointmentEventId" to 1,
-          "bookingId" to 2,
-          "startTime" to START_TIME,
-          "endTime" to END_TIME,
-          "recurringAppointmentEventIds" to setOf(1, 2, 3)
+        listOf(
+          mapOf(
+            "appointmentEventId" to 1,
+            "bookingId" to 2,
+            "startTime" to START_TIME,
+            "endTime" to END_TIME,
+            "recurringAppointmentEventIds" to setOf(1, 2, 3)
+          )
         )
       )
     }
