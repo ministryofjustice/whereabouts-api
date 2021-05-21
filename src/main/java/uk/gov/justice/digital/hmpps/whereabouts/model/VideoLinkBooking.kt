@@ -33,4 +33,10 @@ data class VideoLinkBooking(
   fun toAppointments(): List<VideoLinkAppointment> {
     return listOfNotNull(pre, main, post)
   }
+
+  fun matchesCourt(court: String?, courtId: String?): Boolean {
+    if (courtId != null) return main.courtId == courtId
+    if (court != null) return main.court == court
+    return true
+  }
 }

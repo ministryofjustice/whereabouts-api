@@ -53,6 +53,7 @@ class VideoLinkBookingRepositoryTest(
         bookingId = 1,
         appointmentId = 2,
         court = "A Court",
+        courtId = "TSTCRT",
         hearingType = HearingType.MAIN,
         madeByTheCourt = true
       )
@@ -82,6 +83,7 @@ class VideoLinkBookingRepositoryTest(
         bookingId = 1,
         appointmentId = 4,
         court = "A Court",
+        courtId = null,
         hearingType = HearingType.MAIN,
         madeByTheCourt = true
       ),
@@ -89,13 +91,15 @@ class VideoLinkBookingRepositoryTest(
         bookingId = 1,
         appointmentId = 12,
         court = "A Court",
+        courtId = "TSTCRT",
         hearingType = HearingType.PRE,
         madeByTheCourt = true
       ),
       post = VideoLinkAppointment(
         bookingId = 1,
         appointmentId = 22,
-        court = "A Court",
+        court = null,
+        courtId = "TSTCRT",
         hearingType = HearingType.POST,
         madeByTheCourt = true
       ),
@@ -141,6 +145,7 @@ class VideoLinkBookingRepositoryTest(
           bookingId = 1,
           appointmentId = 4,
           court = "A Court",
+          courtId = null,
           hearingType = HearingType.MAIN,
           madeByTheCourt = true
         ),
@@ -148,6 +153,7 @@ class VideoLinkBookingRepositoryTest(
           bookingId = 1,
           appointmentId = 12,
           court = "A Court",
+          courtId = null,
           hearingType = HearingType.PRE,
           madeByTheCourt = true
         ),
@@ -155,6 +161,7 @@ class VideoLinkBookingRepositoryTest(
           bookingId = 1,
           appointmentId = 22,
           court = "A Court",
+          courtId = null,
           hearingType = HearingType.POST,
           madeByTheCourt = true
         ),
@@ -196,6 +203,7 @@ class VideoLinkBookingRepositoryTest(
           bookingId = 1,
           appointmentId = 4,
           court = "A Court",
+          courtId = null,
           hearingType = HearingType.MAIN,
           madeByTheCourt = true
         ),
@@ -203,6 +211,7 @@ class VideoLinkBookingRepositoryTest(
           bookingId = 1,
           appointmentId = 12,
           court = "A Court",
+          courtId = null,
           hearingType = HearingType.PRE,
           madeByTheCourt = true
         ),
@@ -210,6 +219,7 @@ class VideoLinkBookingRepositoryTest(
           bookingId = 1,
           appointmentId = 22,
           court = "A Court",
+          courtId = null,
           hearingType = HearingType.POST,
           madeByTheCourt = true
         ),
@@ -240,6 +250,7 @@ class VideoLinkBookingRepositoryTest(
           bookingId = 1,
           appointmentId = 4,
           court = "A Court",
+          courtId = null,
           hearingType = HearingType.MAIN,
           madeByTheCourt = true
         ),
@@ -247,6 +258,7 @@ class VideoLinkBookingRepositoryTest(
           bookingId = 1,
           appointmentId = 12,
           court = "A Court",
+          courtId = null,
           hearingType = HearingType.PRE,
           madeByTheCourt = true
         ),
@@ -254,6 +266,7 @@ class VideoLinkBookingRepositoryTest(
           bookingId = 1,
           appointmentId = 22,
           court = "A Court",
+          courtId = null,
           hearingType = HearingType.POST,
           madeByTheCourt = true
         ),
@@ -270,6 +283,7 @@ class VideoLinkBookingRepositoryTest(
       bookingId = 1,
       appointmentId = 100,
       court = "A Court",
+      courtId = null,
       hearingType = HearingType.MAIN,
       madeByTheCourt = false
     )
@@ -278,6 +292,7 @@ class VideoLinkBookingRepositoryTest(
       bookingId = 1,
       appointmentId = 101,
       court = "A Court",
+      courtId = null,
       hearingType = HearingType.PRE,
       madeByTheCourt = false
     )
@@ -286,6 +301,7 @@ class VideoLinkBookingRepositoryTest(
       bookingId = 1,
       appointmentId = 102,
       court = "A Court",
+      courtId = null,
       hearingType = HearingType.POST,
       madeByTheCourt = false
     )
@@ -322,6 +338,7 @@ class VideoLinkBookingRepositoryTest(
           bookingId = it * 100L,
           appointmentId = it,
           court = "Court",
+          courtId = "TSTCRT",
           hearingType = HearingType.MAIN,
           madeByTheCourt = true
         )

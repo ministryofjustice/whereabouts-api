@@ -94,6 +94,7 @@ class CourtIntegrationTest : IntegrationTest() {
         bookingId = 100,
         appointmentId = preAppointmentId,
         court = "Test Court 1",
+        courtId = "TSTCRT1",
         hearingType = HearingType.PRE
       ),
       main = VideoLinkAppointment(
@@ -101,6 +102,7 @@ class CourtIntegrationTest : IntegrationTest() {
         bookingId = 100,
         appointmentId = mainAppointmentId,
         court = "Test Court 2",
+        courtId = "TSTCRT2",
         hearingType = HearingType.MAIN
       ),
       post = VideoLinkAppointment(
@@ -108,6 +110,7 @@ class CourtIntegrationTest : IntegrationTest() {
         bookingId = 100,
         appointmentId = postAppointmentId,
         court = "Test Court 1",
+        courtId = "TSTCRT1",
         hearingType = HearingType.POST
       ),
     )
@@ -134,6 +137,7 @@ class CourtIntegrationTest : IntegrationTest() {
             "bookingId": 100,
             "agencyId" : "WWI",
             "court": "Test Court 2",
+            "courtId": "TSTCRT2",
             "comment": "any comment",
             "pre": {
               "locationId": 10,
@@ -175,6 +179,7 @@ class CourtIntegrationTest : IntegrationTest() {
             "bookingId": 100,
             "agencyId": "WWI",
             "court": "Test Court 2",
+            "courtId": "TSTCRT2",
             "comment": "any comment",
             "main": {
               "locationId": 9,
@@ -187,7 +192,7 @@ class CourtIntegrationTest : IntegrationTest() {
     }
 
     @Test
-    fun `should get booking when only pre and post appointments exist`() {
+    fun `should not find booking when only pre and post appointments exist`() {
 
       whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(theVideoLinkBooking))
 
@@ -212,7 +217,8 @@ class CourtIntegrationTest : IntegrationTest() {
             bookingId = 1L,
             appointmentId = 1L,
             hearingType = HearingType.PRE,
-            court = "York"
+            court = "York",
+            courtId = "TSTCRT"
           )
         )
       )
@@ -224,27 +230,21 @@ class CourtIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .json(loadJsonFile("courtAppointments.json"))
-  }
-
-  @Test
-  fun `Validate date format for start and time`() {
-    webTestClient.post()
-      .uri("/court/add-video-link-appointment")
-      .headers(setHeaders())
-      .bodyValue(
-        mapOf(
-          "bookingId" to 1,
-          "court" to "Test Court 1",
-          "locationId" to 1,
-          "comment" to "test",
-          "startTime" to "10-10-2029T10:00:00",
-          "endTime" to "2019-10-10T10:00:00",
-          "comment" to "test"
-        )
+      .json(
+        """
+          {
+            "appointments": [
+              {
+                "id": 1,
+                "bookingId": 1,
+                "appointmentId": 1,
+                "court": "York",
+                "hearingType": "PRE"
+              }
+            ]
+          }
+      """
       )
-      .exchange()
-      .expectStatus().is4xxClientError
   }
 
   @Test
@@ -260,6 +260,7 @@ class CourtIntegrationTest : IntegrationTest() {
         bookingId = bookingId,
         appointmentId = mainAppointmentId,
         court = "Test Court 1",
+        courtId = "TSTCRT",
         madeByTheCourt = false,
         hearingType = HearingType.MAIN
       )
@@ -274,6 +275,7 @@ class CourtIntegrationTest : IntegrationTest() {
         mapOf(
           "bookingId" to bookingId,
           "court" to "Test Court 1",
+          "courtId" to "TSTCRT",
           "madeByTheCourt" to false,
           "main" to mapOf(
             "locationId" to 1,
@@ -338,6 +340,7 @@ class CourtIntegrationTest : IntegrationTest() {
         bookingId = 4,
         appointmentId = preAppointmentId,
         court = "Test Court 1",
+        courtId = null,
         hearingType = HearingType.PRE
       ),
       main = VideoLinkAppointment(
@@ -345,6 +348,7 @@ class CourtIntegrationTest : IntegrationTest() {
         bookingId = 4,
         appointmentId = mainAppointmentId,
         court = "Test Court 2",
+        courtId = null,
         hearingType = HearingType.MAIN
       )
     )
@@ -387,6 +391,7 @@ class CourtIntegrationTest : IntegrationTest() {
           bookingId = offenderBookingId,
           appointmentId = newAppointmentId,
           court = "Test Court 1",
+          courtId = "TSTCRT",
           madeByTheCourt = false,
           hearingType = HearingType.MAIN
         )
@@ -458,6 +463,7 @@ class CourtIntegrationTest : IntegrationTest() {
         bookingId = 1L,
         appointmentId = 10L,
         court = "Test Court 1",
+        courtId = null,
         madeByTheCourt = true,
         hearingType = HearingType.MAIN
       )

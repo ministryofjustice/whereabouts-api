@@ -187,7 +187,8 @@ private fun makeVideoLinkAppointmentDto(videoLinkAppointment: VideoLinkAppointme
     id = videoLinkAppointment.id!!,
     bookingId = videoLinkAppointment.bookingId,
     appointmentId = videoLinkAppointment.appointmentId,
-    court = videoLinkAppointment.court,
+    court = videoLinkAppointment.chooseCourtName(),
+    courtId = videoLinkAppointment.courtId,
     hearingType = videoLinkAppointment.hearingType,
     createdByUsername = videoLinkAppointment.createdByUsername,
     madeByTheCourt = videoLinkAppointment.madeByTheCourt

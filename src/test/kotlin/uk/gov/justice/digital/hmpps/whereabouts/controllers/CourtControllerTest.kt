@@ -51,6 +51,7 @@ class CourtControllerTest : TestController() {
     agencyId = "MDI",
     comment = "any comment",
     court = "Test Court",
+    courtId = "TSTCRT",
     pre = VideoLinkBookingResponse.LocationTimeslot(
       locationId = 10,
       startTime = LocalDateTime.of(2020, 2, 7, 12, 0),
@@ -79,6 +80,7 @@ class CourtControllerTest : TestController() {
           mapOf(
             "bookingId" to 1,
             "court" to "Test Court 1",
+            "courtId" to "TSTCRT",
             "madeByTheCourt" to true,
             "main" to mapOf(
               "locationId" to 2,
@@ -541,81 +543,11 @@ class CourtControllerTest : TestController() {
   }
 
   @Nested
-  inner class GetBookingsByDateAndCourt {
-    @Test
-    @WithMockUser(username = "ITAG_USER")
-    fun `get bookings on date`() {
-      whenever(courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), isNull()))
-        .thenReturn(listOf(videoLinkBookingResponse))
-
-      mockMvc.perform(
-        get("/court/video-link-bookings/date/2020-12-25").accept(MediaType.APPLICATION_JSON)
-      )
-        .andExpect(
-          matchAll(
-            status().isOk,
-            content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
-            content().json(
-              """
-              [
-                {
-                  "videoLinkBookingId": 1,
-                  "bookingId": 100,
-                  "comment": "any comment",
-                  "court": "Test Court",
-                  "agencyId": "MDI",
-                  "pre": {
-                    "locationId": 10,
-                    "startTime": "2020-02-07T12:00:00",
-                    "endTime": "2020-02-07T13:00:00"
-                  },
-                  "main": {
-                    "locationId": 9,
-                    "startTime": "2020-02-07T13:00:00",
-                    "endTime": "2020-02-07T14:00:00"
-                  },
-                  "post": {
-                    "locationId": 5,
-                    "startTime": "2020-02-07T14:00:00",
-                    "endTime": "2020-02-07T15:00:00"
-                  }
-                }
-              ]"""
-            )
-          )
-        )
-
-      verify(courtService)
-        .getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", LocalDate.of(2020, 12, 25), null)
-    }
-
-    @Test
-    @WithMockUser(username = "ITAG_USER")
-    fun `get bookings on date for court`() {
-      whenever(courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), anyString()))
-        .thenReturn(listOf())
-
-      mockMvc.perform(
-        get("/court/video-link-bookings/date/2020-12-25?court=The Court").accept(MediaType.APPLICATION_JSON)
-      )
-        .andExpect(
-          matchAll(
-            status().isOk,
-            content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
-          )
-        )
-
-      verify(courtService)
-        .getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", LocalDate.of(2020, 12, 25), "The Court")
-    }
-  }
-
-  @Nested
   inner class GetBookingsByPrisonAndDateAndCourt {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `get bookings on date`() {
-      whenever(courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), isNull()))
+      whenever(courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), isNull(), isNull()))
         .thenReturn(listOf(videoLinkBookingResponse.copy(agencyId = "LEI")))
 
       mockMvc.perform(
@@ -633,6 +565,7 @@ class CourtControllerTest : TestController() {
                   "bookingId": 100,
                   "comment": "any comment",
                   "court": "Test Court",
+                  "courtId": "TSTCRT",
                   "agencyId": "LEI",
                   "pre": {
                     "locationId": 10,
@@ -656,13 +589,13 @@ class CourtControllerTest : TestController() {
         )
 
       verify(courtService)
-        .getVideoLinkBookingsForPrisonAndDateAndCourt("LEI", LocalDate.of(2020, 12, 25), null)
+        .getVideoLinkBookingsForPrisonAndDateAndCourt("LEI", LocalDate.of(2020, 12, 25), null, null)
     }
 
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `get bookings on date for court`() {
-      whenever(courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), anyString()))
+      whenever(courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), anyString(), isNull()))
         .thenReturn(listOf())
 
       mockMvc.perform(
@@ -676,7 +609,27 @@ class CourtControllerTest : TestController() {
         )
 
       verify(courtService)
-        .getVideoLinkBookingsForPrisonAndDateAndCourt("LEI", LocalDate.of(2020, 12, 25), "The Court")
+        .getVideoLinkBookingsForPrisonAndDateAndCourt("LEI", LocalDate.of(2020, 12, 25), "The Court", null)
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `get bookings on date for courtId`() {
+      whenever(courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), isNull(), anyString()))
+        .thenReturn(listOf())
+
+      mockMvc.perform(
+        get("/court/video-link-bookings/prison/LEI/date/2020-12-25?courtId=TSTCRT").accept(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(
+          matchAll(
+            status().isOk,
+            content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+          )
+        )
+
+      verify(courtService)
+        .getVideoLinkBookingsForPrisonAndDateAndCourt("LEI", LocalDate.of(2020, 12, 25), null, "TSTCRT")
     }
   }
 

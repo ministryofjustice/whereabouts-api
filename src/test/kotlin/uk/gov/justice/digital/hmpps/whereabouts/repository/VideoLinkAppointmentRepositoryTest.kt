@@ -38,6 +38,7 @@ class VideoLinkAppointmentRepositoryTest {
         appointmentId = 1,
         bookingId = 2,
         court = "York",
+        courtId = null,
         hearingType = HearingType.MAIN
       )
     )
@@ -46,7 +47,8 @@ class VideoLinkAppointmentRepositoryTest {
       VideoLinkAppointment(
         appointmentId = 3,
         bookingId = 4,
-        court = "York 2",
+        court = null,
+        courtId = "TSTCRT",
         hearingType = HearingType.MAIN,
         createdByUsername = "username2",
         madeByTheCourt = false
@@ -58,10 +60,17 @@ class VideoLinkAppointmentRepositoryTest {
 
     val appointments = videoLinkAppointmentRepository.findAll().minus(preAppointments)
 
-    assertThat(appointments).extracting("appointmentId", "bookingId", "court", "createdByUsername", "madeByTheCourt")
+    assertThat(appointments).extracting(
+      "appointmentId",
+      "bookingId",
+      "court",
+      "courtId",
+      "createdByUsername",
+      "madeByTheCourt"
+    )
       .containsExactlyInAnyOrder(
-        Tuple.tuple(1L, 2L, "York", "username1", true),
-        Tuple.tuple(3L, 4L, "York 2", "username1", false)
+        Tuple.tuple(1L, 2L, "York", null, "username1", true),
+        Tuple.tuple(3L, 4L, null, "TSTCRT", "username1", false)
       )
   }
 }
