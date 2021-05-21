@@ -92,19 +92,19 @@ class AppointmentService(
 
   @Transactional
   fun createAppointment(createAppointmentSpecification: CreateAppointmentSpecification): CreatedAppointmentDetailsDto {
-    val appointmentsCreated =
+    val appointmentCreated =
       prisonApiService.createAppointments(makePrisonAppointment(createAppointmentSpecification)).first()
 
     createAppointmentSpecification.repeat?.let {
       val recurringAppointment =
-        makeMainRecurringAppointment(appointmentsCreated, createAppointmentSpecification.repeat)
+        makeMainRecurringAppointment(appointmentCreated, createAppointmentSpecification.repeat)
 
       recurringAppointmentRepository.save(recurringAppointment)
 
       raiseRecurringAppointmentTrackingEvent(createAppointmentSpecification, createAppointmentSpecification.repeat)
     }
 
-    return appointmentsCreated
+    return appointmentCreated
   }
 
   private fun makeMainRecurringAppointment(
@@ -170,7 +170,8 @@ private fun makeAppointmentDto(offenderNo: String, prisonAppointment: PrisonAppo
     startTime = prisonAppointment.startTime,
     endTime = prisonAppointment.endTime,
     offenderNo = offenderNo,
-    createUserId = prisonAppointment.createUserId
+    createUserId = prisonAppointment.createUserId,
+    comment = prisonAppointment.comment
   )
 
 private fun makeVideoLinkBookingAppointmentDto(videoLinkBooking: VideoLinkBooking): VideoLinkBookingDto =

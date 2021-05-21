@@ -102,7 +102,9 @@ data class AppointmentDto(
   @ApiModelProperty(required = false, value = "When the appointment is scheduled to end")
   val endTime: LocalDateTime?,
   @ApiModelProperty(required = false, value = "Created by user id")
-  val createUserId: String? = null
+  val createUserId: String? = null,
+  @ApiModelProperty(required = false, value = "Additional information regarding the appointment")
+  val comment: String? = null
 
 )
 
