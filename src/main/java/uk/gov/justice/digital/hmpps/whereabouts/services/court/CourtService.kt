@@ -192,19 +192,19 @@ class CourtService(
         VideoLinkBookingResponse.LocationTimeslot(
           locationId = it.eventLocationId,
           startTime = it.startTime,
-          endTime = it.endTime
+          endTime = it.endTime!!
         )
       },
       main = VideoLinkBookingResponse.LocationTimeslot(
         locationId = mainEvent.eventLocationId,
         startTime = mainEvent.startTime,
-        endTime = mainEvent.endTime
+        endTime = mainEvent.endTime!!
       ),
       post = postEvent?.let {
         VideoLinkBookingResponse.LocationTimeslot(
           locationId = it.eventLocationId,
           startTime = it.startTime,
-          endTime = it.endTime
+          endTime = it.endTime!!
         )
       }
     )

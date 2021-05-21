@@ -837,17 +837,17 @@ class CourtServiceTest {
           pre = VideoLinkBookingResponse.LocationTimeslot(
             locationId = preAppointment.eventLocationId,
             startTime = preAppointment.startTime,
-            endTime = preAppointment.endTime
+            endTime = preAppointment.endTime!!
           ),
           main = VideoLinkBookingResponse.LocationTimeslot(
             locationId = mainAppointment.eventLocationId,
             startTime = mainAppointment.startTime,
-            endTime = mainAppointment.endTime
+            endTime = mainAppointment.endTime!!
           ),
           post = VideoLinkBookingResponse.LocationTimeslot(
             locationId = postAppointment.eventLocationId,
             startTime = postAppointment.startTime,
-            endTime = postAppointment.endTime
+            endTime = postAppointment.endTime!!
           ),
         )
       )
@@ -870,7 +870,7 @@ class CourtServiceTest {
           main = VideoLinkBookingResponse.LocationTimeslot(
             locationId = mainAppointment.eventLocationId,
             startTime = mainAppointment.startTime,
-            endTime = mainAppointment.endTime
+            endTime = mainAppointment.endTime!!
           ),
         )
       )

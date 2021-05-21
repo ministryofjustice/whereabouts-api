@@ -23,6 +23,7 @@ class MainRecurringAppointmentRepositoryTest {
 
     val recurringAppointmentBookingId = entityManager.persist(
       MainRecurringAppointment(
+        id = 1,
         repeatPeriod = RepeatPeriod.FORTNIGHTLY, count = 1,
         recurringAppointments = listOf(
           RecurringAppointment(1)

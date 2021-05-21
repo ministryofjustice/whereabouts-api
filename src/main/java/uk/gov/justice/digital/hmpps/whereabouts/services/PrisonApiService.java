@@ -214,8 +214,8 @@ public class PrisonApiService {
                 .block();
     }
 
-    public CreatedAppointmentDetailsDto createAppointments(final CreatePrisonAppointment createPrisonAppointment) {
-        final var responseType = new ParameterizedTypeReference<CreatedAppointmentDetailsDto>() {
+    public List<CreatedAppointmentDetailsDto> createAppointments(final CreatePrisonAppointment createPrisonAppointment) {
+        final var responseType = new ParameterizedTypeReference<List<CreatedAppointmentDetailsDto>>() {
         };
 
         return webClient.post()

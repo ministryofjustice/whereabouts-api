@@ -1,33 +1,33 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
+import javax.persistence.CascadeType
 import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
 import javax.persistence.Id
+import javax.persistence.JoinColumn
 import javax.persistence.OneToMany
 
 enum class RepeatPeriod {
   WEEKLY,
   DAILY,
-  WEEKDAY,
+  WEEKDAYS,
   MONTHLY,
   FORTNIGHTLY,
 }
 
-@Entity
+@Entity(name = "MAIN_RECURRING_APPOINTMENT")
 data class MainRecurringAppointment(
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  val id: Long? = null,
+  val id: Long,
 
   val repeatPeriod: RepeatPeriod,
   val count: Long,
 
-  @OneToMany
+  @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+  @JoinColumn(name = "MAIN_RECURRING_APPOINTMENT_ID")
   val recurringAppointments: List<RecurringAppointment>? = null
 )
 
-@Entity
+@Entity(name = "RECURRING_APPOINTMENT")
 data class RecurringAppointment(
   @Id
   val id: Long
