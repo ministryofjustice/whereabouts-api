@@ -39,11 +39,6 @@ import java.time.ZoneId
 import java.util.Optional
 import javax.persistence.EntityNotFoundException
 
-const val COURT_NAME = "York Crown Court"
-const val COURT_ID = "YRKCC"
-const val VLB_APPOINTMENT_TYPE = "VLB"
-const val AGENCY_WANDSWORTH = "WWI"
-
 class CourtServiceTest {
 
   private val prisonApiService: PrisonApiService = mock()
@@ -1253,6 +1248,11 @@ class CourtServiceTest {
   )
 
   companion object {
+    const val COURT_NAME = "York Crown Court"
+    const val COURT_ID = "YRKCC"
+    const val VLB_APPOINTMENT_TYPE = "VLB"
+    const val AGENCY_WANDSWORTH = "WWI"
+
     fun locationDto(locationId: Long) = LocationDto(
       locationId = locationId,
       locationType = "VIDE",
