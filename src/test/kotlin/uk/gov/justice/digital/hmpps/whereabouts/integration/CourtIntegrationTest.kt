@@ -239,6 +239,7 @@ class CourtIntegrationTest : IntegrationTest() {
                 "bookingId": 1,
                 "appointmentId": 1,
                 "court": "York",
+                "courtId": "TSTCRT",
                 "hearingType": "PRE"
               }
             ]
