@@ -74,12 +74,50 @@ class CourtControllerTest : TestController() {
 
     @Test
     @WithMockUser(username = "ITAG_USER")
-    fun `Accept a valid request, main appointment only`() {
+    fun `Accept a valid request, main appointment only with court and courtId`() {
       passWithJson(
         objectMapper.writeValueAsString(
           mapOf(
             "bookingId" to 1,
             "court" to "Test Court 1",
+            "courtId" to "TSTCRT",
+            "madeByTheCourt" to true,
+            "main" to mapOf(
+              "locationId" to 2,
+              "startTime" to "2020-12-01T09:00",
+              "endTime" to "2020-12-01T09:30"
+            )
+          )
+        )
+      )
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `Accept a valid request, main appointment with court but no courtId`() {
+      passWithJson(
+        objectMapper.writeValueAsString(
+          mapOf(
+            "bookingId" to 1,
+            "court" to "Test Court 1",
+            "madeByTheCourt" to true,
+            "main" to mapOf(
+              "locationId" to 2,
+              "startTime" to "2020-12-01T09:00",
+              "endTime" to "2020-12-01T09:30"
+            )
+          )
+        )
+      )
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `Accept a valid request, main appointment with courtId but no court`() {
+      passWithJson(
+        objectMapper.writeValueAsString(
+          mapOf(
+            "bookingId" to 1,
             "courtId" to "TSTCRT",
             "madeByTheCourt" to true,
             "main" to mapOf(
