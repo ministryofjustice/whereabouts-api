@@ -5,6 +5,8 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
@@ -20,12 +22,13 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
-import uk.gov.justice.digital.hmpps.whereabouts.model.MainRecurringAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RecurringAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.RelatedAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.RecurringAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -37,6 +40,7 @@ class AppointmentServiceTest {
   private val prisonApiService: PrisonApiService = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
   private val recurringAppointmentRepository: RecurringAppointmentRepository = mock()
+  private val courtService: CourtService = mock()
   private val telemetryClient: TelemetryClient = mock()
 
   private lateinit var appointmentService: AppointmentService
@@ -47,6 +51,7 @@ class AppointmentServiceTest {
       prisonApiService,
       videoLinkBookingRepository,
       recurringAppointmentRepository,
+      courtService,
       telemetryClient
     )
   }
@@ -270,35 +275,35 @@ class AppointmentServiceTest {
     @BeforeEach
     fun beforeEach() {
       whenever(prisonApiService.getPrisonAppointment(anyLong())).thenReturn(
-        DataHelpers.makeAppointmentDto(bookingId = BOOKING_ID, startTime = START_TIME, endTime = END_TIME)
+        DataHelpers.makePrisonAppointment(bookingId = BOOKING_ID, startTime = START_TIME, endTime = END_TIME)
       )
       whenever(prisonApiService.getOffenderNoFromBookingId(any())).thenReturn(OFFENDER_NO)
     }
 
     @Test
     fun `make a call to the prison api to request core appointment details`() {
-      appointmentService.getAppointment(MAIN_APPOINTMENT_ID)
+      appointmentService.getAppointment(1)
 
-      verify(prisonApiService).getPrisonAppointment(MAIN_APPOINTMENT_ID)
+      verify(prisonApiService).getPrisonAppointment(1)
     }
 
     @Test
     fun `check to see if the appointment is a video link booking`() {
-      appointmentService.getAppointment(MAIN_APPOINTMENT_ID)
+      appointmentService.getAppointment(1)
 
-      verify(videoLinkBookingRepository).findByMainAppointmentIds(listOf(MAIN_APPOINTMENT_ID))
+      verify(videoLinkBookingRepository).findByMainAppointmentIds(listOf(1))
     }
 
     @Test
     fun `check to see if the appointment is a recurring one`() {
-      appointmentService.getAppointment(MAIN_APPOINTMENT_ID)
+      appointmentService.getAppointment(1)
 
-      verify(recurringAppointmentRepository).findById(MAIN_APPOINTMENT_ID)
+      verify(recurringAppointmentRepository).findRecurringAppointmentByAppointmentsContains(RelatedAppointment(1))
     }
 
     @Test
     fun `make a request to get the nomis prison number`() {
-      appointmentService.getAppointment(MAIN_APPOINTMENT_ID)
+      appointmentService.getAppointment(1)
 
       verify(prisonApiService).getOffenderNoFromBookingId(BOOKING_ID)
     }
@@ -308,13 +313,13 @@ class AppointmentServiceTest {
       whenever(prisonApiService.getPrisonAppointment(anyLong())).thenThrow(EntityNotFoundException::class.java)
 
       assertThrows(EntityNotFoundException::class.java) {
-        appointmentService.getAppointment(MAIN_APPOINTMENT_ID)
+        appointmentService.getAppointment(1)
       }
     }
 
     @Test
     fun `transform into appointment details`() {
-      val appointmentDetails = appointmentService.getAppointment(MAIN_APPOINTMENT_ID)
+      val appointmentDetails = appointmentService.getAppointment(1)
 
       assertThat(appointmentDetails.appointment)
         .extracting(
@@ -328,7 +333,7 @@ class AppointmentServiceTest {
           "comment"
         )
         .contains(
-          MAIN_APPOINTMENT_ID,
+          1L,
           AGENCY_ID,
           EVENT_LOCATION_ID,
           "INTERV",
@@ -342,12 +347,10 @@ class AppointmentServiceTest {
     @Test
     fun `transform into video link booking`() {
       whenever(videoLinkBookingRepository.findByMainAppointmentIds(any())).thenReturn(
-        listOf(
-          DataHelpers.makeVideoLinkBooking(1L)
-        )
+        listOf(DataHelpers.makeVideoLinkBooking(1L))
       )
 
-      val appointmentDetails = appointmentService.getAppointment(MAIN_APPOINTMENT_ID)
+      val appointmentDetails = appointmentService.getAppointment(1)
 
       assertThat(appointmentDetails.appointment)
         .extracting(
@@ -360,13 +363,13 @@ class AppointmentServiceTest {
           "endTime",
           "createUserId"
         )
-        .contains(MAIN_APPOINTMENT_ID, AGENCY_ID, EVENT_LOCATION_ID, "INTERV", OFFENDER_NO, START_TIME, END_TIME, "SA")
+        .contains(1L, AGENCY_ID, EVENT_LOCATION_ID, "INTERV", OFFENDER_NO, START_TIME, END_TIME, "SA")
 
       assertThat(appointmentDetails.videoLinkBooking?.id).isEqualTo(1L)
 
       assertThat(appointmentDetails.videoLinkBooking?.main)
         .extracting("id", "bookingId", "appointmentId", "court", "hearingType", "createdByUsername", "madeByTheCourt")
-        .contains(1L, BOOKING_ID, MAIN_APPOINTMENT_ID, "Court 1", HearingType.MAIN, "SA", true)
+        .contains(1L, BOOKING_ID, 1L, "Court 1", HearingType.MAIN, "SA", true)
 
       assertThat(appointmentDetails.videoLinkBooking?.pre)
         .extracting("id", "bookingId", "appointmentId", "court", "hearingType", "createdByUsername", "madeByTheCourt")
@@ -379,21 +382,74 @@ class AppointmentServiceTest {
 
     @Test
     fun `should transform into recurring appointment`() {
-      whenever(recurringAppointmentRepository.findById(anyLong())).thenReturn(
+      whenever(recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(any())).thenReturn(
         Optional.of(
-          MainRecurringAppointment(
+          RecurringAppointment(
             id = 1,
             repeatPeriod = RepeatPeriod.FORTNIGHTLY,
-            count = 1
+            count = 1,
           )
         )
       )
 
-      val appointmentDetails = appointmentService.getAppointment(MAIN_APPOINTMENT_ID)
+      val appointmentDetails = appointmentService.getAppointment(1)
 
       assertThat(appointmentDetails.recurring)
         .extracting("repeatPeriod", "count")
         .contains(RepeatPeriod.FORTNIGHTLY, 1L)
+    }
+
+    @Test
+    fun `should make a request to get the appointment details relating to the video link bookings`() {
+      reset(prisonApiService)
+
+      whenever(prisonApiService.getOffenderNoFromBookingId(any())).thenReturn(OFFENDER_NO)
+
+      whenever(prisonApiService.getPrisonAppointment(4L))
+        .thenReturn(
+          DataHelpers.makePrisonAppointment(
+            eventId = 4L,
+            startTime = LocalDateTime.parse("2020-10-12T20:00"),
+            endTime = LocalDateTime.parse("2020-10-12T21:00")
+          )
+        )
+
+      whenever(prisonApiService.getPrisonAppointment(2L))
+        .thenReturn(
+          DataHelpers.makePrisonAppointment(
+            eventId = 2L,
+            startTime = LocalDateTime.parse("2020-10-13T20:00"),
+            endTime = LocalDateTime.parse("2020-10-13T21:00")
+          )
+        )
+
+      whenever(prisonApiService.getPrisonAppointment(3L))
+        .thenReturn(
+          DataHelpers.makePrisonAppointment(
+            eventId = 3L,
+            startTime = LocalDateTime.parse("2020-10-14T20:00"),
+            endTime = LocalDateTime.parse("2020-10-14T21:00")
+          )
+        )
+
+      whenever(videoLinkBookingRepository.findByMainAppointmentIds(any())).thenReturn(
+        listOf(DataHelpers.makeVideoLinkBooking(4L))
+      )
+
+      val appointmentDetails = appointmentService.getAppointment(4L)
+
+      verify(prisonApiService).getPrisonAppointment(2L)
+      verify(prisonApiService).getPrisonAppointment(3L)
+      verify(prisonApiService).getPrisonAppointment(4L)
+
+      assertThat(appointmentDetails.videoLinkBooking?.main).extracting("startTime", "endTime")
+        .contains(LocalDateTime.parse("2020-10-12T20:00"), LocalDateTime.parse("2020-10-12T21:00"))
+
+      assertThat(appointmentDetails.videoLinkBooking?.pre).extracting("startTime", "endTime")
+        .contains(LocalDateTime.parse("2020-10-13T20:00"), LocalDateTime.parse("2020-10-13T21:00"))
+
+      assertThat(appointmentDetails.videoLinkBooking?.post).extracting("startTime", "endTime")
+        .contains(LocalDateTime.parse("2020-10-14T20:00"), LocalDateTime.parse("2020-10-14T21:00"))
     }
   }
 
@@ -406,7 +462,7 @@ class AppointmentServiceTest {
         .thenReturn(
           listOf(
             CreatedAppointmentDetailsDto(
-              appointmentEventId = MAIN_APPOINTMENT_ID,
+              appointmentEventId = 1,
               recurringAppointmentEventIds = listOf(1, 2, 3)
             )
           )
@@ -426,7 +482,7 @@ class AppointmentServiceTest {
       assertThat(appointmentDetails.appointmentEventId).isEqualTo(1)
 
       verify(prisonApiService).createAppointments(
-        DataHelpers.makePrisonAppointment(
+        DataHelpers.makeCreatePrisonAppointment(
           bookingId = BOOKING_ID,
           startTime = START_TIME,
           endTime = END_TIME
@@ -448,7 +504,7 @@ class AppointmentServiceTest {
       assertThat(appointmentDetails.appointmentEventId).isEqualTo(1)
 
       verify(prisonApiService).createAppointments(
-        DataHelpers.makePrisonAppointment(
+        DataHelpers.makeCreatePrisonAppointment(
           bookingId = BOOKING_ID,
           startTime = START_TIME,
           endTime = END_TIME,
@@ -469,11 +525,11 @@ class AppointmentServiceTest {
       )
 
       verify(recurringAppointmentRepository).save(
-        MainRecurringAppointment(
-          id = MAIN_APPOINTMENT_ID,
+        RecurringAppointment(
+          id = 1,
           repeatPeriod = RepeatPeriod.DAILY,
           count = 1,
-          recurringAppointments = listOf(RecurringAppointment(1), RecurringAppointment(2), RecurringAppointment(3))
+          relatedAppointments = listOf(RelatedAppointment(1), RelatedAppointment(2), RelatedAppointment(3))
         )
       )
     }
@@ -503,6 +559,109 @@ class AppointmentServiceTest {
     }
   }
 
+  @Nested
+  inner class DeleteAppointment {
+
+    @BeforeEach
+    fun beforeEach() {
+      whenever(prisonApiService.getPrisonAppointment(anyLong())).thenReturn(DataHelpers.makePrisonAppointment())
+    }
+
+    @Test
+    fun `should check to see if the appointment exists in nomis`() {
+      whenever(prisonApiService.getPrisonAppointment(2)).thenReturn(null)
+
+      assertThrows(EntityNotFoundException::class.java) {
+        appointmentService.deleteAppointment(2)
+      }
+    }
+
+    @Test
+    fun `should delete an appointment`() {
+      appointmentService.deleteAppointment(1L)
+      verify(prisonApiService).deleteAppointment(1L)
+    }
+
+    @Test
+    fun `should delete all recurring appointments`() {
+      whenever(recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(any())).thenReturn(
+        Optional.of(
+          RecurringAppointment(
+            id = 100,
+            repeatPeriod = RepeatPeriod.DAILY,
+            count = 2,
+            relatedAppointments = listOf(RelatedAppointment(2), RelatedAppointment(3))
+          )
+        )
+      )
+
+      appointmentService.deleteAppointment(2)
+
+      verify(prisonApiService).deleteAppointment(2)
+      verify(prisonApiService).deleteAppointment(3)
+      verify(recurringAppointmentRepository).deleteById(100)
+      verify(courtService, never()).deleteVideoLinkBooking(anyLong())
+    }
+
+    @Test
+    fun `should delete video link booking`() {
+      whenever(videoLinkBookingRepository.findByMainAppointmentIds(any())).thenReturn(
+        listOf(DataHelpers.makeVideoLinkBooking(1L))
+      )
+
+      appointmentService.deleteAppointment(1L)
+
+      verify(courtService).deleteVideoLinkBooking(1L)
+      verify(prisonApiService, never()).deleteAppointment(anyLong())
+      verify(recurringAppointmentRepository, never()).deleteById(anyLong())
+    }
+
+    @Test
+    fun `should raise a tracking event when deleting a recurring appointment`() {
+      whenever(recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(any())).thenReturn(
+        Optional.of(
+          RecurringAppointment(
+            id = 100,
+            repeatPeriod = RepeatPeriod.DAILY,
+            count = 2,
+            relatedAppointments = listOf(RelatedAppointment(2), RelatedAppointment(3))
+          )
+        )
+      )
+      appointmentService.deleteAppointment(100)
+
+      verify(telemetryClient).trackEvent(
+        "Recurring Appointment deleted",
+        mapOf(
+          "appointmentsDeleted" to "2"
+        ),
+        null
+      )
+    }
+
+    @Test
+    fun `should handle the situation where the appointment is not the main appointment id`() {
+
+      whenever(prisonApiService.getPrisonAppointment(3L)).thenReturn(DataHelpers.makePrisonAppointment())
+      whenever(recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(any())).thenReturn(
+        Optional.of(
+          RecurringAppointment(
+            id = 100,
+            repeatPeriod = RepeatPeriod.DAILY,
+            count = 2,
+            relatedAppointments = listOf(RelatedAppointment(2), RelatedAppointment(3L))
+          )
+        )
+      )
+
+      appointmentService.deleteAppointment(3L)
+
+      verify(prisonApiService).deleteAppointment(2L)
+      verify(prisonApiService).deleteAppointment(3L)
+      verify(recurringAppointmentRepository).deleteById(100)
+    }
+  }
+
   companion object {
     private val DATE = LocalDate.of(2021, 1, 1)
     private val TIME_SLOT = TimePeriod.ED
@@ -511,7 +670,6 @@ class AppointmentServiceTest {
 
     private val START_TIME = LocalDateTime.parse("2020-10-10T20:01")
     private val END_TIME = LocalDateTime.parse("2020-10-10T21:01")
-    private const val MAIN_APPOINTMENT_ID = 1L
     private const val EVENT_LOCATION_ID = 1L
     private const val OFFENDER_NO = "A12345"
     private const val AGENCY_ID = "MDI"

@@ -5,12 +5,12 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
-import uk.gov.justice.digital.hmpps.whereabouts.model.MainRecurringAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RecurringAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.RelatedAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
 
 @DataJpaTest
-class MainRecurringAppointmentRepositoryTest {
+class MainAppointmentRepositoryTest {
 
   @Autowired
   lateinit var entityManager: TestEntityManager
@@ -19,24 +19,22 @@ class MainRecurringAppointmentRepositoryTest {
   lateinit var recurringAppointmentRepository: RecurringAppointmentRepository
 
   @Test
-  fun `can retrieve main recurring appointment`() {
-
+  fun `find main appointment using child recurring appointment id`() {
     val recurringAppointmentBookingId = entityManager.persist(
-      MainRecurringAppointment(
-        id = 1,
+      RecurringAppointment(
         repeatPeriod = RepeatPeriod.FORTNIGHTLY, count = 1,
-        recurringAppointments = listOf(
-          RecurringAppointment(1)
+        relatedAppointments = listOf(
+          RelatedAppointment(2), RelatedAppointment(3)
         )
       )
     ).id
 
-    val latest = recurringAppointmentRepository.findById(recurringAppointmentBookingId).orElseThrow()
+    val mainAppointment = recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(
+      RelatedAppointment(3L)
+    ).orElseThrow()
 
-    assertThat(latest)
+    assertThat(mainAppointment)
       .extracting("id", "repeatPeriod", "count")
       .contains(recurringAppointmentBookingId, RepeatPeriod.FORTNIGHTLY, 1L)
-
-    assertThat(latest.recurringAppointments).containsExactlyElementsOf(listOf(RecurringAppointment(1L)))
   }
 }

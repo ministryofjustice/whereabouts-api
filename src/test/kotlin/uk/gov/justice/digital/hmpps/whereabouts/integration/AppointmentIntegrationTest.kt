@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
+import com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
@@ -8,10 +9,9 @@ import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anyLong
 import org.springframework.boot.test.mock.mockito.MockBean
-import uk.gov.justice.digital.hmpps.whereabouts.model.MainRecurringAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RecurringAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.RelatedAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.RecurringAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
@@ -40,7 +40,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
       prisonApiMockServer.stubGetPrisonAppointment(
         APPOINTMENT_ID,
         objectMapper.writeValueAsString(
-          DataHelpers.makePrisonAppointment(
+          DataHelpers.makeCreatePrisonAppointment(
             appointmentId = APPOINTMENT_ID,
             startTime = START_TIME,
             endTime = END_TIME
@@ -78,13 +78,13 @@ class AppointmentIntegrationTest : IntegrationTest() {
 
     @Test
     fun `should return recurring appointment information`() {
-      whenever(recurringAppointmentRepository.findById(anyLong())).thenReturn(
+      whenever(recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(any())).thenReturn(
         Optional.of(
-          MainRecurringAppointment(
+          RecurringAppointment(
             id = 1,
             repeatPeriod = RepeatPeriod.FORTNIGHTLY,
             count = 10,
-            recurringAppointments = listOf(RecurringAppointment(1))
+            relatedAppointments = listOf(RelatedAppointment(1))
           )
         )
       )
@@ -176,6 +176,28 @@ class AppointmentIntegrationTest : IntegrationTest() {
       repeatPeriod?.let { appointmentMap.set("repeat", mapOf("repeatPeriod" to repeatPeriod, "count" to count)) }
 
       return appointmentMap
+    }
+  }
+
+  @Nested
+  inner class DeleteAppointment {
+    @Test
+    fun `should delete an appointment`() {
+      prisonApiMockServer.stubGetPrisonAppointment(
+        APPOINTMENT_ID,
+        objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = APPOINTMENT_ID))
+      )
+      prisonApiMockServer.stubDeleteAppointment(APPOINTMENT_ID, 200)
+
+      webTestClient.delete()
+        .uri("/appointment/$APPOINTMENT_ID")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
+
+      prisonApiMockServer.verify(
+        deleteRequestedFor(urlEqualTo("/api/appointments/$APPOINTMENT_ID"))
+      )
     }
   }
 
