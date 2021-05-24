@@ -442,14 +442,14 @@ class AppointmentServiceTest {
       verify(prisonApiService).getPrisonAppointment(3L)
       verify(prisonApiService).getPrisonAppointment(4L)
 
-      assertThat(appointmentDetails.videoLinkBooking?.main).extracting("startTime", "endTime")
-        .contains(LocalDateTime.parse("2020-10-12T20:00"), LocalDateTime.parse("2020-10-12T21:00"))
+      assertThat(appointmentDetails.videoLinkBooking?.main).extracting("startTime", "endTime", "locationId")
+        .contains(LocalDateTime.parse("2020-10-12T20:00"), LocalDateTime.parse("2020-10-12T21:00"), 1L)
 
-      assertThat(appointmentDetails.videoLinkBooking?.pre).extracting("startTime", "endTime")
-        .contains(LocalDateTime.parse("2020-10-13T20:00"), LocalDateTime.parse("2020-10-13T21:00"))
+      assertThat(appointmentDetails.videoLinkBooking?.pre).extracting("startTime", "endTime", "locationId")
+        .contains(LocalDateTime.parse("2020-10-13T20:00"), LocalDateTime.parse("2020-10-13T21:00"), 1L)
 
-      assertThat(appointmentDetails.videoLinkBooking?.post).extracting("startTime", "endTime")
-        .contains(LocalDateTime.parse("2020-10-14T20:00"), LocalDateTime.parse("2020-10-14T21:00"))
+      assertThat(appointmentDetails.videoLinkBooking?.post).extracting("startTime", "endTime", "locationId")
+        .contains(LocalDateTime.parse("2020-10-14T20:00"), LocalDateTime.parse("2020-10-14T21:00"), 1L)
     }
   }
 
