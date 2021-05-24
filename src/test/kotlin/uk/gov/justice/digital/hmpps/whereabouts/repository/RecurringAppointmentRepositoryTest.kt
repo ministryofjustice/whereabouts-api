@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.RelatedAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
 
 @DataJpaTest
-class MainAppointmentRepositoryTest {
+class RecurringAppointmentRepositoryTest {
 
   @Autowired
   lateinit var entityManager: TestEntityManager
@@ -29,7 +29,7 @@ class MainAppointmentRepositoryTest {
       )
     ).id
 
-    val mainAppointment = recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(
+    val mainAppointment = recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(
       RelatedAppointment(3L)
     ).orElseThrow()
 

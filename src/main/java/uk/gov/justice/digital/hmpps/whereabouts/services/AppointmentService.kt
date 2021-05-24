@@ -84,7 +84,11 @@ class AppointmentService(
       videoLinkBookingRepository.findByMainAppointmentIds(listOf(appointmentId)).firstOrNull()
 
     val recurringAppointment: RecurringAppointment? =
-      recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(RelatedAppointment(appointmentId))
+      recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(
+        RelatedAppointment(
+          appointmentId
+        )
+      )
         .orElse(null)
 
     return AppointmentDetailsDto(
@@ -133,7 +137,11 @@ class AppointmentService(
     }
 
     val recurringAppointment: RecurringAppointment? =
-      recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(RelatedAppointment(appointmentId))
+      recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(
+        RelatedAppointment(
+          appointmentId
+        )
+      )
         .orElse(null)
 
     if (recurringAppointment == null) {

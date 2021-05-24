@@ -298,7 +298,7 @@ class AppointmentServiceTest {
     fun `check to see if the appointment is a recurring one`() {
       appointmentService.getAppointment(1)
 
-      verify(recurringAppointmentRepository).findRecurringAppointmentByAppointmentsContains(RelatedAppointment(1))
+      verify(recurringAppointmentRepository).findRecurringAppointmentByRelatedAppointmentsContains(RelatedAppointment(1))
     }
 
     @Test
@@ -382,7 +382,7 @@ class AppointmentServiceTest {
 
     @Test
     fun `should transform into recurring appointment`() {
-      whenever(recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(any())).thenReturn(
+      whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
         Optional.of(
           RecurringAppointment(
             id = 1,
@@ -584,7 +584,7 @@ class AppointmentServiceTest {
 
     @Test
     fun `should delete all recurring appointments`() {
-      whenever(recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(any())).thenReturn(
+      whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
         Optional.of(
           RecurringAppointment(
             id = 100,
@@ -618,7 +618,7 @@ class AppointmentServiceTest {
 
     @Test
     fun `should raise a tracking event when deleting a recurring appointment`() {
-      whenever(recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(any())).thenReturn(
+      whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
         Optional.of(
           RecurringAppointment(
             id = 100,
@@ -643,7 +643,7 @@ class AppointmentServiceTest {
     fun `should return the recurring appointment by passing any in of the related appointment ids`() {
 
       whenever(prisonApiService.getPrisonAppointment(3L)).thenReturn(DataHelpers.makePrisonAppointment())
-      whenever(recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(any())).thenReturn(
+      whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
         Optional.of(
           RecurringAppointment(
             id = 100,

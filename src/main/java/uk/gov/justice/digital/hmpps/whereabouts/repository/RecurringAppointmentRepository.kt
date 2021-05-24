@@ -6,5 +6,5 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.RelatedAppointment
 import java.util.Optional
 
 interface RecurringAppointmentRepository : CrudRepository<RecurringAppointment, Long> {
-  fun findRecurringAppointmentByAppointmentsContains(relatedAppointment: RelatedAppointment): Optional<RecurringAppointment>
+  fun findRecurringAppointmentByRelatedAppointmentsContains(relatedAppointment: RelatedAppointment): Optional<RecurringAppointment>
 }

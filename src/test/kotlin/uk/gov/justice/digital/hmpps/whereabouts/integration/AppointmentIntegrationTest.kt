@@ -78,7 +78,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
 
     @Test
     fun `should return recurring appointment information`() {
-      whenever(recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(any())).thenReturn(
+      whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
         Optional.of(
           RecurringAppointment(
             id = 1,
