@@ -290,7 +290,7 @@ class CourtService(
   }
 
   private fun VideoLinkBookingSpecification.validate() {
-    if ((court == null || court.isBlank()) && (courtId == null || courtId.isBlank()))
+    if ((court.isNullOrBlank()) && (courtId.isNullOrBlank()))
       throw ValidationException("One of court or courtId must be specified")
 
     main.validate("Main")
