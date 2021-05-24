@@ -25,7 +25,8 @@ data class VideoLinkAppointment(
   @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
   val bookingId: Long,
   val appointmentId: Long,
-  val court: String,
+  val court: String? = null,
+  val courtId: String? = null,
 
   @Enumerated(EnumType.STRING)
   val hearingType: HearingType,
@@ -33,4 +34,6 @@ data class VideoLinkAppointment(
   @CreatedBy
   var createdByUsername: String? = null,
   val madeByTheCourt: Boolean? = true
-)
+) {
+  fun chooseCourtName(): String = this.court ?: this.courtId ?: "Unknown"
+}

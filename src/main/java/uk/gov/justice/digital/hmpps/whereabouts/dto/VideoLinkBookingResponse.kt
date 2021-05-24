@@ -19,11 +19,18 @@ data class VideoLinkBookingResponse(
   val agencyId: String,
 
   @ApiModelProperty(
-    value = "The location of the court that requires the appointment",
+    value = "The name of the court that requires the appointment. May be a place-holder",
     example = "York Crown Court",
-    required = true
+    required = true,
   )
   val court: String,
+
+  @ApiModelProperty(
+    value = "The identifier for the court that requires the appointment. If present this will be one of the identifier values from the courts register service.",
+    example = "CMBGMC",
+    required = false
+  )
+  val courtId: String?,
 
   @ApiModelProperty(value = "Free text comments", example = "Requires special access")
   val comment: String? = null,
@@ -47,7 +54,11 @@ data class VideoLinkBookingResponse(
     @ApiModelProperty(value = "Start Time. ISO-8601 date-time format", example = "2020-12-23T09:00:00", required = true)
     val startTime: LocalDateTime,
 
-    @ApiModelProperty(value = "Finish Time. ISO-8601 date-time format", example = "2020-12-23T09:30:00", required = true)
+    @ApiModelProperty(
+      value = "Finish Time. ISO-8601 date-time format",
+      example = "2020-12-23T09:30:00",
+      required = true
+    )
     val endTime: LocalDateTime
   )
 }

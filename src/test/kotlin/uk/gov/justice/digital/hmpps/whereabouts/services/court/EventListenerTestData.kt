@@ -15,14 +15,15 @@ class EventListenerTestData private constructor() {
 
     val booking = VideoLinkBooking(
       id = 11,
-      pre = VideoLinkAppointment(120L, -1L, 12L, "York Crown Court", hearingType = HearingType.PRE, createdByUsername = "A_USER", madeByTheCourt = true),
-      main = VideoLinkAppointment(130L, 1L, 13L, "York Crown Court", hearingType = HearingType.MAIN, createdByUsername = "A_USER", madeByTheCourt = true),
-      post = VideoLinkAppointment(140L, -1L, 14L, "York Crown Court", hearingType = HearingType.POST, createdByUsername = "A_USER", madeByTheCourt = true),
+      pre = VideoLinkAppointment(120L, -1L, 12L, "York Crown Court", "TSTCRT", hearingType = HearingType.PRE, createdByUsername = "A_USER", madeByTheCourt = true),
+      main = VideoLinkAppointment(130L, 1L, 13L, "York Crown Court", "TSTCRT", hearingType = HearingType.MAIN, createdByUsername = "A_USER", madeByTheCourt = true),
+      post = VideoLinkAppointment(140L, -1L, 14L, "York Crown Court", "TSTCRT", hearingType = HearingType.POST, createdByUsername = "A_USER", madeByTheCourt = true),
     )
 
     val createSpecification = VideoLinkBookingSpecification(
       bookingId = 1L,
       court = "York Crown Court",
+      courtId = "TSTCRT",
       comment = "Comment",
       madeByTheCourt = true,
       pre = VideoLinkAppointmentSpecification(

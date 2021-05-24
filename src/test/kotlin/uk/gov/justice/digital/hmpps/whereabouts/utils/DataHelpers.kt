@@ -35,7 +35,8 @@ class DataHelpers {
       id: Long,
       bookingId: Long = -1L,
       appointmentId: Long,
-      court: String = "Court 1",
+      court: String? = "Court 1",
+      courtId: String? = "TSTCRT",
       hearingType: HearingType,
       createdByUsername: String = "SA",
       madeByTheCourt: Boolean = true
@@ -44,6 +45,7 @@ class DataHelpers {
       bookingId = bookingId,
       appointmentId = appointmentId,
       court = court,
+      courtId = courtId,
       hearingType = hearingType,
       createdByUsername = createdByUsername,
       madeByTheCourt = madeByTheCourt

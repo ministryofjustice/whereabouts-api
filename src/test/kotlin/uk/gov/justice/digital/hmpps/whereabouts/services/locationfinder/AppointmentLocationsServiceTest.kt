@@ -236,6 +236,7 @@ class AppointmentLocationsServiceTest {
               id = 1L,
               bookingId = 9999L,
               court = "Don't care",
+              courtId = "XXXX",
               hearingType = HearingType.MAIN
             )
           ),
@@ -246,6 +247,7 @@ class AppointmentLocationsServiceTest {
               id = 2L,
               bookingId = 9999L,
               court = "Don't care",
+              courtId = "XXXX",
               hearingType = HearingType.MAIN
             ),
             pre = VideoLinkAppointment(
@@ -253,6 +255,7 @@ class AppointmentLocationsServiceTest {
               id = 3L,
               bookingId = 9999L,
               court = "Don't care",
+              courtId = "XXXX",
               hearingType = HearingType.PRE
             ),
             post = VideoLinkAppointment(
@@ -260,6 +263,7 @@ class AppointmentLocationsServiceTest {
               id = 4L,
               bookingId = 9999L,
               court = "Don't care",
+              courtId = "XXXX",
               hearingType = HearingType.POST
             ),
           )

@@ -53,6 +53,7 @@ class VideoLinkBookingRepositoryTest(
         bookingId = 1,
         appointmentId = 2,
         court = "A Court",
+        courtId = "TSTCRT",
         hearingType = HearingType.MAIN,
         madeByTheCourt = true
       )
@@ -89,13 +90,15 @@ class VideoLinkBookingRepositoryTest(
         bookingId = 1,
         appointmentId = 12,
         court = "A Court",
+        courtId = "TSTCRT",
         hearingType = HearingType.PRE,
         madeByTheCourt = true
       ),
       post = VideoLinkAppointment(
         bookingId = 1,
         appointmentId = 22,
-        court = "A Court",
+        court = null,
+        courtId = "TSTCRT",
         hearingType = HearingType.POST,
         madeByTheCourt = true
       ),
@@ -322,6 +325,7 @@ class VideoLinkBookingRepositoryTest(
           bookingId = it * 100L,
           appointmentId = it,
           court = "Court",
+          courtId = "TSTCRT",
           hearingType = HearingType.MAIN,
           madeByTheCourt = true
         )

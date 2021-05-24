@@ -56,7 +56,8 @@ class CourtService(
           bookingId = it.bookingId,
           appointmentId = it.appointmentId,
           hearingType = it.hearingType,
-          court = it.court,
+          court = it.chooseCourtName(),
+          courtId = it.courtId,
           createdByUsername = it.createdByUsername,
           madeByTheCourt = it.madeByTheCourt
         )
@@ -110,12 +111,14 @@ class CourtService(
     val postEvent = specification.post?.let { savePrisonAppointment(bookingId, comment, it) }
 
     val court = booking.main.court
+    val courtId = booking.main.courtId
     val madeByTheCourt = booking.main.madeByTheCourt
 
     booking.main = VideoLinkAppointment(
       bookingId = bookingId,
       appointmentId = mainEvent.eventId,
       court = court,
+      courtId = courtId,
       hearingType = HearingType.MAIN,
       madeByTheCourt = madeByTheCourt
     )
@@ -125,6 +128,7 @@ class CourtService(
         bookingId = bookingId,
         appointmentId = it.eventId,
         court = court,
+        courtId = courtId,
         hearingType = HearingType.PRE,
         madeByTheCourt = madeByTheCourt
       )
@@ -135,6 +139,7 @@ class CourtService(
         bookingId = bookingId,
         appointmentId = it.eventId,
         court = court,
+        courtId = courtId,
         hearingType = HearingType.POST,
         madeByTheCourt = madeByTheCourt
       )
@@ -168,6 +173,7 @@ class CourtService(
       bookingId = specification.bookingId!!,
       appointmentId = id,
       court = specification.court,
+      courtId = specification.courtId,
       hearingType = type,
       madeByTheCourt = specification.madeByTheCourt
     )
@@ -186,7 +192,8 @@ class CourtService(
       videoLinkBookingId = videoBookingId,
       bookingId = booking.main.bookingId,
       agencyId = mainEvent.agencyId,
-      court = booking.main.court,
+      court = booking.main.chooseCourtName(),
+      courtId = booking.main.courtId,
       comment = mainEvent.comment,
       pre = preEvent?.let {
         VideoLinkBookingResponse.LocationTimeslot(
@@ -226,7 +233,8 @@ class CourtService(
   fun getVideoLinkBookingsForPrisonAndDateAndCourt(
     agencyId: String,
     date: LocalDate,
-    court: String?
+    court: String?,
+    courtId: String?
   ): List<VideoLinkBookingResponse> {
     val scheduledAppointments = prisonApiService
       .getScheduledAppointments(agencyId, date)
@@ -240,7 +248,7 @@ class CourtService(
 
     return bookings
       .filter { scheduledAppointmentsById.containsKey(it.main.appointmentId) }
-      .filter { if (court == null) true else it.main.court == court }
+      .filter { it.matchesCourt(court, courtId) }
       .filter { hasAnEndDate(scheduledAppointmentsById[it.main.appointmentId]!!) }
       .map { b ->
         val prisonMain = scheduledAppointmentsById[b.main.appointmentId]!!
@@ -248,7 +256,8 @@ class CourtService(
           videoLinkBookingId = b.id!!,
           bookingId = b.main.bookingId,
           agencyId = prisonMain.agencyId,
-          court = b.main.court,
+          court = b.main.chooseCourtName(),
+          courtId = b.main.courtId,
           main = toVideoLinkAppointmentDto(prisonMain)!!,
           pre = toVideoLinkAppointmentDto(scheduledAppointmentsById[b.pre?.appointmentId]),
           post = toVideoLinkAppointmentDto(scheduledAppointmentsById[b.post?.appointmentId])
@@ -281,6 +290,9 @@ class CourtService(
   }
 
   private fun VideoLinkBookingSpecification.validate() {
+    if ((court.isNullOrBlank()) && (courtId.isNullOrBlank()))
+      throw ValidationException("One of court or courtId must be specified")
+
     main.validate("Main")
     pre?.validate("Pre")
     post?.validate("Post")
