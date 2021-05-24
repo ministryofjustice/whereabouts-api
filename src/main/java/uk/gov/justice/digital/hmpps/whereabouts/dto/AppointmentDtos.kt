@@ -8,7 +8,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
 import java.time.LocalDateTime
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class CourtLocationResponse(val courtLocations: Set<String>? = emptySet())
+data class CourtLocationsResponse(val courtLocations: Set<String>? = emptySet())
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class CourtIdsResponse(val courtIds: Set<String>? = emptySet())

@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
@@ -13,9 +13,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.model.Court
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
+import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
@@ -30,20 +32,21 @@ const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
 @Service
 class CourtService(
   private val prisonApiService: PrisonApiService,
+  private val courtRepository: CourtRepository,
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val clock: Clock,
-  private val videoLinkBookingEventListener: VideoLinkBookingEventListener,
-  @Value("\${courts}") private val courts: String,
-  @Value("\${courtIds}") private val courtIds: String,
+  private val videoLinkBookingEventListener: VideoLinkBookingEventListener
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getCourtLocations() = courts.split(",").toSet()
+  @Transactional(readOnly = true)
+  fun getCourtLocations() = courtRepository.findAll().map { it.name }.toSet()
 
-  fun getCourtIds() = courtIds.split(",").toSet()
+  @Transactional(readOnly = true)
+  fun getCourts(): List<Court> = courtRepository.findAll(Sort.by("name"))
 
   @Transactional(readOnly = true)
   fun getVideoLinkAppointments(appointmentIds: Set<Long>): Set<VideoLinkAppointmentDto> {
