@@ -157,10 +157,18 @@ data class VideoLinkAppointmentDto(
   @ApiModelProperty(value = "Appointment id, maps to nomis event id", example = "1")
   val appointmentId: Long,
 
-  @ApiModelProperty(value = "The name of the court that requires the appointment", example = "York Crown Court")
+  @ApiModelProperty(
+    value = "The name of the court that requires the appointment",
+    example = "York Crown Court",
+    notes = "At least one of court or courtId will be returned"
+  )
   val court: String,
 
-  @ApiModelProperty(value = "The identifier of the court that requires the appointment. If present this will be one of the identifier values from the courts register service.", example = "CMBGMC")
+  @ApiModelProperty(
+    value = "The identifier of the court that requires the appointment. If present this will be one of the identifier values from the courts register service.",
+    example = "CMBGMC",
+    notes = "At least one of court or courtId will be returned"
+  )
   val courtId: String?,
 
   @ApiModelProperty(value = "Type of court hearing", example = "MAIN, PRE , POST")
