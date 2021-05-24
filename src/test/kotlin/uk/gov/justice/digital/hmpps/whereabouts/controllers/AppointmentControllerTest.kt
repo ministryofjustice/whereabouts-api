@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
@@ -172,6 +173,22 @@ class AppointmentControllerTest : TestController() {
       repeatPeriod?.let { fields.set("repeat", mapOf("repeatPeriod" to repeatPeriod, "count" to count)) }
 
       return objectMapper.writeValueAsString(fields)
+    }
+  }
+
+  @Nested
+  inner class DeleteAppointment {
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `should delete an appointment`() {
+      mockMvc.perform(
+        delete("/appointment/$APPOINTMENT_ID")
+          .contentType(MediaType.APPLICATION_JSON)
+      )
+        .andDo(print())
+        .andExpect(status().isOk)
+
+      verify(appointmentService).deleteAppointment(APPOINTMENT_ID)
     }
   }
 

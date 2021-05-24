@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -68,4 +69,25 @@ class AppointmentController(private val appointmentService: AppointmentService) 
   )
   fun createAppointment(@RequestBody createAppointmentSpecification: CreateAppointmentSpecification): CreatedAppointmentDetailsDto =
     appointmentService.createAppointment(createAppointmentSpecification)
+
+  @DeleteMapping(path = ["/{id}"])
+  @ApiOperation(
+    value = "Delete an appointment",
+    nickname = "deleteAppointment"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        code = 404,
+        message = "Appointment not found.",
+        response = ErrorResponse::class,
+      ),
+      ApiResponse(
+        code = 500,
+        message = "Unrecoverable error occurred whilst processing request.",
+        response = ErrorResponse::class,
+      )
+    ]
+  )
+  fun deleteAppointment(@PathVariable(value = "id") id: Long) = appointmentService.deleteAppointment(id)
 }

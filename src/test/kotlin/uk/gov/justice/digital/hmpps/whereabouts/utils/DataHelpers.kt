@@ -51,7 +51,7 @@ class DataHelpers {
       madeByTheCourt = madeByTheCourt
     )
 
-    fun makePrisonAppointment(
+    fun makeCreatePrisonAppointment(
       appointmentId: Long,
       startTime: LocalDateTime = LocalDateTime.now(),
       endTime: LocalDateTime = LocalDateTime.now(),
@@ -73,7 +73,7 @@ class DataHelpers {
       createUserId = createUserId
     )
 
-    fun makeAppointmentDto(
+    fun makePrisonAppointment(
       eventId: Long = 1L,
       eventSubType: String = "INTERV",
       startTime: LocalDateTime = LocalDateTime.now(),
@@ -113,7 +113,7 @@ class DataHelpers {
       repeat = repeat
     )
 
-    fun makePrisonAppointment(
+    fun makeCreatePrisonAppointment(
       bookingId: Long = -1,
       appointmentType: String = "ABC",
       locationId: Long = 1,
