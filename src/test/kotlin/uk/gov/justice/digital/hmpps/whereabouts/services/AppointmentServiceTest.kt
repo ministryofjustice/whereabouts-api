@@ -640,7 +640,7 @@ class AppointmentServiceTest {
     }
 
     @Test
-    fun `should handle the situation where the appointment is not the main appointment id`() {
+    fun `should return the recurring appointment by passing any in of the related appointment ids`() {
 
       whenever(prisonApiService.getPrisonAppointment(3L)).thenReturn(DataHelpers.makePrisonAppointment())
       whenever(recurringAppointmentRepository.findRecurringAppointmentByAppointmentsContains(any())).thenReturn(
