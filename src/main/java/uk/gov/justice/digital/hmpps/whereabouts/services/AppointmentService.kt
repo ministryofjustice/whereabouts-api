@@ -246,20 +246,23 @@ private fun makeVideoLinkBookingAppointmentDto(
     main = makeVideoLinkAppointmentDto(
       videoLinkBooking.main,
       startTime = mainAppointmentDetails?.startTime,
-      endTime = mainAppointmentDetails?.endTime
+      endTime = mainAppointmentDetails?.endTime,
+      locationId = mainAppointmentDetails?.eventLocationId
     ),
     pre = videoLinkBooking.pre?.let {
       makeVideoLinkAppointmentDto(
         it,
         startTime = preAppointmentDetails?.startTime,
-        endTime = preAppointmentDetails?.endTime
+        endTime = preAppointmentDetails?.endTime,
+        locationId = preAppointmentDetails?.eventLocationId
       )
     },
     post = videoLinkBooking.post?.let {
       makeVideoLinkAppointmentDto(
         it,
         startTime = postAppointmentDetails?.startTime,
-        endTime = postAppointmentDetails?.endTime
+        endTime = postAppointmentDetails?.endTime,
+        locationId = postAppointmentDetails?.eventLocationId
       )
     }
   )
@@ -268,6 +271,7 @@ private fun makeVideoLinkAppointmentDto(
   videoLinkAppointment: VideoLinkAppointment,
   startTime: LocalDateTime? = null,
   endTime: LocalDateTime? = null,
+  locationId: Long? = null
 ): VideoLinkAppointmentDto =
   VideoLinkAppointmentDto(
     id = videoLinkAppointment.id!!,
@@ -278,7 +282,8 @@ private fun makeVideoLinkAppointmentDto(
     createdByUsername = videoLinkAppointment.createdByUsername,
     madeByTheCourt = videoLinkAppointment.madeByTheCourt,
     startTime = startTime,
-    endTime = endTime
+    endTime = endTime,
+    locationId = locationId
   )
 
 private fun makeRecurringAppointmentDto(recurringAppointment: RecurringAppointment): RecurringAppointmentDto =

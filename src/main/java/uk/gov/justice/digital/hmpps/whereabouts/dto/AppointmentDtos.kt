@@ -164,10 +164,12 @@ data class VideoLinkAppointmentDto(
   val createdByUsername: String?,
   @ApiModelProperty(value = "Determines if the appointment was made by the court")
   val madeByTheCourt: Boolean? = true,
-  @ApiModelProperty(required = true, value = "When the appointment is scheduled to start", example = "2020-12-23T10:00")
+  @ApiModelProperty(value = "When the appointment is scheduled to start", example = "2020-12-23T10:00")
   val startTime: LocalDateTime? = null,
-  @ApiModelProperty(required = false, value = "When the appointment is scheduled to end", example = "2020-12-24T10:00")
+  @ApiModelProperty(value = "When the appointment is scheduled to end", example = "2020-12-24T10:00")
   val endTime: LocalDateTime? = null,
+  @ApiModelProperty(value = "The location id of where the appointment will take place")
+  val locationId: Long? = null,
 )
 
 @ApiModel(description = "Recurring appointment")
