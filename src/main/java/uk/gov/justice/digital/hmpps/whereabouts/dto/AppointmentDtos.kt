@@ -159,15 +159,13 @@ data class VideoLinkAppointmentDto(
 
   @ApiModelProperty(
     value = "The name of the court that requires the appointment",
-    example = "York Crown Court",
-    notes = "At least one of court or courtId will be returned"
+    example = "York Crown Court"
   )
   val court: String,
 
   @ApiModelProperty(
     value = "The identifier of the court that requires the appointment. If present this will be one of the identifier values from the courts register service.",
-    example = "CMBGMC",
-    notes = "At least one of court or courtId will be returned"
+    example = "CMBGMC"
   )
   val courtId: String?,
 
