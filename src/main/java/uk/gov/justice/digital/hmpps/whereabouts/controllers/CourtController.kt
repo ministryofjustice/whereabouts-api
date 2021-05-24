@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtIdsResponse
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtLocationResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtLocationsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.model.Court
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsSpecification
@@ -44,19 +44,18 @@ class CourtController(
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation(
     value = "All court locations",
-    response = CourtLocationResponse::class,
+    response = CourtLocationsResponse::class,
     notes = "Return all court locations"
   )
-  fun getCourtLocations() = CourtLocationResponse(courtLocations = courtService.getCourtLocations())
+  fun getCourtLocations() = CourtLocationsResponse(courtLocations = courtService.getCourtLocations())
 
-  @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/ids"])
+  @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/courts"])
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation(
-    value = "Court Ids",
-    response = CourtIdsResponse::class,
-    notes = "Return court Ids"
+    value = "All courts",
+    notes = "Return information about all courts."
   )
-  fun getCourtIds() = CourtIdsResponse(courtIds = courtService.getCourtIds())
+  fun getCourts(): List<Court> = courtService.getCourts()
 
   @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-appointments"])
   @ResponseStatus(HttpStatus.OK)

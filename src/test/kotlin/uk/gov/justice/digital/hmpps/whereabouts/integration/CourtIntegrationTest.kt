@@ -36,14 +36,29 @@ class CourtIntegrationTest : IntegrationTest() {
   val referenceTime: LocalDateTime = tomorrow.plusHours(9)
 
   @Test
-  fun `should list all courts`() {
+  fun `should list all court names`() {
     webTestClient.get()
       .uri("/court/all-courts")
       .headers(setHeaders())
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .json(loadJsonFile("courtLocations.json"))
+      .jsonPath("$.courtLocations.[0]").hasJsonPath()
+      .jsonPath("$.courtLocations.[50]").hasJsonPath()
+  }
+
+  @Test
+  fun `should list all courts`() {
+    webTestClient.get()
+      .uri("/court/courts")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.[0].name").hasJsonPath()
+      .jsonPath("$.[0].id").hasJsonPath()
+      .jsonPath("$.[50].name").hasJsonPath()
+      .jsonPath("$.[50].id").hasJsonPath()
   }
 
   @Nested
