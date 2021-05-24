@@ -17,15 +17,17 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto
-import uk.gov.justice.digital.hmpps.whereabouts.model.MainRecurringAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RecurringAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.RelatedAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.RecurringAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.EntityNotFoundException
 import javax.transaction.Transactional
 
@@ -34,6 +36,7 @@ class AppointmentService(
   private val prisonApiService: PrisonApiService,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val recurringAppointmentRepository: RecurringAppointmentRepository,
+  private val courtService: CourtService,
   private val telemetryClient: TelemetryClient
 ) {
 
@@ -72,21 +75,31 @@ class AppointmentService(
 
   @Transactional
   fun getAppointment(appointmentId: Long): AppointmentDetailsDto {
-    val prisonAppointment: PrisonAppointment = prisonApiService.getPrisonAppointment(appointmentId)
+    val mainAppointmentDetails: PrisonAppointment = prisonApiService.getPrisonAppointment(appointmentId)
       ?: throw EntityNotFoundException("Appointment $appointmentId does not exist")
 
-    val offenderNo = prisonApiService.getOffenderNoFromBookingId(prisonAppointment.bookingId)
+    val offenderNo = prisonApiService.getOffenderNoFromBookingId(mainAppointmentDetails.bookingId)
 
     val videoLinkBooking: VideoLinkBooking? =
       videoLinkBookingRepository.findByMainAppointmentIds(listOf(appointmentId)).firstOrNull()
 
-    val mainRecurringAppointment: MainRecurringAppointment? =
-      recurringAppointmentRepository.findById(appointmentId).orElse(null)
+    val recurringAppointment: RecurringAppointment? =
+      recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(
+        RelatedAppointment(
+          appointmentId
+        )
+      )
+        .orElse(null)
 
     return AppointmentDetailsDto(
-      appointment = makeAppointmentDto(offenderNo, prisonAppointment),
-      videoLinkBooking = videoLinkBooking?.let { makeVideoLinkBookingAppointmentDto(it) },
-      recurring = mainRecurringAppointment?.let { makeRecurringAppointmentDto(it) }
+      appointment = makeAppointmentDto(offenderNo, mainAppointmentDetails),
+      videoLinkBooking = videoLinkBooking?.let {
+        val preAppointmentDetails = it.pre?.let { pre -> prisonApiService.getPrisonAppointment(pre.appointmentId) }
+        val postAppointmentDetails = it.post?.let { post -> prisonApiService.getPrisonAppointment(post.appointmentId) }
+
+        makeVideoLinkBookingAppointmentDto(it, mainAppointmentDetails, preAppointmentDetails, postAppointmentDetails)
+      },
+      recurring = recurringAppointment?.let { makeRecurringAppointmentDto(it) }
     )
   }
 
@@ -101,29 +114,67 @@ class AppointmentService(
 
       recurringAppointmentRepository.save(recurringAppointment)
 
-      raiseRecurringAppointmentTrackingEvent(createAppointmentSpecification, createAppointmentSpecification.repeat)
+      raiseRecurringAppointmentCreatedTrackingEvent(
+        createAppointmentSpecification,
+        createAppointmentSpecification.repeat
+      )
     }
 
     return appointmentCreated
   }
 
+  @Transactional
+  fun deleteAppointment(appointmentId: Long) {
+    prisonApiService.getPrisonAppointment(appointmentId)
+      ?: throw EntityNotFoundException("Appointment $appointmentId does not exist")
+
+    val videoLinkBooking: VideoLinkBooking? =
+      videoLinkBookingRepository.findByMainAppointmentIds(listOf(appointmentId)).firstOrNull()
+
+    if (videoLinkBooking != null) {
+      courtService.deleteVideoLinkBooking(appointmentId)
+      return
+    }
+
+    val recurringAppointment: RecurringAppointment? =
+      recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(
+        RelatedAppointment(
+          appointmentId
+        )
+      )
+        .orElse(null)
+
+    if (recurringAppointment == null) {
+      prisonApiService.deleteAppointment(appointmentId)
+      return
+    }
+
+    recurringAppointment.relatedAppointments?.let {
+
+      it.forEach { appointment -> prisonApiService.deleteAppointment(appointment.id) }
+      recurringAppointmentRepository.deleteById(recurringAppointment.id)
+
+      raiseRecurringAppointmentDeletedTrackingEvent(it.count().toLong())
+    }
+  }
+
   private fun makeMainRecurringAppointment(
     appointmentsCreated: CreatedAppointmentDetailsDto,
     repeat: Repeat
-  ) = MainRecurringAppointment(
+  ) = RecurringAppointment(
     id = appointmentsCreated.appointmentEventId,
     repeatPeriod = repeat.repeatPeriod,
     count = repeat.count,
-    recurringAppointments = appointmentsCreated.recurringAppointmentEventIds?.let {
+    relatedAppointments = appointmentsCreated.recurringAppointmentEventIds?.let {
       it.map { id ->
-        RecurringAppointment(
+        RelatedAppointment(
           id
         )
       }
     }
   )
 
-  private fun raiseRecurringAppointmentTrackingEvent(
+  private fun raiseRecurringAppointmentCreatedTrackingEvent(
     createAppointmentSpecification: CreateAppointmentSpecification,
     repeat: Repeat
   ) {
@@ -135,6 +186,16 @@ class AppointmentService(
         "count" to repeat.count.toString(),
         "bookingId" to createAppointmentSpecification.bookingId.toString(),
         "locationId" to createAppointmentSpecification.locationId.toString()
+      ),
+      null
+    )
+  }
+
+  private fun raiseRecurringAppointmentDeletedTrackingEvent(appointmentsDeleted: Long) {
+    telemetryClient.trackEvent(
+      "Recurring Appointment deleted",
+      mapOf(
+        "appointmentsDeleted" to appointmentsDeleted.toString()
       ),
       null
     )
@@ -174,15 +235,40 @@ private fun makeAppointmentDto(offenderNo: String, prisonAppointment: PrisonAppo
     comment = prisonAppointment.comment
   )
 
-private fun makeVideoLinkBookingAppointmentDto(videoLinkBooking: VideoLinkBooking): VideoLinkBookingDto =
+private fun makeVideoLinkBookingAppointmentDto(
+  videoLinkBooking: VideoLinkBooking,
+  mainAppointmentDetails: PrisonAppointment? = null,
+  preAppointmentDetails: PrisonAppointment? = null,
+  postAppointmentDetails: PrisonAppointment? = null
+): VideoLinkBookingDto =
   VideoLinkBookingDto(
     id = videoLinkBooking.id!!,
-    main = makeVideoLinkAppointmentDto(videoLinkBooking.main),
-    pre = videoLinkBooking.pre?.let { makeVideoLinkAppointmentDto(it) },
-    post = videoLinkBooking.post?.let { makeVideoLinkAppointmentDto(it) }
+    main = makeVideoLinkAppointmentDto(
+      videoLinkBooking.main,
+      startTime = mainAppointmentDetails?.startTime,
+      endTime = mainAppointmentDetails?.endTime
+    ),
+    pre = videoLinkBooking.pre?.let {
+      makeVideoLinkAppointmentDto(
+        it,
+        startTime = preAppointmentDetails?.startTime,
+        endTime = preAppointmentDetails?.endTime
+      )
+    },
+    post = videoLinkBooking.post?.let {
+      makeVideoLinkAppointmentDto(
+        it,
+        startTime = postAppointmentDetails?.startTime,
+        endTime = postAppointmentDetails?.endTime
+      )
+    }
   )
 
-private fun makeVideoLinkAppointmentDto(videoLinkAppointment: VideoLinkAppointment): VideoLinkAppointmentDto =
+private fun makeVideoLinkAppointmentDto(
+  videoLinkAppointment: VideoLinkAppointment,
+  startTime: LocalDateTime? = null,
+  endTime: LocalDateTime? = null,
+): VideoLinkAppointmentDto =
   VideoLinkAppointmentDto(
     id = videoLinkAppointment.id!!,
     bookingId = videoLinkAppointment.bookingId,
@@ -190,13 +276,15 @@ private fun makeVideoLinkAppointmentDto(videoLinkAppointment: VideoLinkAppointme
     court = videoLinkAppointment.court,
     hearingType = videoLinkAppointment.hearingType,
     createdByUsername = videoLinkAppointment.createdByUsername,
-    madeByTheCourt = videoLinkAppointment.madeByTheCourt
+    madeByTheCourt = videoLinkAppointment.madeByTheCourt,
+    startTime = startTime,
+    endTime = endTime
   )
 
-private fun makeRecurringAppointmentDto(mainRecurringAppointment: MainRecurringAppointment): RecurringAppointmentDto =
+private fun makeRecurringAppointmentDto(recurringAppointment: RecurringAppointment): RecurringAppointmentDto =
   RecurringAppointmentDto(
-    repeatPeriod = mainRecurringAppointment.repeatPeriod,
-    count = mainRecurringAppointment.count
+    repeatPeriod = recurringAppointment.repeatPeriod,
+    count = recurringAppointment.count
   )
 
 private fun makePrisonAppointment(createAppointmentSpecification: CreateAppointmentSpecification) =
