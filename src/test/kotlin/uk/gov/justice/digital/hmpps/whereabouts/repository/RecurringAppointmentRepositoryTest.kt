@@ -20,7 +20,7 @@ class RecurringAppointmentRepositoryTest {
 
   @Test
   fun `find main appointment using child recurring appointment id`() {
-    val recurringAppointmentBookingId = entityManager.persist(
+    val recurringAppointmentBookingId = entityManager.persistAndFlush(
       RecurringAppointment(
         repeatPeriod = RepeatPeriod.FORTNIGHTLY, count = 1,
         relatedAppointments = listOf(
@@ -30,7 +30,7 @@ class RecurringAppointmentRepositoryTest {
     ).id
 
     val mainAppointment = recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(
-      RelatedAppointment(3L)
+      RelatedAppointment(3)
     ).orElseThrow()
 
     assertThat(mainAppointment)

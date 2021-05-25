@@ -78,18 +78,19 @@ class AppointmentService(
     val mainAppointmentDetails: PrisonAppointment = prisonApiService.getPrisonAppointment(appointmentId)
       ?: throw EntityNotFoundException("Appointment $appointmentId does not exist")
 
-    val offenderNo = prisonApiService.getOffenderNoFromBookingId(mainAppointmentDetails.bookingId)
+    val offenderNo = try {
+      prisonApiService.getOffenderNoFromBookingId(mainAppointmentDetails.bookingId)
+    } catch (e: Exception) {
+      null
+    }
 
     val videoLinkBooking: VideoLinkBooking? =
       videoLinkBookingRepository.findByMainAppointmentIds(listOf(appointmentId)).firstOrNull()
 
     val recurringAppointment: RecurringAppointment? =
       recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(
-        RelatedAppointment(
-          appointmentId
-        )
-      )
-        .orElse(null)
+        RelatedAppointment(appointmentId)
+      ).orElse(null)
 
     return AppointmentDetailsDto(
       appointment = makeAppointmentDto(offenderNo, mainAppointmentDetails),
@@ -109,8 +110,14 @@ class AppointmentService(
       prisonApiService.createAppointments(makePrisonAppointment(createAppointmentSpecification)).first()
 
     createAppointmentSpecification.repeat?.let {
+
+      val recurringAppointmentIds: Set<Long> = appointmentCreated.recurringAppointmentEventIds?.toSet() ?: emptySet()
+
+      val appointmentIds =
+        setOf(appointmentCreated.appointmentEventId).union(recurringAppointmentIds)
+
       val recurringAppointment =
-        makeMainRecurringAppointment(appointmentCreated, createAppointmentSpecification.repeat)
+        makeRecurringAppointment(appointmentIds = appointmentIds, repeat = createAppointmentSpecification.repeat)
 
       recurringAppointmentRepository.save(recurringAppointment)
 
@@ -158,14 +165,13 @@ class AppointmentService(
     }
   }
 
-  private fun makeMainRecurringAppointment(
-    appointmentsCreated: CreatedAppointmentDetailsDto,
+  private fun makeRecurringAppointment(
+    appointmentIds: Set<Long>,
     repeat: Repeat
   ) = RecurringAppointment(
-    id = appointmentsCreated.appointmentEventId,
     repeatPeriod = repeat.repeatPeriod,
     count = repeat.count,
-    relatedAppointments = appointmentsCreated.recurringAppointmentEventIds?.let {
+    relatedAppointments = appointmentIds.let {
       it.map { id ->
         RelatedAppointment(
           id
@@ -222,7 +228,7 @@ private fun makeAppointmentDto(scheduledAppointmentDto: ScheduledAppointmentSear
     createUserId = scheduledAppointmentDto.createUserId
   )
 
-private fun makeAppointmentDto(offenderNo: String, prisonAppointment: PrisonAppointment): AppointmentDto =
+private fun makeAppointmentDto(offenderNo: String? = null, prisonAppointment: PrisonAppointment): AppointmentDto =
   AppointmentDto(
     id = prisonAppointment.eventId,
     agencyId = prisonAppointment.agencyId,

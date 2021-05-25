@@ -463,7 +463,7 @@ class AppointmentServiceTest {
           listOf(
             CreatedAppointmentDetailsDto(
               appointmentEventId = 1,
-              recurringAppointmentEventIds = listOf(1, 2, 3)
+              recurringAppointmentEventIds = listOf(2, 3, 4)
             )
           )
         )
@@ -520,16 +520,20 @@ class AppointmentServiceTest {
           bookingId = BOOKING_ID,
           startTime = START_TIME,
           endTime = END_TIME,
-          repeat = Repeat(RepeatPeriod.DAILY, 1)
+          repeat = Repeat(RepeatPeriod.DAILY, 4)
         )
       )
 
       verify(recurringAppointmentRepository).save(
         RecurringAppointment(
-          id = 1,
           repeatPeriod = RepeatPeriod.DAILY,
-          count = 1,
-          relatedAppointments = listOf(RelatedAppointment(1), RelatedAppointment(2), RelatedAppointment(3))
+          count = 4,
+          relatedAppointments = listOf(
+            RelatedAppointment(1),
+            RelatedAppointment(2),
+            RelatedAppointment(3),
+            RelatedAppointment(4)
+          )
         )
       )
     }

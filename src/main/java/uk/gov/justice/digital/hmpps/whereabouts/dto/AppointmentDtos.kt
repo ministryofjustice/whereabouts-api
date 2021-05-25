@@ -96,7 +96,7 @@ data class AppointmentDto(
   @ApiModelProperty(required = true, value = "The code for the type of appointment this is", example = "INTERV")
   val appointmentTypeCode: String,
   @ApiModelProperty(required = true, value = "The NOMS Id of the offender who this appointment is for")
-  val offenderNo: String,
+  val offenderNo: String? = null,
   @ApiModelProperty(required = true, value = "When the appointment is scheduled to start")
   val startTime: LocalDateTime,
   @ApiModelProperty(required = false, value = "When the appointment is scheduled to end")
