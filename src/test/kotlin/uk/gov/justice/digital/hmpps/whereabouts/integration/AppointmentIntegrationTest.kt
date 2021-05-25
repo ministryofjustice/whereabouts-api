@@ -107,10 +107,27 @@ class AppointmentIntegrationTest : IntegrationTest() {
         listOf(
           mapOf(
             "appointmentEventId" to 1,
+            "appointmentType" to "INST",
+            "locationId" to 1,
             "bookingId" to 2,
             "startTime" to START_TIME,
             "endTime" to END_TIME,
-            "recurringAppointmentEventIds" to setOf(1, 2, 3)
+          ),
+          mapOf(
+            "appointmentEventId" to 2,
+            "appointmentType" to "INST",
+            "locationId" to 1,
+            "bookingId" to 2,
+            "startTime" to START_TIME,
+            "endTime" to END_TIME,
+          ),
+          mapOf(
+            "appointmentEventId" to 3,
+            "appointmentType" to "INST",
+            "locationId" to 1,
+            "bookingId" to 2,
+            "startTime" to START_TIME,
+            "endTime" to END_TIME,
           )
         )
       )
@@ -146,6 +163,8 @@ class AppointmentIntegrationTest : IntegrationTest() {
         .headers(setHeaders())
         .exchange()
         .expectStatus().isCreated
+        .expectBody()
+        .json(loadJsonFile("appointments-created-response.json"))
 
       prisonApiMockServer.verify(
         postRequestedFor(urlEqualTo("/api/appointments"))

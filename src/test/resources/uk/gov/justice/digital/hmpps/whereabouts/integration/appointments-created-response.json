@@ -1,0 +1,26 @@
+[
+  {
+    "appointmentEventId": 1,
+    "bookingId": 2,
+    "startTime": "2020-10-10T20:00:01",
+    "endTime": "2020-10-10T21:00:02",
+    "appointmentType": "INST",
+    "locationId": 1
+  },
+  {
+    "appointmentEventId": 2,
+    "bookingId": 2,
+    "startTime": "2020-10-10T20:00:01",
+    "endTime": "2020-10-10T21:00:02",
+    "appointmentType": "INST",
+    "locationId": 1
+  },
+  {
+    "appointmentEventId": 3,
+    "bookingId": 2,
+    "startTime": "2020-10-10T20:00:01",
+    "endTime": "2020-10-10T21:00:02",
+    "appointmentType": "INST",
+    "locationId": 1
+  }
+]

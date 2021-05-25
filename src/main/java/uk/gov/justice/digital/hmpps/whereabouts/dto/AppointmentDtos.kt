@@ -215,6 +215,22 @@ data class Event(
 data class CreatedAppointmentDetailsDto(
   @ApiModelProperty(required = true, value = "The id of the appointment that was created.", example = "123456")
   val appointmentEventId: Long,
-  @ApiModelProperty(value = "The ids of all recurring appointments that were created.", example = "[1,2,3]")
-  val recurringAppointmentEventIds: List<Long>? = null
+  @ApiModelProperty(
+    required = true,
+    value = "The Booking id of the offender for whom the appointment was created.",
+    example = "123456"
+  )
+  val bookingId: Long,
+  @ApiModelProperty(value = "The start time of the appointment.", example = "2018-12-31T23:50")
+  val startTime: LocalDateTime,
+  @ApiModelProperty(value = "The end time of the appointment.", example = "2018-12-31T23:59")
+  val endTime: LocalDateTime? = null,
+  @ApiModelProperty(value = "The scheduled event subType", example = "ACTI")
+  val appointmentType: String,
+  @ApiModelProperty(
+    value = "The identifier of the appointments' Location. The location must be situated in the requestor's case load.",
+    example = "25",
+    position = 1
+  )
+  val locationId: Long,
 )
