@@ -213,7 +213,7 @@ data class Event(
 
 @ApiModel(description = "The details of an appointment that has just been created")
 data class CreatedAppointmentDetailsDto(
-  @ApiModelProperty(required = true, value = "The id of the appointment that was created.", example = "123456")
+  @ApiModelProperty(value = "The id of the appointment that was created.", example = "123456")
   val appointmentEventId: Long,
   @ApiModelProperty(
     required = true,
