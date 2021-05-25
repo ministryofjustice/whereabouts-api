@@ -49,7 +49,7 @@ class VideoLinkBookingController(
     response = CourtLocationsResponse::class,
     notes = "Return all court locations"
   )
-  fun getCourtLocations() = CourtLocationsResponse(courtLocations = courtService.courtNames)
+  fun getCourtNames() = CourtLocationsResponse(courtLocations = courtService.courtNames)
 
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/courts"])
   @ResponseStatus(HttpStatus.OK)

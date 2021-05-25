@@ -45,31 +45,10 @@ class AppointmentIntegrationTest : IntegrationTest() {
     @BeforeEach
     fun beforeEach() {
       prisonApiMockServer.stubGetPrisonAppointment(
-        1L,
+        APPOINTMENT_ID,
         objectMapper.writeValueAsString(
           DataHelpers.makeCreatePrisonAppointment(
-            appointmentId = 1L,
-            startTime = START_TIME,
-            endTime = END_TIME
-          )
-        )
-      )
-
-      prisonApiMockServer.stubGetPrisonAppointment(
-        2L,
-        objectMapper.writeValueAsString(
-          DataHelpers.makeCreatePrisonAppointment(
-            appointmentId = 2L,
-            startTime = START_TIME,
-            endTime = END_TIME
-          )
-        )
-      )
-      prisonApiMockServer.stubGetPrisonAppointment(
-        3L,
-        objectMapper.writeValueAsString(
-          DataHelpers.makeCreatePrisonAppointment(
-            appointmentId = 3L,
+            appointmentId = APPOINTMENT_ID,
             startTime = START_TIME,
             endTime = END_TIME
           )
