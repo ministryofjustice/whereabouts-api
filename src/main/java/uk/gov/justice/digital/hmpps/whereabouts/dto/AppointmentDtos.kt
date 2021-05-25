@@ -230,7 +230,6 @@ data class CreatedAppointmentDetailsDto(
   @ApiModelProperty(
     value = "The identifier of the appointments' Location. The location must be situated in the requestor's case load.",
     example = "25",
-    position = 1
   )
   val locationId: Long,
 )
