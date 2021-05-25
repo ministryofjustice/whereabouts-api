@@ -44,7 +44,7 @@ class CourtIntegrationTest : IntegrationTest() {
       .expectStatus().isOk
       .expectBody()
       .jsonPath("$.courtLocations.[0]").hasJsonPath()
-      .jsonPath("$.courtLocations.[50]").hasJsonPath()
+      .jsonPath("$.courtLocations.[49]").hasJsonPath()
   }
 
   @Test
@@ -57,8 +57,8 @@ class CourtIntegrationTest : IntegrationTest() {
       .expectBody()
       .jsonPath("$.[0].name").hasJsonPath()
       .jsonPath("$.[0].id").hasJsonPath()
-      .jsonPath("$.[50].name").hasJsonPath()
-      .jsonPath("$.[50].id").hasJsonPath()
+      .jsonPath("$.[49].name").hasJsonPath()
+      .jsonPath("$.[49].id").hasJsonPath()
   }
 
   @Nested

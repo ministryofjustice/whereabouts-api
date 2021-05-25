@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecificatio
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.model.Court
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableLocations
@@ -36,8 +37,9 @@ import javax.validation.constraints.NotNull
 @Api(tags = ["court"])
 @RestController
 @RequestMapping(value = ["court"], produces = [MediaType.APPLICATION_JSON_VALUE])
-class CourtController(
+class VideoLinkBookingController(
   private val courtService: CourtService,
+  private val videoLinkBookingService: VideoLinkBookingService,
   private val appointmentLocationsService: AppointmentLocationsService
 ) {
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/all-courts"])
@@ -47,7 +49,7 @@ class CourtController(
     response = CourtLocationsResponse::class,
     notes = "Return all court locations"
   )
-  fun getCourtLocations() = CourtLocationsResponse(courtLocations = courtService.getCourtLocations())
+  fun getCourtLocations() = CourtLocationsResponse(courtLocations = courtService.courtNames)
 
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/courts"])
   @ResponseStatus(HttpStatus.OK)
@@ -55,7 +57,7 @@ class CourtController(
     value = "All courts",
     notes = "Return information about all courts."
   )
-  fun getCourts(): List<Court> = courtService.getCourts()
+  fun getCourts(): List<Court> = courtService.courts
 
   @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-appointments"])
   @ResponseStatus(HttpStatus.OK)
@@ -65,7 +67,7 @@ class CourtController(
     notes = "Return video link appointments"
   )
   fun getVideoLinkAppointments(@RequestBody appointmentIds: Set<Long>): VideoLinkAppointmentsResponse {
-    val courtAppointments = courtService.getVideoLinkAppointments(appointmentIds)
+    val courtAppointments = videoLinkBookingService.getVideoLinkAppointments(appointmentIds)
 
     if (courtAppointments.isEmpty()) return VideoLinkAppointmentsResponse()
 
@@ -83,7 +85,7 @@ class CourtController(
     @ApiParam(value = "Video link booking id", required = true)
     @PathVariable("videoBookingId")
     videoBookingId: Long
-  ) = courtService.getVideoLinkBooking(videoBookingId)
+  ) = videoLinkBookingService.getVideoLinkBooking(videoBookingId)
 
   @GetMapping(
     path = ["/video-link-bookings/prison/{agencyId}/date/{date}"],
@@ -117,7 +119,7 @@ class CourtController(
     @RequestParam(name = "courtId", required = false)
     courtId: String?
   ): List<VideoLinkBookingResponse> {
-    return courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(agencyId, date, court, courtId)
+    return videoLinkBookingService.getVideoLinkBookingsForPrisonAndDateAndCourt(agencyId, date, court, courtId)
   }
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings"])
@@ -128,7 +130,7 @@ class CourtController(
     @Valid
     videoLinkBookingSpecification: VideoLinkBookingSpecification
   ) =
-    courtService.createVideoLinkBooking(videoLinkBookingSpecification)
+    videoLinkBookingService.createVideoLinkBooking(videoLinkBookingSpecification)
 
   @PutMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings/{videoBookingId}"])
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -143,7 +145,7 @@ class CourtController(
     @Valid
     videoLinkBookingUpdateSpecification: VideoLinkBookingUpdateSpecification?
   ): ResponseEntity<Void> {
-    courtService.updateVideoLinkBooking(videoBookingId!!, videoLinkBookingUpdateSpecification!!)
+    videoLinkBookingService.updateVideoLinkBooking(videoBookingId!!, videoLinkBookingUpdateSpecification!!)
     /**
      * The Open API implementation used to document this resource contains a bug which manifests
      * when a PUT operation has a Unit return type. For that reason this method returns a ResponseEntity<Void>.
@@ -160,7 +162,7 @@ class CourtController(
     @ApiParam(value = "Video link booking id", required = true)
     @PathVariable("videoBookingId")
     videoBookingId: Long
-  ) = courtService.deleteVideoLinkBooking(videoBookingId)
+  ) = videoLinkBookingService.deleteVideoLinkBooking(videoBookingId)
 
   @PutMapping(
     path = ["/video-link-bookings/{videoLinkBookingId}/comment"],
@@ -176,7 +178,7 @@ class CourtController(
     @RequestBody(required = false)
     comment: String?
   ): ResponseEntity<Void> {
-    courtService.updateVideoLinkBookingComment(videoLinkBookingId, comment)
+    videoLinkBookingService.updateVideoLinkBookingComment(videoLinkBookingId, comment)
     /**
      * The Open API implementation used to document this resource contains a bug which manifests
      * when a PUT operation has a Unit return type. For that reason this method returns a ResponseEntity<Void>.

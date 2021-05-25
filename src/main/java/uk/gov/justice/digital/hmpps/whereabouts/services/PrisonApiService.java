@@ -239,13 +239,16 @@ public class PrisonApiService {
     }
 
     public PrisonAppointment getPrisonAppointment(long appointmentId) {
-        return webClient.get()
+        logger.info("getPrisonAppointment " + appointmentId);
+        var result = webClient.get()
                 .uri("/appointments/{appointmentId}", appointmentId)
                 .retrieve()
                 .bodyToMono(PrisonAppointment.class)
                 .onErrorResume(WebClientResponseException.NotFound.class, notFound -> Mono.empty())
                 .blockOptional()
                 .orElse(null);
+        logger.info("getPrisonAppointment " + appointmentId + " found result: " + result);
+        return result;
     }
 
     public void deleteAppointment(final Long appointmentId) {

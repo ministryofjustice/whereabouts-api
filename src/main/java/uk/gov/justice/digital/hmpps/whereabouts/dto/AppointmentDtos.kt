@@ -8,13 +8,13 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
 import java.time.LocalDateTime
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class CourtLocationsResponse(val courtLocations: Set<String>? = emptySet())
+data class CourtLocationsResponse(val courtLocations: List<String>? = emptyList())
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class CourtIdsResponse(val courtIds: Set<String>? = emptySet())
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class VideoLinkAppointmentsResponse(val appointments: Set<VideoLinkAppointmentDto>? = emptySet())
+data class VideoLinkAppointmentsResponse(val appointments: List<VideoLinkAppointmentDto>? = emptyList())
 
 data class CreateBookingAppointment(
   val appointmentType: String,

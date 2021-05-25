@@ -4,6 +4,7 @@ import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.isA
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.reset
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
+import org.springframework.data.domain.Sort
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentSearchDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatedAppointmentDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
@@ -27,9 +29,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.RecurringAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RelatedAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
+import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.RecurringAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -37,11 +41,11 @@ import java.util.Optional
 import javax.persistence.EntityNotFoundException
 
 class AppointmentServiceTest {
-
+  private val courtRepository: CourtRepository = mock()
   private val prisonApiService: PrisonApiService = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
   private val recurringAppointmentRepository: RecurringAppointmentRepository = mock()
-  private val courtService: CourtService = mock()
+  private val videoLinkBookingService: VideoLinkBookingService = mock()
   private val telemetryClient: TelemetryClient = mock()
 
   private lateinit var appointmentService: AppointmentService
@@ -49,12 +53,15 @@ class AppointmentServiceTest {
   @BeforeEach
   fun before() {
     appointmentService = AppointmentService(
+      CourtService(courtRepository),
       prisonApiService,
       videoLinkBookingRepository,
       recurringAppointmentRepository,
-      courtService,
+      videoLinkBookingService,
       telemetryClient
     )
+
+    whenever(courtRepository.findAll(isA<Sort>())).thenReturn(listOf())
   }
 
   @Nested
@@ -630,7 +637,7 @@ class AppointmentServiceTest {
       verify(prisonApiService).deleteAppointment(2)
       verify(prisonApiService).deleteAppointment(3)
       verify(recurringAppointmentRepository).deleteById(100)
-      verify(courtService, never()).deleteVideoLinkBooking(anyLong())
+      verify(videoLinkBookingService, never()).deleteVideoLinkBooking(anyLong())
     }
 
     @Test
@@ -641,7 +648,7 @@ class AppointmentServiceTest {
 
       appointmentService.deleteAppointment(1L)
 
-      verify(courtService).deleteVideoLinkBooking(1L)
+      verify(videoLinkBookingService).deleteVideoLinkBooking(1L)
       verify(prisonApiService, never()).deleteAppointment(anyLong())
       verify(recurringAppointmentRepository, never()).deleteById(anyLong())
     }

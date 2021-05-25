@@ -22,18 +22,18 @@ enum class HearingType {
 @EntityListeners(AuditingEntityListener::class)
 data class VideoLinkAppointment(
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
-  val bookingId: Long,
-  val appointmentId: Long,
-  val court: String? = null,
-  val courtId: String? = null,
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  val id: Long? = null,
+
+  var bookingId: Long,
+  var appointmentId: Long,
+  var court: String? = null,
+  var courtId: String? = null,
 
   @Enumerated(EnumType.STRING)
-  val hearingType: HearingType,
+  var hearingType: HearingType,
 
   @CreatedBy
   var createdByUsername: String? = null,
-  val madeByTheCourt: Boolean? = true
-) {
-  fun chooseCourtName(): String = this.court ?: this.courtId ?: "Unknown"
-}
+  var madeByTheCourt: Boolean? = true
+)

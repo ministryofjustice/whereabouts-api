@@ -15,7 +15,7 @@ import javax.persistence.Table
 data class VideoLinkBooking(
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  val id: Long? = null,
+  var id: Long? = null,
 
   @OneToOne(optional = false, orphanRemoval = true, cascade = [PERSIST, REMOVE])
   @JoinColumn(name = "MAIN_APPOINTMENT")
@@ -28,7 +28,6 @@ data class VideoLinkBooking(
   @OneToOne(optional = true, orphanRemoval = true, cascade = [PERSIST, REMOVE])
   @JoinColumn(name = "POST_APPOINTMENT")
   var post: VideoLinkAppointment? = null
-
 ) {
   fun toAppointments(): List<VideoLinkAppointment> {
     return listOfNotNull(pre, main, post)
