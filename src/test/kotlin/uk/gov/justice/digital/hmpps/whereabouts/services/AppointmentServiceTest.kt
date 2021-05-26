@@ -10,6 +10,7 @@ import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -458,28 +459,35 @@ class AppointmentServiceTest {
 
     @BeforeEach
     fun beforeEach() {
+      val createAppointmentDetails =
+        CreatedAppointmentDetailsDto(
+          appointmentEventId = 0,
+          bookingId = 1,
+          locationId = 2,
+          startTime = START_TIME,
+          endTime = END_TIME,
+          appointmentType = "INST"
+        )
       whenever(prisonApiService.createAppointments(any()))
         .thenReturn(
           listOf(
-            CreatedAppointmentDetailsDto(
-              appointmentEventId = 1,
-              recurringAppointmentEventIds = listOf(2, 3, 4)
-            )
+            createAppointmentDetails.copy(appointmentEventId = 1),
+            createAppointmentDetails.copy(appointmentEventId = 2),
+            createAppointmentDetails.copy(appointmentEventId = 3),
+            createAppointmentDetails.copy(appointmentEventId = 4),
           )
         )
     }
 
     @Test
     fun `calls prison API to create a new appointment`() {
-      val appointmentDetails = appointmentService.createAppointment(
+      appointmentService.createAppointment(
         DataHelpers.makeCreateAppointmentSpecification(
           bookingId = BOOKING_ID,
           startTime = START_TIME,
           endTime = END_TIME
         )
       )
-
-      assertThat(appointmentDetails.appointmentEventId).isEqualTo(1)
 
       verify(prisonApiService).createAppointments(
         DataHelpers.makeCreatePrisonAppointment(
@@ -500,8 +508,6 @@ class AppointmentServiceTest {
           repeat = Repeat(RepeatPeriod.DAILY, 1)
         )
       )
-
-      assertThat(appointmentDetails.appointmentEventId).isEqualTo(1)
 
       verify(prisonApiService).createAppointments(
         DataHelpers.makeCreatePrisonAppointment(
@@ -560,6 +566,26 @@ class AppointmentServiceTest {
         ),
         null
       )
+    }
+
+    @Test
+    fun `should return the details of the created appointments`() {
+      val created = appointmentService.createAppointment(DataHelpers.makeCreateAppointmentSpecification())
+
+      assertThat(created).extracting(
+        "bookingId",
+        "locationId",
+        "startTime",
+        "endTime",
+        "appointmentType",
+        "appointmentEventId"
+      )
+        .contains(
+          Tuple.tuple(1L, 2L, START_TIME, END_TIME, "INST", 1L),
+          Tuple.tuple(1L, 2L, START_TIME, END_TIME, "INST", 2L),
+          Tuple.tuple(1L, 2L, START_TIME, END_TIME, "INST", 3L),
+          Tuple.tuple(1L, 2L, START_TIME, END_TIME, "INST", 4L)
+        )
     }
   }
 

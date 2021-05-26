@@ -105,16 +105,12 @@ class AppointmentService(
   }
 
   @Transactional
-  fun createAppointment(createAppointmentSpecification: CreateAppointmentSpecification): CreatedAppointmentDetailsDto {
+  fun createAppointment(createAppointmentSpecification: CreateAppointmentSpecification): List<CreatedAppointmentDetailsDto> {
     val appointmentCreated =
-      prisonApiService.createAppointments(makePrisonAppointment(createAppointmentSpecification)).first()
+      prisonApiService.createAppointments(makePrisonAppointment(createAppointmentSpecification))
 
     createAppointmentSpecification.repeat?.let {
-
-      val recurringAppointmentIds: Set<Long> = appointmentCreated.recurringAppointmentEventIds?.toSet() ?: emptySet()
-
-      val appointmentIds =
-        setOf(appointmentCreated.appointmentEventId).union(recurringAppointmentIds)
+      val appointmentIds: Set<Long> = appointmentCreated?.map { it.appointmentEventId }?.toSet() ?: emptySet()
 
       val recurringAppointment =
         makeRecurringAppointment(appointmentIds = appointmentIds, repeat = createAppointmentSpecification.repeat)
