@@ -37,6 +37,14 @@ class WebClientConfiguration(
   }
 
   @Bean
+  fun prisonAPiWebClientAuditable(builder: WebClient.Builder): WebClient {
+    return builder
+      .baseUrl(prisonApiRootUri)
+      .filter(addAuthHeaderFilterFunction())
+      .build()
+  }
+
+  @Bean
   fun caseNoteHealthWebClient(builder: WebClient.Builder): WebClient {
     return builder
       .baseUrl(caseNotesRootUri)
@@ -135,11 +143,13 @@ class WebClientConfiguration(
   ): OAuth2AuthorizedClientManager {
     val defaultClientCredentialsTokenResponseClient = DefaultClientCredentialsTokenResponseClient()
     val authentication = UserContext.getAuthentication()
+
     defaultClientCredentialsTokenResponseClient.setRequestEntityConverter { grantRequest: OAuth2ClientCredentialsGrantRequest? ->
       val converter = CustomOAuth2ClientCredentialsGrantRequestEntityConverter()
       val username = authentication.name
       converter.enhanceWithUsername(grantRequest, username)
     }
+
     val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
       .clientCredentials { clientCredentialsGrantBuilder: OAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilder ->
         clientCredentialsGrantBuilder.accessTokenResponseClient(

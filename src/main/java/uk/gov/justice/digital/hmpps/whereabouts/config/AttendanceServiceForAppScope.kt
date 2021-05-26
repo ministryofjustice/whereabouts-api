@@ -27,7 +27,7 @@ class AttendanceServiceForAppScope {
     return AttendanceService(
       attendanceRepository,
       attendanceChangesRepository,
-      PrisonApiService(webClient),
+      PrisonApiService(webClient, null),
       iepWarningService,
       nomisEventOutcomeMapper,
       telemetryClient
