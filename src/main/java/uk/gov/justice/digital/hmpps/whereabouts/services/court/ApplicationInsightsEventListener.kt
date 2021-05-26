@@ -68,7 +68,7 @@ class ApplicationInsightsEventListener(
     appointment: VideoLinkAppointment,
     specification: VideoLinkAppointmentSpecification
   ): Map<String, String> {
-    val prefix = appointment.hearingType.name.toLowerCase()
+    val prefix = appointment.hearingType.name.lowercase()
     return mapOf(
       "${prefix}AppointmentId" to appointment.appointmentId.toString(),
       "${prefix}Id" to appointment.id.toString(),
@@ -78,7 +78,7 @@ class ApplicationInsightsEventListener(
   }
 
   private fun appointmentDetail(appointment: VideoLinkAppointment): Map<String, String> {
-    val prefix = appointment.hearingType.name.toLowerCase()
+    val prefix = appointment.hearingType.name.lowercase()
     return mapOf(
       "${prefix}AppointmentId" to appointment.appointmentId.toString(),
       "${prefix}Id" to appointment.id.toString(),

@@ -5,22 +5,27 @@ import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.isA
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.data.domain.Sort
 import uk.gov.justice.digital.hmpps.whereabouts.model.RecurringAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RelatedAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
+import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.RecurringAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.Optional
 
 class AppointmentIntegrationTest : IntegrationTest() {
-
+  @MockBean
+  lateinit var courtRepository: CourtRepository
   @MockBean
   lateinit var videoLinkBookingRepository: VideoLinkBookingRepository
 
@@ -30,6 +35,8 @@ class AppointmentIntegrationTest : IntegrationTest() {
   @BeforeEach
   fun beforeEach() {
     prisonApiMockServer.resetAll()
+
+    whenever(courtRepository.findAll(isA<Sort>())).thenReturn(listOf())
   }
 
   @Nested
@@ -67,7 +74,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
       whenever(videoLinkBookingRepository.findByMainAppointmentIds(any()))
         .thenReturn(listOf(DataHelpers.makeVideoLinkBooking(id = 1)))
 
-      webTestClient.get()
+      webTestClient.mutate().responseTimeout(Duration.ofSeconds(10)).build().get()
         .uri("/appointment/$APPOINTMENT_ID")
         .headers(setHeaders())
         .exchange()
@@ -150,7 +157,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
 
     @Test
     fun `should create a recurring appointment`() {
-      webTestClient.post()
+      webTestClient.mutate().responseTimeout(Duration.ofSeconds(10)).build().post()
         .uri("/appointment")
         .bodyValue(
           makeCreateAppointmentMap(

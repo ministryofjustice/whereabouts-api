@@ -25,6 +25,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecific
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableLocations
@@ -36,11 +37,14 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.persistence.EntityNotFoundException
 
-@WebMvcTest(CourtController::class)
+@WebMvcTest(VideoLinkBookingController::class)
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)
-class CourtControllerTest : TestController() {
+class VideoLinkBookingControllerTest : TestController() {
   @MockBean
   lateinit var courtService: CourtService
+
+  @MockBean
+  lateinit var videoLinkBookingService: VideoLinkBookingService
 
   @MockBean
   lateinit var appointmentLocationsService: AppointmentLocationsService
@@ -307,7 +311,7 @@ class CourtControllerTest : TestController() {
     }
 
     private fun passWithJson(json: String) {
-      whenever(courtService.createVideoLinkBooking(any())).thenReturn(1L)
+      whenever(videoLinkBookingService.createVideoLinkBooking(any())).thenReturn(1L)
 
       mockMvc.perform(
         post("/court/video-link-bookings")
@@ -319,7 +323,7 @@ class CourtControllerTest : TestController() {
     }
 
     private fun failWithJson(json: String, expectedStatus: Int) {
-      whenever(courtService.createVideoLinkBooking(any())).thenReturn(1L)
+      whenever(videoLinkBookingService.createVideoLinkBooking(any())).thenReturn(1L)
 
       mockMvc.perform(
         post("/court/video-link-bookings")
@@ -336,7 +340,7 @@ class CourtControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `the booking does not exist`() {
       val bookingId = 1L
-      doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(courtService)
+      doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(videoLinkBookingService)
         .getVideoLinkBooking(bookingId)
 
       mockMvc.perform(
@@ -350,7 +354,7 @@ class CourtControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `the booking does exist`() {
       val bookingId = 1L
-      whenever(courtService.getVideoLinkBooking(any())).thenReturn(videoLinkBookingResponse)
+      whenever(videoLinkBookingService.getVideoLinkBooking(any())).thenReturn(videoLinkBookingResponse)
 
       mockMvc.perform(
         get("/court/video-link-bookings/$bookingId")
@@ -418,7 +422,7 @@ class CourtControllerTest : TestController() {
       )
         .andExpect(status().isNoContent)
 
-      verify(courtService).updateVideoLinkBooking(
+      verify(videoLinkBookingService).updateVideoLinkBooking(
         1L,
         VideoLinkBookingUpdateSpecification(
           comment = "New comment",
@@ -470,7 +474,7 @@ class CourtControllerTest : TestController() {
       )
         .andExpect(status().isNoContent)
 
-      verify(courtService).updateVideoLinkBookingComment(
+      verify(videoLinkBookingService).updateVideoLinkBookingComment(
         1L,
         "Some Content"
       )
@@ -486,7 +490,7 @@ class CourtControllerTest : TestController() {
       )
         .andExpect(status().isNoContent)
 
-      verify(courtService).updateVideoLinkBookingComment(
+      verify(videoLinkBookingService).updateVideoLinkBookingComment(
         1L,
         null
       )
@@ -505,14 +509,14 @@ class CourtControllerTest : TestController() {
       )
         .andExpect(status().isNoContent)
 
-      verify(courtService).deleteVideoLinkBooking(1)
+      verify(videoLinkBookingService).deleteVideoLinkBooking(1)
     }
 
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `the booking does not exist`() {
       val bookingId = 1L
-      doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(courtService)
+      doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(videoLinkBookingService)
         .deleteVideoLinkBooking(bookingId)
 
       mockMvc.perform(
@@ -539,7 +543,7 @@ class CourtControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `get bookings on date`() {
-      whenever(courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), isNull(), isNull()))
+      whenever(videoLinkBookingService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), isNull(), isNull()))
         .thenReturn(listOf(videoLinkBookingResponse.copy(agencyId = "LEI")))
 
       mockMvc.perform(
@@ -580,14 +584,14 @@ class CourtControllerTest : TestController() {
           )
         )
 
-      verify(courtService)
+      verify(videoLinkBookingService)
         .getVideoLinkBookingsForPrisonAndDateAndCourt("LEI", LocalDate.of(2020, 12, 25), null, null)
     }
 
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `get bookings on date for court`() {
-      whenever(courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), anyString(), isNull()))
+      whenever(videoLinkBookingService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), anyString(), isNull()))
         .thenReturn(listOf())
 
       mockMvc.perform(
@@ -600,14 +604,14 @@ class CourtControllerTest : TestController() {
           )
         )
 
-      verify(courtService)
+      verify(videoLinkBookingService)
         .getVideoLinkBookingsForPrisonAndDateAndCourt("LEI", LocalDate.of(2020, 12, 25), "The Court", null)
     }
 
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `get bookings on date for courtId`() {
-      whenever(courtService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), isNull(), anyString()))
+      whenever(videoLinkBookingService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), isNull(), anyString()))
         .thenReturn(listOf())
 
       mockMvc.perform(
@@ -620,7 +624,7 @@ class CourtControllerTest : TestController() {
           )
         )
 
-      verify(courtService)
+      verify(videoLinkBookingService)
         .getVideoLinkBookingsForPrisonAndDateAndCourt("LEI", LocalDate.of(2020, 12, 25), null, "TSTCRT")
     }
   }

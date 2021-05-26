@@ -26,6 +26,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.RecurringAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.persistence.EntityNotFoundException
@@ -33,10 +34,11 @@ import javax.transaction.Transactional
 
 @Service
 class AppointmentService(
+  private val courtService: CourtService,
   private val prisonApiService: PrisonApiService,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val recurringAppointmentRepository: RecurringAppointmentRepository,
-  private val courtService: CourtService,
+  private val videoLinkBookingService: VideoLinkBookingService,
   private val telemetryClient: TelemetryClient
 ) {
 
@@ -135,7 +137,7 @@ class AppointmentService(
       videoLinkBookingRepository.findByMainAppointmentIds(listOf(appointmentId)).firstOrNull()
 
     if (videoLinkBooking != null) {
-      courtService.deleteVideoLinkBooking(appointmentId)
+      videoLinkBookingService.deleteVideoLinkBooking(appointmentId)
       return
     }
 
@@ -203,6 +205,58 @@ class AppointmentService(
     )
   }
 
+  private fun makeVideoLinkBookingAppointmentDto(
+    videoLinkBooking: VideoLinkBooking,
+    mainAppointmentDetails: PrisonAppointment? = null,
+    preAppointmentDetails: PrisonAppointment? = null,
+    postAppointmentDetails: PrisonAppointment? = null
+  ): VideoLinkBookingDto =
+    VideoLinkBookingDto(
+      id = videoLinkBooking.id!!,
+      main = makeVideoLinkAppointmentDto(
+        videoLinkBooking.main,
+        startTime = mainAppointmentDetails?.startTime,
+        endTime = mainAppointmentDetails?.endTime,
+        locationId = mainAppointmentDetails?.eventLocationId
+      ),
+      pre = videoLinkBooking.pre?.let {
+        makeVideoLinkAppointmentDto(
+          it,
+          startTime = preAppointmentDetails?.startTime,
+          endTime = preAppointmentDetails?.endTime,
+          locationId = preAppointmentDetails?.eventLocationId
+        )
+      },
+      post = videoLinkBooking.post?.let {
+        makeVideoLinkAppointmentDto(
+          it,
+          startTime = postAppointmentDetails?.startTime,
+          endTime = postAppointmentDetails?.endTime,
+          locationId = postAppointmentDetails?.eventLocationId
+        )
+      }
+    )
+
+  private fun makeVideoLinkAppointmentDto(
+    videoLinkAppointment: VideoLinkAppointment,
+    startTime: LocalDateTime? = null,
+    endTime: LocalDateTime? = null,
+    locationId: Long? = null
+  ): VideoLinkAppointmentDto =
+    VideoLinkAppointmentDto(
+      id = videoLinkAppointment.id!!,
+      bookingId = videoLinkAppointment.bookingId,
+      appointmentId = videoLinkAppointment.appointmentId,
+      court = courtService.chooseCourtName(videoLinkAppointment),
+      courtId = videoLinkAppointment.courtId,
+      hearingType = videoLinkAppointment.hearingType,
+      createdByUsername = videoLinkAppointment.createdByUsername,
+      madeByTheCourt = videoLinkAppointment.madeByTheCourt,
+      startTime = startTime,
+      endTime = endTime,
+      locationId = locationId
+    )
+
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
@@ -235,58 +289,6 @@ private fun makeAppointmentDto(offenderNo: String? = null, prisonAppointment: Pr
     offenderNo = offenderNo,
     createUserId = prisonAppointment.createUserId,
     comment = prisonAppointment.comment
-  )
-
-private fun makeVideoLinkBookingAppointmentDto(
-  videoLinkBooking: VideoLinkBooking,
-  mainAppointmentDetails: PrisonAppointment? = null,
-  preAppointmentDetails: PrisonAppointment? = null,
-  postAppointmentDetails: PrisonAppointment? = null
-): VideoLinkBookingDto =
-  VideoLinkBookingDto(
-    id = videoLinkBooking.id!!,
-    main = makeVideoLinkAppointmentDto(
-      videoLinkBooking.main,
-      startTime = mainAppointmentDetails?.startTime,
-      endTime = mainAppointmentDetails?.endTime,
-      locationId = mainAppointmentDetails?.eventLocationId
-    ),
-    pre = videoLinkBooking.pre?.let {
-      makeVideoLinkAppointmentDto(
-        it,
-        startTime = preAppointmentDetails?.startTime,
-        endTime = preAppointmentDetails?.endTime,
-        locationId = preAppointmentDetails?.eventLocationId
-      )
-    },
-    post = videoLinkBooking.post?.let {
-      makeVideoLinkAppointmentDto(
-        it,
-        startTime = postAppointmentDetails?.startTime,
-        endTime = postAppointmentDetails?.endTime,
-        locationId = postAppointmentDetails?.eventLocationId
-      )
-    }
-  )
-
-private fun makeVideoLinkAppointmentDto(
-  videoLinkAppointment: VideoLinkAppointment,
-  startTime: LocalDateTime? = null,
-  endTime: LocalDateTime? = null,
-  locationId: Long? = null
-): VideoLinkAppointmentDto =
-  VideoLinkAppointmentDto(
-    id = videoLinkAppointment.id!!,
-    bookingId = videoLinkAppointment.bookingId,
-    appointmentId = videoLinkAppointment.appointmentId,
-    court = videoLinkAppointment.chooseCourtName(),
-    courtId = videoLinkAppointment.courtId,
-    hearingType = videoLinkAppointment.hearingType,
-    createdByUsername = videoLinkAppointment.createdByUsername,
-    madeByTheCourt = videoLinkAppointment.madeByTheCourt,
-    startTime = startTime,
-    endTime = endTime,
-    locationId = locationId
   )
 
 private fun makeRecurringAppointmentDto(recurringAppointment: RecurringAppointment): RecurringAppointmentDto =

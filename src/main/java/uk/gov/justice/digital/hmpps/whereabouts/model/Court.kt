@@ -9,11 +9,11 @@ import javax.persistence.Table
 @Entity
 @Table(name = "enabled_court")
 @ApiModel(description = "Video Link Booking related information for a court")
-data class Court(
+class Court(
   @Id
   @ApiModelProperty(required = true, value = "The court identifier. Unique. Defined by courts registry.")
-  val id: String,
+  var id: String,
 
   @ApiModelProperty(required = true, value = "A name for the court.")
-  val name: String
+  var name: String
 )
