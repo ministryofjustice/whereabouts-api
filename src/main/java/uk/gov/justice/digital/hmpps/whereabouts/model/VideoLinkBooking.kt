@@ -19,12 +19,6 @@ import javax.persistence.Table
 @Entity
 @Table(name = "VIDEO_LINK_BOOKING")
 @EntityListeners(AuditingEntityListener::class)
-/**
- * Can use a data class here because VideoLinkBookings are never added to set like collections.
- * Therefore the data class definition of equality is sufficient. (I hope!).
- * Trying to implement a good equals function for this class is hard. There are different and conflicting requirements
- * from Hibernate and tools like Mockito - Its doing my nut.
- */
 data class VideoLinkBooking(
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
