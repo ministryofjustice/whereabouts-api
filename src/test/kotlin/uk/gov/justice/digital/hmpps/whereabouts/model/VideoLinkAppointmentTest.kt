@@ -36,11 +36,4 @@ class VideoLinkAppointmentTest {
     val vla1 = VideoLinkAppointment(id = 1, appointmentId = 2, hearingType = HearingType.MAIN, videoLinkBooking = dontCareBooking)
     assertThat(vla1.equals(object {})).isFalse
   }
-
-  // @Test
-  // fun `equality other is sub-class with matching appointmentId`() {
-  //   val dontCareBooking = VideoLinkBooking(offenderBookingId = 1)
-  //   val vla1 = VideoLinkAppointment(id=1, appointmentId = 2, hearingType = HearingType.MAIN, videoLinkBooking = dontCareBooking)
-  //   assertThat(vla1.equals(object: VideoLinkAppointment(appointmentId = 2, hearingType = HearingType.PRE, videoLinkBooking = dontCareBooking){})).isTrue
-  // }
 }
