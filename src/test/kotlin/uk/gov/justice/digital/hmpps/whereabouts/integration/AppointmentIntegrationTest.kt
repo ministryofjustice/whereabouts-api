@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.isA
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.BeforeEach
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.Sort
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.RecurringAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RelatedAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
@@ -72,7 +74,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
 
     @Test
     fun `should return video link booking details`() {
-      whenever(videoLinkBookingRepository.findByMainAppointmentIds(any()))
+      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN)))
         .thenReturn(listOf(DataHelpers.makeVideoLinkBooking(id = 1)))
 
       webTestClient.mutate().responseTimeout(Duration.ofSeconds(10)).build().get()

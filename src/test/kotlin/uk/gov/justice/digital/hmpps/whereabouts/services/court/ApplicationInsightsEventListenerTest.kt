@@ -32,7 +32,7 @@ class ApplicationInsightsEventListenerTest {
       "VideoLinkBookingCreated",
       mapOf(
         "id" to "11",
-        "bookingId" to "1",
+        "bookingId" to "-1",
         "court" to "York Crown Court",
         "agencyId" to "WWI",
         "user" to "A_USER",
@@ -63,7 +63,7 @@ class ApplicationInsightsEventListenerTest {
       mapOf(
         "id" to "11",
         "user" to "A_USER",
-        "bookingId" to "1",
+        "bookingId" to "-1",
         "court" to "York Crown Court",
         "preAppointmentId" to "12",
         "preId" to "120",
@@ -91,7 +91,7 @@ class ApplicationInsightsEventListenerTest {
       mapOf(
         "id" to "11",
         "user" to "A_USER",
-        "bookingId" to "1",
+        "bookingId" to "-1",
         "court" to "York Crown Court",
         "preAppointmentId" to "12",
         "preId" to "120",

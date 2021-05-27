@@ -12,8 +12,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
+import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
@@ -46,13 +48,13 @@ class VideoLinkBookingService(
       .map {
         VideoLinkAppointmentDto(
           id = it.id!!,
-          bookingId = it.bookingId,
+          bookingId = it.videoLinkBooking.offenderBookingId,
           appointmentId = it.appointmentId,
           hearingType = it.hearingType,
-          court = courtService.chooseCourtName(it),
-          courtId = it.courtId,
-          createdByUsername = it.createdByUsername,
-          madeByTheCourt = it.madeByTheCourt
+          court = courtService.chooseCourtName(it.videoLinkBooking),
+          courtId = it.videoLinkBooking.courtId,
+          createdByUsername = it.videoLinkBooking.createdByUsername,
+          madeByTheCourt = it.videoLinkBooking.madeByTheCourt
         )
       }
   }
@@ -66,16 +68,21 @@ class VideoLinkBookingService(
     val preEvent = specification.pre?.let { savePrisonAppointment(bookingId, comment, it) }
     val postEvent = specification.post?.let { savePrisonAppointment(bookingId, comment, it) }
 
+    val courtId = specification.courtId ?: specification.court?.let { courtService.findId(it) }
+
     val videoLinkBooking = VideoLinkBooking(
-      pre = preEvent?.let { toAppointment(preEvent.eventId, HearingType.PRE, specification) },
-      main = toAppointment(mainEvent.eventId, HearingType.MAIN, specification),
-      post = postEvent?.let { toAppointment(postEvent.eventId, HearingType.POST, specification) }
+      offenderBookingId = bookingId,
+      courtName = specification.court,
+      courtId = courtId,
+      madeByTheCourt = specification.madeByTheCourt
     )
-    val agencyId = mainEvent.agencyId
+    preEvent?.let { videoLinkBooking.addPreAppointment(it.eventId) }
+    videoLinkBooking.addMainAppointment(mainEvent.eventId)
+    postEvent?.let { videoLinkBooking.addPostAppointment(it.eventId) }
 
     val persistentBooking = videoLinkBookingRepository.save(videoLinkBooking)!!
 
-    videoLinkBookingEventListener.bookingCreated(persistentBooking, specification, agencyId)
+    videoLinkBookingEventListener.bookingCreated(persistentBooking, specification, mainEvent.agencyId)
 
     return persistentBooking.id!!
   }
@@ -92,51 +99,31 @@ class VideoLinkBookingService(
         EntityNotFoundException("Video link booking with id $videoBookingId not found")
       }
 
-    booking.pre?.let { prisonApiService.deleteAppointment(it.appointmentId) }
-    booking.main.let { prisonApiService.deleteAppointment(it.appointmentId) }
-    booking.post?.let { prisonApiService.deleteAppointment(it.appointmentId) }
+    booking.appointments.values.forEach { prisonApiService.deleteAppointment(it.appointmentId) }
 
-    val bookingId = booking.main.bookingId
+    val bookingId = booking.offenderBookingId
     val comment = specification.comment
 
     val mainEvent = savePrisonAppointment(bookingId, comment, specification.main)
     val preEvent = specification.pre?.let { savePrisonAppointment(bookingId, comment, it) }
     val postEvent = specification.post?.let { savePrisonAppointment(bookingId, comment, it) }
 
-    val court = booking.main.court
-    val courtId = booking.main.courtId
-    val madeByTheCourt = booking.main.madeByTheCourt
+    with(booking) {
 
-    booking.main = VideoLinkAppointment(
-      bookingId = bookingId,
-      appointmentId = mainEvent.eventId,
-      court = court,
-      courtId = courtId,
-      hearingType = HearingType.MAIN,
-      madeByTheCourt = madeByTheCourt
-    )
+      /**
+       * Yuk. flush() forces Hibernate to remove the old appointments (if any) before inserting the new ones.
+       * Without this the old appointments aren't removed and we get constraint violations.
+       * If VideoLinkBooking was a composite. ie VideoLinkAppointment was a component not an entity this wouldn't
+       * be a problem.
+       */
+      appointments.clear()
+      videoLinkBookingRepository.flush()
 
-    booking.pre = preEvent?.let {
-      VideoLinkAppointment(
-        bookingId = bookingId,
-        appointmentId = it.eventId,
-        court = court,
-        courtId = courtId,
-        hearingType = HearingType.PRE,
-        madeByTheCourt = madeByTheCourt
-      )
+      addMainAppointment(mainEvent.eventId)
+      preEvent?.let { addPreAppointment(it.eventId) }
+      postEvent?.let { addPostAppointment(it.eventId) }
     }
 
-    booking.post = postEvent?.let {
-      VideoLinkAppointment(
-        bookingId = bookingId,
-        appointmentId = it.eventId,
-        court = court,
-        courtId = courtId,
-        hearingType = HearingType.POST,
-        madeByTheCourt = madeByTheCourt
-      )
-    }
     /**
      * Ensure that the new VideoLinkAppointment objects are persistent
      * and so have ids before the ApplicationInsightsEventListener is called.
@@ -161,56 +148,37 @@ class VideoLinkBookingService(
     )
   )
 
-  private fun toAppointment(id: Long, type: HearingType, specification: VideoLinkBookingSpecification): VideoLinkAppointment {
-    val courtId = specification.courtId ?: specification.court?. let { courtService.findId(it) }
-    return VideoLinkAppointment(
-      bookingId = specification.bookingId!!,
-      appointmentId = id,
-      court = specification.court,
-      courtId = courtId,
-      hearingType = type,
-      madeByTheCourt = specification.madeByTheCourt
-    )
-  }
-
   @Transactional(readOnly = true)
   fun getVideoLinkBooking(videoBookingId: Long): VideoLinkBookingResponse {
     val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
       EntityNotFoundException("Video link booking with id $videoBookingId not found")
     }
-    val mainEvent = prisonApiService.getPrisonAppointment(booking.main.appointmentId)
-      ?: throw EntityNotFoundException("main appointment with id ${booking.main.appointmentId} not found in NOMIS")
-    val preEvent = booking.pre?.let { prisonApiService.getPrisonAppointment(it.appointmentId) }
-    val postEvent = booking.post?.let { prisonApiService.getPrisonAppointment(it.appointmentId) }
+
+    val events =
+      booking.appointments.values.associate { it.hearingType to prisonApiService.getPrisonAppointment(it.appointmentId) }
+
+    val mainEvent = events[MAIN]
+      ?: throw EntityNotFoundException("main appointment for video link booking id  ${booking.id} not found in NOMIS")
 
     return VideoLinkBookingResponse(
       videoLinkBookingId = videoBookingId,
-      bookingId = booking.main.bookingId,
+      bookingId = booking.offenderBookingId,
       agencyId = mainEvent.agencyId,
-      court = courtService.chooseCourtName(booking.main),
-      courtId = booking.main.courtId,
+      court = courtService.chooseCourtName(booking),
+      courtId = booking.courtId,
       comment = mainEvent.comment,
-      pre = preEvent?.let {
-        VideoLinkBookingResponse.LocationTimeslot(
-          locationId = it.eventLocationId,
-          startTime = it.startTime,
-          endTime = it.endTime!!
-        )
-      },
-      main = VideoLinkBookingResponse.LocationTimeslot(
-        locationId = mainEvent.eventLocationId,
-        startTime = mainEvent.startTime,
-        endTime = mainEvent.endTime!!
-      ),
-      post = postEvent?.let {
-        VideoLinkBookingResponse.LocationTimeslot(
-          locationId = it.eventLocationId,
-          startTime = it.startTime,
-          endTime = it.endTime!!
-        )
-      }
+      pre = events[PRE]?.let { toLocationTimeslot(it) },
+      main = toLocationTimeslot(mainEvent),
+      post = events[POST]?.let { toLocationTimeslot(it) }
     )
   }
+
+  private fun toLocationTimeslot(it: PrisonAppointment) =
+    VideoLinkBookingResponse.LocationTimeslot(
+      locationId = it.eventLocationId,
+      startTime = it.startTime,
+      endTime = it.endTime!!
+    )
 
   @Transactional
   fun deleteVideoLinkBooking(videoBookingId: Long): VideoLinkBooking {
@@ -218,7 +186,7 @@ class VideoLinkBookingService(
       EntityNotFoundException("Video link booking with id $videoBookingId not found")
     }
 
-    booking.toAppointments().forEach { prisonApiService.deleteAppointment(it.appointmentId) }
+    booking.appointments.values.forEach { prisonApiService.deleteAppointment(it.appointmentId) }
     videoLinkBookingRepository.deleteById(booking.id!!)
     videoLinkBookingEventListener.bookingDeleted(booking)
     return booking
@@ -237,25 +205,25 @@ class VideoLinkBookingService(
 
     val scheduledAppointmentIds = scheduledAppointments.map { it.id }
 
-    val bookings = videoLinkBookingRepository.findByMainAppointmentIds(scheduledAppointmentIds)
+    val bookings = videoLinkBookingRepository.findByAppointmentIdsAndHearingType(scheduledAppointmentIds, MAIN)
 
     val scheduledAppointmentsById = scheduledAppointments.associateBy { it.id }
 
     return bookings
-      .filter { scheduledAppointmentsById.containsKey(it.main.appointmentId) }
+      .filter { scheduledAppointmentsById.containsKey(it.appointments[MAIN]?.appointmentId) }
       .filter { it.matchesCourt(court, courtId) }
-      .filter { hasAnEndDate(scheduledAppointmentsById[it.main.appointmentId]!!) }
-      .map { b ->
-        val prisonMain = scheduledAppointmentsById[b.main.appointmentId]!!
+      .filter { hasAnEndDate(scheduledAppointmentsById[it.appointments[MAIN]?.appointmentId]!!) }
+      .map {
+        val prisonMain = scheduledAppointmentsById[it.appointments[MAIN]?.appointmentId]!!
         VideoLinkBookingResponse(
-          videoLinkBookingId = b.id!!,
-          bookingId = b.main.bookingId,
+          videoLinkBookingId = it.id!!,
+          bookingId = it.offenderBookingId,
           agencyId = prisonMain.agencyId,
-          court = courtService.chooseCourtName(b.main),
-          courtId = b.main.courtId,
+          court = courtService.chooseCourtName(it),
+          courtId = it.courtId,
           main = toVideoLinkAppointmentDto(prisonMain)!!,
-          pre = toVideoLinkAppointmentDto(scheduledAppointmentsById[b.pre?.appointmentId]),
-          post = toVideoLinkAppointmentDto(scheduledAppointmentsById[b.post?.appointmentId])
+          pre = toVideoLinkAppointmentDto(scheduledAppointmentsById[it.appointments[PRE]?.appointmentId]),
+          post = toVideoLinkAppointmentDto(scheduledAppointmentsById[it.appointments[POST]?.appointmentId])
         )
       }
   }
@@ -264,9 +232,7 @@ class VideoLinkBookingService(
     val booking = videoLinkBookingRepository.findById(videoLinkBookingId).orElseThrow {
       EntityNotFoundException("Video link booking with id $videoLinkBookingId not found")
     }
-    booking.main.apply { prisonApiService.updateAppointmentComment(appointmentId, comment) }
-    booking.pre?.apply { prisonApiService.updateAppointmentComment(appointmentId, comment) }
-    booking.post?.apply { prisonApiService.updateAppointmentComment(appointmentId, comment) }
+    booking.appointments.values.forEach { prisonApiService.updateAppointmentComment(it.appointmentId, comment) }
   }
 
   private fun toVideoLinkAppointmentDto(scheduledAppointment: ScheduledAppointmentDto?) =

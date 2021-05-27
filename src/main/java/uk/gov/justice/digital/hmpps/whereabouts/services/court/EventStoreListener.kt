@@ -3,6 +3,9 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventType
@@ -29,16 +32,16 @@ class EventStoreListener(
         comment = specification.comment,
         offenderBookingId = specification.bookingId,
         madeByTheCourt = specification.madeByTheCourt,
-        mainNomisAppointmentId = booking.main.appointmentId,
+        mainNomisAppointmentId = booking.appointments[MAIN]?.appointmentId,
         mainLocationId = specification.main.locationId,
         mainStartTime = specification.main.startTime,
         mainEndTime = specification.main.endTime,
-        preNomisAppointmentId = booking.pre?.appointmentId,
+        preNomisAppointmentId = booking.appointments[PRE]?.appointmentId,
         preLocationId = specification.pre?.locationId,
         preStartTime = specification.pre?.startTime,
         preEndTime = specification.pre?.endTime,
         postLocationId = specification.post?.locationId,
-        postNomisAppointmentId = booking.post?.appointmentId,
+        postNomisAppointmentId = booking.appointments[POST]?.appointmentId,
         postStartTime = specification.post?.startTime,
         postEndTime = specification.post?.endTime
       )
@@ -53,16 +56,16 @@ class EventStoreListener(
         userId = authenticationFacade.currentUsername,
         videoLinkBookingId = booking.id!!,
         comment = specification.comment,
-        mainNomisAppointmentId = booking.main.appointmentId,
+        mainNomisAppointmentId = booking.appointments[MAIN]?.appointmentId,
         mainLocationId = specification.main.locationId,
         mainStartTime = specification.main.startTime,
         mainEndTime = specification.main.endTime,
-        preNomisAppointmentId = booking.pre?.appointmentId,
+        preNomisAppointmentId = booking.appointments[PRE]?.appointmentId,
         preLocationId = specification.pre?.locationId,
         preStartTime = specification.pre?.startTime,
         preEndTime = specification.pre?.endTime,
         postLocationId = specification.post?.locationId,
-        postNomisAppointmentId = booking.post?.appointmentId,
+        postNomisAppointmentId = booking.appointments[POST]?.appointmentId,
         postStartTime = specification.post?.startTime,
         postEndTime = specification.post?.endTime
       )

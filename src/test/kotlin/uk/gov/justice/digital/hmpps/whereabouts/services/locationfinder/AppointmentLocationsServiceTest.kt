@@ -11,8 +11,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyList
 import org.mockito.ArgumentMatchers.anyString
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
@@ -229,45 +227,14 @@ class AppointmentLocationsServiceTest {
     whenever(videoLinkBookingRepository.findAllById(anyList()))
       .thenReturn(
         listOf(
-          VideoLinkBooking(
-            id = 1L,
-            main = VideoLinkAppointment(
-              appointmentId = 1L,
-              id = 1L,
-              bookingId = 9999L,
-              court = "Don't care",
-              courtId = "XXXX",
-              hearingType = HearingType.MAIN
-            )
-          ),
-          VideoLinkBooking(
-            id = 2L,
-            main = VideoLinkAppointment(
-              appointmentId = 10L,
-              id = 2L,
-              bookingId = 9999L,
-              court = "Don't care",
-              courtId = "XXXX",
-              hearingType = HearingType.MAIN
-            ),
-            pre = VideoLinkAppointment(
-              appointmentId = 3L,
-              id = 3L,
-              bookingId = 9999L,
-              court = "Don't care",
-              courtId = "XXXX",
-              hearingType = HearingType.PRE
-            ),
-            post = VideoLinkAppointment(
-              appointmentId = 4L,
-              id = 4L,
-              bookingId = 9999L,
-              court = "Don't care",
-              courtId = "XXXX",
-              hearingType = HearingType.POST
-            ),
-          )
-
+          VideoLinkBooking(id = 1L, offenderBookingId = 9999L, courtName = "Don't care", courtId = "XXXX").apply {
+            addMainAppointment(id = 1L, appointmentId = 1L)
+          },
+          VideoLinkBooking(id = 2L, offenderBookingId = 9999L, courtName = "Don't care", courtId = "XXXX").apply {
+            addMainAppointment(id = 2L, appointmentId = 10L)
+            addPreAppointment(id = 3L, appointmentId = 3L)
+            addPostAppointment(id = 4L, appointmentId = 4L)
+          }
         )
       )
 
@@ -305,7 +272,9 @@ class AppointmentLocationsServiceTest {
 
   @Test
   fun `it translates LocationsForAppointmentIntervals to AvaliableLocations`() {
-    whenever(prisonApiService.getScheduledAppointments(anyString(), any(), anyOrNull(), anyOrNull())).thenReturn(emptyList())
+    whenever(prisonApiService.getScheduledAppointments(anyString(), any(), anyOrNull(), anyOrNull())).thenReturn(
+      emptyList()
+    )
 
     whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted(anyString(), anyString()))
       .thenReturn(

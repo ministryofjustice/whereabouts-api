@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.model.Court
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtRepository
 
 const val UNKNOWN_COURT_NAME = "Unknown"
@@ -22,9 +22,7 @@ class CourtService(private val courtRepository: CourtRepository) {
   fun findName(courtId: String): String? = idToNameMap[courtId]
   fun findId(courtName: String): String? = nameToIdMap[courtName.trim().lowercase()]
 
-  fun chooseCourtName(appointment: VideoLinkAppointment): String {
-    val courtName = appointment.courtId?.let { findName(it) } ?: appointment.court ?: UNKNOWN_COURT_NAME
-    println("CourtService.chooseCourtName: appointment $appointment. Found courtName $courtName")
-    return courtName
+  fun chooseCourtName(booking: VideoLinkBooking): String {
+    return booking.courtId?.let { findName(it) } ?: booking.courtName ?: UNKNOWN_COURT_NAME
   }
 }

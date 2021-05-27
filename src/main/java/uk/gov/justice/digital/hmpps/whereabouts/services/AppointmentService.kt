@@ -17,6 +17,9 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RecurringAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RelatedAppointment
@@ -88,7 +91,7 @@ class AppointmentService(
     }
 
     val videoLinkBooking: VideoLinkBooking? =
-      videoLinkBookingRepository.findByMainAppointmentIds(listOf(appointmentId)).firstOrNull()
+      videoLinkBookingRepository.findByAppointmentIdsAndHearingType(listOf(appointmentId), MAIN).firstOrNull()
 
     val recurringAppointment: RecurringAppointment? =
       recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(
@@ -98,8 +101,10 @@ class AppointmentService(
     return AppointmentDetailsDto(
       appointment = makeAppointmentDto(offenderNo, mainAppointmentDetails),
       videoLinkBooking = videoLinkBooking?.let {
-        val preAppointmentDetails = it.pre?.let { pre -> prisonApiService.getPrisonAppointment(pre.appointmentId) }
-        val postAppointmentDetails = it.post?.let { post -> prisonApiService.getPrisonAppointment(post.appointmentId) }
+        val preAppointmentDetails =
+          it.appointments[PRE]?.let { pre -> prisonApiService.getPrisonAppointment(pre.appointmentId) }
+        val postAppointmentDetails =
+          it.appointments[POST]?.let { post -> prisonApiService.getPrisonAppointment(post.appointmentId) }
 
         makeVideoLinkBookingAppointmentDto(it, mainAppointmentDetails, preAppointmentDetails, postAppointmentDetails)
       },
@@ -135,7 +140,7 @@ class AppointmentService(
       ?: throw EntityNotFoundException("Appointment $appointmentId does not exist")
 
     val videoLinkBooking: VideoLinkBooking? =
-      videoLinkBookingRepository.findByMainAppointmentIds(listOf(appointmentId)).firstOrNull()
+      videoLinkBookingRepository.findByAppointmentIdsAndHearingType(listOf(appointmentId), MAIN).firstOrNull()
 
     if (videoLinkBooking != null) {
       videoLinkBookingService.deleteVideoLinkBooking(videoLinkBooking.id!!)
@@ -214,12 +219,12 @@ class AppointmentService(
     VideoLinkBookingDto(
       id = videoLinkBooking.id!!,
       main = makeVideoLinkAppointmentDto(
-        videoLinkBooking.main,
+        videoLinkBooking.appointments[MAIN]!!,
         startTime = mainAppointmentDetails?.startTime,
         endTime = mainAppointmentDetails?.endTime,
         locationId = mainAppointmentDetails?.eventLocationId
       ),
-      pre = videoLinkBooking.pre?.let {
+      pre = videoLinkBooking.appointments[PRE]?.let {
         makeVideoLinkAppointmentDto(
           it,
           startTime = preAppointmentDetails?.startTime,
@@ -227,7 +232,7 @@ class AppointmentService(
           locationId = preAppointmentDetails?.eventLocationId
         )
       },
-      post = videoLinkBooking.post?.let {
+      post = videoLinkBooking.appointments[POST]?.let {
         makeVideoLinkAppointmentDto(
           it,
           startTime = postAppointmentDetails?.startTime,
@@ -245,13 +250,13 @@ class AppointmentService(
   ): VideoLinkAppointmentDto =
     VideoLinkAppointmentDto(
       id = videoLinkAppointment.id!!,
-      bookingId = videoLinkAppointment.bookingId,
+      bookingId = videoLinkAppointment.videoLinkBooking.offenderBookingId,
       appointmentId = videoLinkAppointment.appointmentId,
-      court = courtService.chooseCourtName(videoLinkAppointment),
-      courtId = videoLinkAppointment.courtId,
+      court = courtService.chooseCourtName(videoLinkAppointment.videoLinkBooking),
+      courtId = videoLinkAppointment.videoLinkBooking.courtId,
       hearingType = videoLinkAppointment.hearingType,
-      createdByUsername = videoLinkAppointment.createdByUsername,
-      madeByTheCourt = videoLinkAppointment.madeByTheCourt,
+      createdByUsername = videoLinkAppointment.videoLinkBooking.createdByUsername,
+      madeByTheCourt = videoLinkAppointment.videoLinkBooking.madeByTheCourt,
       startTime = startTime,
       endTime = endTime,
       locationId = locationId

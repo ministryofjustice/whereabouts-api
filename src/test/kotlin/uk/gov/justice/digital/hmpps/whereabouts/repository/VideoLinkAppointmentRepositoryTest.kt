@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.repository
 
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -12,8 +11,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 
 @ActiveProfiles("test")
@@ -24,6 +22,9 @@ class VideoLinkAppointmentRepositoryTest {
   @Autowired
   lateinit var videoLinkAppointmentRepository: VideoLinkAppointmentRepository
 
+  @Autowired
+  lateinit var videoLinkBookingRepository: VideoLinkBookingRepository
+
   @MockBean
   lateinit var authenticationFacade: AuthenticationFacade
 
@@ -33,25 +34,22 @@ class VideoLinkAppointmentRepositoryTest {
 
     val preAppointments = videoLinkAppointmentRepository.findAll()
 
-    videoLinkAppointmentRepository.save(
-      VideoLinkAppointment(
-        appointmentId = 1,
-        bookingId = 2,
-        court = "York",
-        hearingType = HearingType.MAIN
-      )
+    videoLinkBookingRepository.save(
+      VideoLinkBooking(offenderBookingId = 2, courtName = "York").apply {
+        addMainAppointment(appointmentId = 1)
+      }
     )
 
-    videoLinkAppointmentRepository.save(
-      VideoLinkAppointment(
-        appointmentId = 3,
-        bookingId = 4,
-        court = null,
+    videoLinkBookingRepository.save(
+      VideoLinkBooking(
+        offenderBookingId = 4,
+        courtName = null,
         courtId = "TSTCRT",
-        hearingType = HearingType.MAIN,
         createdByUsername = "username2",
         madeByTheCourt = false
-      )
+      ).apply {
+        addMainAppointment(appointmentId = 3)
+      }
     )
 
     TestTransaction.flagForCommit()
@@ -59,17 +57,7 @@ class VideoLinkAppointmentRepositoryTest {
 
     val appointments = videoLinkAppointmentRepository.findAll().minus(preAppointments)
 
-    assertThat(appointments).extracting(
-      "appointmentId",
-      "bookingId",
-      "court",
-      "courtId",
-      "createdByUsername",
-      "madeByTheCourt"
-    )
-      .containsExactlyInAnyOrder(
-        Tuple.tuple(1L, 2L, "York", null, "username1", true),
-        Tuple.tuple(3L, 4L, null, "TSTCRT", "username1", false)
-      )
+    assertThat(appointments).extracting("appointmentId")
+      .containsExactlyInAnyOrder(1L, 3L)
   }
 }
