@@ -45,14 +45,17 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Service
 public class PrisonApiService {
     private static final Logger logger = LoggerFactory.getLogger(PrisonApiService.class);
-    private final WebClient webClient;
+    private final WebClient prisonApiClientCreds;
+    private final WebClient prisonAPiWebClientAuditable;
 
-    public PrisonApiService(@Qualifier("elite2WebClient") final WebClient webClient) {
-        this.webClient = webClient;
+
+    public PrisonApiService(@Qualifier("elite2WebClient") final WebClient prisonApiClientCreds, final WebClient prisonAPiWebClientAuditable) {
+        this.prisonApiClientCreds = prisonApiClientCreds;
+        this.prisonAPiWebClientAuditable = prisonAPiWebClientAuditable;
     }
 
     public void putAttendance(final Long bookingId, final long activityId, final EventOutcome eventOutcome) {
-        webClient.put()
+        prisonApiClientCreds.put()
                 .uri("/bookings/{bookingId}/activities/{activityId}/attendance", bookingId, activityId)
                 .bodyValue(eventOutcome)
                 .retrieve()
@@ -61,7 +64,7 @@ public class PrisonApiService {
     }
 
     public void putAttendanceForMultipleBookings(final Set<BookingActivity> bookingActivities, final EventOutcome eventOutcome) {
-        webClient.put()
+        prisonApiClientCreds.put()
                 .uri("/bookings/activities/attendance")
                 .bodyValue(new EventOutcomesDto(
                         eventOutcome.getEventOutcome(),
@@ -78,7 +81,7 @@ public class PrisonApiService {
         final var responseType = new ParameterizedTypeReference<List<Map>>() {
         };
 
-        return Objects.requireNonNull(webClient.get()
+        return Objects.requireNonNull(prisonApiClientCreds.get()
                 .uri("/schedules/{prisonId}/activities?date={date}&timeSlot={period}", prisonId, date, period)
                 .retrieve()
                 .bodyToMono(responseType)
@@ -90,7 +93,7 @@ public class PrisonApiService {
     }
 
     public String getOffenderNoFromBookingId(final Long bookingId) {
-        return webClient.get()
+        return prisonApiClientCreds.get()
                 .uri("/bookings/{bookingId}?basicInfo=true", bookingId)
                 .retrieve()
                 .bodyToMono(Map.class)
@@ -103,7 +106,7 @@ public class PrisonApiService {
         final var responseType = new ParameterizedTypeReference<List<OffenderBooking>>() {
         };
 
-        return webClient.post()
+        return prisonApiClientCreds.post()
                 .uri("/bookings/offenders")
                 .bodyValue(offenderNos)
                 .retrieve()
@@ -115,7 +118,7 @@ public class PrisonApiService {
         final var responseType = new ParameterizedTypeReference<List<OffenderDetails>>() {
         };
 
-        return webClient.get()
+        return prisonApiClientCreds.get()
                 .uri("/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}&includeSuspended=true", prisonId, fromDate, toDate, period)
                 .retrieve()
                 .bodyToMono(responseType)
@@ -127,7 +130,7 @@ public class PrisonApiService {
         };
 
         try {
-            return webClient.get()
+            return prisonApiClientCreds.get()
                     .uri("/agencies/{agencyId}/locations/groups", agencyId)
                     .retrieve()
                     .bodyToMono(responseType)
@@ -145,7 +148,7 @@ public class PrisonApiService {
         };
 
         try {
-            return webClient.get()
+            return prisonApiClientCreds.get()
                     .uri("/agencies/{agencyId}/locations/type/{type}", agencyId, locationType)
                     .retrieve()
                     .bodyToMono(responseType)
@@ -170,7 +173,7 @@ public class PrisonApiService {
         };
 
         try {
-            return webClient.get()
+            return prisonApiClientCreds.get()
                     .uri("/agencies/{agencyId}/locations?eventType={locationType}", agencyId, locationType)
                     .retrieve()
                     .bodyToMono(responseType)
@@ -189,7 +192,7 @@ public class PrisonApiService {
         final var uri = attribute != null ? "/agencies/{agencyId}/cellsWithCapacity?attribute={attribute}" : "/agencies/{agencyId}/cellsWithCapacity";
 
         try {
-            return webClient.get()
+            return prisonApiClientCreds.get()
                     .uri(uri, agencyId, attribute)
                     .retrieve()
                     .bodyToMono(responseType)
@@ -206,7 +209,7 @@ public class PrisonApiService {
         final var responseType = new ParameterizedTypeReference<Event>() {
         };
 
-        return webClient.post()
+        return prisonApiClientCreds.post()
                 .uri("/bookings/{bookingId}/appointments", bookingId)
                 .bodyValue(createbookingAppointment)
                 .retrieve()
@@ -217,6 +220,8 @@ public class PrisonApiService {
     public List<CreatedAppointmentDetailsDto> createAppointments(final CreatePrisonAppointment createPrisonAppointment) {
         final var responseType = new ParameterizedTypeReference<List<CreatedAppointmentDetailsDto>>() {
         };
+
+        final var webClient = prisonAPiWebClientAuditable == null ? prisonApiClientCreds : prisonAPiWebClientAuditable;
 
         return webClient.post()
                 .uri("/appointments")
@@ -230,7 +235,7 @@ public class PrisonApiService {
         final var responseType = new ParameterizedTypeReference<CellMoveResult>() {
         };
 
-        return webClient.put()
+        return prisonApiClientCreds.put()
                 .uri("/bookings/{bookingId}/living-unit/{internalLocationDescription}?reasonCode={reasonCode}",
                         bookingId, internalLocationDescription, reasonCode)
                 .retrieve()
@@ -239,7 +244,7 @@ public class PrisonApiService {
     }
 
     public PrisonAppointment getPrisonAppointment(long appointmentId) {
-        return webClient.get()
+        return prisonApiClientCreds.get()
                 .uri("/appointments/{appointmentId}", appointmentId)
                 .retrieve()
                 .bodyToMono(PrisonAppointment.class)
@@ -250,7 +255,7 @@ public class PrisonApiService {
 
     public void deleteAppointment(final Long appointmentId) {
 
-        webClient.delete()
+        prisonApiClientCreds.delete()
                 .uri("/appointments/{appointmentId}", appointmentId)
                 .retrieve()
                 .toBodilessEntity()
@@ -262,7 +267,7 @@ public class PrisonApiService {
     }
 
     public void updateAppointmentComment(long appointmentId, @Nullable String comment) {
-        webClient.put()
+        prisonApiClientCreds.put()
                 .uri("/appointments/{appointmentId}/comment", appointmentId)
                 .contentType(MediaType.TEXT_PLAIN)
                 .body(comment != null ? BodyInserters.fromValue(comment) : BodyInserters.empty())
@@ -276,7 +281,7 @@ public class PrisonApiService {
     }
 
     public List<ScheduledAppointmentSearchDto> getScheduledAppointments(final String agencyId, final LocalDate date, final TimePeriod timeSlot, final Long locationId) {
-        return webClient.get()
+        return prisonApiClientCreds.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/schedules/{agencyId}/appointments")
                         .queryParam("date", "{date}")
@@ -291,7 +296,7 @@ public class PrisonApiService {
 
 
     public List<ScheduledAppointmentDto> getScheduledAppointments(final String agencyId, final LocalDate date) {
-        return webClient.get()
+        return prisonApiClientCreds.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/schedules/{agencyId}/appointments")
                         .queryParam("date", "{date}")
@@ -304,7 +309,7 @@ public class PrisonApiService {
 
 
     public LocationDto getLocation(long locationId) {
-        return webClient.get()
+        return prisonApiClientCreds.get()
                 .uri("/locations/{locationId}", locationId)
                 .retrieve()
                 .bodyToMono(LocationDto.class)

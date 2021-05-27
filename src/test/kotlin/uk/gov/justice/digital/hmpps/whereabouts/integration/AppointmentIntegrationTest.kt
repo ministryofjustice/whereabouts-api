@@ -26,6 +26,7 @@ import java.util.Optional
 class AppointmentIntegrationTest : IntegrationTest() {
   @MockBean
   lateinit var courtRepository: CourtRepository
+
   @MockBean
   lateinit var videoLinkBookingRepository: VideoLinkBookingRepository
 
@@ -153,6 +154,8 @@ class AppointmentIntegrationTest : IntegrationTest() {
         postRequestedFor(urlEqualTo("/api/appointments"))
           .withRequestBody(equalToJson(loadJsonFile("create-prison-appointment-no-repeat.json")))
       )
+
+      oauthMockServer.verify(0, postRequestedFor(urlEqualTo("/auth/oauth/token")))
     }
 
     @Test
