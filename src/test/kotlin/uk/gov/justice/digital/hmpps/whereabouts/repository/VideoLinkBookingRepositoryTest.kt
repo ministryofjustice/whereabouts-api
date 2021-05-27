@@ -64,7 +64,7 @@ class VideoLinkBookingRepositoryTest(
     TestTransaction.flagForCommit()
     TestTransaction.end()
 
-    val persistentBooking = repository.getOne(id)
+    val persistentBooking = repository.getById(id)
 
     assertThat(persistentBooking)
       .usingRecursiveComparison()
@@ -93,7 +93,7 @@ class VideoLinkBookingRepositoryTest(
     TestTransaction.flagForCommit()
     TestTransaction.end()
 
-    val persistentBooking = repository.getOne(id)
+    val persistentBooking = repository.getById(id)
 
     assertThat(persistentBooking)
       .usingRecursiveComparison()
@@ -177,8 +177,9 @@ class VideoLinkBookingRepositoryTest(
     val bookings = repository.findByAppointmentIdsAndHearingType((-999L..1000L step 2).map { it }, MAIN)
     assertThat(bookings).hasSize(5)
 
-    val appointmentIds = bookings.map { it.appointments[MAIN]?.appointmentId }
-    assertThat(appointmentIds).containsExactlyInAnyOrder(1L, 3L, 5L, 7L, 9L)
+    assertThat(bookings.map { it.appointments[PRE]?.appointmentId }).containsExactlyInAnyOrder(2L, 8L, 14L, 20L, 26L)
+    assertThat(bookings.map { it.appointments[MAIN]?.appointmentId }).containsExactlyInAnyOrder(3L, 9L, 15L, 21L, 27L)
+    assertThat(bookings.map { it.appointments[POST]?.appointmentId }).containsExactlyInAnyOrder(4L, 10L, 16L, 22L, 28L)
   }
 
   @Test
@@ -196,7 +197,7 @@ class VideoLinkBookingRepositoryTest(
     TestTransaction.end()
     TestTransaction.start()
 
-    val booking = repository.getOne(id)
+    val booking = repository.getById(id)
 
     booking.appointments.remove(PRE)
     booking.appointments.remove(POST)
@@ -226,7 +227,7 @@ class VideoLinkBookingRepositoryTest(
     TestTransaction.end()
     TestTransaction.start()
 
-    val booking = repository.getOne(id)
+    val booking = repository.getById(id)
 
     /**
      * Have to flush() to force Hibernate to delete any old appointments before adding replacements.
@@ -256,7 +257,7 @@ class VideoLinkBookingRepositoryTest(
 
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(3)
 
-    val updatedBooking = repository.getOne(id)
+    val updatedBooking = repository.getById(id)
     assertThat(updatedBooking.appointments.values.map { it.appointmentId }).contains(100, 101, 102)
   }
 
@@ -268,7 +269,9 @@ class VideoLinkBookingRepositoryTest(
         courtId = "TSTCRT",
         madeByTheCourt = true
       ).apply {
-        addMainAppointment(appointmentId = it)
+        addPreAppointment(appointmentId = it * 3 - 1)
+        addMainAppointment(appointmentId = it * 3)
+        addPostAppointment(appointmentId = it * 3 + 1)
       }
     }
 }
