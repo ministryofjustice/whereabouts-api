@@ -43,6 +43,7 @@ import javax.persistence.EntityNotFoundException
 class AppointmentServiceTest {
   private val courtRepository: CourtRepository = mock()
   private val prisonApiService: PrisonApiService = mock()
+  private val prisonApiServiceAuditable: PrisonApiServiceAuditable = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
   private val recurringAppointmentRepository: RecurringAppointmentRepository = mock()
   private val videoLinkBookingService: VideoLinkBookingService = mock()
@@ -55,6 +56,7 @@ class AppointmentServiceTest {
     appointmentService = AppointmentService(
       CourtService(courtRepository),
       prisonApiService,
+      prisonApiServiceAuditable,
       videoLinkBookingRepository,
       recurringAppointmentRepository,
       videoLinkBookingService,
@@ -475,7 +477,7 @@ class AppointmentServiceTest {
           endTime = END_TIME,
           appointmentType = "INST"
         )
-      whenever(prisonApiService.createAppointments(any()))
+      whenever(prisonApiServiceAuditable.createAppointments(any()))
         .thenReturn(
           listOf(
             createAppointmentDetails.copy(appointmentEventId = 1),
@@ -496,7 +498,7 @@ class AppointmentServiceTest {
         )
       )
 
-      verify(prisonApiService).createAppointments(
+      verify(prisonApiServiceAuditable).createAppointments(
         DataHelpers.makeCreatePrisonAppointment(
           bookingId = BOOKING_ID,
           startTime = START_TIME,
@@ -507,7 +509,7 @@ class AppointmentServiceTest {
 
     @Test
     fun `calls prison API to create a set of repeatable appointments`() {
-      val appointmentDetails = appointmentService.createAppointment(
+      appointmentService.createAppointment(
         DataHelpers.makeCreateAppointmentSpecification(
           bookingId = BOOKING_ID,
           startTime = START_TIME,
@@ -516,7 +518,7 @@ class AppointmentServiceTest {
         )
       )
 
-      verify(prisonApiService).createAppointments(
+      verify(prisonApiServiceAuditable).createAppointments(
         DataHelpers.makeCreatePrisonAppointment(
           bookingId = BOOKING_ID,
           startTime = START_TIME,

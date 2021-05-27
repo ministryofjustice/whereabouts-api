@@ -5,10 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
-public class PrisonApiService extends PrisonApi {
-    public PrisonApiService(@Qualifier("elite2WebClient") final WebClient webClient) {
+public class PrisonApiServiceAuditable extends PrisonApi {
+    public PrisonApiServiceAuditable(@Qualifier("prisonAPiWebClientAuditable") final WebClient webClient) {
         super(webClient);
     }
 }
-
-
