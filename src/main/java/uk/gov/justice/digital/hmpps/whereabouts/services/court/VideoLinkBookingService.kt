@@ -196,32 +196,32 @@ class VideoLinkBookingService(
   fun getVideoLinkBookingsForPrisonAndDateAndCourt(
     agencyId: String,
     date: LocalDate,
-    court: String?,
+    courtName: String?,
     courtId: String?
   ): List<VideoLinkBookingResponse> {
     val scheduledAppointments = prisonApiService
       .getScheduledAppointments(agencyId, date)
       .filter { it.appointmentTypeCode == "VLB" }
+      .filter { hasAnEndDate(it) }
 
     val scheduledAppointmentIds = scheduledAppointments.map { it.id }
 
+    // If a booking's main appointment doesn't match one of the scheduledAppointmentIds then it is excluded
     val bookings = videoLinkBookingRepository.findByAppointmentIdsAndHearingType(scheduledAppointmentIds, MAIN)
 
     val scheduledAppointmentsById = scheduledAppointments.associateBy { it.id }
 
     return bookings
-      .filter { scheduledAppointmentsById.containsKey(it.appointments[MAIN]?.appointmentId) }
-      .filter { it.matchesCourt(court, courtId) }
-      .filter { hasAnEndDate(scheduledAppointmentsById[it.appointments[MAIN]?.appointmentId]!!) }
+      .filter { it.matchesCourt(courtName, courtId) }
       .map {
-        val prisonMain = scheduledAppointmentsById[it.appointments[MAIN]?.appointmentId]!!
+        val mainPrisonAppointment = scheduledAppointmentsById[it.appointments[MAIN]?.appointmentId]!!
         VideoLinkBookingResponse(
           videoLinkBookingId = it.id!!,
           bookingId = it.offenderBookingId,
-          agencyId = prisonMain.agencyId,
+          agencyId = mainPrisonAppointment.agencyId,
           court = courtService.chooseCourtName(it),
           courtId = it.courtId,
-          main = toVideoLinkAppointmentDto(prisonMain)!!,
+          main = toVideoLinkAppointmentDto(mainPrisonAppointment)!!,
           pre = toVideoLinkAppointmentDto(scheduledAppointmentsById[it.appointments[PRE]?.appointmentId]),
           post = toVideoLinkAppointmentDto(scheduledAppointmentsById[it.appointments[POST]?.appointmentId])
         )

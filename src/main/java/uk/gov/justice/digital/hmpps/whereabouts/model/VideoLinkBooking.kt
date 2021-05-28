@@ -35,7 +35,7 @@ data class VideoLinkBooking(
   @OneToMany(
     mappedBy = "videoLinkBooking",
     fetch = FetchType.EAGER,
-    cascade = [CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.REFRESH],
+    cascade = [CascadeType.PERSIST, CascadeType.REMOVE],
     orphanRemoval = true
   )
   @MapKey(name = "hearingType")
@@ -71,9 +71,9 @@ data class VideoLinkBooking(
     )
   )
 
-  fun matchesCourt(court: String?, courtId: String?): Boolean {
+  fun matchesCourt(courtName: String?, courtId: String?): Boolean {
     if (courtId != null) return courtId == this.courtId
-    if (court != null) return court == this.courtName
+    if (courtName != null) return courtName == this.courtName
     return true
   }
 }

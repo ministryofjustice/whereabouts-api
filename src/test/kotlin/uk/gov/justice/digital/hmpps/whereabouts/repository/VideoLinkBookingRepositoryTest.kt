@@ -166,15 +166,23 @@ class VideoLinkBookingRepositoryTest(
   }
 
   @Test
-  fun `findByMainAppointmentIds no Ids`() {
+  fun `findByAppointmentIdsAndHearingType no Ids`() {
     assertThat(repository.findByAppointmentIdsAndHearingType(listOf(), MAIN)).isEmpty()
   }
 
   @Test
-  fun `findByMainAppointmentIds sparse`() {
+  fun `findByAppointmentIdsAndHearingType sparse`() {
     repository.saveAll(videoLinkBookings())
 
-    val bookings = repository.findByAppointmentIdsAndHearingType((-999L..1000L step 2).map { it }, MAIN)
+    // commit and start new transaction so that Hibernate doesn't pull persisted objects from the session cache
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+
+    TestTransaction.start()
+
+    // -9 ... -1, 1, 3, 5, ... 39
+    val appointmentIds = (-9L..40L step 2).map { it }
+    val bookings = repository.findByAppointmentIdsAndHearingType(appointmentIds, MAIN)
     assertThat(bookings).hasSize(5)
 
     assertThat(bookings.map { it.appointments[PRE]?.appointmentId }).containsExactlyInAnyOrder(2L, 8L, 14L, 20L, 26L)
