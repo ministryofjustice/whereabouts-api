@@ -266,6 +266,15 @@ public class PrisonApiService {
                 .block();
     }
 
+    public void deleteAppointments(final List<Long> appointmentIds) {
+        prisonApiClientCreds.post()
+                .uri("/appointments/delete")
+                .bodyValue(appointmentIds)
+                .retrieve()
+                .toBodilessEntity()
+                .block();
+    }
+
     public void updateAppointmentComment(long appointmentId, @Nullable String comment) {
         prisonApiClientCreds.put()
                 .uri("/appointments/{appointmentId}/comment", appointmentId)

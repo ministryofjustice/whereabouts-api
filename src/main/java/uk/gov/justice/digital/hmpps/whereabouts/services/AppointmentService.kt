@@ -143,11 +143,8 @@ class AppointmentService(
 
     val recurringAppointment: RecurringAppointment? =
       recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(
-        RelatedAppointment(
-          appointmentId
-        )
-      )
-        .orElse(null)
+        RelatedAppointment(appointmentId)
+      ).orElse(null)
 
     if (recurringAppointment == null) {
       prisonApiService.deleteAppointment(appointmentId)
@@ -155,11 +152,13 @@ class AppointmentService(
     }
 
     recurringAppointment.relatedAppointments?.let {
+      val appointmentIds = it.map { appointment -> appointment.id }
 
-      it.forEach { appointment -> prisonApiService.deleteAppointment(appointment.id) }
+      prisonApiService.deleteAppointments(appointmentIds)
+
       recurringAppointmentRepository.deleteById(recurringAppointment.id)
 
-      raiseRecurringAppointmentDeletedTrackingEvent(it.count().toLong())
+      raiseRecurringAppointmentDeletedTrackingEvent(appointmentIds.count().toLong())
     }
   }
 

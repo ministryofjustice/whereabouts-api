@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.delete
+import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
@@ -490,6 +491,19 @@ class PrisonApiMockServer : WireMockServer(8999) {
               )
             )
             .withStatus(200)
+        )
+    )
+  }
+
+  fun stubDeleteAppointments(appointmentIds: List<Int>) {
+    val deleteAppointmentUrl = "/api/appointments/delete"
+
+    stubFor(
+      post(urlPathEqualTo(deleteAppointmentUrl))
+        .withRequestBody(equalToJson(gson.toJson(appointmentIds)))
+        .willReturn(
+          aResponse()
+            .withStatus(204)
         )
     )
   }
