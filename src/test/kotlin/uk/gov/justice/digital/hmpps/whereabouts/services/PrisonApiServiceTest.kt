@@ -43,7 +43,7 @@ class PrisonApiServiceTest {
   fun resetStubs() {
     prisonApiMockServer.resetAll()
     val webClient = WebClient.create("http://localhost:${prisonApiMockServer.port()}/api")
-    prisonApiService = PrisonApiService(webClient, webClient)
+    prisonApiService = PrisonApiService(webClient)
   }
 
   @Test

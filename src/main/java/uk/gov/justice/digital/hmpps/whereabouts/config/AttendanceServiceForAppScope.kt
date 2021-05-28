@@ -1,10 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.config
 
 import com.microsoft.applicationinsights.TelemetryClient
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
@@ -16,7 +14,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 class AttendanceServiceForAppScope {
   @Bean(name = ["attendanceServiceAppScope"])
   fun getAttendanceServiceForAppScope(
-    @Qualifier("elite2WebClientAppScope") webClient: WebClient,
+    prisonApiService: PrisonApiService,
     attendanceRepository: AttendanceRepository,
     attendanceChangesRepository: AttendanceChangesRepository,
     iepWarningService: IEPWarningService,
@@ -27,7 +25,7 @@ class AttendanceServiceForAppScope {
     return AttendanceService(
       attendanceRepository,
       attendanceChangesRepository,
-      PrisonApiService(webClient, null),
+      prisonApiService,
       iepWarningService,
       nomisEventOutcomeMapper,
       telemetryClient

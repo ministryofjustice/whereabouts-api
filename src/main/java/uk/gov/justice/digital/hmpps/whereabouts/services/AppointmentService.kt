@@ -36,6 +36,7 @@ import javax.transaction.Transactional
 class AppointmentService(
   private val courtService: CourtService,
   private val prisonApiService: PrisonApiService,
+  private val prisonApiServiceAuditable: PrisonApiServiceAuditable,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val recurringAppointmentRepository: RecurringAppointmentRepository,
   private val videoLinkBookingService: VideoLinkBookingService,
@@ -109,7 +110,7 @@ class AppointmentService(
   @Transactional
   fun createAppointment(createAppointmentSpecification: CreateAppointmentSpecification): List<CreatedAppointmentDetailsDto> {
     val appointmentCreated =
-      prisonApiService.createAppointments(makePrisonAppointment(createAppointmentSpecification))
+      prisonApiServiceAuditable.createAppointments(makePrisonAppointment(createAppointmentSpecification))
 
     createAppointmentSpecification.repeat?.let {
       val appointmentIds: Set<Long> = appointmentCreated?.map { it.appointmentEventId }?.toSet() ?: emptySet()
