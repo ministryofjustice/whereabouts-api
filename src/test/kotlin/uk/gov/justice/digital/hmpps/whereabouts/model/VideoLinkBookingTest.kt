@@ -17,36 +17,6 @@ class VideoLinkBookingTest {
   }
 
   @Test
-  fun `matches no court or courtId`() {
-    assertThat(videoLinkBooking.matchesCourt(null, null)).isTrue
-  }
-
-  @Test
-  fun `matching court`() {
-    assertThat(videoLinkBooking.matchesCourt(COURT_NAME, null)).isTrue
-  }
-
-  @Test
-  fun `no matching court`() {
-    assertThat(videoLinkBooking.matchesCourt("Some other court", null)).isFalse
-  }
-
-  @Test
-  fun `matching courtId`() {
-    assertThat(videoLinkBooking.matchesCourt(null, COURT_ID)).isTrue
-  }
-
-  @Test
-  fun `no matching courtId`() {
-    assertThat(videoLinkBooking.matchesCourt(null, "XXX")).isFalse
-  }
-
-  @Test
-  fun `courtId takes precedence over court name`() {
-    assertThat(videoLinkBooking.matchesCourt("Some other court", COURT_ID)).isTrue
-  }
-
-  @Test
   fun `preApppointment`() {
     assertThat(videoLinkBooking.appointments[PRE])
       .isNotNull()

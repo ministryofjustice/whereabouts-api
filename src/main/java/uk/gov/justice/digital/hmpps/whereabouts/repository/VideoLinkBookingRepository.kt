@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 
@@ -14,12 +15,16 @@ interface VideoLinkBookingRepository : JpaRepository<VideoLinkBooking, Long> {
        where b.id in (
               select a.videoLinkBooking.id 
                from VideoLinkAppointment a
-              where a.appointmentId in ?1 and a.hearingType = ?2 
+              where a.appointmentId in :ids and a.hearingType = :hearingType 
              )
+             and (:courtName is null or b.courtName = :courtName)
+             and (:courtId is null   or b.courtId = :courtId)
           """
   )
   fun findByAppointmentIdsAndHearingType(
-    ids: List<Long>,
-    hearingType: HearingType = HearingType.MAIN
+    @Param("ids") ids: List<Long>,
+    @Param("hearingType") hearingType: HearingType = HearingType.MAIN,
+    @Param("courtName") courtName: String? = null,
+    @Param("courtId") courtId: String? = null
   ): List<VideoLinkBooking>
 }

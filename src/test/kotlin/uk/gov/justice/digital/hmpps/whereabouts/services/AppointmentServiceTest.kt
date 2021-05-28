@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.isA
+import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.reset
@@ -356,7 +357,14 @@ class AppointmentServiceTest {
 
     @Test
     fun `transform into video link booking`() {
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN))).thenReturn(
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+          any(),
+          eq(HearingType.MAIN),
+          isNull(),
+          isNull()
+        )
+      ).thenReturn(
         listOf(DataHelpers.makeVideoLinkBooking(1L))
       )
 
@@ -442,7 +450,14 @@ class AppointmentServiceTest {
           )
         )
 
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN))).thenReturn(
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+          any(),
+          eq(HearingType.MAIN),
+          isNull(),
+          isNull()
+        )
+      ).thenReturn(
         listOf(DataHelpers.makeVideoLinkBooking(4L))
       )
 
@@ -643,7 +658,14 @@ class AppointmentServiceTest {
 
     @Test
     fun `should delete video link booking`() {
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN))).thenReturn(
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+          any(),
+          eq(HearingType.MAIN),
+          isNull(),
+          isNull()
+        )
+      ).thenReturn(
         listOf(DataHelpers.makeVideoLinkBooking(2L))
       )
 

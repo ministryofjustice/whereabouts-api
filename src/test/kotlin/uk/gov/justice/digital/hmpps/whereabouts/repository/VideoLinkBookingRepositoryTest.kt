@@ -191,6 +191,54 @@ class VideoLinkBookingRepositoryTest(
   }
 
   @Test
+  fun `findByAppointmentIdsAndHearingType filter by courtName`() {
+    repository.save(VideoLinkBooking(offenderBookingId = 1L, courtName = "C1").apply { addMainAppointment(100L) })
+    repository.save(VideoLinkBooking(offenderBookingId = 2L, courtName = "C2").apply { addMainAppointment(101L) })
+    repository.save(VideoLinkBooking(offenderBookingId = 3L, courtName = "C1").apply { addMainAppointment(102L) })
+    repository.save(VideoLinkBooking(offenderBookingId = 4L, courtName = "C2").apply { addMainAppointment(103L) })
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+
+    assertThat(repository.findByAppointmentIdsAndHearingType(listOf(100L, 101L), MAIN))
+      .extracting("offenderBookingId")
+      .containsExactlyInAnyOrder(1L, 2L)
+
+    assertThat(repository.findByAppointmentIdsAndHearingType(listOf(100L, 101L), MAIN, courtName = "C1"))
+      .extracting("offenderBookingId")
+      .containsExactlyInAnyOrder(1L)
+
+    assertThat(repository.findByAppointmentIdsAndHearingType(listOf(100L, 101L), MAIN, courtName = "C2"))
+      .extracting("offenderBookingId")
+      .containsExactlyInAnyOrder(2L)
+  }
+
+  @Test
+  fun `findByAppointmentIdsAndHearingType filter by courtId`() {
+    repository.save(VideoLinkBooking(offenderBookingId = 1L, courtId = "C1").apply { addMainAppointment(100L) })
+    repository.save(VideoLinkBooking(offenderBookingId = 2L, courtId = "C2").apply { addMainAppointment(101L) })
+    repository.save(VideoLinkBooking(offenderBookingId = 3L, courtId = "C1").apply { addMainAppointment(102L) })
+    repository.save(VideoLinkBooking(offenderBookingId = 4L, courtId = "C2").apply { addMainAppointment(103L) })
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+
+    assertThat(repository.findByAppointmentIdsAndHearingType(listOf(100L, 101L), MAIN))
+      .extracting("offenderBookingId")
+      .containsExactlyInAnyOrder(1L, 2L)
+
+    assertThat(repository.findByAppointmentIdsAndHearingType(listOf(100L, 101L), MAIN, courtId = "C1"))
+      .extracting("offenderBookingId")
+      .containsExactlyInAnyOrder(1L)
+
+    assertThat(repository.findByAppointmentIdsAndHearingType(listOf(100L, 101L), MAIN, courtId = "C2"))
+      .extracting("offenderBookingId")
+      .containsExactlyInAnyOrder(2L)
+  }
+
+  @Test
   fun `Removing appointments from a booking should delete the appointments`() {
 
     val id = repository.save(

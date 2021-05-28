@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.isA
+import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -810,7 +811,7 @@ class VideoLinkBookingServiceTest {
     fun `No prison appointments, no VLBs`() {
       whenever(prisonApiService.getScheduledAppointments(anyString(), any())).thenReturn(listOf())
       whenever(
-        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN))
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), any(), any())
       ).thenReturn(listOf())
 
       val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null, null)
@@ -827,7 +828,7 @@ class VideoLinkBookingServiceTest {
             scheduledAppointments("VLB", "WWI", 2000, 2010) +
             scheduledAppointments("XXX", "WWI", 3000, 3010)
         )
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN)))
+      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), isNull(), isNull()))
         .thenReturn(videoLinkBookings("Wimbledon", null, 1, 10))
 
       val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null, null)
@@ -859,47 +860,11 @@ class VideoLinkBookingServiceTest {
     private fun rangesAsList(vararg ranges: LongRange) = ranges.asList().flatMap { range -> range.map { it } }
 
     @Test
-    fun `Happy path - filter by court`() {
-      whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
-        .thenReturn(
-          scheduledAppointments("VLB", "WWI", 1, 10)
-        )
-
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN)))
-        .thenReturn(
-          videoLinkBookings("Wimbledon", null, 1, 5) +
-            videoLinkBookings("Windsor", null, 6, 10)
-        )
-
-      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, "Wimbledon", null)
-      assertThat(bookings)
-        .extracting("main.locationId").containsExactlyInAnyOrder(1001L, 1002L, 1003L, 1004L, 1005L)
-    }
-
-    @Test
-    fun `Happy path - filter by courtId`() {
-      whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
-        .thenReturn(
-          scheduledAppointments("VLB", "WWI", 1, 10)
-        )
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN)))
-        .thenReturn(
-          videoLinkBookings("Wimbledon", "WIM", 1, 5) +
-            videoLinkBookings("Windsor", "WIN", 6, 10)
-        )
-
-      // courtId takes precedence over court => search for bookings matching courtID 'WIN', not court matching 'Wimbledon'
-      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, "Wimbledon", "WIN")
-      assertThat(bookings)
-        .extracting("main.locationId").containsExactlyInAnyOrder(1006L, 1007L, 1008L, 1009L, 1010L)
-    }
-
-    @Test
     fun `Happy path - filter appointment type`() {
       whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
         .thenReturn(scheduledAppointments("NOWT", "WWI", 1, 10))
 
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN)))
+      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), any(), any()))
         .thenReturn(emptyList())
 
       service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null, null)
@@ -942,7 +907,7 @@ class VideoLinkBookingServiceTest {
           )
         )
 
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN)))
+      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), isNull(), isNull()))
         .thenReturn(
           listOf(
             VideoLinkBooking(
@@ -957,11 +922,31 @@ class VideoLinkBookingServiceTest {
           )
         )
 
-      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, "Wimbledon", null)
+      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null, null)
       assertThat(bookings).hasSize(1)
       assertThat(bookings[0].pre).isNotNull
       assertThat(bookings[0].main).isNotNull
       assertThat(bookings[0].post).isNull()
+    }
+
+    @Test
+    fun `Filter by courtName`() {
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any())).thenReturn(emptyList())
+      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), any(), isNull()))
+        .thenReturn(emptyList())
+
+      service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, "The court", null)
+      verify(videoLinkBookingRepository).findByAppointmentIdsAndHearingType(emptyList(), HearingType.MAIN, "The court", null)
+    }
+
+    @Test
+    fun `Filter by courtId`() {
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any())).thenReturn(emptyList())
+      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), isNull(), any()))
+        .thenReturn(emptyList())
+
+      service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null, "COURTID")
+      verify(videoLinkBookingRepository).findByAppointmentIdsAndHearingType(emptyList(), HearingType.MAIN, null, "COURTID")
     }
   }
 

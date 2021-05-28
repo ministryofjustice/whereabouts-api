@@ -70,10 +70,4 @@ data class VideoLinkBooking(
       hearingType = POST
     )
   )
-
-  fun matchesCourt(courtName: String?, courtId: String?): Boolean {
-    if (courtId != null) return courtId == this.courtId
-    if (courtName != null) return courtName == this.courtName
-    return true
-  }
 }

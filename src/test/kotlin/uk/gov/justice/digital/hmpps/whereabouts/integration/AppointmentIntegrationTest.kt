@@ -7,6 +7,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.isA
+import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -74,7 +75,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
 
     @Test
     fun `should return video link booking details`() {
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN)))
+      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), isNull(), isNull()))
         .thenReturn(listOf(DataHelpers.makeVideoLinkBooking(id = 1)))
 
       webTestClient.mutate().responseTimeout(Duration.ofSeconds(10)).build().get()
