@@ -19,10 +19,10 @@ class CourtService(private val courtRepository: CourtRepository) {
   private val idToNameMap: Map<String, String> by lazy { courts.associate { it.id to it.name } }
   private val nameToIdMap: Map<String, String> by lazy { courts.associate { it.name.lowercase() to it.id } }
 
-  fun findName(courtId: String): String? = idToNameMap[courtId]
-  fun findId(courtName: String): String? = nameToIdMap[courtName.trim().lowercase()]
+  fun getCourtNameForCourtId(courtId: String): String? = idToNameMap[courtId]
+  fun getCourtIdForCourtName(courtName: String): String? = nameToIdMap[courtName.trim().lowercase()]
 
   fun chooseCourtName(booking: VideoLinkBooking): String {
-    return booking.courtId?.let { findName(it) } ?: booking.courtName ?: UNKNOWN_COURT_NAME
+    return booking.courtId?.let { getCourtNameForCourtId(it) } ?: booking.courtName ?: UNKNOWN_COURT_NAME
   }
 }

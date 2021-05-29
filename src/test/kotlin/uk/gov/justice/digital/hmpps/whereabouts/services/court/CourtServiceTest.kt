@@ -55,12 +55,12 @@ class CourtServiceTest {
   inner class FindName {
     @Test
     fun `found`() {
-      assertThat(CourtService(repository).findName(DERBY_JC_ID)).isEqualTo(DERBY_JC_NAME)
+      assertThat(CourtService(repository).getCourtNameForCourtId(DERBY_JC_ID)).isEqualTo(DERBY_JC_NAME)
     }
 
     @Test
     fun `Not Found`() {
-      assertThat(CourtService(repository).findName("XXXX")).isNull()
+      assertThat(CourtService(repository).getCourtNameForCourtId("XXXX")).isNull()
     }
   }
 
@@ -68,12 +68,12 @@ class CourtServiceTest {
   inner class FindId {
     @Test
     fun `perfect match`() {
-      assertThat(CourtService(repository).findId(DERBY_JC_NAME)).isEqualTo(DERBY_JC_ID)
+      assertThat(CourtService(repository).getCourtIdForCourtName(DERBY_JC_NAME)).isEqualTo(DERBY_JC_ID)
     }
 
     @Test
     fun `case insensitive match with whitespace`() {
-      assertThat(CourtService(repository).findId(" ${DERBY_JC_NAME.uppercase()}  ")).isEqualTo(DERBY_JC_ID)
+      assertThat(CourtService(repository).getCourtIdForCourtName(" ${DERBY_JC_NAME.uppercase()}  ")).isEqualTo(DERBY_JC_ID)
     }
   }
 }

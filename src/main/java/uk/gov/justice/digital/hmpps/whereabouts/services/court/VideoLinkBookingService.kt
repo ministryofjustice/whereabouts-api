@@ -8,6 +8,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
@@ -16,6 +17,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
@@ -42,43 +44,24 @@ class VideoLinkBookingService(
   }
 
   @Transactional(readOnly = true)
-  fun getVideoLinkAppointments(appointmentIds: Set<Long>): List<VideoLinkAppointmentDto> {
-    return videoLinkAppointmentRepository
+  fun getVideoLinkAppointments(appointmentIds: Set<Long>): List<VideoLinkAppointmentDto> =
+    videoLinkAppointmentRepository
       .findVideoLinkAppointmentByAppointmentIdIn(appointmentIds)
-      .map {
-        VideoLinkAppointmentDto(
-          id = it.id!!,
-          bookingId = it.videoLinkBooking.offenderBookingId,
-          appointmentId = it.appointmentId,
-          hearingType = it.hearingType,
-          court = courtService.chooseCourtName(it.videoLinkBooking),
-          courtId = it.videoLinkBooking.courtId,
-          createdByUsername = it.videoLinkBooking.createdByUsername,
-          madeByTheCourt = it.videoLinkBooking.madeByTheCourt
-        )
-      }
-  }
+      .map { toVideoLinkAppointmentDto(it) }
 
   @Transactional
   fun createVideoLinkBooking(specification: VideoLinkBookingSpecification): Long {
     specification.validate()
-    val bookingId = specification.bookingId!!
-    val comment = specification.comment
-    val mainEvent = savePrisonAppointment(bookingId, comment, specification.main)
-    val preEvent = specification.pre?.let { savePrisonAppointment(bookingId, comment, it) }
-    val postEvent = specification.post?.let { savePrisonAppointment(bookingId, comment, it) }
 
-    val courtId = specification.courtId ?: specification.court?.let { courtService.findId(it) }
+    val (mainEvent, preEvent, postEvent) = createPrisonAppointments(specification.bookingId!!, specification)
 
     val videoLinkBooking = VideoLinkBooking(
-      offenderBookingId = bookingId,
+      offenderBookingId = specification.bookingId!!,
       courtName = specification.court,
-      courtId = courtId,
+      courtId = getCourtId(specification),
       madeByTheCourt = specification.madeByTheCourt
     )
-    preEvent?.let { videoLinkBooking.addPreAppointment(it.eventId) }
-    videoLinkBooking.addMainAppointment(mainEvent.eventId)
-    postEvent?.let { videoLinkBooking.addPostAppointment(it.eventId) }
+    videoLinkBooking.addAppointments(mainEvent, preEvent, postEvent)
 
     val persistentBooking = videoLinkBookingRepository.save(videoLinkBooking)!!
 
@@ -93,35 +76,24 @@ class VideoLinkBookingService(
     specification: VideoLinkBookingUpdateSpecification
   ): VideoLinkBooking {
     specification.validate()
-    val booking = videoLinkBookingRepository
-      .findById(videoBookingId)
-      .orElseThrow {
-        EntityNotFoundException("Video link booking with id $videoBookingId not found")
-      }
+    val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
+      EntityNotFoundException("Video link booking with id $videoBookingId not found")
+    }
 
-    booking.appointments.values.forEach { prisonApiService.deleteAppointment(it.appointmentId) }
+    deletePrisonAppointmentsForBooking(booking)
 
-    val bookingId = booking.offenderBookingId
-    val comment = specification.comment
-
-    val mainEvent = savePrisonAppointment(bookingId, comment, specification.main)
-    val preEvent = specification.pre?.let { savePrisonAppointment(bookingId, comment, it) }
-    val postEvent = specification.post?.let { savePrisonAppointment(bookingId, comment, it) }
+    val (mainEvent, preEvent, postEvent) = createPrisonAppointments(booking.offenderBookingId, specification)
 
     with(booking) {
-
       /**
-       * Yuk. flush() forces Hibernate to remove the old appointments (if any) before inserting the new ones.
-       * Without this the old appointments aren't removed and we get constraint violations.
-       * If VideoLinkBooking was a composite. ie VideoLinkAppointment was a component not an entity this wouldn't
-       * be a problem.
+       * Call flush() to persuade Hibernate to remove the old appointments (if any).
+       * Have to do this manually because Hibernate doesn't delete the old appointments before attempting
+       * to insert the new ones (and breaking unique constraint).
        */
       appointments.clear()
       videoLinkBookingRepository.flush()
 
-      addMainAppointment(mainEvent.eventId)
-      preEvent?.let { addPreAppointment(it.eventId) }
-      postEvent?.let { addPostAppointment(it.eventId) }
+      addAppointments(mainEvent, preEvent, postEvent)
     }
 
     /**
@@ -131,6 +103,39 @@ class VideoLinkBookingService(
     videoLinkBookingRepository.flush()
     videoLinkBookingEventListener.bookingUpdated(booking, specification)
     return booking
+  }
+
+  private fun VideoLinkBooking.addAppointments(mainEvent: Event, preEvent: Event?, postEvent: Event?) {
+    preEvent?.let { addPreAppointment(it.eventId) }
+    addMainAppointment(mainEvent.eventId)
+    postEvent?.let { addPostAppointment(it.eventId) }
+  }
+
+  private fun toVideoLinkAppointmentDto(appointment: VideoLinkAppointment) =
+    VideoLinkAppointmentDto(
+      id = appointment.id!!,
+      bookingId = appointment.videoLinkBooking.offenderBookingId,
+      appointmentId = appointment.appointmentId,
+      hearingType = appointment.hearingType,
+      court = courtService.chooseCourtName(appointment.videoLinkBooking),
+      courtId = appointment.videoLinkBooking.courtId,
+      createdByUsername = appointment.videoLinkBooking.createdByUsername,
+      madeByTheCourt = appointment.videoLinkBooking.madeByTheCourt
+    )
+
+  private fun getCourtId(specification: VideoLinkBookingSpecification) =
+    specification.courtId ?: specification.court?.let { courtService.getCourtIdForCourtName(it) }
+
+  private fun createPrisonAppointments(
+    offenderBookingId: Long,
+    specification: VideoLinkAppointmentsSpecification
+  ): Triple<Event, Event?, Event?> {
+    val comment = specification.comment
+
+    val mainEvent = savePrisonAppointment(offenderBookingId, comment, specification.main)
+    val preEvent = specification.pre?.let { savePrisonAppointment(offenderBookingId, comment, it) }
+    val postEvent = specification.post?.let { savePrisonAppointment(offenderBookingId, comment, it) }
+    return Triple(mainEvent, preEvent, postEvent)
   }
 
   private fun savePrisonAppointment(
@@ -192,6 +197,10 @@ class VideoLinkBookingService(
     return booking
   }
 
+  private fun deletePrisonAppointmentsForBooking(booking: VideoLinkBooking) {
+    booking.appointments.values.forEach { prisonApiService.deleteAppointment(it.appointmentId) }
+  }
+
   @Transactional(readOnly = true)
   fun getVideoLinkBookingsForPrisonAndDateAndCourt(
     agencyId: String,
@@ -201,7 +210,7 @@ class VideoLinkBookingService(
   ): List<VideoLinkBookingResponse> {
     val scheduledAppointments = prisonApiService
       .getScheduledAppointments(agencyId, date)
-      .filter { it.appointmentTypeCode == "VLB" }
+      .filter { it.appointmentTypeCode == VIDEO_LINK_APPOINTMENT_TYPE }
       .filter { hasAnEndDate(it) }
 
     val scheduledAppointmentIds = scheduledAppointments.map { it.id }
@@ -257,12 +266,10 @@ class VideoLinkBookingService(
     if ((court.isNullOrBlank()) && (courtId.isNullOrBlank()))
       throw ValidationException("One of court or courtId must be specified")
 
-    main.validate("Main")
-    pre?.validate("Pre")
-    post?.validate("Post")
+    (this as VideoLinkAppointmentsSpecification).validate()
   }
 
-  private fun VideoLinkBookingUpdateSpecification.validate() {
+  private fun VideoLinkAppointmentsSpecification.validate() {
     main.validate("Main")
     pre?.validate("Pre")
     post?.validate("Post")
