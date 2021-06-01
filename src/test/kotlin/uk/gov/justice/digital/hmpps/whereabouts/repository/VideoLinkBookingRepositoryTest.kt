@@ -14,8 +14,9 @@ import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.test.jdbc.JdbcTestUtils
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 
@@ -34,7 +35,7 @@ class VideoLinkBookingRepositoryTest(
 
   @BeforeEach
   fun deleteAll() {
-    JdbcTestUtils.deleteFromTables(jdbcTemplate, "VIDEO_LINK_BOOKING", "VIDEO_LINK_APPOINTMENT")
+    JdbcTestUtils.deleteFromTables(jdbcTemplate, "VIDEO_LINK_APPOINTMENT", "VIDEO_LINK_BOOKING")
     TestTransaction.flagForCommit()
     TestTransaction.end()
     TestTransaction.start()
@@ -49,15 +50,13 @@ class VideoLinkBookingRepositoryTest(
   fun `should persist a booking (main only)`() {
 
     val transientBooking = VideoLinkBooking(
-      main = VideoLinkAppointment(
-        bookingId = 1,
-        appointmentId = 2,
-        court = "A Court",
-        courtId = "TSTCRT",
-        hearingType = HearingType.MAIN,
-        madeByTheCourt = true
-      )
-    )
+      offenderBookingId = 1,
+      courtName = "A Court",
+      courtId = "TSTCRT",
+      madeByTheCourt = true
+    ).apply {
+      addMainAppointment(appointmentId = 2)
+    }
 
     val id = repository.save(transientBooking).id!!
     assertThat(id).isNotNull
@@ -65,44 +64,28 @@ class VideoLinkBookingRepositoryTest(
     TestTransaction.flagForCommit()
     TestTransaction.end()
 
-    val persistentBooking = repository.getOne(id)
+    val persistentBooking = repository.getById(id)
 
     assertThat(persistentBooking)
       .usingRecursiveComparison()
-      .ignoringFields("id", "main.id")
+      .ignoringFields("id", "mainAppointment")
       .isEqualTo(transientBooking)
 
-    assertThat(persistentBooking.main.createdByUsername).isEqualTo(USERNAME)
+    assertThat(persistentBooking.createdByUsername).isEqualTo(USERNAME)
   }
 
   @Test
   fun `should persist a booking (main, pre and post)`() {
 
     val transientBooking = VideoLinkBooking(
-      main = VideoLinkAppointment(
-        bookingId = 1,
-        appointmentId = 4,
-        court = "A Court",
-        hearingType = HearingType.MAIN,
-        madeByTheCourt = true
-      ),
-      pre = VideoLinkAppointment(
-        bookingId = 1,
-        appointmentId = 12,
-        court = "A Court",
-        courtId = "TSTCRT",
-        hearingType = HearingType.PRE,
-        madeByTheCourt = true
-      ),
-      post = VideoLinkAppointment(
-        bookingId = 1,
-        appointmentId = 22,
-        court = null,
-        courtId = "TSTCRT",
-        hearingType = HearingType.POST,
-        madeByTheCourt = true
-      ),
-    )
+      offenderBookingId = 1,
+      courtName = "A Court",
+      madeByTheCourt = true,
+    ).apply {
+      addMainAppointment(appointmentId = 4)
+      addPreAppointment(appointmentId = 12)
+      addPostAppointment(appointmentId = 22)
+    }
 
     val id = repository.save(transientBooking).id!!
     assertThat(id).isNotNull
@@ -110,27 +93,45 @@ class VideoLinkBookingRepositoryTest(
     TestTransaction.flagForCommit()
     TestTransaction.end()
 
-    val persistentBooking = repository.getOne(id)
+    val persistentBooking = repository.getById(id)
 
     assertThat(persistentBooking)
       .usingRecursiveComparison()
-      .ignoringFields("id", "pre.id", "main.id", "post.id")
+      .ignoringFields("id")
       .isEqualTo(transientBooking)
 
     val hearingTypes = jdbcTemplate.queryForList("select hearing_type from video_link_appointment", String::class.java)
     assertThat(hearingTypes).contains("PRE", "MAIN", "POST")
 
-    assertThat(persistentBooking)
-      .extracting(
-        "main.createdByUsername",
-        "pre.createdByUsername",
-        "post.createdByUsername"
-      )
-      .containsExactly(
-        USERNAME,
-        USERNAME,
-        USERNAME
-      )
+    assertThat(persistentBooking.createdByUsername).isEqualTo(USERNAME)
+  }
+
+  @Test
+  fun `Deleting a booking by id should delete its appointments`() {
+
+    assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_BOOKING")).isEqualTo(0)
+    assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
+
+    val id = repository.save(
+      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true).apply {
+        addMainAppointment(appointmentId = 4)
+        addPreAppointment(appointmentId = 12)
+        addPostAppointment(appointmentId = 22)
+      }
+    ).id!!
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+    assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_BOOKING")).isEqualTo(1)
+    assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(3)
+
+    repository.deleteById(id)
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+    assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_BOOKING")).isEqualTo(0)
+    assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
   }
 
   @Test
@@ -138,37 +139,25 @@ class VideoLinkBookingRepositoryTest(
 
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_BOOKING")).isEqualTo(0)
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
+
     val id = repository.save(
-      VideoLinkBooking(
-        main = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 4,
-          court = "A Court",
-          hearingType = HearingType.MAIN,
-          madeByTheCourt = true
-        ),
-        pre = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 12,
-          court = "A Court",
-          hearingType = HearingType.PRE,
-          madeByTheCourt = true
-        ),
-        post = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 22,
-          court = "A Court",
-          hearingType = HearingType.POST,
-          madeByTheCourt = true
-        ),
-      )
+      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true).apply {
+        addMainAppointment(appointmentId = 4)
+        addPreAppointment(appointmentId = 12)
+        addPostAppointment(appointmentId = 22)
+      }
     ).id!!
     TestTransaction.flagForCommit()
     TestTransaction.end()
     TestTransaction.start()
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_BOOKING")).isEqualTo(1)
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(3)
-    repository.deleteById(id)
+
+    val booking = repository.findById(id)
+    assertThat(booking).isPresent
+
+    repository.delete(booking.get())
+
     TestTransaction.flagForCommit()
     TestTransaction.end()
     TestTransaction.start()
@@ -177,56 +166,97 @@ class VideoLinkBookingRepositoryTest(
   }
 
   @Test
-  fun `findByMainAppointmentIds no Ids`() {
-    assertThat(repository.findByMainAppointmentIds(listOf())).isEmpty()
+  fun `findByAppointmentIdsAndHearingType no Ids`() {
+    assertThat(repository.findByAppointmentIdsAndHearingType(listOf(), MAIN)).isEmpty()
   }
 
   @Test
-  fun `findByMainAppointmentIds sparse`() {
+  fun `findByAppointmentIdsAndHearingType sparse`() {
     repository.saveAll(videoLinkBookings())
 
-    assertThat(repository.findByMainAppointmentIds((-999L..1000L step 2).map { it }))
-      .hasSize(5)
-      .extracting("main.appointmentId").containsExactlyInAnyOrder(1L, 3L, 5L, 7L, 9L)
+    // commit and start new transaction so that Hibernate doesn't pull persisted objects from the session cache
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+
+    TestTransaction.start()
+
+    // -9 ... -1, 1, 3, 5, ... 39
+    val appointmentIds = (-9L..40L step 2).map { it }
+    val bookings = repository.findByAppointmentIdsAndHearingType(appointmentIds, MAIN)
+    assertThat(bookings).hasSize(5)
+
+    assertThat(bookings.map { it.appointments[PRE]?.appointmentId }).containsExactlyInAnyOrder(2L, 8L, 14L, 20L, 26L)
+    assertThat(bookings.map { it.appointments[MAIN]?.appointmentId }).containsExactlyInAnyOrder(3L, 9L, 15L, 21L, 27L)
+    assertThat(bookings.map { it.appointments[POST]?.appointmentId }).containsExactlyInAnyOrder(4L, 10L, 16L, 22L, 28L)
+  }
+
+  @Test
+  fun `findByAppointmentIdsAndHearingType filter by courtName`() {
+    repository.save(VideoLinkBooking(offenderBookingId = 1L, courtName = "C1").apply { addMainAppointment(100L) })
+    repository.save(VideoLinkBooking(offenderBookingId = 2L, courtName = "C2").apply { addMainAppointment(101L) })
+    repository.save(VideoLinkBooking(offenderBookingId = 3L, courtName = "C1").apply { addMainAppointment(102L) })
+    repository.save(VideoLinkBooking(offenderBookingId = 4L, courtName = "C2").apply { addMainAppointment(103L) })
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+
+    assertThat(repository.findByAppointmentIdsAndHearingType(listOf(100L, 101L), MAIN))
+      .extracting("offenderBookingId")
+      .containsExactlyInAnyOrder(1L, 2L)
+
+    assertThat(repository.findByAppointmentIdsAndHearingType(listOf(100L, 101L), MAIN, courtName = "C1"))
+      .extracting("offenderBookingId")
+      .containsExactlyInAnyOrder(1L)
+
+    assertThat(repository.findByAppointmentIdsAndHearingType(listOf(100L, 101L), MAIN, courtName = "C2"))
+      .extracting("offenderBookingId")
+      .containsExactlyInAnyOrder(2L)
+  }
+
+  @Test
+  fun `findByAppointmentIdsAndHearingType filter by courtId`() {
+    repository.save(VideoLinkBooking(offenderBookingId = 1L, courtId = "C1").apply { addMainAppointment(100L) })
+    repository.save(VideoLinkBooking(offenderBookingId = 2L, courtId = "C2").apply { addMainAppointment(101L) })
+    repository.save(VideoLinkBooking(offenderBookingId = 3L, courtId = "C1").apply { addMainAppointment(102L) })
+    repository.save(VideoLinkBooking(offenderBookingId = 4L, courtId = "C2").apply { addMainAppointment(103L) })
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+
+    assertThat(repository.findByAppointmentIdsAndHearingType(listOf(100L, 101L), MAIN))
+      .extracting("offenderBookingId")
+      .containsExactlyInAnyOrder(1L, 2L)
+
+    assertThat(repository.findByAppointmentIdsAndHearingType(listOf(100L, 101L), MAIN, courtId = "C1"))
+      .extracting("offenderBookingId")
+      .containsExactlyInAnyOrder(1L)
+
+    assertThat(repository.findByAppointmentIdsAndHearingType(listOf(100L, 101L), MAIN, courtId = "C2"))
+      .extracting("offenderBookingId")
+      .containsExactlyInAnyOrder(2L)
   }
 
   @Test
   fun `Removing appointments from a booking should delete the appointments`() {
 
     val id = repository.save(
-      VideoLinkBooking(
-        main = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 4,
-          court = "A Court",
-          hearingType = HearingType.MAIN,
-          madeByTheCourt = true
-        ),
-        pre = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 12,
-          court = "A Court",
-          hearingType = HearingType.PRE,
-          madeByTheCourt = true
-        ),
-        post = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 22,
-          court = "A Court",
-          hearingType = HearingType.POST,
-          madeByTheCourt = true
-        ),
-      )
+      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true).apply {
+        addMainAppointment(appointmentId = 4)
+        addPreAppointment(appointmentId = 12)
+        addPostAppointment(appointmentId = 22)
+      }
     ).id!!
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
     TestTransaction.start()
 
-    val booking = repository.getOne(id)
+    val booking = repository.getById(id)
 
-    booking.pre = null
-    booking.post = null
+    booking.appointments.remove(PRE)
+    booking.appointments.remove(POST)
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
@@ -239,96 +269,65 @@ class VideoLinkBookingRepositoryTest(
 
     val id = repository.save(
       VideoLinkBooking(
-        main = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 4,
-          court = "A Court",
-          hearingType = HearingType.MAIN,
-          madeByTheCourt = true
-        ),
-        pre = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 12,
-          court = "A Court",
-          hearingType = HearingType.PRE,
-          madeByTheCourt = true
-        ),
-        post = VideoLinkAppointment(
-          bookingId = 1,
-          appointmentId = 22,
-          court = "A Court",
-          hearingType = HearingType.POST,
-          madeByTheCourt = true
-        ),
-      )
+        offenderBookingId = 1,
+        courtName = "A Court",
+        madeByTheCourt = true
+      ).apply {
+        addMainAppointment(appointmentId = 4)
+        addPreAppointment(appointmentId = 12)
+        addPostAppointment(appointmentId = 22)
+      }
     ).id!!
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
     TestTransaction.start()
 
-    val booking = repository.getOne(id)
-
-    booking.main = VideoLinkAppointment(
-      bookingId = 1,
-      appointmentId = 100,
-      court = "A Court",
-      hearingType = HearingType.MAIN,
-      madeByTheCourt = false
-    )
-
-    booking.pre = VideoLinkAppointment(
-      bookingId = 1,
-      appointmentId = 101,
-      court = "A Court",
-      hearingType = HearingType.PRE,
-      madeByTheCourt = false
-    )
-
-    booking.post = VideoLinkAppointment(
-      bookingId = 1,
-      appointmentId = 102,
-      court = "A Court",
-      hearingType = HearingType.POST,
-      madeByTheCourt = false
-    )
+    val booking = repository.getById(id)
 
     /**
-     * Confirm that calling flush() populates ids in the new VideoLinkAppointment objects.
-     * CourtService#updateVideoLinkBooking depends on this behaviour to add those ids to an Application Insights custom
-     * event. Confirming the required behaviour like this is easier than changing the CourtIntegrationTest class so that
-     * it uses this repository instead of a mock.
+     * Have to flush() to force Hibernate to delete any old appointments before adding replacements.
+     * This seems wrong to me. Now the clients have to remember to call flush(). (See updateVideoLinkBooking#updateVideoLinkBooking)
      */
-    assertThat(booking.pre?.id).isNull()
-    assertThat(booking.main.id).isNull()
-    assertThat(booking.post?.id).isNull()
+    booking.appointments.clear()
     repository.flush()
-    assertThat(booking.pre?.id).isNotNull
-    assertThat(booking.main.id).isNotNull
-    assertThat(booking.post?.id).isNotNull
+
+    booking.addMainAppointment(appointmentId = 100)
+    booking.addPreAppointment(appointmentId = 101)
+    booking.addPostAppointment(appointmentId = 102)
+
+    /**
+     * Confirm that calling flush()  populates ids in the new VideoLinkAppointment objects.
+     * CourtService#updateVideoLinkBooking depends on this behaviour to add those ids to an Application Insights custom
+     * event.
+     */
+    assertThat(booking.appointments.values).allSatisfy { assertThat(it.id).isNull() }
+
+    repository.flush()
+
+    assertThat(booking.appointments.values).allSatisfy { assertThat(it.id).isNotNull() }
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
     TestTransaction.start()
+
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(3)
 
-    val updatedBooking = repository.getOne(id)
-    assertThat(updatedBooking.main.appointmentId).isEqualTo(100)
-    assertThat(updatedBooking.pre?.appointmentId).isEqualTo(101)
-    assertThat(updatedBooking.post?.appointmentId).isEqualTo(102)
+    val updatedBooking = repository.getById(id)
+    assertThat(updatedBooking.appointments.values.map { it.appointmentId }).contains(100, 101, 102)
   }
 
   fun videoLinkBookings(): List<VideoLinkBooking> =
     (1..10L).map {
       VideoLinkBooking(
-        main = VideoLinkAppointment(
-          bookingId = it * 100L,
-          appointmentId = it,
-          court = "Court",
-          courtId = "TSTCRT",
-          hearingType = HearingType.MAIN,
-          madeByTheCourt = true
-        )
-      )
+        offenderBookingId = it * 100L,
+        courtName = "Court",
+        courtId = "TSTCRT",
+        madeByTheCourt = true
+      ).apply {
+        addPreAppointment(appointmentId = it * 3 - 1)
+        addMainAppointment(appointmentId = it * 3)
+        addPostAppointment(appointmentId = it * 3 + 1)
+      }
     }
 }

@@ -5,6 +5,9 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventType
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingEventRepository
@@ -44,16 +47,16 @@ class EventStoreListenerTest {
         comment = createSpecification.comment,
         offenderBookingId = createSpecification.bookingId,
         madeByTheCourt = createSpecification.madeByTheCourt,
-        mainNomisAppointmentId = booking.main.appointmentId,
+        mainNomisAppointmentId = booking.appointments[MAIN]!!.appointmentId,
         mainLocationId = createSpecification.main.locationId,
         mainStartTime = createSpecification.main.startTime,
         mainEndTime = createSpecification.main.endTime,
-        preNomisAppointmentId = booking.pre!!.appointmentId,
+        preNomisAppointmentId = booking.appointments[PRE]!!.appointmentId,
         preLocationId = createSpecification.pre!!.locationId,
         preStartTime = createSpecification.pre!!.startTime,
         preEndTime = createSpecification.pre!!.endTime,
         postLocationId = createSpecification.post!!.locationId,
-        postNomisAppointmentId = booking.post!!.appointmentId,
+        postNomisAppointmentId = booking.appointments[POST]!!.appointmentId,
         postStartTime = createSpecification.post!!.startTime,
         postEndTime = createSpecification.post!!.endTime
       )
@@ -71,16 +74,16 @@ class EventStoreListenerTest {
         userId = "A_USER",
         videoLinkBookingId = booking.id!!,
         comment = updateSpecification.comment,
-        mainNomisAppointmentId = booking.main.appointmentId,
+        mainNomisAppointmentId = booking.appointments[MAIN]!!.appointmentId,
         mainLocationId = updateSpecification.main.locationId,
         mainStartTime = updateSpecification.main.startTime,
         mainEndTime = updateSpecification.main.endTime,
-        preNomisAppointmentId = booking.pre!!.appointmentId,
+        preNomisAppointmentId = booking.appointments[PRE]!!.appointmentId,
         preLocationId = updateSpecification.pre!!.locationId,
         preStartTime = updateSpecification.pre!!.startTime,
         preEndTime = updateSpecification.pre!!.endTime,
         postLocationId = updateSpecification.post!!.locationId,
-        postNomisAppointmentId = booking.post!!.appointmentId,
+        postNomisAppointmentId = booking.appointments[POST]!!.appointmentId,
         postStartTime = updateSpecification.post!!.startTime,
         postEndTime = updateSpecification.post!!.endTime
       )

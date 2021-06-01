@@ -3,8 +3,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import java.time.LocalDateTime
 
@@ -15,10 +13,14 @@ class EventListenerTestData private constructor() {
 
     val booking = VideoLinkBooking(
       id = 11,
-      pre = VideoLinkAppointment(120L, -1L, 12L, "York Crown Court", "TSTCRT", hearingType = HearingType.PRE, createdByUsername = "A_USER", madeByTheCourt = true),
-      main = VideoLinkAppointment(130L, 1L, 13L, "York Crown Court", "TSTCRT", hearingType = HearingType.MAIN, createdByUsername = "A_USER", madeByTheCourt = true),
-      post = VideoLinkAppointment(140L, -1L, 14L, "York Crown Court", "TSTCRT", hearingType = HearingType.POST, createdByUsername = "A_USER", madeByTheCourt = true),
-    )
+      offenderBookingId = -1L,
+      courtName = "York Crown Court",
+      courtId = "TSTCRT"
+    ).apply {
+      addPreAppointment(appointmentId = 12L, id = 120L)
+      addMainAppointment(appointmentId = 13L, id = 130L)
+      addPostAppointment(appointmentId = 14L, id = 140L)
+    }
 
     val createSpecification = VideoLinkBookingSpecification(
       bookingId = 1L,

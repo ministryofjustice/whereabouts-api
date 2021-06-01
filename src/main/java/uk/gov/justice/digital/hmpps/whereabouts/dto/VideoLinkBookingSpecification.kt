@@ -33,17 +33,17 @@ data class VideoLinkBookingSpecification(
   val madeByTheCourt: Boolean?,
 
   @ApiModelProperty(value = "Free text comments", example = "Requires special access")
-  val comment: String? = null,
+  override val comment: String? = null,
 
   @ApiModelProperty(value = "Pre-hearing appointment")
   @Valid
-  val pre: VideoLinkAppointmentSpecification? = null,
+  override val pre: VideoLinkAppointmentSpecification? = null,
 
   @ApiModelProperty(value = "Main appointment", required = true)
   @field:Valid
-  val main: VideoLinkAppointmentSpecification,
+  override val main: VideoLinkAppointmentSpecification,
 
   @ApiModelProperty(value = "Post-hearing appointment")
   @Valid
-  val post: VideoLinkAppointmentSpecification? = null
-)
+  override val post: VideoLinkAppointmentSpecification? = null
+) : VideoLinkAppointmentsSpecification

@@ -1,14 +1,13 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
-import org.springframework.data.annotation.CreatedBy
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import javax.persistence.Entity
-import javax.persistence.EntityListeners
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.ManyToOne
 import javax.persistence.Table
 
 enum class HearingType {
@@ -19,21 +18,25 @@ enum class HearingType {
 
 @Entity
 @Table(name = "VIDEO_LINK_APPOINTMENT")
-@EntityListeners(AuditingEntityListener::class)
 data class VideoLinkAppointment(
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  val id: Long? = null,
+  var id: Long? = null,
 
-  var bookingId: Long,
+  @ManyToOne
+  @JoinColumn(name = "video_link_booking_id")
+  var videoLinkBooking: VideoLinkBooking,
+
   var appointmentId: Long,
-  var court: String? = null,
-  var courtId: String? = null,
 
   @Enumerated(EnumType.STRING)
-  var hearingType: HearingType,
+  var hearingType: HearingType
+) {
+  override fun toString(): String = "VideoLinkAppointment(id = $id, appointmentId = $appointmentId, hearingType = $hearingType)"
 
-  @CreatedBy
-  var createdByUsername: String? = null,
-  var madeByTheCourt: Boolean? = true
-)
+  override fun equals(other: Any?): Boolean {
+    return other is VideoLinkAppointment && appointmentId == other.appointmentId
+  }
+
+  override fun hashCode(): Int = appointmentId.hashCode()
+}
