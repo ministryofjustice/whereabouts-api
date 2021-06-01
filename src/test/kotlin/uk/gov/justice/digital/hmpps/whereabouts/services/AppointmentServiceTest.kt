@@ -645,12 +645,12 @@ class AppointmentServiceTest {
     @Test
     fun `should delete video link booking`() {
       whenever(videoLinkBookingRepository.findByMainAppointmentIds(any())).thenReturn(
-        listOf(DataHelpers.makeVideoLinkBooking(1L))
+        listOf(DataHelpers.makeVideoLinkBooking(2L))
       )
 
       appointmentService.deleteAppointment(1L)
 
-      verify(videoLinkBookingService).deleteVideoLinkBooking(1L)
+      verify(videoLinkBookingService).deleteVideoLinkBooking(2L)
       verify(prisonApiService, never()).deleteAppointment(anyLong())
       verify(recurringAppointmentRepository, never()).deleteById(anyLong())
     }
