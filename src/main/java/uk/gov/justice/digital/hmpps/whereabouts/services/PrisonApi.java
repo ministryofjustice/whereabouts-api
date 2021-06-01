@@ -309,4 +309,13 @@ public class PrisonApi {
                 .blockOptional()
                 .orElse(null);
     }
+
+    public void deleteAppointments(final List<Long> appointmentIds) {
+        webClient.post()
+                .uri("/appointments/delete")
+                .bodyValue(appointmentIds)
+                .retrieve()
+                .toBodilessEntity()
+                .block();
+    }
 }

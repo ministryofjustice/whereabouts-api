@@ -629,15 +629,14 @@ class AppointmentServiceTest {
             id = 100,
             repeatPeriod = RepeatPeriod.DAILY,
             count = 2,
-            relatedAppointments = listOf(RelatedAppointment(2), RelatedAppointment(3))
+            relatedAppointments = listOf(RelatedAppointment(2L), RelatedAppointment(3L))
           )
         )
       )
 
       appointmentService.deleteAppointment(2)
 
-      verify(prisonApiService).deleteAppointment(2)
-      verify(prisonApiService).deleteAppointment(3)
+      verify(prisonApiService).deleteAppointments(listOf(2L, 3L))
       verify(recurringAppointmentRepository).deleteById(100)
       verify(videoLinkBookingService, never()).deleteVideoLinkBooking(anyLong())
     }
@@ -688,15 +687,14 @@ class AppointmentServiceTest {
             id = 100,
             repeatPeriod = RepeatPeriod.DAILY,
             count = 2,
-            relatedAppointments = listOf(RelatedAppointment(2), RelatedAppointment(3L))
+            relatedAppointments = listOf(RelatedAppointment(2L), RelatedAppointment(3L))
           )
         )
       )
 
       appointmentService.deleteAppointment(3L)
 
-      verify(prisonApiService).deleteAppointment(2L)
-      verify(prisonApiService).deleteAppointment(3L)
+      verify(prisonApiService).deleteAppointments(listOf(2L, 3L))
       verify(recurringAppointmentRepository).deleteById(100)
     }
   }

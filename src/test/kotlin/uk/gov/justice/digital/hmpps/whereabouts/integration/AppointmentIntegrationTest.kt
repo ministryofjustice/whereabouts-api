@@ -228,6 +228,31 @@ class AppointmentIntegrationTest : IntegrationTest() {
         deleteRequestedFor(urlEqualTo("/api/appointments/$APPOINTMENT_ID"))
       )
     }
+
+    @Test
+    fun `should delete all recurring appointments`() {
+      prisonApiMockServer.stubGetPrisonAppointment(
+        1,
+        objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = 1))
+      )
+      whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
+        Optional.of(
+          RecurringAppointment(
+            1, relatedAppointments = listOf(RelatedAppointment(1), RelatedAppointment(2)),
+            repeatPeriod = RepeatPeriod.DAILY,
+            count = 1
+          )
+        )
+      )
+
+      prisonApiMockServer.stubDeleteAppointments(listOf(1, 2))
+
+      webTestClient.delete()
+        .uri("/appointment/1")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
+    }
   }
 
   companion object {
