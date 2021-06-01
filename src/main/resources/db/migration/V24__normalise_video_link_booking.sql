@@ -44,6 +44,11 @@ alter table video_link_appointment
 alter table video_link_booking
     alter column offender_booking_id set not null;
 
+-- Make sure there aren't any null made_by_the_court values before adding a not null constraint to this column.
+update video_link_booking
+   set made_by_the_court = false
+ where made_by_the_court is null;
+
 alter table video_link_booking
     alter column made_by_the_court set default true;
 
