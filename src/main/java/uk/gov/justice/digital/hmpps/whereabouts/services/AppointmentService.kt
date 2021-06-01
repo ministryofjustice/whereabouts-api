@@ -138,7 +138,7 @@ class AppointmentService(
       videoLinkBookingRepository.findByMainAppointmentIds(listOf(appointmentId)).firstOrNull()
 
     if (videoLinkBooking != null) {
-      videoLinkBookingService.deleteVideoLinkBooking(appointmentId)
+      videoLinkBookingService.deleteVideoLinkBooking(videoLinkBooking.id!!)
       return
     }
 
