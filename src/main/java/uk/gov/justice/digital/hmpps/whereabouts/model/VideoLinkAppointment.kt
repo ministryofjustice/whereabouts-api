@@ -1,11 +1,9 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
+import org.hibernate.Hibernate
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 import javax.persistence.Table
@@ -18,24 +16,25 @@ enum class HearingType {
 
 @Entity
 @Table(name = "VIDEO_LINK_APPOINTMENT")
-data class VideoLinkAppointment(
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  var id: Long? = null,
+class VideoLinkAppointment(
+  id: Long? = null,
 
   @ManyToOne
   @JoinColumn(name = "video_link_booking_id")
-  var videoLinkBooking: VideoLinkBooking,
+  val videoLinkBooking: VideoLinkBooking,
 
-  var appointmentId: Long,
+  val appointmentId: Long,
 
   @Enumerated(EnumType.STRING)
-  var hearingType: HearingType
-) {
+  val hearingType: HearingType
+) : BaseEntity(id) {
   override fun toString(): String = "VideoLinkAppointment(id = $id, appointmentId = $appointmentId, hearingType = $hearingType)"
 
   override fun equals(other: Any?): Boolean {
-    return other is VideoLinkAppointment && appointmentId == other.appointmentId
+    if (this === other) return true
+    if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+    other as VideoLinkAppointment
+    return appointmentId == other.appointmentId
   }
 
   override fun hashCode(): Int = appointmentId.hashCode()

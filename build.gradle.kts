@@ -2,8 +2,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.3.0"
-  kotlin("plugin.spring") version "1.5.10"
-  kotlin("plugin.jpa") version "1.5.10"
+  id("org.jetbrains.kotlin.plugin.spring") version "1.5.10"
+  id("org.jetbrains.kotlin.plugin.jpa") version "1.5.10"
 }
 
 configurations {
@@ -75,6 +75,14 @@ tasks.withType<KotlinCompile>().configureEach {
   kotlinOptions {
     freeCompilerArgs += "-Xemit-jvm-type-annotations"
   }
+}
+
+allOpen {
+  annotations(
+    "javax.persistence.Entity",
+    "javax.persistence.MappedSuperclass",
+    "javax.persistence.Embeddable"
+  )
 }
 
 tasks {

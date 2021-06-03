@@ -49,7 +49,7 @@ class VideoLinkBookingRepositoryTest(
   @Test
   fun `should persist a booking (main only)`() {
 
-    val transientBooking = VideoLinkBooking(
+    val theBooking = VideoLinkBooking(
       offenderBookingId = 1,
       courtName = "A Court",
       courtId = "TSTCRT",
@@ -58,18 +58,21 @@ class VideoLinkBookingRepositoryTest(
       addMainAppointment(appointmentId = 2)
     }
 
-    val id = repository.save(transientBooking).id!!
+    val id = repository.save(theBooking).id!!
     assertThat(id).isNotNull
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
 
+    TestTransaction.start()
+
     val persistentBooking = repository.getById(id)
 
     assertThat(persistentBooking)
-      .usingRecursiveComparison()
-      .ignoringFields("id", "mainAppointment")
-      .isEqualTo(transientBooking)
+      .extracting("offenderBookingId", "courtName", "courtId", "madeByTheCourt")
+      .containsExactly(1L, "A Court", "TSTCRT", true)
+
+    assertThat(persistentBooking.appointments).isEqualTo(theBooking.appointments)
 
     assertThat(persistentBooking.createdByUsername).isEqualTo(USERNAME)
   }
@@ -77,7 +80,7 @@ class VideoLinkBookingRepositoryTest(
   @Test
   fun `should persist a booking (main, pre and post)`() {
 
-    val transientBooking = VideoLinkBooking(
+    val theBooking = VideoLinkBooking(
       offenderBookingId = 1,
       courtName = "A Court",
       madeByTheCourt = true,
@@ -87,18 +90,21 @@ class VideoLinkBookingRepositoryTest(
       addPostAppointment(appointmentId = 22)
     }
 
-    val id = repository.save(transientBooking).id!!
+    val id = repository.save(theBooking).id!!
     assertThat(id).isNotNull
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
 
+    TestTransaction.start()
+
     val persistentBooking = repository.getById(id)
 
     assertThat(persistentBooking)
-      .usingRecursiveComparison()
-      .ignoringFields("id")
-      .isEqualTo(transientBooking)
+      .extracting("offenderBookingId", "courtName", "courtId", "madeByTheCourt")
+      .containsExactly(1L, "A Court", null, true)
+
+    assertThat(persistentBooking.appointments).isEqualTo(theBooking.appointments)
 
     val hearingTypes = jdbcTemplate.queryForList("select hearing_type from video_link_appointment", String::class.java)
     assertThat(hearingTypes).contains("PRE", "MAIN", "POST")

@@ -9,9 +9,6 @@ import javax.persistence.CascadeType
 import javax.persistence.Entity
 import javax.persistence.EntityListeners
 import javax.persistence.FetchType
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
 import javax.persistence.MapKey
 import javax.persistence.OneToMany
 import javax.persistence.Table
@@ -19,19 +16,14 @@ import javax.persistence.Table
 @Entity
 @Table(name = "VIDEO_LINK_BOOKING")
 @EntityListeners(AuditingEntityListener::class)
-data class VideoLinkBooking(
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  var id: Long? = null,
+class VideoLinkBooking(
+  id: Long? = null,
 
-  var offenderBookingId: Long,
-  var courtName: String? = null,
-  var courtId: String? = null,
-  var madeByTheCourt: Boolean? = true,
-
-  @CreatedBy
-  var createdByUsername: String? = null,
-) {
+  val offenderBookingId: Long,
+  val courtName: String? = null,
+  val courtId: String? = null,
+  val madeByTheCourt: Boolean? = true,
+) : BaseEntity(id) {
   @OneToMany(
     mappedBy = "videoLinkBooking",
     fetch = FetchType.EAGER,
@@ -39,7 +31,10 @@ data class VideoLinkBooking(
     orphanRemoval = true
   )
   @MapKey(name = "hearingType")
-  var appointments: MutableMap<HearingType, VideoLinkAppointment> = mutableMapOf()
+  val appointments: MutableMap<HearingType, VideoLinkAppointment> = mutableMapOf()
+
+  @CreatedBy
+  var createdByUsername: String? = null
 
   fun addPreAppointment(appointmentId: Long, id: Long? = null) = appointments.put(
     PRE,
@@ -70,4 +65,7 @@ data class VideoLinkBooking(
       hearingType = POST
     )
   )
+
+  override fun toString(): String =
+    "VideoLinkBooking(id = $id, offenderBookingId = $offenderBookingId, courtName = $courtName, courtId = $courtId, madeByTheCourt = $madeByTheCourt)"
 }

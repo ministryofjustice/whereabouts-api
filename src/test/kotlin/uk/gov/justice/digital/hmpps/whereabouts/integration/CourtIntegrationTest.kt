@@ -315,9 +315,9 @@ class CourtIntegrationTest(
             courtName = "Test Court 1",
             courtId = "TSTCRT",
             madeByTheCourt = false,
-            createdByUsername = "ITAG_USER"
           ).apply {
             addMainAppointment(mainAppointmentId)
+            createdByUsername = "ITAG_USER"
           }
         )
     }

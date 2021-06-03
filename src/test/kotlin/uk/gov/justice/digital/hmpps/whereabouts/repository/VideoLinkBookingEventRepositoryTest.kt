@@ -25,8 +25,8 @@ class VideoLinkBookingEventRepositoryTest(
 
   private val aTimestamp: LocalDateTime = LocalDateTime.of(2021, 3, 1, 12, 0)
 
-  val createEvent = VideoLinkBookingEvent(
-    timestamp = aTimestamp,
+  fun makeEvent(timestamp: LocalDateTime = aTimestamp) = VideoLinkBookingEvent(
+    timestamp = timestamp,
     eventType = VideoLinkBookingEventType.CREATE,
     userId = "X",
     videoLinkBookingId = 1L,
@@ -59,7 +59,7 @@ class VideoLinkBookingEventRepositoryTest(
 
   @Test
   fun `persist Create event`() {
-    repository.save(createEvent.copy())
+    repository.save(makeEvent())
     TestTransaction.flagForCommit()
     TestTransaction.end()
 
@@ -68,7 +68,7 @@ class VideoLinkBookingEventRepositoryTest(
     assertThat(events).hasSize(1)
 
     val event = events[0]
-    assertThat(event).usingRecursiveComparison().ignoringFields("eventId").isEqualTo(createEvent)
+    assertThat(event).usingRecursiveComparison().ignoringFields("eventId").isEqualTo(makeEvent())
     assertThat(event.eventId).isNotNull
   }
 
@@ -76,10 +76,10 @@ class VideoLinkBookingEventRepositoryTest(
   fun `find by timestamp between`() {
     val referenceDay = LocalDate.of(2021, 3, 1)
 
-    repository.save(createEvent.copy(timestamp = referenceDay.atStartOfDay().minusSeconds(1)))
-    repository.save(createEvent.copy(timestamp = referenceDay.atStartOfDay()))
-    repository.save(createEvent.copy(timestamp = referenceDay.plusDays(1).atStartOfDay().minusSeconds(1)))
-    repository.save(createEvent.copy(timestamp = referenceDay.plusDays(1).atStartOfDay()))
+    repository.save(makeEvent(timestamp = referenceDay.atStartOfDay().minusSeconds(1)))
+    repository.save(makeEvent(timestamp = referenceDay.atStartOfDay()))
+    repository.save(makeEvent(timestamp = referenceDay.plusDays(1).atStartOfDay().minusSeconds(1)))
+    repository.save(makeEvent(timestamp = referenceDay.plusDays(1).atStartOfDay()))
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
