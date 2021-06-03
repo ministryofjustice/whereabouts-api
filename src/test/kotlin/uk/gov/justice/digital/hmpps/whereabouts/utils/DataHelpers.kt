@@ -14,10 +14,11 @@ class DataHelpers {
   companion object {
 
     fun makeVideoLinkBooking(id: Long): VideoLinkBooking =
-      VideoLinkBooking(id = id, offenderBookingId = -1L, courtName = "Court 1", createdByUsername = "SA").apply {
+      VideoLinkBooking(id = id, offenderBookingId = -1L, courtName = "Court 1",).apply {
         addMainAppointment(id = 1L, appointmentId = 1L)
         addPreAppointment(id = 2L, appointmentId = 2L)
         addPostAppointment(id = 3L, appointmentId = 3L)
+        createdByUsername = "SA"
       }
 
     fun makeCreatePrisonAppointment(

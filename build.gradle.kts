@@ -77,6 +77,14 @@ tasks.withType<KotlinCompile>().configureEach {
   }
 }
 
+allOpen {
+  annotations(
+    "javax.persistence.Entity",
+    "javax.persistence.MappedSuperclass",
+    "javax.persistence.Embeddable"
+  )
+}
+
 tasks {
   compileKotlin {
     kotlinOptions {

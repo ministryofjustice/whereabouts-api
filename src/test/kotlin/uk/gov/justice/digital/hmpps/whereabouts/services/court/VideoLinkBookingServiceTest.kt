@@ -32,6 +32,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
+import uk.gov.justice.digital.hmpps.whereabouts.model.eqByProps
 import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
@@ -172,13 +173,12 @@ class VideoLinkBookingServiceTest {
         )
       )
 
-      // verify uses the equals method. The VideoLinkBooking equals method will return false for for two distinct objects that are deeply equal but not persistent.
-      // Hibernate equality is seriously annoying!
-      verify(videoLinkBookingRepository).save(makeBooking(null))
+      verify(videoLinkBookingRepository).save(eqByProps(makeBooking(null)))
+
       verify(videoLinkBookingEventListener).bookingCreated(
-        makeBooking(expectedVideoLinkBookingId),
-        specification,
-        AGENCY_WANDSWORTH
+        eqByProps(makeBooking(expectedVideoLinkBookingId)),
+        eq(specification),
+        eq(AGENCY_WANDSWORTH)
       )
     }
 
@@ -458,7 +458,7 @@ class VideoLinkBookingServiceTest {
       verify(prisonApiService).postAppointment(offenderBookingId, preCreateAppointment)
       verify(prisonApiService).postAppointment(offenderBookingId, postCreateAppointment)
 
-      verify(videoLinkBookingRepository).save(makeBooking(null))
+      verify(videoLinkBookingRepository).save(eqByProps(makeBooking(null)))
     }
   }
 
@@ -828,7 +828,14 @@ class VideoLinkBookingServiceTest {
             scheduledAppointments("VLB", "WWI", 2000, 2010) +
             scheduledAppointments("XXX", "WWI", 3000, 3010)
         )
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), isNull(), isNull()))
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+          any(),
+          eq(HearingType.MAIN),
+          isNull(),
+          isNull()
+        )
+      )
         .thenReturn(videoLinkBookings("Wimbledon", null, 1, 10))
 
       val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null, null)
@@ -907,7 +914,14 @@ class VideoLinkBookingServiceTest {
           )
         )
 
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), isNull(), isNull()))
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+          any(),
+          eq(HearingType.MAIN),
+          isNull(),
+          isNull()
+        )
+      )
         .thenReturn(
           listOf(
             VideoLinkBooking(
@@ -932,21 +946,45 @@ class VideoLinkBookingServiceTest {
     @Test
     fun `Filter by courtName`() {
       whenever(prisonApiService.getScheduledAppointments(anyString(), any())).thenReturn(emptyList())
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), any(), isNull()))
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+          any(),
+          eq(HearingType.MAIN),
+          any(),
+          isNull()
+        )
+      )
         .thenReturn(emptyList())
 
       service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, "The court", null)
-      verify(videoLinkBookingRepository).findByAppointmentIdsAndHearingType(emptyList(), HearingType.MAIN, "The court", null)
+      verify(videoLinkBookingRepository).findByAppointmentIdsAndHearingType(
+        emptyList(),
+        HearingType.MAIN,
+        "The court",
+        null
+      )
     }
 
     @Test
     fun `Filter by courtId`() {
       whenever(prisonApiService.getScheduledAppointments(anyString(), any())).thenReturn(emptyList())
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), isNull(), any()))
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+          any(),
+          eq(HearingType.MAIN),
+          isNull(),
+          any()
+        )
+      )
         .thenReturn(emptyList())
 
       service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null, "COURTID")
-      verify(videoLinkBookingRepository).findByAppointmentIdsAndHearingType(emptyList(), HearingType.MAIN, null, "COURTID")
+      verify(videoLinkBookingRepository).findByAppointmentIdsAndHearingType(
+        emptyList(),
+        HearingType.MAIN,
+        null,
+        "COURTID"
+      )
     }
   }
 

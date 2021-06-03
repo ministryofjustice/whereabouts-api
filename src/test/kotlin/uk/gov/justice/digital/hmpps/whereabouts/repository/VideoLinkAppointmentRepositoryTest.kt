@@ -45,15 +45,17 @@ class VideoLinkAppointmentRepositoryTest {
         offenderBookingId = 4,
         courtName = null,
         courtId = "TSTCRT",
-        createdByUsername = "username2",
         madeByTheCourt = false
       ).apply {
         addMainAppointment(appointmentId = 3)
+        createdByUsername = "username2"
       }
     )
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
+
+    TestTransaction.start()
 
     val appointments = videoLinkAppointmentRepository.findAll().minus(preAppointments)
 

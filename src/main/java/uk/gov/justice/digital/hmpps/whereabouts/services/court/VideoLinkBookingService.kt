@@ -56,7 +56,7 @@ class VideoLinkBookingService(
     val (mainEvent, preEvent, postEvent) = createPrisonAppointments(specification.bookingId!!, specification)
 
     val videoLinkBooking = VideoLinkBooking(
-      offenderBookingId = specification.bookingId!!,
+      offenderBookingId = specification.bookingId,
       courtName = specification.court,
       courtId = getCourtId(specification),
       madeByTheCourt = specification.madeByTheCourt
