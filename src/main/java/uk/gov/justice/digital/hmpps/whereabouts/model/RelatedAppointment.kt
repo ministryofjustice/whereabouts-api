@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
+import java.time.LocalDateTime
 import javax.persistence.CascadeType
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -24,6 +25,7 @@ data class RecurringAppointment(
 
   val repeatPeriod: RepeatPeriod,
   val count: Long,
+  val startTime: LocalDateTime,
 
   @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "RECURRING_APPOINTMENT_ID")

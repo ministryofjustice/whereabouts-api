@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import uk.gov.justice.digital.hmpps.whereabouts.model.RecurringAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RelatedAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
+import java.time.LocalDateTime
 
 @DataJpaTest
 class RecurringAppointmentRepositoryTest {
@@ -23,6 +24,7 @@ class RecurringAppointmentRepositoryTest {
     val recurringAppointmentBookingId = entityManager.persistAndFlush(
       RecurringAppointment(
         repeatPeriod = RepeatPeriod.FORTNIGHTLY, count = 1,
+        startTime = LocalDateTime.of(2021, 1, 21, 0, 0, 0),
         relatedAppointments = listOf(
           RelatedAppointment(2), RelatedAppointment(3)
         )
