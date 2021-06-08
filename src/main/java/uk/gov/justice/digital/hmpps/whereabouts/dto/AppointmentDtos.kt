@@ -193,7 +193,9 @@ data class RecurringAppointmentDto(
   )
   val repeatPeriod: RepeatPeriod,
   @ApiModelProperty(required = true, value = "Specifies the amount of times the repeat period will be applied")
-  val count: Long
+  val count: Long,
+  @ApiModelProperty(value = "The start time of the first appointment in the sequence", example = "2020-12-23T10:00")
+  val startTime: LocalDateTime,
 )
 
 @ApiModel(description = "Appointment details, linking video link bookings and recurring appointments")

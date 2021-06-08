@@ -95,6 +95,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
             id = 1,
             repeatPeriod = RepeatPeriod.FORTNIGHTLY,
             count = 10,
+            startTime = LocalDateTime.of(2021, 1, 21, 0, 0, 0),
             relatedAppointments = listOf(RelatedAppointment(1))
           )
         )
@@ -243,7 +244,8 @@ class AppointmentIntegrationTest : IntegrationTest() {
           RecurringAppointment(
             1, relatedAppointments = listOf(RelatedAppointment(1), RelatedAppointment(2)),
             repeatPeriod = RepeatPeriod.DAILY,
-            count = 1
+            count = 1,
+            startTime = LocalDateTime.of(2021, 1, 21, 0, 0, 0)
           )
         )
       )

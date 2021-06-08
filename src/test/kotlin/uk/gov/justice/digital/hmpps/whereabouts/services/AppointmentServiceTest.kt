@@ -406,6 +406,7 @@ class AppointmentServiceTest {
             id = 1,
             repeatPeriod = RepeatPeriod.FORTNIGHTLY,
             count = 1,
+            startTime = START_TIME
           )
         )
       )
@@ -413,8 +414,8 @@ class AppointmentServiceTest {
       val appointmentDetails = appointmentService.getAppointment(1)
 
       assertThat(appointmentDetails.recurring)
-        .extracting("repeatPeriod", "count")
-        .contains(RepeatPeriod.FORTNIGHTLY, 1L)
+        .extracting("repeatPeriod", "count", "startTime")
+        .contains(RepeatPeriod.FORTNIGHTLY, 1L, START_TIME)
     }
 
     @Test
@@ -558,6 +559,7 @@ class AppointmentServiceTest {
         RecurringAppointment(
           repeatPeriod = RepeatPeriod.DAILY,
           count = 4,
+          startTime = START_TIME,
           relatedAppointments = listOf(
             RelatedAppointment(1),
             RelatedAppointment(2),
@@ -644,6 +646,7 @@ class AppointmentServiceTest {
             id = 100,
             repeatPeriod = RepeatPeriod.DAILY,
             count = 2,
+            startTime = START_TIME,
             relatedAppointments = listOf(RelatedAppointment(2L), RelatedAppointment(3L))
           )
         )
@@ -684,6 +687,7 @@ class AppointmentServiceTest {
             id = 100,
             repeatPeriod = RepeatPeriod.DAILY,
             count = 2,
+            startTime = START_TIME,
             relatedAppointments = listOf(RelatedAppointment(2), RelatedAppointment(3))
           )
         )
@@ -709,6 +713,7 @@ class AppointmentServiceTest {
             id = 100,
             repeatPeriod = RepeatPeriod.DAILY,
             count = 2,
+            startTime = START_TIME,
             relatedAppointments = listOf(RelatedAppointment(2L), RelatedAppointment(3L))
           )
         )

@@ -121,7 +121,7 @@ class AppointmentService(
       val appointmentIds: Set<Long> = appointmentCreated?.map { it.appointmentEventId }?.toSet() ?: emptySet()
 
       val recurringAppointment =
-        makeRecurringAppointment(appointmentIds = appointmentIds, repeat = createAppointmentSpecification.repeat)
+        makeRecurringAppointment(appointmentIds = appointmentIds, startTime = createAppointmentSpecification.startTime, repeat = createAppointmentSpecification.repeat)
 
       recurringAppointmentRepository.save(recurringAppointment)
 
@@ -170,10 +170,12 @@ class AppointmentService(
 
   private fun makeRecurringAppointment(
     appointmentIds: Set<Long>,
+    startTime: LocalDateTime,
     repeat: Repeat
   ) = RecurringAppointment(
     repeatPeriod = repeat.repeatPeriod,
     count = repeat.count,
+    startTime = startTime,
     relatedAppointments = appointmentIds.let {
       it.map { id ->
         RelatedAppointment(
@@ -299,7 +301,8 @@ private fun makeAppointmentDto(offenderNo: String? = null, prisonAppointment: Pr
 private fun makeRecurringAppointmentDto(recurringAppointment: RecurringAppointment): RecurringAppointmentDto =
   RecurringAppointmentDto(
     repeatPeriod = recurringAppointment.repeatPeriod,
-    count = recurringAppointment.count
+    count = recurringAppointment.count,
+    startTime = recurringAppointment.startTime
   )
 
 private fun makePrisonAppointment(createAppointmentSpecification: CreateAppointmentSpecification) =
