@@ -188,7 +188,7 @@ class AppointmentControllerTest : TestController() {
         .andDo(print())
         .andExpect(status().isOk)
 
-      verify(appointmentService).deleteAppointment(APPOINTMENT_ID, true)
+      verify(appointmentService).deleteAppointment(APPOINTMENT_ID)
     }
 
     @Test
@@ -201,11 +201,28 @@ class AppointmentControllerTest : TestController() {
         .andDo(print())
         .andExpect(status().isOk)
 
-      verify(appointmentService).deleteAppointment(APPOINTMENT_ID, false)
+      verify(appointmentService).deleteAppointment(APPOINTMENT_ID)
+    }
+  }
+
+  @Nested
+  inner class DeleteRecurringAppointmentSequence {
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `should delete the whole sequence of recurring appointments`() {
+      mockMvc.perform(
+        delete("/appointment/recurring/$RECURRING_APPOINTMENT_SEQUENCE_ID")
+          .contentType(MediaType.APPLICATION_JSON)
+      )
+        .andDo(print())
+        .andExpect(status().isOk)
+
+      verify(appointmentService).deleteRecurringAppointmentSequence(RECURRING_APPOINTMENT_SEQUENCE_ID)
     }
   }
 
   companion object {
     private const val APPOINTMENT_ID = 1L
+    private const val RECURRING_APPOINTMENT_SEQUENCE_ID = 100L
   }
 }

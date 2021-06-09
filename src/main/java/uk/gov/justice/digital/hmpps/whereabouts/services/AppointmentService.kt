@@ -32,6 +32,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 import javax.persistence.EntityNotFoundException
 import javax.transaction.Transactional
 
@@ -135,7 +136,7 @@ class AppointmentService(
   }
 
   @Transactional
-  fun deleteAppointment(appointmentId: Long, deleteRelatedAppointments: Boolean) {
+  fun deleteAppointment(appointmentId: Long) {
     prisonApiService.getPrisonAppointment(appointmentId)
       ?: throw EntityNotFoundException("Appointment $appointmentId does not exist")
 
@@ -157,18 +158,26 @@ class AppointmentService(
       return
     }
 
-    if (!deleteRelatedAppointments) {
-      prisonApiService.deleteAppointment(appointmentId)
-      removeSingleAppointmentInRecurringList(appointmentId, recurringAppointment!!)
-      return
+    prisonApiService.deleteAppointment(appointmentId)
+    removeSingleAppointmentInRecurringList(appointmentId, recurringAppointment!!)
+    return
+  }
+
+  @Transactional
+  fun deleteRecurringAppointmentSequence(recurringAppointmentId: Long) {
+    val recurringAppointment: Optional<RecurringAppointment> =
+      recurringAppointmentRepository.findById(recurringAppointmentId)
+
+    if (!recurringAppointment.isPresent) {
+      throw EntityNotFoundException("Appointment $recurringAppointmentId does not exist")
     }
 
-    recurringAppointment.relatedAppointments?.let {
+    recurringAppointment.get().relatedAppointments?.let {
       val appointmentIds = it.map { appointment -> appointment.id }
 
       prisonApiService.deleteAppointments(appointmentIds)
 
-      recurringAppointmentRepository.deleteById(recurringAppointment.id)
+      recurringAppointmentRepository.deleteById(recurringAppointmentId)
 
       raiseRecurringAppointmentDeletedTrackingEvent(appointmentIds.count().toLong())
     }
