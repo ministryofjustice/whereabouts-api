@@ -10,6 +10,7 @@
   },
   "videoLinkBooking": null,
   "recurring": {
+    "id": 1,
     "repeatPeriod": "FORTNIGHTLY",
     "count": 10,
     "startTime": "2021-01-21T00:00:00"

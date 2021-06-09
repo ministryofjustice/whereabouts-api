@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDetailsDto
@@ -92,7 +91,29 @@ class AppointmentController(private val appointmentService: AppointmentService) 
     ]
   )
   fun deleteAppointment(
-    @PathVariable(value = "id") id: Long,
-    @ApiParam(value = "Whether to delete the whole sequence of recurring appointments to which this appointment belongs.") @RequestParam(value = "deleteRelatedAppointments", required = false, defaultValue = "true") deleteRelatedAppointments: Boolean
-  ) = appointmentService.deleteAppointment(id, deleteRelatedAppointments)
+    @PathVariable(value = "id") id: Long
+  ) = appointmentService.deleteAppointment(id)
+
+  @DeleteMapping(path = ["/recurring/{id}"])
+  @ApiOperation(
+    value = "Delete the whole sequence of a recurring appointment",
+    nickname = "deleteRecurringAppointmentSequence"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        code = 404,
+        message = "Recurring appointment sequence not found.",
+        response = ErrorResponse::class,
+      ),
+      ApiResponse(
+        code = 500,
+        message = "Unrecoverable error occurred whilst processing request.",
+        response = ErrorResponse::class,
+      )
+    ]
+  )
+  fun deleteRecurringAppointmentSequence(
+    @ApiParam(value = "The id of the recurring appointment sequence.") @PathVariable(value = "id") id: Long
+  ) = appointmentService.deleteRecurringAppointmentSequence(id)
 }

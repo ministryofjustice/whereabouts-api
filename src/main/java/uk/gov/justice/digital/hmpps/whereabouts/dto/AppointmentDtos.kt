@@ -185,6 +185,8 @@ data class VideoLinkAppointmentDto(
 
 @ApiModel(description = "Recurring appointment")
 data class RecurringAppointmentDto(
+  @ApiModelProperty(value = "Recurring appointment sequence id", example = "1")
+  val id: Long,
   @ApiModelProperty(
     required = true,
     value = "Repeat period",

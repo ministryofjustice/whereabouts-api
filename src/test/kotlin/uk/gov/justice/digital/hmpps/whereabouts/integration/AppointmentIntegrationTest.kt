@@ -234,32 +234,6 @@ class AppointmentIntegrationTest : IntegrationTest() {
     }
 
     @Test
-    fun `should delete all recurring appointments`() {
-      prisonApiMockServer.stubGetPrisonAppointment(
-        1,
-        objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = 1))
-      )
-      whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
-        Optional.of(
-          RecurringAppointment(
-            1, relatedAppointments = mutableListOf(RelatedAppointment(1), RelatedAppointment(2)),
-            repeatPeriod = RepeatPeriod.DAILY,
-            count = 1,
-            startTime = LocalDateTime.of(2021, 1, 21, 0, 0, 0)
-          )
-        )
-      )
-
-      prisonApiMockServer.stubDeleteAppointments(listOf(1, 2))
-
-      webTestClient.delete()
-        .uri("/appointment/1")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().isOk
-    }
-
-    @Test
     fun `should delete a single appointment in the recurring list`() {
       prisonApiMockServer.stubGetPrisonAppointment(
         1,
@@ -279,7 +253,32 @@ class AppointmentIntegrationTest : IntegrationTest() {
       prisonApiMockServer.stubDeleteAppointments(listOf(1))
 
       webTestClient.delete()
-        .uri("/appointment/1?deleteRelatedAppointments=false")
+        .uri("/appointment/1")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
+    }
+  }
+
+  @Nested
+  inner class DeleteRecurringAppointmentSequence {
+    @Test
+    fun `should delete all recurring appointments`() {
+      whenever(recurringAppointmentRepository.findById(any())).thenReturn(
+        Optional.of(
+          RecurringAppointment(
+            100, relatedAppointments = mutableListOf(RelatedAppointment(1), RelatedAppointment(2)),
+            repeatPeriod = RepeatPeriod.DAILY,
+            count = 1,
+            startTime = LocalDateTime.of(2021, 1, 21, 0, 0, 0)
+          )
+        )
+      )
+
+      prisonApiMockServer.stubDeleteAppointments(listOf(1, 2))
+
+      webTestClient.delete()
+        .uri("/appointment/recurring/100")
         .headers(setHeaders())
         .exchange()
         .expectStatus().isOk

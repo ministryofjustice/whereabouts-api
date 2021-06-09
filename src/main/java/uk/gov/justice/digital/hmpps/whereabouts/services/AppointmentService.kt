@@ -135,7 +135,7 @@ class AppointmentService(
   }
 
   @Transactional
-  fun deleteAppointment(appointmentId: Long, deleteRelatedAppointments: Boolean) {
+  fun deleteAppointment(appointmentId: Long) {
     prisonApiService.getPrisonAppointment(appointmentId)
       ?: throw EntityNotFoundException("Appointment $appointmentId does not exist")
 
@@ -157,18 +157,22 @@ class AppointmentService(
       return
     }
 
-    if (!deleteRelatedAppointments) {
-      prisonApiService.deleteAppointment(appointmentId)
-      removeSingleAppointmentInRecurringList(appointmentId, recurringAppointment!!)
-      return
-    }
+    prisonApiService.deleteAppointment(appointmentId)
+    removeSingleAppointmentInRecurringList(appointmentId, recurringAppointment)
+    return
+  }
+
+  @Transactional
+  fun deleteRecurringAppointmentSequence(recurringAppointmentId: Long) {
+    val recurringAppointment: RecurringAppointment =
+      recurringAppointmentRepository.findById(recurringAppointmentId).orElseThrow { EntityNotFoundException("Appointment $recurringAppointmentId does not exist") }
 
     recurringAppointment.relatedAppointments?.let {
       val appointmentIds = it.map { appointment -> appointment.id }
 
       prisonApiService.deleteAppointments(appointmentIds)
 
-      recurringAppointmentRepository.deleteById(recurringAppointment.id)
+      recurringAppointmentRepository.deleteById(recurringAppointmentId)
 
       raiseRecurringAppointmentDeletedTrackingEvent(appointmentIds.count().toLong())
     }
@@ -318,6 +322,7 @@ private fun makeAppointmentDto(offenderNo: String? = null, prisonAppointment: Pr
 
 private fun makeRecurringAppointmentDto(recurringAppointment: RecurringAppointment): RecurringAppointmentDto =
   RecurringAppointmentDto(
+    id = recurringAppointment.id!!,
     repeatPeriod = recurringAppointment.repeatPeriod,
     count = recurringAppointment.count,
     startTime = recurringAppointment.startTime

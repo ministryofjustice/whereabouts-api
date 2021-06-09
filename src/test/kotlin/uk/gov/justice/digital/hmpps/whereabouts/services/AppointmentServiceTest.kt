@@ -414,8 +414,8 @@ class AppointmentServiceTest {
       val appointmentDetails = appointmentService.getAppointment(1)
 
       assertThat(appointmentDetails.recurring)
-        .extracting("repeatPeriod", "count", "startTime")
-        .contains(RepeatPeriod.FORTNIGHTLY, 1L, START_TIME)
+        .extracting("id", "repeatPeriod", "count", "startTime")
+        .contains(1L, RepeatPeriod.FORTNIGHTLY, 1L, START_TIME)
     }
 
     @Test
@@ -628,35 +628,14 @@ class AppointmentServiceTest {
       whenever(prisonApiService.getPrisonAppointment(2)).thenReturn(null)
 
       assertThrows(EntityNotFoundException::class.java) {
-        appointmentService.deleteAppointment(2, true)
+        appointmentService.deleteAppointment(2)
       }
     }
 
     @Test
     fun `should delete an appointment`() {
-      appointmentService.deleteAppointment(1L, true)
+      appointmentService.deleteAppointment(1L)
       verify(prisonApiService).deleteAppointment(1L)
-    }
-
-    @Test
-    fun `should delete all recurring appointments`() {
-      whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
-        Optional.of(
-          RecurringAppointment(
-            id = 100,
-            repeatPeriod = RepeatPeriod.DAILY,
-            count = 2,
-            startTime = START_TIME,
-            relatedAppointments = mutableListOf(RelatedAppointment(2L), RelatedAppointment(3L))
-          )
-        )
-      )
-
-      appointmentService.deleteAppointment(2, true)
-
-      verify(prisonApiService).deleteAppointments(listOf(2L, 3L))
-      verify(recurringAppointmentRepository).deleteById(100)
-      verify(videoLinkBookingService, never()).deleteVideoLinkBooking(anyLong())
     }
 
     @Test
@@ -672,7 +651,7 @@ class AppointmentServiceTest {
         listOf(DataHelpers.makeVideoLinkBooking(2L))
       )
 
-      appointmentService.deleteAppointment(1L, true)
+      appointmentService.deleteAppointment(1L)
 
       verify(videoLinkBookingService).deleteVideoLinkBooking(2L)
       verify(prisonApiService, never()).deleteAppointment(anyLong())
@@ -680,53 +659,7 @@ class AppointmentServiceTest {
     }
 
     @Test
-    fun `should raise a tracking event when deleting a recurring appointment`() {
-      whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
-        Optional.of(
-          RecurringAppointment(
-            id = 100,
-            repeatPeriod = RepeatPeriod.DAILY,
-            count = 2,
-            startTime = START_TIME,
-            relatedAppointments = mutableListOf(RelatedAppointment(2), RelatedAppointment(3))
-          )
-        )
-      )
-      appointmentService.deleteAppointment(100, true)
-
-      verify(telemetryClient).trackEvent(
-        "Recurring Appointment deleted",
-        mapOf(
-          "appointmentsDeleted" to "2"
-        ),
-        null
-      )
-    }
-
-    @Test
-    fun `should delete the recurring appointment by passing any in of the related appointment ids`() {
-
-      whenever(prisonApiService.getPrisonAppointment(3L)).thenReturn(DataHelpers.makePrisonAppointment())
-      whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
-        Optional.of(
-          RecurringAppointment(
-            id = 100,
-            repeatPeriod = RepeatPeriod.DAILY,
-            count = 2,
-            startTime = START_TIME,
-            relatedAppointments = mutableListOf(RelatedAppointment(2L), RelatedAppointment(3L))
-          )
-        )
-      )
-
-      appointmentService.deleteAppointment(3L, true)
-
-      verify(prisonApiService).deleteAppointments(listOf(2L, 3L))
-      verify(recurringAppointmentRepository).deleteById(100)
-    }
-
-    @Test
-    fun `should delete the single appointment of a set of recurring appointments when requested`() {
+    fun `should delete the single appointment of a sequence of recurring appointments when requested`() {
 
       val relatedAppointments = mutableListOf(RelatedAppointment(2L), RelatedAppointment(3L))
       whenever(prisonApiService.getPrisonAppointment(3L)).thenReturn(DataHelpers.makePrisonAppointment())
@@ -742,7 +675,7 @@ class AppointmentServiceTest {
         )
       )
 
-      appointmentService.deleteAppointment(3L, false)
+      appointmentService.deleteAppointment(3L)
 
       verify(prisonApiService).deleteAppointment(3L)
       // JPA will remove the item from the DB when removed from the list as orphanRemoval = true
@@ -751,7 +684,7 @@ class AppointmentServiceTest {
     }
 
     @Test
-    fun `should delete all recurring appointments when the only remaining appointment is deleted`() {
+    fun `should delete all recurring appointments in a sequence when the only remaining appointment is deleted`() {
 
       val relatedAppointments = mutableListOf(RelatedAppointment(3L))
       whenever(prisonApiService.getPrisonAppointment(3L)).thenReturn(DataHelpers.makePrisonAppointment())
@@ -767,10 +700,51 @@ class AppointmentServiceTest {
         )
       )
 
-      appointmentService.deleteAppointment(3L, false)
+      appointmentService.deleteAppointment(3L)
 
       verify(prisonApiService).deleteAppointment(3L)
       verify(recurringAppointmentRepository).deleteById(100)
+    }
+  }
+
+  @Nested
+  inner class DeleteRecurringAppointmentSequence {
+
+    @BeforeEach
+    fun beforeEach() {
+      whenever(recurringAppointmentRepository.findById(anyLong())).thenReturn(
+        Optional.of(
+          RecurringAppointment(
+            id = 100,
+            repeatPeriod = RepeatPeriod.DAILY,
+            count = 2,
+            startTime = START_TIME,
+            relatedAppointments = mutableListOf(RelatedAppointment(2L), RelatedAppointment(3L))
+          )
+        )
+      )
+    }
+
+    @Test
+    fun `should delete all recurring appointments`() {
+      appointmentService.deleteRecurringAppointmentSequence(100)
+
+      verify(prisonApiService).deleteAppointments(listOf(2L, 3L))
+      verify(recurringAppointmentRepository).deleteById(100)
+      verify(videoLinkBookingService, never()).deleteVideoLinkBooking(anyLong())
+    }
+
+    @Test
+    fun `should raise a tracking event when deleting a recurring appointment`() {
+      appointmentService.deleteRecurringAppointmentSequence(100)
+
+      verify(telemetryClient).trackEvent(
+        "Recurring Appointment deleted",
+        mapOf(
+          "appointmentsDeleted" to "2"
+        ),
+        null
+      )
     }
   }
 
