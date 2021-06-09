@@ -26,7 +26,7 @@ class RecurringAppointmentRepositoryTest {
       RecurringAppointment(
         repeatPeriod = RepeatPeriod.FORTNIGHTLY, count = 1,
         startTime = startTime,
-        relatedAppointments = listOf(
+        relatedAppointments = mutableListOf(
           RelatedAppointment(2), RelatedAppointment(3)
         )
       )

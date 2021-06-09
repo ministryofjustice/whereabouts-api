@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.ApiParam
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
 import org.springframework.http.HttpStatus
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDetailsDto
@@ -89,5 +91,8 @@ class AppointmentController(private val appointmentService: AppointmentService) 
       )
     ]
   )
-  fun deleteAppointment(@PathVariable(value = "id") id: Long) = appointmentService.deleteAppointment(id)
+  fun deleteAppointment(
+    @PathVariable(value = "id") id: Long,
+    @ApiParam(value = "Whether to delete the whole sequence of recurring appointments to which this appointment belongs.") @RequestParam(value = "deleteRelatedAppointments", required = false, defaultValue = "true") deleteRelatedAppointments: Boolean
+  ) = appointmentService.deleteAppointment(id, deleteRelatedAppointments)
 }

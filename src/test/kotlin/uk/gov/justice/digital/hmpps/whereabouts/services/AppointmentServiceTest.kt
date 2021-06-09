@@ -560,7 +560,7 @@ class AppointmentServiceTest {
           repeatPeriod = RepeatPeriod.DAILY,
           count = 4,
           startTime = START_TIME,
-          relatedAppointments = listOf(
+          relatedAppointments = mutableListOf(
             RelatedAppointment(1),
             RelatedAppointment(2),
             RelatedAppointment(3),
@@ -628,13 +628,13 @@ class AppointmentServiceTest {
       whenever(prisonApiService.getPrisonAppointment(2)).thenReturn(null)
 
       assertThrows(EntityNotFoundException::class.java) {
-        appointmentService.deleteAppointment(2)
+        appointmentService.deleteAppointment(2, true)
       }
     }
 
     @Test
     fun `should delete an appointment`() {
-      appointmentService.deleteAppointment(1L)
+      appointmentService.deleteAppointment(1L, true)
       verify(prisonApiService).deleteAppointment(1L)
     }
 
@@ -647,12 +647,12 @@ class AppointmentServiceTest {
             repeatPeriod = RepeatPeriod.DAILY,
             count = 2,
             startTime = START_TIME,
-            relatedAppointments = listOf(RelatedAppointment(2L), RelatedAppointment(3L))
+            relatedAppointments = mutableListOf(RelatedAppointment(2L), RelatedAppointment(3L))
           )
         )
       )
 
-      appointmentService.deleteAppointment(2)
+      appointmentService.deleteAppointment(2, true)
 
       verify(prisonApiService).deleteAppointments(listOf(2L, 3L))
       verify(recurringAppointmentRepository).deleteById(100)
@@ -672,7 +672,7 @@ class AppointmentServiceTest {
         listOf(DataHelpers.makeVideoLinkBooking(2L))
       )
 
-      appointmentService.deleteAppointment(1L)
+      appointmentService.deleteAppointment(1L, true)
 
       verify(videoLinkBookingService).deleteVideoLinkBooking(2L)
       verify(prisonApiService, never()).deleteAppointment(anyLong())
@@ -688,11 +688,11 @@ class AppointmentServiceTest {
             repeatPeriod = RepeatPeriod.DAILY,
             count = 2,
             startTime = START_TIME,
-            relatedAppointments = listOf(RelatedAppointment(2), RelatedAppointment(3))
+            relatedAppointments = mutableListOf(RelatedAppointment(2), RelatedAppointment(3))
           )
         )
       )
-      appointmentService.deleteAppointment(100)
+      appointmentService.deleteAppointment(100, true)
 
       verify(telemetryClient).trackEvent(
         "Recurring Appointment deleted",
@@ -704,7 +704,7 @@ class AppointmentServiceTest {
     }
 
     @Test
-    fun `should return the recurring appointment by passing any in of the related appointment ids`() {
+    fun `should delete the recurring appointment by passing any in of the related appointment ids`() {
 
       whenever(prisonApiService.getPrisonAppointment(3L)).thenReturn(DataHelpers.makePrisonAppointment())
       whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
@@ -714,14 +714,62 @@ class AppointmentServiceTest {
             repeatPeriod = RepeatPeriod.DAILY,
             count = 2,
             startTime = START_TIME,
-            relatedAppointments = listOf(RelatedAppointment(2L), RelatedAppointment(3L))
+            relatedAppointments = mutableListOf(RelatedAppointment(2L), RelatedAppointment(3L))
           )
         )
       )
 
-      appointmentService.deleteAppointment(3L)
+      appointmentService.deleteAppointment(3L, true)
 
       verify(prisonApiService).deleteAppointments(listOf(2L, 3L))
+      verify(recurringAppointmentRepository).deleteById(100)
+    }
+
+    @Test
+    fun `should delete the single appointment of a set of recurring appointments when requested`() {
+
+      val relatedAppointments = mutableListOf(RelatedAppointment(2L), RelatedAppointment(3L))
+      whenever(prisonApiService.getPrisonAppointment(3L)).thenReturn(DataHelpers.makePrisonAppointment())
+      whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
+        Optional.of(
+          RecurringAppointment(
+            id = 100,
+            repeatPeriod = RepeatPeriod.DAILY,
+            count = 2,
+            startTime = START_TIME,
+            relatedAppointments = relatedAppointments
+          )
+        )
+      )
+
+      appointmentService.deleteAppointment(3L, false)
+
+      verify(prisonApiService).deleteAppointment(3L)
+      // JPA will remove the item from the DB when removed from the list as orphanRemoval = true
+      assertThat(relatedAppointments).hasSize(1)
+      assertThat(relatedAppointments[0].id).isEqualTo(2L)
+    }
+
+    @Test
+    fun `should delete all recurring appointments when the only remaining appointment is deleted`() {
+
+      val relatedAppointments = mutableListOf(RelatedAppointment(3L))
+      whenever(prisonApiService.getPrisonAppointment(3L)).thenReturn(DataHelpers.makePrisonAppointment())
+      whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
+        Optional.of(
+          RecurringAppointment(
+            id = 100,
+            repeatPeriod = RepeatPeriod.DAILY,
+            count = 2,
+            startTime = START_TIME,
+            relatedAppointments = relatedAppointments
+          )
+        )
+      )
+
+      appointmentService.deleteAppointment(3L, false)
+
+      verify(prisonApiService).deleteAppointment(3L)
       verify(recurringAppointmentRepository).deleteById(100)
     }
   }
