@@ -414,8 +414,8 @@ class AppointmentServiceTest {
       val appointmentDetails = appointmentService.getAppointment(1)
 
       assertThat(appointmentDetails.recurring)
-        .extracting("repeatPeriod", "count", "startTime")
-        .contains(RepeatPeriod.FORTNIGHTLY, 1L, START_TIME)
+        .extracting("id", "repeatPeriod", "count", "startTime")
+        .contains(1, RepeatPeriod.FORTNIGHTLY, 1L, START_TIME)
     }
 
     @Test

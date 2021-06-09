@@ -327,6 +327,7 @@ private fun makeAppointmentDto(offenderNo: String? = null, prisonAppointment: Pr
 
 private fun makeRecurringAppointmentDto(recurringAppointment: RecurringAppointment): RecurringAppointmentDto =
   RecurringAppointmentDto(
+    id = recurringAppointment.id!!,
     repeatPeriod = recurringAppointment.repeatPeriod,
     count = recurringAppointment.count,
     startTime = recurringAppointment.startTime
