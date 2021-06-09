@@ -195,7 +195,7 @@ class AppointmentControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `should delete a single appointment in a set of recurring appointments`() {
       mockMvc.perform(
-        delete("/appointment/$APPOINTMENT_ID?deleteRelatedAppointments=false")
+        delete("/appointment/$APPOINTMENT_ID")
           .contentType(MediaType.APPLICATION_JSON)
       )
         .andDo(print())

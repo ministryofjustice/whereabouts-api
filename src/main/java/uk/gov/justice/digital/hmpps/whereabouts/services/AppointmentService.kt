@@ -165,14 +165,10 @@ class AppointmentService(
 
   @Transactional
   fun deleteRecurringAppointmentSequence(recurringAppointmentId: Long) {
-    val recurringAppointment: Optional<RecurringAppointment> =
-      recurringAppointmentRepository.findById(recurringAppointmentId)
+    val recurringAppointment: RecurringAppointment =
+      recurringAppointmentRepository.findById(recurringAppointmentId).orElseThrow{ EntityNotFoundException("Appointment $recurringAppointmentId does not exist") }
 
-    if (!recurringAppointment.isPresent) {
-      throw EntityNotFoundException("Appointment $recurringAppointmentId does not exist")
-    }
-
-    recurringAppointment.get().relatedAppointments?.let {
+    recurringAppointment.relatedAppointments?.let {
       val appointmentIds = it.map { appointment -> appointment.id }
 
       prisonApiService.deleteAppointments(appointmentIds)

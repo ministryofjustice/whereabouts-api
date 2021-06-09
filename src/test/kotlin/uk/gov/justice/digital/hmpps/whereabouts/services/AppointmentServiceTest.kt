@@ -415,7 +415,7 @@ class AppointmentServiceTest {
 
       assertThat(appointmentDetails.recurring)
         .extracting("id", "repeatPeriod", "count", "startTime")
-        .contains(1, RepeatPeriod.FORTNIGHTLY, 1L, START_TIME)
+        .contains(1L, RepeatPeriod.FORTNIGHTLY, 1L, START_TIME)
     }
 
     @Test

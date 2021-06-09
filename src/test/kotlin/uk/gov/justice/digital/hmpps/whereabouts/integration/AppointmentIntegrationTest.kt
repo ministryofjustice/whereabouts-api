@@ -253,7 +253,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
       prisonApiMockServer.stubDeleteAppointments(listOf(1))
 
       webTestClient.delete()
-        .uri("/appointment/1?deleteRelatedAppointments=false")
+        .uri("/appointment/1")
         .headers(setHeaders())
         .exchange()
         .expectStatus().isOk
