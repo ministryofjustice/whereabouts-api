@@ -29,7 +29,7 @@ data class RecurringAppointment(
 
   @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "RECURRING_APPOINTMENT_ID")
-  val relatedAppointments: List<RelatedAppointment>? = null
+  val relatedAppointments: MutableList<RelatedAppointment>? = null
 )
 
 @Entity(name = "APPOINTMENT")

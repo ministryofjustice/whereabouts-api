@@ -135,7 +135,7 @@ class AppointmentService(
   }
 
   @Transactional
-  fun deleteAppointment(appointmentId: Long) {
+  fun deleteAppointment(appointmentId: Long, deleteRelatedAppointments: Boolean) {
     prisonApiService.getPrisonAppointment(appointmentId)
       ?: throw EntityNotFoundException("Appointment $appointmentId does not exist")
 
@@ -157,6 +157,12 @@ class AppointmentService(
       return
     }
 
+    if (!deleteRelatedAppointments) {
+      prisonApiService.deleteAppointment(appointmentId)
+      removeSingleAppointmentInRecurringList(appointmentId, recurringAppointment!!)
+      return
+    }
+
     recurringAppointment.relatedAppointments?.let {
       val appointmentIds = it.map { appointment -> appointment.id }
 
@@ -165,6 +171,18 @@ class AppointmentService(
       recurringAppointmentRepository.deleteById(recurringAppointment.id)
 
       raiseRecurringAppointmentDeletedTrackingEvent(appointmentIds.count().toLong())
+    }
+  }
+
+  private fun removeSingleAppointmentInRecurringList(appointmentId: Long, recurringAppointment: RecurringAppointment) {
+    if (recurringAppointment.relatedAppointments == null) {
+      return
+    }
+    val allRecurringAppointments = recurringAppointment.relatedAppointments!!
+    val recurringAppointmentToDelete = allRecurringAppointments.find { it.id == appointmentId }
+    recurringAppointmentToDelete.let { allRecurringAppointments.remove(it) }
+    if (allRecurringAppointments.size == 0) {
+      recurringAppointmentRepository.deleteById(recurringAppointment.id)
     }
   }
 
@@ -182,7 +200,7 @@ class AppointmentService(
           id
         )
       }
-    }
+    }.toMutableList()
   )
 
   private fun raiseRecurringAppointmentCreatedTrackingEvent(
