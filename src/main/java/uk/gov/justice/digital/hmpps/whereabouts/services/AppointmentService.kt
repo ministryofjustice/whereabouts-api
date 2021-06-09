@@ -32,7 +32,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.Optional
 import javax.persistence.EntityNotFoundException
 import javax.transaction.Transactional
 
@@ -166,7 +165,7 @@ class AppointmentService(
   @Transactional
   fun deleteRecurringAppointmentSequence(recurringAppointmentId: Long) {
     val recurringAppointment: RecurringAppointment =
-      recurringAppointmentRepository.findById(recurringAppointmentId).orElseThrow{ EntityNotFoundException("Appointment $recurringAppointmentId does not exist") }
+      recurringAppointmentRepository.findById(recurringAppointmentId).orElseThrow { EntityNotFoundException("Appointment $recurringAppointmentId does not exist") }
 
     recurringAppointment.relatedAppointments?.let {
       val appointmentIds = it.map { appointment -> appointment.id }
