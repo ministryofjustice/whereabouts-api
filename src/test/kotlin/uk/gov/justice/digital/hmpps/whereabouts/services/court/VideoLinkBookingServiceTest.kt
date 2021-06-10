@@ -37,6 +37,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import java.time.Clock
 import java.time.Instant
@@ -50,6 +51,7 @@ class VideoLinkBookingServiceTest {
   private val courtRepository: CourtRepository = mock()
   private val courtService = CourtService(courtRepository)
   private val prisonApiService: PrisonApiService = mock()
+  private val prisonApiServiceAuditable: PrisonApiServiceAuditable = mock()
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
   private val videoLinkBookingEventListener: VideoLinkBookingEventListener = mock()
@@ -149,7 +151,7 @@ class VideoLinkBookingServiceTest {
         )
       )
 
-      whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(
+      whenever(prisonApiServiceAuditable.postAppointment(anyLong(), any())).thenReturn(
         Event(
           mainAppointmentId,
           AGENCY_WANDSWORTH
@@ -162,7 +164,7 @@ class VideoLinkBookingServiceTest {
 
       assertThat(vlbBookingId).isEqualTo(expectedVideoLinkBookingId)
 
-      verify(prisonApiService).postAppointment(
+      verify(prisonApiServiceAuditable).postAppointment(
         1L,
         CreateBookingAppointment(
           appointmentType = VLB_APPOINTMENT_TYPE,
@@ -406,19 +408,19 @@ class VideoLinkBookingServiceTest {
         endTime = "2020-10-09T11:20"
       )
 
-      whenever(prisonApiService.postAppointment(offenderBookingId, mainCreateAppointment)).thenReturn(
+      whenever(prisonApiServiceAuditable.postAppointment(offenderBookingId, mainCreateAppointment)).thenReturn(
         Event(
           mainAppointmentId,
           AGENCY_WANDSWORTH
         )
       )
-      whenever(prisonApiService.postAppointment(offenderBookingId, preCreateAppointment)).thenReturn(
+      whenever(prisonApiServiceAuditable.postAppointment(offenderBookingId, preCreateAppointment)).thenReturn(
         Event(
           preAppointmentId,
           AGENCY_WANDSWORTH
         )
       )
-      whenever(prisonApiService.postAppointment(offenderBookingId, postCreateAppointment)).thenReturn(
+      whenever(prisonApiServiceAuditable.postAppointment(offenderBookingId, postCreateAppointment)).thenReturn(
         Event(
           postAppointmentId,
           AGENCY_WANDSWORTH
@@ -454,9 +456,9 @@ class VideoLinkBookingServiceTest {
 
       assertThat(vlbBookingId).isEqualTo(11)
 
-      verify(prisonApiService).postAppointment(offenderBookingId, mainCreateAppointment)
-      verify(prisonApiService).postAppointment(offenderBookingId, preCreateAppointment)
-      verify(prisonApiService).postAppointment(offenderBookingId, postCreateAppointment)
+      verify(prisonApiServiceAuditable).postAppointment(offenderBookingId, mainCreateAppointment)
+      verify(prisonApiServiceAuditable).postAppointment(offenderBookingId, preCreateAppointment)
+      verify(prisonApiServiceAuditable).postAppointment(offenderBookingId, postCreateAppointment)
 
       verify(videoLinkBookingRepository).save(eqByProps(makeBooking(null)))
     }
@@ -490,7 +492,7 @@ class VideoLinkBookingServiceTest {
       theBooking.addMainAppointment(appointmentId = 40L, id = 2L)
 
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(theBooking))
-      whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(Event(3L, "WRI"))
+      whenever(prisonApiServiceAuditable.postAppointment(anyLong(), any())).thenReturn(Event(3L, "WRI"))
 
       val updateSpecification = VideoLinkBookingUpdateSpecification(
         comment = "New Comment",
@@ -504,7 +506,7 @@ class VideoLinkBookingServiceTest {
       service.updateVideoLinkBooking(1L, updateSpecification)
 
       verify(prisonApiService).deleteAppointment(40L)
-      verify(prisonApiService).postAppointment(
+      verify(prisonApiServiceAuditable).postAppointment(
         30L,
         CreateBookingAppointment(
           appointmentType = "VLB",
@@ -560,7 +562,7 @@ class VideoLinkBookingServiceTest {
       theBooking.addPostAppointment(appointmentId = 42L, id = 4L)
 
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(theBooking))
-      whenever(prisonApiService.postAppointment(anyLong(), any())).thenReturn(Event(9999L, "WRI"))
+      whenever(prisonApiServiceAuditable.postAppointment(anyLong(), any())).thenReturn(Event(9999L, "WRI"))
 
       service.updateVideoLinkBooking(
         1L,
@@ -588,7 +590,7 @@ class VideoLinkBookingServiceTest {
       verify(prisonApiService).deleteAppointment(41L)
       verify(prisonApiService).deleteAppointment(42L)
 
-      verify(prisonApiService).postAppointment(
+      verify(prisonApiServiceAuditable).postAppointment(
         30L,
         CreateBookingAppointment(
           appointmentType = "VLB",
@@ -599,7 +601,7 @@ class VideoLinkBookingServiceTest {
         )
       )
 
-      verify(prisonApiService).postAppointment(
+      verify(prisonApiServiceAuditable).postAppointment(
         30L,
         CreateBookingAppointment(
           appointmentType = "VLB",
@@ -610,7 +612,7 @@ class VideoLinkBookingServiceTest {
         )
       )
 
-      verify(prisonApiService).postAppointment(
+      verify(prisonApiServiceAuditable).postAppointment(
         30L,
         CreateBookingAppointment(
           appointmentType = "VLB",
@@ -1039,6 +1041,7 @@ class VideoLinkBookingServiceTest {
   private fun service() = VideoLinkBookingService(
     courtService,
     prisonApiService,
+    prisonApiServiceAuditable,
     videoLinkAppointmentRepository,
     videoLinkBookingRepository,
     clock,
