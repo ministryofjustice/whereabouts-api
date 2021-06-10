@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsService
@@ -340,7 +341,9 @@ class VideoLinkBookingControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `the booking does not exist`() {
       val bookingId = 1L
-      doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(videoLinkBookingService)
+      doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(
+        videoLinkBookingService
+      )
         .getVideoLinkBooking(bookingId)
 
       mockMvc.perform(
@@ -503,6 +506,18 @@ class VideoLinkBookingControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `successful deletion`() {
       val bookingId = 1L
+      whenever(videoLinkBookingService.deleteVideoLinkBooking(bookingId))
+        .thenReturn(
+          VideoLinkBooking(
+            id = 1L,
+            offenderBookingId = 2L,
+            madeByTheCourt = true,
+            courtId = "CRT"
+          ).apply {
+            addMainAppointment(3L)
+          }
+        )
+
       mockMvc.perform(
         delete("/court/video-link-bookings/$bookingId")
           .contentType(MediaType.APPLICATION_JSON)
@@ -516,7 +531,9 @@ class VideoLinkBookingControllerTest : TestController() {
     @WithMockUser(username = "ITAG_USER")
     fun `the booking does not exist`() {
       val bookingId = 1L
-      doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(videoLinkBookingService)
+      doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(
+        videoLinkBookingService
+      )
         .deleteVideoLinkBooking(bookingId)
 
       mockMvc.perform(
@@ -591,7 +608,14 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `get bookings on date for court`() {
-      whenever(videoLinkBookingService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), anyString(), isNull()))
+      whenever(
+        videoLinkBookingService.getVideoLinkBookingsForPrisonAndDateAndCourt(
+          any(),
+          any(),
+          anyString(),
+          isNull()
+        )
+      )
         .thenReturn(listOf())
 
       mockMvc.perform(
@@ -611,7 +635,14 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `get bookings on date for courtId`() {
-      whenever(videoLinkBookingService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), isNull(), anyString()))
+      whenever(
+        videoLinkBookingService.getVideoLinkBookingsForPrisonAndDateAndCourt(
+          any(),
+          any(),
+          isNull(),
+          anyString()
+        )
+      )
         .thenReturn(listOf())
 
       mockMvc.perform(

@@ -162,7 +162,10 @@ class VideoLinkBookingController(
     @ApiParam(value = "Video link booking id", required = true)
     @PathVariable("videoBookingId")
     videoBookingId: Long
-  ) = videoLinkBookingService.deleteVideoLinkBooking(videoBookingId)
+  ): ResponseEntity<Void> {
+    videoLinkBookingService.deleteVideoLinkBooking(videoBookingId)
+    return ResponseEntity.noContent().build()
+  }
 
   @PutMapping(
     path = ["/video-link-bookings/{videoLinkBookingId}/comment"],
