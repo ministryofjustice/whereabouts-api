@@ -29,7 +29,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Appointm
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableLocations
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableVideoLinkBookingLocations
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationIdAndDescription
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.VideoLinkBookingLocationsSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptions
+import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingSearchSpecification
 import java.time.LocalDate
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
@@ -231,4 +234,24 @@ class VideoLinkBookingController(
       specification.preInterval != null
     )
   }
+
+  @GetMapping(
+    path = ["/vlb-locations/{agencyId}"],
+    produces = [MediaType.APPLICATION_JSON_VALUE]
+  )
+  @ResponseStatus(HttpStatus.OK)
+  @ApiOperation(value = "Provide the set of locations within a prison used for Video Link Bookings")
+  fun getVideoLinkBookingLocationsForAgency(
+    @ApiParam(value = "Agency id", required = true)
+    @PathVariable("agencyId")
+    agencyId: String
+  ): List<LocationIdAndDescription> = appointmentLocationsService.allVideoLinkLocationsForAgency(agencyId)
+
+  @PostMapping()
+  fun findAvaliableVideoLinkBookingOptions(
+    @Valid
+    @RequestBody
+    specification: VideoLinkBookingSearchSpecification
+  ): VideoLinkBookingOptions =
+    appointmentLocationsService.finVideoLinkBookingOptions(specification)
 }
