@@ -22,6 +22,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import java.time.Clock
 import java.time.LocalDate
@@ -34,6 +35,7 @@ const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
 class VideoLinkBookingService(
   private val courtService: CourtService,
   private val prisonApiService: PrisonApiService,
+  private val prisonApiServiceAuditable: PrisonApiServiceAuditable,
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val clock: Clock,
@@ -142,7 +144,7 @@ class VideoLinkBookingService(
     bookingId: Long,
     comment: String?,
     appointmentSpec: VideoLinkAppointmentSpecification
-  ): Event = prisonApiService.postAppointment(
+  ): Event = prisonApiServiceAuditable.postAppointment(
     bookingId,
     CreateBookingAppointment(
       appointmentType = VIDEO_LINK_APPOINTMENT_TYPE,
