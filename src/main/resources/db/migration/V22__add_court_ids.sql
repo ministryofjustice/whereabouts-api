@@ -9,6 +9,9 @@ create table enabled_court (
 insert into enabled_court (id, name) values
 (  'BIRAIT', 'Birmingham Immigration'),             -- Doesn't exist in court register
 (  'BROMMC', 'Bromley'),                            -- {"id":"BROMMC","name":"Bromley Magistrates Court"}
+(  'CANTCC', 'Canterbury Crown'),                   -- {"id":"CANTCC","name":"Canterbury Crown Court"}
+(  'CANTCT', 'Canterbury County'),                  -- {"id":"CANTCT","name":"Canterbury County Court"}
+(  'CANTMC', 'Canterbury Magistrates'),             -- {"id":"CANTMC","name":"Canterbury Magistrates Court"}
 (  'CRNRCT', 'Caernarfon County'),                  -- {"id":"CRNRCT","name":"Caernarfon County Court"}
 (  'CRNRCC', 'Caernarfon Crown'),                   -- {"id":"CRNRCC","name":"Caernarfon Crown Court"}
 (  'CRNHMC', 'Caernarfon Magistrates'),             -- {"id":"CRNHMC","name":"Caernarfon Magistrates Court"}
@@ -22,6 +25,7 @@ insert into enabled_court (id, name) values
 (  'DRBYCC', 'Derby Crown'),                        -- {"id":"DRBYCC","name":"Derby Crown Court"}
 (  'DRBYJC', 'Derby Justice Centre'),               -- Doesn't exist in court register
 (  'DUDLMC', 'Dudley'),                             -- {"id":"DUDLMC","name":"Dudley Magistrates Court"}
+(  'FLKSMC', 'Folkestone Magistrates'),             -- {"id":"FLKSMC","name":"Folkestone Magistrates Court"}
 (  'HERFCC', 'Hereford Crown'),                     -- {"id":"HERFCC","name":"Hereford Crown Court"}
 (  'HERFMC', 'Hereford Magistrates'),               -- {"id":"HERFMC","name":"Hereford Magistrates Court"}
 (  'INNRCC', 'Inner London'),                       -- {"id":"INNRCC","name":"Inner London Sessions House Crown Court"}
@@ -30,7 +34,13 @@ insert into enabled_court (id, name) values
 (  'LEAMMC', 'Leamington'),                         -- {"id":"LEAMMC","name":"Leamington Spa Magistrates Court"}
 (  'LLNWMC', 'Llandrindod Wells Justice Centre'),   -- {"id":"LLNWMC","name":"Llandrindod Wells Magistrates Court"}
 (  'LLDUMC', 'Llandudno'),                          -- {"id":"LLDUMC","name":"Llandudno Magistrates Court"}
+(  'MDSTCC', 'Maidstone Crown'),                    -- {"id":"MDSTCC","name":"Maidstone Crown Court"}
+(  'MDSTCT', 'Maidstone County'),                   -- {"id":"MDSTCT","name":"Maidstone County Court"}
+(  'MDSTMC', 'Maidstone Magistrates'),              -- {"id":"MDSTMC","name":"Maidstone Magistrates Court"}
 (  'MNSFMC', 'Mansfield Justice Centre'),           -- {"id":"MNSFMC","name":"Mansfield Magistrates Court"}
+(  'MRGTMC', 'Margate Magistrates'),                -- {"id":"MRGTMC","name":"Margate Magistrates Court"}
+(  'CHTHMC', 'Medway Magistrates'),                 -- {"id":"CHTHMC","name":"Medway Magistrates Court"}
+(  'MDWYCT', 'Medway County'),                      -- {"id":"MDWYCT","name":"Medway County Court"}
 (  'MOLDCT', 'Mold County'),                        -- {"id":"MOLDCT","name":"Mold County Court"}
 (  'MOLDCC', 'Mold Crown'),                         -- {"id":"MOLDCC","name":"Mold Crown Court"}
 (  'MOLDMC', 'Mold Magistrates'),                   -- {"id":"MOLDMC","name":"Mold Magistrates Court"}
@@ -38,6 +48,7 @@ insert into enabled_court (id, name) values
 (  'NOTTMC', 'Nottingham Justice Centre'),          -- {"id":"NOTTMC","name":"Nottingham Magistrates Court"}
 (  'PRSTMC', 'Prestatyn County'),                   -- Doesn't exist in court register
 (  'RDDTMC', 'Redditch'),                           -- {"id":"RDDTMC","name":"Redditch Magistrates Court"}
+(  'SEVNMC', 'Sevenoaks Magistrates'),              -- {"id":"SEVNMC","name":"Sevenoaks Magistrates Court"}
 (  'SHRWCC', 'Shrewsbury Crown'),                   -- {"id":"SHRWCC","name":"Shrewsbury Crown Court"}
 (  'SHREMC', 'Shrewsbury Magistrates'),             -- {"id":"SHREMC","name":"Shrewsbury Magistrates Court"}
 (  'DRBYMC', 'South Derbyshire'),                   -- {"id":"DRBYMC","name":"Southern Derbyshire Magistrates Court (Derby)"}
@@ -58,5 +69,6 @@ insert into enabled_court (id, name) values
 (  'WRCSMC', 'Worcester Magistrates'),              -- {"id":"WRCSMC","name":"Worcester (South Worcestershire) Magistrates Court"}
 (  'WREXCT', 'Wrexham County'),                     -- {"id":"WREXCT","name":"Wrexham County Court"}
 (  'WREXMC', 'Wrexham Magistrates');                -- {"id":"WREXMC","name":"Wrexham Magistrates Court"}
+
 
 
