@@ -11,4 +11,3 @@ insert into enabled_court (id, name) values
 (  'CHTHMC', 'Medway Magistrates'),                 -- {"id":"CHTHMC","name":"Medway Magistrates Court"}
 (  'MDWYCT', 'Medway County'),                      -- {"id":"MDWYCT","name":"Medway County Court"}
 (  'SEVNMC', 'Sevenoaks Magistrates');              -- {"id":"SEVNMC","name":"Sevenoaks Magistrates Court"}
-

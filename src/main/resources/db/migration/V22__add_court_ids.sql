@@ -1,6 +1,6 @@
 create table enabled_court (
-                               id varchar(20)   not null primary key,
-                               name varchar(50) not null
+    id varchar(20)   not null primary key,
+    name varchar(50) not null
 );
 
 -- Some court names don't match anything in the court register
