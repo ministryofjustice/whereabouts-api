@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.LocationPrefixDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationIdAndDescription
 import java.util.Properties
 import javax.persistence.EntityNotFoundException
 
@@ -15,6 +16,12 @@ class LocationService(
   @Qualifier("locationGroupServiceSelector") private val locationGroupService: LocationGroupService,
   @Qualifier("whereaboutsGroups") private val groupsProperties: Properties
 ) {
+
+  fun getVideoLinkRoomsForPrison(agencyId: String): List<LocationIdAndDescription> =
+    prisonApiService
+      .getAgencyLocationsForTypeUnrestricted(agencyId, "APP")
+      .filter { it.locationType == "VIDE" }
+      .map { LocationIdAndDescription(it.locationId, it.description) }
 
   fun getLocationPrefixFromGroup(agencyId: String, group: String): LocationPrefixDto {
     val agencyGroupKey = "${agencyId}_$group"
