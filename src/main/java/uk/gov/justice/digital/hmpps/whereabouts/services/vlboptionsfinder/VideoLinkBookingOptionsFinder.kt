@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Interval
 import java.time.LocalTime
 import java.util.TreeMap
 
@@ -9,12 +10,17 @@ sealed class Event(val time: LocalTime)
 class StartEvent(time: LocalTime) : Event(time)
 class EndEvent(time: LocalTime) : Event(time)
 
+/**
+ * Takes a list of Events representing the start and end of appointments during a day.
+ * Uses this information to answers the question 'are there any appointments during this interval'
+ * (isFreeForInterval(interval: Interval) below.
+ */
 class Timeline(events: List<Event>) {
 
   /*
-    The periods of time when the room is empty.
-    This is map representation where the keys are the times at which the room became empty
-    and the values are the corresponding times when the room was next occupied.
+    The periods of time when there are no appointments.
+    The keys are the times at which an empty period started
+    while the values are the corresponding times when the empty period ended.
    */
   private val emptyPeriods = TreeMap<LocalTime, LocalTime>()
 
@@ -35,40 +41,37 @@ class Timeline(events: List<Event>) {
       .forEach {
         if (it.time > previousEventTime) {
           /**
-           * More than one event can occur at a given time - double bookings or
-           * one booking ending at the same time as another begins.
-           * We have moved on to the next event time so now we can look back
-           * and find out how things changed at the previous event time.
+           * More than one event can occur at a given time:
+           * One booking may end at the same time that another begins or there may be overlapping bookings.
+           *
+           * If the time of the current event is greater than the time of the previous event then
+           * all events for that earlier time have been seen and we can now make decisions about
+           * that previousEventTime (not the time of the current event):
            */
           if (currentBookings > 0) {
-            // The room became occupied or continued to be occupied.
+            // The room became occupied or continued to be occupied at previousEventTime
             if (freePeriodStarted != null) {
-              // The room became occupied at the previous event time.
-              // Record the empty period that ended at the previous event time
+              // The room became occupied at previousEventTime.  Record the empty period that ended at previousEventTime
               emptyPeriods[freePeriodStarted!!] = previousEventTime
               freePeriodStarted = null
             }
           } else {
-            /**
-             * The room became unoccupied or continued to be unoccupied
-             */
+            // The room became unoccupied or continued to be unoccupied
             if (freePeriodStarted == null) {
-              /**
-               * The room became unoccupied so remember the time at which this happened
-               */
+              // The room became unoccupied. Remember the time at which this happened
               freePeriodStarted = previousEventTime
             }
           }
         }
+        // Now update state from the current event.
         currentBookings += when (it) {
           is StartEvent -> 1
           is EndEvent -> -1
         }
         previousEventTime = it.time
       }
-    /**
-     * End of the day.
-     */
+
+    // Finally, handle the end of the day
     if (currentBookings > 0) {
       if (freePeriodStarted != null) {
         emptyPeriods[freePeriodStarted!!] = previousEventTime
@@ -78,43 +81,71 @@ class Timeline(events: List<Event>) {
   }
 
   /**
-   * A List of pairs of start and end times when the room is free ordered by start time ascending.
-   * Mostly used for testing
+   * A List of pairs of start and end times representing the free periods.  Ordered by start time ascending.
+   * Mainly used for testing
    */
   fun emptyPeriods() = emptyPeriods.navigableKeySet().map {
     Pair(it, emptyPeriods[it])
   }
 
-  fun isFreeForPeriod(start: LocalTime, end: LocalTime): Boolean {
-    if (end.isBefore(start)) {
+  /**
+   * Answer the question 'is this Timeline free of bookings during the specified interval'.
+   */
+  fun isFreeForInterval(interval: Interval): Boolean {
+    if (interval.end.isBefore(interval.start)) {
       throw IllegalArgumentException("start must precede end")
     }
-    val freePeriod = emptyPeriods.floorEntry(start)
-    return end.isBefore(freePeriod.value) || end == freePeriod.value
+    val freePeriod = emptyPeriods.floorEntry(interval.start)
+    return interval.end.isBefore(freePeriod.value) || interval.end == freePeriod.value
   }
 }
 
 @Service
-class VideoLinkBookingOptionsFinder {
+class VideoLinkBookingOptionsFinder(private val optionsGenerator: OptionsGenerator) {
+
   fun findOptions(
     specification: VideoLinkBookingSearchSpecification,
-    scheduledAppointments: List<ScheduledAppointmentDto>
+    scheduledAppointments: Sequence<ScheduledAppointmentDto>
   ): VideoLinkBookingOptions {
+    val timelinesByLocationId = timelinesByLocationId(scheduledAppointments)
 
-    val eventsByLocationId: Map<Long, List<Event>> =
+    val preferredOption = VideoLinkBookingOption.from(specification)
+
+    if (optionIsBookable(preferredOption, timelinesByLocationId))
+      return VideoLinkBookingOptions(matched = true, alternatives = emptyList())
+
+    val alternatives = optionsGenerator
+      .getOptionsInPreferredOrder(preferredOption)
+      .filter { optionIsBookable(it, timelinesByLocationId) }
+      .take(3)
+
+    return VideoLinkBookingOptions(matched = false, alternatives = alternatives.toList())
+  }
+
+  companion object {
+
+    fun optionIsBookable(
+      option: VideoLinkBookingOption,
+      timelinesByLocationId: Map<Long, Timeline>
+    ) =
+      option
+        .toLocationsAndIntervals()
+        // An absent Timeline represents a location that has no appointments; the location must be free.
+        .all { timelinesByLocationId[it.locationId]?.isFreeForInterval(it.interval) ?: true }
+
+    fun timelinesByLocationId(scheduledAppointments: Sequence<ScheduledAppointmentDto>): Map<Long, Timeline> =
       scheduledAppointments
         .groupBy { it.locationId }
-        .mapValues { (k, v) ->
-          v.flatMap {
-            if (it.endTime == null)
-              emptyList()
-            else
-              listOf(
-                StartEvent(it.startTime.toLocalTime()),
-                EndEvent(it.endTime.toLocalTime())
-              )
-          }
-        }
-    return VideoLinkBookingOptions(matched = true, alternatives = emptyList())
+        .mapValues { (_, scheduledAppointments) -> scheduledAppointments.flatMap(::toEvents) }
+        .mapValues { Timeline(it.value) }
+
+    private fun toEvents(appointment: ScheduledAppointmentDto) =
+      if (appointment.endTime == null)
+        emptyList()
+      else
+        listOf(
+          StartEvent(appointment.startTime.toLocalTime()),
+          EndEvent(appointment.endTime.toLocalTime())
+        )
   }
 }

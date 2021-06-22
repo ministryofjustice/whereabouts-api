@@ -18,8 +18,8 @@ data class VideoLinkBookingSearchSpecification(
     example = "[1,3,5]"
   )
 
-  val preAppointment: LocationAndInterval?,
-  val mainAppoitment: LocationAndInterval,
-  val postAppointment: LocationAndInterval?,
-  val vlbIdToExclude: Long?,
+  val preAppointment: LocationAndInterval? = null,
+  val mainAppointment: LocationAndInterval,
+  val postAppointment: LocationAndInterval? = null,
+  val vlbIdToExclude: Long? = null,
 )

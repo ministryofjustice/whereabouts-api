@@ -253,5 +253,5 @@ class VideoLinkBookingController(
     @RequestBody
     specification: VideoLinkBookingSearchSpecification
   ): VideoLinkBookingOptions =
-    appointmentLocationsService.finVideoLinkBookingOptions(specification)
+    appointmentLocationsService.findVideoLinkBookingOptions(specification)
 }

@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Interval
 import java.time.LocalTime
 
 class TimelineTest {
@@ -151,34 +152,34 @@ class TimelineTest {
   inner class TestingFreeTime {
     @Test
     fun `empty timeline is always free`() {
-      assertThat(Timeline(emptyList()).isFreeForPeriod(LocalTime.MIN, LocalTime.MAX)).isTrue
-      assertThat(Timeline(emptyList()).isFreeForPeriod(hm(9, 0), hm(10, 0))).isTrue
+      assertThat(Timeline(emptyList()).isFreeForInterval(Interval(LocalTime.MIN, LocalTime.MAX))).isTrue
+      assertThat(Timeline(emptyList()).isFreeForInterval(Interval(hm(9, 0), hm(10, 0)))).isTrue
     }
 
     @Test
     fun `free time is free`() {
       val timeline = Timeline(listOf(start(9, 0), end(10, 0)))
-      assertThat(timeline.isFreeForPeriod(LocalTime.MIN, hm(9, 0))).isTrue
-      assertThat(timeline.isFreeForPeriod(hm(10, 0), LocalTime.MAX)).isTrue
+      assertThat(timeline.isFreeForInterval(Interval(LocalTime.MIN, hm(9, 0)))).isTrue
+      assertThat(timeline.isFreeForInterval(Interval(hm(10, 0), LocalTime.MAX))).isTrue
     }
 
     @Test
     fun `A period fully within occupied time is unavailable`() {
       val timeline = Timeline(listOf(start(9, 0), end(10, 0)))
-      assertThat(timeline.isFreeForPeriod(hm(9, 15), hm(9, 45))).isFalse
+      assertThat(timeline.isFreeForInterval(Interval(hm(9, 15), hm(9, 45)))).isFalse
     }
 
     @Test
     fun `A period that overlaps  occupied time is unavailable`() {
       val timeline = Timeline(listOf(start(9, 0), end(10, 0)))
-      assertThat(timeline.isFreeForPeriod(hm(8, 45), hm(9, 15))).isFalse
-      assertThat(timeline.isFreeForPeriod(hm(9, 45), hm(10, 45))).isFalse
+      assertThat(timeline.isFreeForInterval(Interval(hm(8, 45), hm(9, 15)))).isFalse
+      assertThat(timeline.isFreeForInterval(Interval(hm(9, 45), hm(10, 45)))).isFalse
     }
 
     @Test
     fun `A period that fully encloses occupied time is unavailable`() {
       val timeline = Timeline(listOf(start(9, 0), end(10, 0)))
-      assertThat(timeline.isFreeForPeriod(hm(8, 45), hm(10, 15))).isFalse
+      assertThat(timeline.isFreeForInterval(Interval(hm(8, 45), hm(10, 15)))).isFalse
     }
 
     @Test
@@ -189,7 +190,7 @@ class TimelineTest {
           start(11, 0), end(12, 0)
         )
       )
-      assertThat(timeline.isFreeForPeriod(hm(8, 45), hm(12, 15))).isFalse
+      assertThat(timeline.isFreeForInterval(Interval(hm(8, 45), hm(12, 15)))).isFalse
     }
   }
 

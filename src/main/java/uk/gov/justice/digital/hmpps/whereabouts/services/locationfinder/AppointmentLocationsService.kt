@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptions
@@ -54,18 +53,19 @@ class AppointmentLocationsService(
       .getScheduledAppointments(specification.agencyId, specification.date)
       .filter { it.endTime != null }
 
-  fun finVideoLinkBookingOptions(specification: VideoLinkBookingSearchSpecification): VideoLinkBookingOptions {
+  fun findVideoLinkBookingOptions(specification: VideoLinkBookingSearchSpecification): VideoLinkBookingOptions {
     val excludedAppointmentIds =
       specification.vlbIdToExclude?.let { appointmentIdsFromBookingIds(listOf(it)) } ?: emptyList()
 
     val locationIds = setOfNotNull(
       specification.preAppointment?.locationId,
-      specification.mainAppoitment.locationId,
+      specification.mainAppointment.locationId,
       specification.postAppointment?.locationId
     )
 
-    val scheduledAppointments: List<ScheduledAppointmentDto> = prisonApiService
+    val scheduledAppointments = prisonApiService
       .getScheduledAppointments(specification.agencyId, specification.date)
+      .asSequence()
       .filter { it.endTime != null }
       .filter { locationIds.contains(it.locationId) }
       .filterNot { excludedAppointmentIds.contains(it.id) }
