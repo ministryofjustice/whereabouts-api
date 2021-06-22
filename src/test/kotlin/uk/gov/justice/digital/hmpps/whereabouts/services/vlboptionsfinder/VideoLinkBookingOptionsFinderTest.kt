@@ -306,7 +306,67 @@ class VideoLinkBookingOptionsFinderTest {
             post = from(14, 30).until(14, 45).inRoom(Room3),
           )
         )
-      )
+      ),
+
+      arguments(
+        "pre, and main appointments in different rooms. Rooms occupation prevents match. Only 2 alternatives available.",
+        specification(
+          pre = from(11, 45).until(12, 0).inRoom(Room2),
+          main = from(12, 0).until(12, 30).inRoom(Room1)
+        ),
+        schedule(
+          room(Room2).from(10, 15).until(12, 0),
+          room(Room1).from(12, 0).until(14, 0),
+          room(Room1).from(14, 30).until(endOfDay),
+        ),
+        false,
+        expectedOptions(
+          option(
+            pre = from(10, 0).until(10, 15).inRoom(Room2),
+            main = from(10, 15).until(10, 45).inRoom(Room1)
+          ),
+          option(
+            pre = from(13, 45).until(14, 0).inRoom(Room2),
+            main = from(14, 0).until(14, 30).inRoom(Room1)
+          )
+        )
+      ),
+
+      arguments(
+        "main and post appointments in different rooms. Rooms occupation prevents match. Only 1 alternative available.",
+        specification(
+          main = from(12, 0).until(12, 30).inRoom(Room1),
+          post = from(12, 30).until(12, 45).inRoom(Room3),
+        ),
+        schedule(
+          room(Room1).from(startOfDay).until(14, 0),
+          room(Room3).from(14, 45).until(16, 0),
+        ),
+        false,
+        expectedOptions(
+          option(
+            main = from(14, 0).until(14, 30).inRoom(Room1),
+            post = from(14, 30).until(14, 45).inRoom(Room3),
+          )
+        )
+      ),
+
+      arguments(
+        "pre, main and post appointments in same room with gaps. schedule matches exactly",
+        specification(
+          pre = from(11, 45).until(12, 0).inRoom(Room1),
+          main = from(12, 15).until(12, 30).inRoom(Room1),
+          post = from(12, 45).until(13, 0).inRoom(Room1)
+        ),
+        schedule(
+          room(Room1).from(startOfDay).until(11, 45),
+          room(Room1).from(12, 0).until(12, 15),
+          room(Room1).from(12, 30).until(12, 45),
+          room(Room1).from(13, 0).until(endOfDay)
+        ),
+        true,
+        noOptionsExpected()
+      ),
     )
 
   companion object {
@@ -330,7 +390,7 @@ class VideoLinkBookingOptionsFinderTest {
     private fun emptySchedule() = schedule()
 
     private fun roomOccupiedAllDay(locationId: Long) = schedule(
-      room(1).from(startOfDay).until(endOfDay)
+      room(locationId).from(startOfDay).until(endOfDay)
     )
 
     private fun expectedOptions(vararg options: VideoLinkBookingOption) = options.asList()
