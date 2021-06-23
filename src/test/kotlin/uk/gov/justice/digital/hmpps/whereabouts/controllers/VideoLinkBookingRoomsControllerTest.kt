@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import com.nhaarman.mockitokotlin2.description
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -15,9 +14,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.gov.justice.digital.hmpps.whereabouts.services.LocationService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationIdAndDescription
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
-@WebMvcTest(PrisonController::class)
+@WebMvcTest(VideoLinkBookingRoomsController::class)
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)
-class PrisonControllerTest : TestController() {
+class VideoLinkBookingRoomsControllerTest : TestController() {
   @MockBean
   lateinit var locationService: LocationService
 

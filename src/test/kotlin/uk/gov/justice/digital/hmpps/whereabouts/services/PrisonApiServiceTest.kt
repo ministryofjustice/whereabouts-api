@@ -148,8 +148,11 @@ class PrisonApiServiceTest {
 
   @Test
   fun `get Agency Locations for type, unrestricted`() {
-    prisonApiMockServer.stubGetAgencyLocationsForTypeUnrestricted("WWI")
-    val locations = prisonApiService.getAgencyLocationsForTypeUnrestricted("WWI", "APP")
+    val agencyId = "WWI"
+    val locationType = "APP"
+
+    prisonApiMockServer.stubGetAgencyLocationsForTypeUnrestricted(agencyId, locationType, getLocation())
+    val locations = prisonApiService.getAgencyLocationsForTypeUnrestricted(agencyId, locationType,)
     assertThat(locations)
       .containsExactly(
         Location(
@@ -164,3 +167,13 @@ class PrisonApiServiceTest {
       )
   }
 }
+
+private fun getLocation() =
+  listOf(
+    Location(
+      locationId = 1L, locationType = "VIDE", description = "A VLB location",
+      locationUsage = null, agencyId = "WWI", parentLocationId = null,
+      currentOccupancy = 0, locationPrefix = "XXX", operationalCapacity = 10,
+      userDescription = null, internalLocationCode = ""
+    )
+  )
