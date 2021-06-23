@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.services.LocationService
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationIdAndDescription
 
-@Api(tags = ["prison"])
+@Api(tags = ["video-link-booking-rooms"])
 @RestController
 
 class VideoLinkBookingRoomsController(
