@@ -15,7 +15,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Location
 @Api(tags = ["prison"])
 @RestController
 
-class PrisonController(
+class VideoLinkBookingRoomsController(
   private val locationService: LocationService,
 
 ) {
