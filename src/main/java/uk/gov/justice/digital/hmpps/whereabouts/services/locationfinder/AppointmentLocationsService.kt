@@ -63,12 +63,12 @@ class AppointmentLocationsService(
       specification.postAppointment?.locationId
     )
 
-    val scheduledAppointments = prisonApiService
-      .getScheduledAppointments(specification.agencyId, specification.date)
-      .asSequence()
-      .filter { it.endTime != null }
-      .filter { locationIds.contains(it.locationId) }
-      .filterNot { excludedAppointmentIds.contains(it.id) }
+    val scheduledAppointments =
+      prisonApiService
+        .getScheduledAppointments(specification.agencyId, specification.date).asSequence()
+        .filter { it.endTime != null }
+        .filter { locationIds.contains(it.locationId) }
+        .filterNot { excludedAppointmentIds.contains(it.id) }
 
     return videoLinkBookingOptionsFinder.findOptions(specification, scheduledAppointments)
   }
