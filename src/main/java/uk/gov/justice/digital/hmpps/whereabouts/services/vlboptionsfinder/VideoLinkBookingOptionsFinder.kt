@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Interval
@@ -101,7 +102,12 @@ class Timeline(events: List<Event>) {
 }
 
 @Service
-class VideoLinkBookingOptionsFinder(private val optionsGenerator: OptionsGenerator) {
+class VideoLinkBookingOptionsFinder(
+  private val optionsGenerator: OptionsGenerator,
+
+  @Value("\${video-link-booking.max-alternatives}")
+  private val maxAlternatives: Int
+) {
 
   fun findOptions(
     specification: VideoLinkBookingSearchSpecification,
@@ -117,7 +123,8 @@ class VideoLinkBookingOptionsFinder(private val optionsGenerator: OptionsGenerat
     val alternatives = optionsGenerator
       .getOptionsInPreferredOrder(preferredOption)
       .filter { optionIsBookable(it, timelinesByLocationId) }
-      .take(3)
+      .take(maxAlternatives)
+      .sortedBy { it.main.interval.start }
 
     return VideoLinkBookingOptions(matched = false, alternatives = alternatives.toList())
   }
