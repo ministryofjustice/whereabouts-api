@@ -3,16 +3,12 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
-import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptions
-import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptionsFinder
-import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingSearchSpecification
 
 @Service
 class AppointmentLocationsService(
   private val prisonApiService: PrisonApiService,
   private val appointmentLocationsFinderService: AppointmentLocationsFinderService,
-  private val videoLinkBookingRepository: VideoLinkBookingRepository,
-  private val videoLinkBookingOptionsFinder: VideoLinkBookingOptionsFinder
+  private val videoLinkBookingRepository: VideoLinkBookingRepository
 ) {
   fun findLocationsForAppointmentIntervals(specification: AppointmentLocationsSpecification): List<AvailableLocations> {
     val allLocations = fetchVideoLinkBookingLocations(specification)
@@ -42,7 +38,7 @@ class AppointmentLocationsService(
   private fun fetchVideoLinkBookingLocations(specification: AppointmentLocationsSpecification) =
     allVideoLinkLocationsForAgency(specification.agencyId)
 
-  fun allVideoLinkLocationsForAgency(agencyId: String): List<LocationIdAndDescription> =
+  private fun allVideoLinkLocationsForAgency(agencyId: String): List<LocationIdAndDescription> =
     prisonApiService
       .getAgencyLocationsForTypeUnrestricted(agencyId, "APP")
       .filter { it.locationType == "VIDE" }
@@ -52,26 +48,6 @@ class AppointmentLocationsService(
     prisonApiService
       .getScheduledAppointments(specification.agencyId, specification.date)
       .filter { it.endTime != null }
-
-  fun findVideoLinkBookingOptions(specification: VideoLinkBookingSearchSpecification): VideoLinkBookingOptions {
-    val excludedAppointmentIds =
-      specification.vlbIdToExclude?.let { appointmentIdsFromBookingIds(listOf(it)) } ?: emptyList()
-
-    val locationIds = setOfNotNull(
-      specification.preAppointment?.locationId,
-      specification.mainAppointment.locationId,
-      specification.postAppointment?.locationId
-    )
-
-    val scheduledAppointments =
-      prisonApiService
-        .getScheduledAppointments(specification.agencyId, specification.date).asSequence()
-        .filter { it.endTime != null }
-        .filter { locationIds.contains(it.locationId) }
-        .filterNot { excludedAppointmentIds.contains(it.id) }
-
-    return videoLinkBookingOptionsFinder.findOptions(specification, scheduledAppointments)
-  }
 
   companion object {
     private fun toAvailableLocations(

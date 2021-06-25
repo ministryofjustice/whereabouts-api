@@ -9,14 +9,14 @@ import java.time.LocalTime
 @Component
 class OptionsGenerator(
   @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
-  @Value("\${video-link-booking.day-start}")
+  @Value("\${video-link-booking.booking-options-finder.day-start}")
   val dayStart: LocalTime,
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
-  @Value("\${video-link-booking.day-end}")
+  @Value("\${video-link-booking.booking-options-finder.day-end}")
   val dayEnd: LocalTime,
 
-  @Value("\${video-link-booking.step}")
+  @Value("\${video-link-booking.booking-options-finder.step}")
   val step: Duration
 ) {
   fun getOptionsInPreferredOrder(preferredOption: VideoLinkBookingOption): Sequence<VideoLinkBookingOption> =

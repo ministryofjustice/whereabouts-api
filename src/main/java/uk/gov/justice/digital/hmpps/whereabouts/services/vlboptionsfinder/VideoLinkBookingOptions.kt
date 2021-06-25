@@ -1,12 +1,21 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 
+import io.swagger.annotations.ApiModelProperty
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationAndInterval
 import java.time.Duration
 import java.time.LocalTime
 
 data class VideoLinkBookingOption(
+  @ApiModelProperty(value = "The location and Interval for the pre-hearing appointment.")
   val pre: LocationAndInterval? = null,
+
+  @ApiModelProperty(
+    value = "The location (by location id) and Interval for the main appointment (the court appearance).",
+    required = true
+  )
   val main: LocationAndInterval,
+
+  @ApiModelProperty(value = "The location and Interval for the post-hearing appointment.")
   val post: LocationAndInterval? = null
 ) {
   fun toLocationsAndIntervals() = listOfNotNull(pre, main, post)
@@ -52,6 +61,9 @@ data class VideoLinkBookingOption(
 }
 
 data class VideoLinkBookingOptions(
+  @ApiModelProperty(value = "True if the specified rooms are available at the specified times.")
   val matched: Boolean,
+
+  @ApiModelProperty(value = "If the specification could not be met then up to three alternative booking times are offered.")
   val alternatives: List<VideoLinkBookingOption>
 )

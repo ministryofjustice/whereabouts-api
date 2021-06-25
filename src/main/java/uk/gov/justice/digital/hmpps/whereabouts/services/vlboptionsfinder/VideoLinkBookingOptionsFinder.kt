@@ -36,6 +36,26 @@ class Timeline(events: List<Event>) {
     // This will be null when the room is currently occupied.
     var freePeriodStarted: LocalTime? = LocalTime.MIN
 
+    fun updateStateForPreviousEventTime() {
+      when (currentBookings) {
+        0 -> {
+          // The room became unoccupied or continued to be unoccupied
+          if (freePeriodStarted == null) {
+            // The room became unoccupied. Remember the time at which this happened
+            freePeriodStarted = previousEventTime
+          }
+        }
+        else -> {
+          // The room became occupied or continued to be occupied at previousEventTime
+          if (freePeriodStarted != null) {
+            // The room became occupied at previousEventTime.  Record the empty period that ended at previousEventTime
+            emptyPeriods[freePeriodStarted!!] = previousEventTime
+            freePeriodStarted = null
+          }
+        }
+      }
+    }
+
     events
       .plus(StartEvent(LocalTime.MAX))
       .sortedBy { it.time }
@@ -46,23 +66,10 @@ class Timeline(events: List<Event>) {
            * One booking may end at the same time that another begins or there may be overlapping bookings.
            *
            * If the time of the current event is greater than the time of the previous event then
-           * all events for that earlier time have been seen and we can now make decisions about
+           * all events for that earlier time have been seen and we can make decisions about
            * that previousEventTime (not the time of the current event):
            */
-          if (currentBookings > 0) {
-            // The room became occupied or continued to be occupied at previousEventTime
-            if (freePeriodStarted != null) {
-              // The room became occupied at previousEventTime.  Record the empty period that ended at previousEventTime
-              emptyPeriods[freePeriodStarted!!] = previousEventTime
-              freePeriodStarted = null
-            }
-          } else {
-            // The room became unoccupied or continued to be unoccupied
-            if (freePeriodStarted == null) {
-              // The room became unoccupied. Remember the time at which this happened
-              freePeriodStarted = previousEventTime
-            }
-          }
+          updateStateForPreviousEventTime()
         }
         // Now update state from the current event.
         currentBookings += when (it) {
@@ -73,12 +80,7 @@ class Timeline(events: List<Event>) {
       }
 
     // Finally, handle the end of the day
-    if (currentBookings > 0) {
-      if (freePeriodStarted != null) {
-        emptyPeriods[freePeriodStarted!!] = previousEventTime
-        freePeriodStarted = null
-      }
-    }
+    updateStateForPreviousEventTime()
   }
 
   /**
@@ -90,7 +92,7 @@ class Timeline(events: List<Event>) {
   }
 
   /**
-   * Answer the question 'is this Timeline free of bookings during the specified interval'.
+   * Answer the question 'is this Timeline free of appointments during the specified interval'.
    */
   fun isFreeForInterval(interval: Interval): Boolean {
     if (interval.end.isBefore(interval.start)) {
@@ -105,7 +107,7 @@ class Timeline(events: List<Event>) {
 class VideoLinkBookingOptionsFinder(
   private val optionsGenerator: OptionsGenerator,
 
-  @Value("\${video-link-booking.max-alternatives}")
+  @Value("\${video-link-booking.booking-options-finder.max-alternatives}")
   private val maxAlternatives: Int
 ) {
 

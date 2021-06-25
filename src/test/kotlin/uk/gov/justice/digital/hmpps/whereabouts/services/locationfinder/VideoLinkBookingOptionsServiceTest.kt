@@ -23,17 +23,15 @@ import java.time.LocalTime
  * Not even with a custom Argument matcher.
  * Show me how to do it and I'll revert to Mockito.
  */
-class AppointmentLocationServiceTest2 {
+class VideoLinkBookingOptionsServiceTest {
 
   private val prisonApiService: PrisonApiService = mockk()
-  private val appointmentLocationsFinderService: AppointmentLocationsFinderService = mockk()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mockk()
   private val videoLinkBookingOptionsFinder: VideoLinkBookingOptionsFinder = mockk()
 
-  fun service(): AppointmentLocationsService =
-    AppointmentLocationsService(
+  fun service(): VideoLinkBookingOptionsService =
+    VideoLinkBookingOptionsService(
       prisonApiService,
-      appointmentLocationsFinderService,
       videoLinkBookingRepository,
       videoLinkBookingOptionsFinder
     )

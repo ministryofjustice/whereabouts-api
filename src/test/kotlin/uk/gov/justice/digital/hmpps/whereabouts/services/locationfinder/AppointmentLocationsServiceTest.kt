@@ -14,7 +14,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointme
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
-import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptionsFinder
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -25,7 +24,6 @@ class AppointmentLocationsServiceTest {
   private val prisonApiService: PrisonApiService = mock()
   private val appointmentLocationsFinderService: AppointmentLocationsFinderService = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
-  private val videoLinkBookingOptionsFinder: VideoLinkBookingOptionsFinder = mock()
 
   @Test
   fun `it does not fall over`() {
@@ -34,7 +32,7 @@ class AppointmentLocationsServiceTest {
     whenever(appointmentLocationsFinderService.find(any(), anyList(), anyList())).thenReturn(listOf())
 
     assertThat(
-      AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository, videoLinkBookingOptionsFinder)
+      AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository)
         .findLocationsForAppointmentIntervals(
           AppointmentLocationsSpecification(
             LocalDate.now(),
@@ -87,7 +85,7 @@ class AppointmentLocationsServiceTest {
       listOf(),
       listOf()
     )
-    AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository, videoLinkBookingOptionsFinder)
+    AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository)
       .findLocationsForAppointmentIntervals(specification)
 
     verify(prisonApiService).getAgencyLocationsForTypeUnrestricted("WWI", "APP")
@@ -144,7 +142,7 @@ class AppointmentLocationsServiceTest {
       listOf()
     )
 
-    AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository, videoLinkBookingOptionsFinder)
+    AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository)
       .findLocationsForAppointmentIntervals(specification)
 
     verify(prisonApiService)
@@ -247,7 +245,7 @@ class AppointmentLocationsServiceTest {
       listOf()
     )
 
-    AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository, videoLinkBookingOptionsFinder)
+    AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository)
       .findLocationsForAppointmentIntervals(specification)
 
     verify(videoLinkBookingRepository).findAllById(listOf(1L, 2L))
@@ -320,7 +318,7 @@ class AppointmentLocationsServiceTest {
       )
 
     val availableLocations =
-      AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository, videoLinkBookingOptionsFinder)
+      AppointmentLocationsService(prisonApiService, appointmentLocationsFinderService, videoLinkBookingRepository)
         .findLocationsForAppointmentIntervals(
           AppointmentLocationsSpecification(LocalDate.now(), "WWI", listOf(), listOf())
         )
