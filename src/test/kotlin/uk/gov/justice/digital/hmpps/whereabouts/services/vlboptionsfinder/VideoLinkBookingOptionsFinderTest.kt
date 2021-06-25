@@ -396,10 +396,6 @@ class VideoLinkBookingOptionsFinderTest {
     private fun expectedOptions(vararg options: VideoLinkBookingOption) = options.asList()
     private fun noOptionsExpected(): List<VideoLinkBookingOption> = expectedOptions()
 
-    private fun fullSchedule() = schedule(
-      room(Room1).from(10, 50).until(11, 10)
-    )
-
     private fun time(h: Int, m: Int) = LocalTime.of(h, m)
 
     private fun specification(
