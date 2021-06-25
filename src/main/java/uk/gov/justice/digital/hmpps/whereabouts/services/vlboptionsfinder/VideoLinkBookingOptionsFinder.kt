@@ -13,7 +13,7 @@ class EndEvent(time: LocalTime) : Event(time)
 
 /**
  * Takes a list of Events representing the start and end of appointments during a day.
- * Uses this information to answers the question 'are there any appointments during this interval'
+ * Uses this information to answer the question 'is the Timeline available (free of appointments) during this interval'
  * (isFreeForInterval(interval: Interval) below.
  */
 class Timeline(events: List<Event>) {
