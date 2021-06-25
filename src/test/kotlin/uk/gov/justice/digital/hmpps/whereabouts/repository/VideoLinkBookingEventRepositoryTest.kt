@@ -33,6 +33,7 @@ class VideoLinkBookingEventRepositoryTest(
     agencyId = "MDI",
     comment = "Comment",
     court = "Court",
+    courtId = "EYI",
     madeByTheCourt = false,
     offenderBookingId = 2L,
     mainLocationId = 10L,

@@ -22,6 +22,7 @@ class EventToCsvConverterTest {
     agencyId = "MDI",
     comment = "Comment",
     court = "Court with ,.\"' characters",
+    courtId = "EYI",
     madeByTheCourt = false,
     offenderBookingId = 2L,
     mainLocationId = 10L,

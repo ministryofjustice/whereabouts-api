@@ -27,6 +27,7 @@ data class VideoLinkBookingEvent(
   val agencyId: String? = null,
   val offenderBookingId: Long? = null,
   val court: String? = null,
+  val courtId: String? = null,
   val madeByTheCourt: Boolean? = null,
   val comment: String? = null,
   val mainNomisAppointmentId: Long? = null,
