@@ -524,4 +524,41 @@ class CourtIntegrationTest(
       )
     }
   }
+
+  @Nested
+  inner class VideoLinkBookingCheck {
+    @Test
+    fun happyFlow() {
+      prisonApiMockServer.stubGetScheduledAppointmentsByAgencyAndDate("WWI")
+
+      webTestClient.post()
+        .uri("/court/video-link-booking-check")
+        .bodyValue(
+          """
+          {
+            "agencyId" : "WWI",
+            "date" : "2020-12-25",
+            "mainAppointment" : {
+              "locationId" : 1,
+              "interval" : {
+                "start" : "09:00",
+                "end" : "09:30"
+              }
+            }
+          }
+        """
+        )
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().json(
+          """
+            {
+              "matched": true,
+              "alternatives": []
+            }
+          """
+        )
+    }
+  }
 }

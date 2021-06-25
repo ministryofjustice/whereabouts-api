@@ -234,7 +234,11 @@ class VideoLinkBookingController(
     )
   }
 
-  @PostMapping()
+  @PostMapping(
+    path = ["/video-link-booking-check"],
+    consumes = [MediaType.APPLICATION_JSON_VALUE],
+    produces = [MediaType.APPLICATION_JSON_VALUE]
+  )
   fun findAvaliableVideoLinkBookingOptions(
     @Valid
     @RequestBody

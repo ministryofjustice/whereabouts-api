@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 import io.swagger.annotations.ApiModelProperty
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationAndInterval
 import java.time.LocalDate
+import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 
 data class VideoLinkBookingSearchSpecification(
@@ -13,13 +14,21 @@ data class VideoLinkBookingSearchSpecification(
   @ApiModelProperty(value = "The appointment intervals are all on this date.", example = "2021-01-01")
   val date: LocalDate,
 
+  @ApiModelProperty(value = "If present specifies the desired pre-appointment start, end and location.")
+  @field:Valid
+  val preAppointment: LocationAndInterval? = null,
+
+  @ApiModelProperty(value = "Specifies the desired main apointment start, end and location.", required = true)
+  @field:Valid
+  val mainAppointment: LocationAndInterval,
+
+  @ApiModelProperty(value = "If present specifies the desired post-appointment start, end and location.")
+  @field:Valid
+  val postAppointment: LocationAndInterval? = null,
+
   @ApiModelProperty(
-    value = "When searching for locations include locations that are currently part of these Video Link Bookings.",
+    value = "When checking that the appointment locations and intervals are free, or when searching for alternatives treat appointments for this video link booking as free",
     example = "[1,3,5]"
   )
-
-  val preAppointment: LocationAndInterval? = null,
-  val mainAppointment: LocationAndInterval,
-  val postAppointment: LocationAndInterval? = null,
   val vlbIdToExclude: Long? = null,
 )
