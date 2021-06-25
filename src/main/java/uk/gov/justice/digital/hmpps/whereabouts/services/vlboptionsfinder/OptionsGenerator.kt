@@ -1,15 +1,18 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.LocalTime
 
 @Component
 class OptionsGenerator(
+  @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
   @Value("\${video-link-booking.day-start}")
   val dayStart: LocalTime,
 
+  @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
   @Value("\${video-link-booking.day-end}")
   val dayEnd: LocalTime,
 
