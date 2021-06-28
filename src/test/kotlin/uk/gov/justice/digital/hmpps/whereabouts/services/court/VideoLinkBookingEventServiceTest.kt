@@ -42,6 +42,6 @@ class VideoLinkBookingEventServiceTest {
     val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
 
     verify(courtsService).getCourtNameForCourtId("EYI")
-    assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,Elmley,,,,,,,")
+    assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,Elmley,EYI,,,,,,,")
   }
 }
