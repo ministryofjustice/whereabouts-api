@@ -20,7 +20,7 @@ class PrisonIntegrationTest : IntegrationTest() {
       .jsonPath("[0].locationId").isEqualTo(1)
       .jsonPath("[0].description").isEqualTo("Room A")
       .jsonPath("[1].locationId").isEqualTo(2)
-      .jsonPath("[1].description").isEqualTo("Room B")
+      .jsonPath("[1].description").isEqualTo("room-b")
       .jsonPath("$.length()").value<Int> { assertThat(it).isEqualTo(2) }
   }
 }
@@ -28,17 +28,17 @@ class PrisonIntegrationTest : IntegrationTest() {
 private fun getVideLocations() =
   listOf(
     Location(
-      locationId = 1, locationType = "VIDE", description = "Room A",
+      locationId = 1, locationType = "VIDE", description = "room-a",
       locationUsage = "", agencyId = "MDI", parentLocationId = 123,
       currentOccupancy = 2, locationPrefix = "", operationalCapacity = 10,
-      userDescription = "", internalLocationCode = ""
+      userDescription = "Room A", internalLocationCode = ""
     ),
 
     Location(
-      locationId = 2, locationType = "VIDE", description = "Room B",
+      locationId = 2, locationType = "VIDE", description = "room-b",
       locationUsage = "", agencyId = "MDI", parentLocationId = 123,
       currentOccupancy = 2, locationPrefix = "", operationalCapacity = 10,
-      userDescription = "", internalLocationCode = ""
+      userDescription = null, internalLocationCode = ""
     ),
 
     Location(
