@@ -37,6 +37,7 @@ class EventToCsvConverter {
           .addColumn("eventType")
           .addColumn("agencyId")
           .addColumn("court")
+          .addColumn("courtId")
           .addColumn("madeByTheCourt", CsvSchema.ColumnType.BOOLEAN)
           .addColumn("mainStartTime")
           .addColumn("mainEndTime")
