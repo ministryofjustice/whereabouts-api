@@ -84,3 +84,10 @@ management:
 sqs:
   provider: aws
   endpoint.region: eu-west-2
+
+video-link-booking:
+  booking-options-finder:
+    day-start: "09:00"
+    day-end: "16:00"
+    step: "PT15M"
+    max-alternatives: 3

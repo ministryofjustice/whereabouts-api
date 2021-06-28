@@ -36,8 +36,11 @@ class AppointmentLocationsService(
         .toSet()
 
   private fun fetchVideoLinkBookingLocations(specification: AppointmentLocationsSpecification) =
+    allVideoLinkLocationsForAgency(specification.agencyId)
+
+  private fun allVideoLinkLocationsForAgency(agencyId: String): List<LocationIdAndDescription> =
     prisonApiService
-      .getAgencyLocationsForTypeUnrestricted(specification.agencyId, "APP")
+      .getAgencyLocationsForTypeUnrestricted(agencyId, "APP")
       .filter { it.locationType == "VIDE" }
       .map { LocationIdAndDescription(it.locationId, it.userDescription ?: it.description) }
 

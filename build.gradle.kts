@@ -61,7 +61,7 @@ dependencies {
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.25.0")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
-
+  testImplementation("io.mockk:mockk:1.10.6")
   testCompileOnly("org.projectlombok:lombok:1.18.20")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
 }

@@ -271,7 +271,7 @@ class AppointmentLocationsServiceTest {
   }
 
   @Test
-  fun `it translates LocationsForAppointmentIntervals to AvaliableLocations`() {
+  fun `it translates LocationsForAppointmentIntervals to AvailableLocations`() {
     whenever(prisonApiService.getScheduledAppointments(anyString(), any(), anyOrNull(), anyOrNull())).thenReturn(
       emptyList()
     )

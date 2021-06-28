@@ -30,6 +30,9 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Appointm
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableLocations
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableVideoLinkBookingLocations
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.VideoLinkBookingLocationsSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.VideoLinkBookingOptionsService
+import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptions
+import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingSearchSpecification
 import java.time.LocalDate
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
@@ -40,7 +43,8 @@ import javax.validation.constraints.NotNull
 class VideoLinkBookingController(
   private val courtService: CourtService,
   private val videoLinkBookingService: VideoLinkBookingService,
-  private val appointmentLocationsService: AppointmentLocationsService
+  private val appointmentLocationsService: AppointmentLocationsService,
+  private val videoLinkBookingOptionsService: VideoLinkBookingOptionsService,
 ) {
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/all-courts"])
   @ResponseStatus(HttpStatus.OK)
@@ -231,4 +235,20 @@ class VideoLinkBookingController(
       specification.preInterval != null
     )
   }
+
+  @PostMapping(
+    path = ["/video-link-booking-check"],
+    consumes = [MediaType.APPLICATION_JSON_VALUE],
+    produces = [MediaType.APPLICATION_JSON_VALUE]
+  )
+  @ApiOperation(
+    value = "Check that a potential video link booking, described by the supplied specification, can be made.  If not then return information about some alternatives.",
+    response = VideoLinkBookingOptions::class
+  )
+  fun findAvailableVideoLinkBookingOptions(
+    @Valid
+    @RequestBody
+    specification: VideoLinkBookingSearchSpecification
+  ): VideoLinkBookingOptions =
+    videoLinkBookingOptionsService.findVideoLinkBookingOptions(specification)
 }
