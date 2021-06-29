@@ -21,7 +21,7 @@ class LocationService(
     prisonApiService
       .getAgencyLocationsForTypeUnrestricted(agencyId, "APP")
       .filter { it.locationType == "VIDE" }
-      .map { LocationIdAndDescription(it.locationId, it.description) }
+      .map { LocationIdAndDescription(it.locationId, it.userDescription ?: it.description) }
 
   fun getLocationPrefixFromGroup(agencyId: String, group: String): LocationPrefixDto {
     val agencyGroupKey = "${agencyId}_$group"
