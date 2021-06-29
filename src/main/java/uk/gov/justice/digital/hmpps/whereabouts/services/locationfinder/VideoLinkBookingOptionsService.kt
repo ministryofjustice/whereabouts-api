@@ -17,19 +17,16 @@ class VideoLinkBookingOptionsService(
     val excludedAppointmentIds =
       specification.vlbIdToExclude?.let { appointmentIdsFromBookingIds(listOf(it)) } ?: emptyList()
 
-    val locationIds = setOfNotNull(
+    val locationIds = listOfNotNull(
       specification.preAppointment?.locationId,
       specification.mainAppointment.locationId,
       specification.postAppointment?.locationId
-    )
+    ).distinct()
 
-    val scheduledAppointments =
-      prisonApiService
-        .getScheduledAppointments(specification.agencyId, specification.date)
-        .asSequence()
-        .filter { it.endTime != null }
-        .filter { locationIds.contains(it.locationId) }
-        .filterNot { excludedAppointmentIds.contains(it.id) }
+    val scheduledAppointments = locationIds
+      .flatMap { prisonApiService.getScheduledAppointments(specification.agencyId, specification.date, null, it) }
+      .filter { it.endTime != null }
+      .filterNot { excludedAppointmentIds.contains(it.id) }
 
     return videoLinkBookingOptionsFinder.findOptions(specification, scheduledAppointments)
   }
