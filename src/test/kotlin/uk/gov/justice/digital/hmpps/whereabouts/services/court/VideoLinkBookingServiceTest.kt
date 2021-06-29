@@ -79,7 +79,7 @@ class VideoLinkBookingServiceTest {
           id = 1,
           appointmentId = 3,
           hearingType = HearingType.MAIN,
-          videoLinkBooking = VideoLinkBooking(id = 21L,offenderBookingId = 2L, courtName = COURT_NAME, madeByTheCourt = true)
+          videoLinkBooking = VideoLinkBooking(id = 21L, offenderBookingId = 2L, courtName = COURT_NAME, madeByTheCourt = true)
         ),
         VideoLinkAppointment(
           id = 2,
