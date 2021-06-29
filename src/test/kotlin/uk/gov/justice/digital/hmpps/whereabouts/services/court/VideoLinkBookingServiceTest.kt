@@ -79,13 +79,14 @@ class VideoLinkBookingServiceTest {
           id = 1,
           appointmentId = 3,
           hearingType = HearingType.MAIN,
-          videoLinkBooking = VideoLinkBooking(offenderBookingId = 2L, courtName = COURT_NAME, madeByTheCourt = true)
+          videoLinkBooking = VideoLinkBooking(id = 21L,offenderBookingId = 2L, courtName = COURT_NAME, madeByTheCourt = true)
         ),
         VideoLinkAppointment(
           id = 2,
           appointmentId = 4,
           hearingType = HearingType.PRE,
           videoLinkBooking = VideoLinkBooking(
+            id = 21L,
             offenderBookingId = 3L,
             courtName = COURT_NAME,
             courtId = COURT_ID,
@@ -98,10 +99,10 @@ class VideoLinkBookingServiceTest {
     val appointments = service.getVideoLinkAppointments(setOf(3, 4))
 
     assertThat(appointments)
-      .extracting("id", "bookingId", "appointmentId", "hearingType", "court", "courtId", "madeByTheCourt")
+      .extracting("id", "bookingId", "videoLinkBookingId", "appointmentId", "hearingType", "court", "courtId", "madeByTheCourt")
       .containsExactlyInAnyOrder(
-        Tuple.tuple(1L, 2L, 3L, HearingType.MAIN, COURT_NAME, null, true),
-        Tuple.tuple(2L, 3L, 4L, HearingType.PRE, COURT_NAME, COURT_ID, false)
+        Tuple.tuple(1L, 2L, 21L, 3L, HearingType.MAIN, COURT_NAME, null, true),
+        Tuple.tuple(2L, 3L, 21L, 4L, HearingType.PRE, COURT_NAME, COURT_ID, false)
       )
   }
 

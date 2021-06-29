@@ -275,6 +275,7 @@ class AppointmentService(
     VideoLinkAppointmentDto(
       id = videoLinkAppointment.id!!,
       bookingId = videoLinkAppointment.videoLinkBooking.offenderBookingId,
+      videoLinkBookingId = videoLinkAppointment.videoLinkBooking.id!!,
       appointmentId = videoLinkAppointment.appointmentId,
       court = courtService.chooseCourtName(videoLinkAppointment.videoLinkBooking),
       courtId = videoLinkAppointment.videoLinkBooking.courtId,
