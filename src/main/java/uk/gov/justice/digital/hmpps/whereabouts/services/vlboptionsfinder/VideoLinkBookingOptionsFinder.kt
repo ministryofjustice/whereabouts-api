@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Interval
 import java.time.LocalTime
 import java.util.TreeMap
@@ -113,7 +113,7 @@ class VideoLinkBookingOptionsFinder(
 
   fun findOptions(
     specification: VideoLinkBookingSearchSpecification,
-    scheduledAppointments: Sequence<ScheduledAppointmentDto>
+    scheduledAppointments: List<ScheduledAppointmentSearchDto>
   ): VideoLinkBookingOptions {
     val timelinesByLocationId = timelinesByLocationId(scheduledAppointments)
 
@@ -142,13 +142,13 @@ class VideoLinkBookingOptionsFinder(
         // An absent Timeline represents a location that has no appointments; the location must be free.
         .all { timelinesByLocationId[it.locationId]?.isFreeForInterval(it.interval) ?: true }
 
-    fun timelinesByLocationId(scheduledAppointments: Sequence<ScheduledAppointmentDto>): Map<Long, Timeline> =
+    fun timelinesByLocationId(scheduledAppointments: List<ScheduledAppointmentSearchDto>): Map<Long, Timeline> =
       scheduledAppointments
         .groupBy { it.locationId }
         .mapValues { (_, scheduledAppointments) -> scheduledAppointments.flatMap(::toEvents) }
         .mapValues { Timeline(it.value) }
 
-    private fun toEvents(appointment: ScheduledAppointmentDto) =
+    private fun toEvents(appointment: ScheduledAppointmentSearchDto) =
       if (appointment.endTime == null)
         emptyList()
       else

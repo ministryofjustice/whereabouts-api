@@ -7,7 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.arguments
 import org.junit.jupiter.params.provider.MethodSource
-import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Interval
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationAndInterval
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.AppointmentBuilder.Companion.from
@@ -29,7 +29,7 @@ class VideoLinkBookingOptionsFinderTest {
   fun testFinder(
     heading: String,
     specification: VideoLinkBookingSearchSpecification,
-    schedule: Sequence<ScheduledAppointmentDto>,
+    schedule: List<ScheduledAppointmentSearchDto>,
     matchExpected: Boolean,
     expectedAlternatives: Iterable<VideoLinkBookingOption> = emptyList()
   ) {
@@ -386,7 +386,7 @@ class VideoLinkBookingOptionsFinderTest {
       step = Duration.ofMinutes(15)
     )
 
-    private fun schedule(vararg scheduleAppointments: ScheduledAppointmentDto) = scheduleAppointments.asSequence()
+    private fun schedule(vararg scheduleAppointments: ScheduledAppointmentSearchDto) = scheduleAppointments.asList()
     private fun emptySchedule() = schedule()
 
     private fun roomOccupiedAllDay(locationId: Long) = schedule(
@@ -437,17 +437,24 @@ data class ScheduledAppointmentDtoBuilder(
   fun from(h: Int, m: Int) = apply { this.start = LocalTime.of(h, m) }
   fun from(time: LocalTime) = apply { this.start = time }
   fun until(h: Int, m: Int) = until(LocalTime.of(h, m))
-  fun until(time: LocalTime) = ScheduledAppointmentDto(
+  fun until(time: LocalTime) = ScheduledAppointmentSearchDto(
     id = 999L,
     agencyId = "AGYID",
-    locationId = locationId!!,
+    locationId = locationId,
     appointmentTypeCode = "XXX",
     startTime = VideoLinkBookingOptionsFinderTest.appointmentDate.atTime(start),
     endTime = VideoLinkBookingOptionsFinderTest.appointmentDate.atTime(time),
-    offenderNo = "DONTCARE"
+    offenderNo = DONT_CARE,
+    locationDescription = DONT_CARE,
+    lastName = DONT_CARE,
+    firstName = DONT_CARE,
+    createUserId = DONT_CARE,
+    appointmentTypeDescription = DONT_CARE
   )
 
   companion object {
+    const val DONT_CARE = "Don't care"
+
     fun room(locationId: Long) = ScheduledAppointmentDtoBuilder(locationId = locationId)
   }
 }

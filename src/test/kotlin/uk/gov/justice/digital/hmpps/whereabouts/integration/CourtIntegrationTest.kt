@@ -529,7 +529,7 @@ class CourtIntegrationTest(
   inner class VideoLinkBookingCheck {
     @Test
     fun happyFlow() {
-      prisonApiMockServer.stubGetScheduledAppointmentsByAgencyAndDate("WWI")
+      prisonApiMockServer.stubGetScheduledAppointmentsByAgencyDateAndLocationId(agencyId = "WWI", locationId = 1L)
 
       webTestClient.post()
         .uri("/court/video-link-booking-check")
@@ -554,8 +554,12 @@ class CourtIntegrationTest(
         .expectBody().json(
           """
             {
-              "matched": true,
-              "alternatives": []
+              "matched":false,
+              "alternatives":[
+                {"pre":null,"main":{"locationId":1,"interval":{"start":"09:30:00","end":"10:00:00"}},"post":null},
+                {"pre":null,"main":{"locationId":1,"interval":{"start":"10:30:00","end":"11:00:00"}},"post":null},
+                {"pre":null,"main":{"locationId":1,"interval":{"start":"10:45:00","end":"11:15:00"}},"post":null}
+              ]
             }
           """
         )
@@ -563,8 +567,6 @@ class CourtIntegrationTest(
 
     @Test
     fun `Start later than end - invalid`() {
-      prisonApiMockServer.stubGetScheduledAppointmentsByAgencyAndDate("WWI")
-
       webTestClient.post()
         .uri("/court/video-link-booking-check")
         .bodyValue(
