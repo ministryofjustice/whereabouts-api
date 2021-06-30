@@ -29,6 +29,7 @@ class EventStoreListener(
         videoLinkBookingId = booking.id!!,
         agencyId = agencyId,
         court = specification.court,
+        courtId = specification.courtId,
         comment = specification.comment,
         offenderBookingId = specification.bookingId,
         madeByTheCourt = specification.madeByTheCourt,

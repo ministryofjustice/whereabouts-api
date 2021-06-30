@@ -44,6 +44,7 @@ class EventStoreListenerTest {
         videoLinkBookingId = booking.id!!,
         agencyId = "WWI",
         court = createSpecification.court,
+        courtId = createSpecification.courtId,
         comment = createSpecification.comment,
         offenderBookingId = createSpecification.bookingId,
         madeByTheCourt = createSpecification.madeByTheCourt,
