@@ -17,7 +17,11 @@ class VideoLinkBookingEventService(
     val bookingEvents = repository.findByDatesBetween(startDate, startDate.plusDays(days))
     val bookingEventsIncludingCourtNames = bookingEvents.map {
       val courtId = it.courtId
-      val courtName = if (courtId != null) courtsService.getCourtNameForCourtId(courtId) else null
+      val courtName = if (courtId != null)
+        courtsService.getCourtNameForCourtId(courtId)
+      else
+        it.court
+
       it.copy(court = courtName)
     }
     return csvConverter.toCsv(bookingEventsIncludingCourtNames)
