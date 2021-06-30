@@ -51,7 +51,6 @@ class VideoLinkBookingEventServiceTest {
     assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,Elmley,EYI,,,,,,,")
   }
 
-
   @Test
   fun `Should return court when courtId is not present`() {
 
