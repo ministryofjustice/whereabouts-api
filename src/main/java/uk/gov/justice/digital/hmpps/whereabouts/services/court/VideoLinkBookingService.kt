@@ -87,6 +87,10 @@ class VideoLinkBookingService(
     val (mainEvent, preEvent, postEvent) = createPrisonAppointments(booking.offenderBookingId, specification)
 
     with(booking) {
+      if (specification.courtId != null) {
+        courtName = null
+        courtId = specification.courtId
+      }
       /**
        * Call flush() to persuade Hibernate to remove the old appointments (if any).
        * Have to do this manually because Hibernate doesn't delete the old appointments before attempting

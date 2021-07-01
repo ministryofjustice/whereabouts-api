@@ -5,6 +5,13 @@ import javax.validation.Valid
 
 data class VideoLinkBookingUpdateSpecification(
 
+  @ApiModelProperty(
+    value = "The identifier of the court that requires the appointment.",
+    example = "CMBGMC",
+    required = false,
+  )
+  val courtId: String? = null,
+
   @ApiModelProperty(value = "Free text comments", example = "Requires special access")
   override val comment: String? = null,
 

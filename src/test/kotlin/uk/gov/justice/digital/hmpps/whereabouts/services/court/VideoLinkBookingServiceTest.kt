@@ -496,6 +496,7 @@ class VideoLinkBookingServiceTest {
       whenever(prisonApiServiceAuditable.postAppointment(anyLong(), any())).thenReturn(Event(3L, "WRI"))
 
       val updateSpecification = VideoLinkBookingUpdateSpecification(
+        courtId = "TSTCRT",
         comment = "New Comment",
         main = VideoLinkAppointmentSpecification(
           locationId = 99L,
@@ -519,7 +520,7 @@ class VideoLinkBookingServiceTest {
       )
 
       val expectedAfterUpdate =
-        VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = "The court", madeByTheCourt = true)
+        VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = null, courtId = "TSTCRT", madeByTheCourt = true)
       expectedAfterUpdate.addMainAppointment(3L)
 
       assertThat(theBooking)
@@ -539,6 +540,7 @@ class VideoLinkBookingServiceTest {
         service.updateVideoLinkBooking(
           1L,
           VideoLinkBookingUpdateSpecification(
+            courtId = "TSTCRT",
             comment = "New Comment",
             main = VideoLinkAppointmentSpecification(
               locationId = 99L,
@@ -568,6 +570,7 @@ class VideoLinkBookingServiceTest {
       service.updateVideoLinkBooking(
         1L,
         VideoLinkBookingUpdateSpecification(
+          courtId = "TSTCRT",
           comment = "New Comment",
           pre = VideoLinkAppointmentSpecification(
             locationId = 99L,
@@ -627,12 +630,62 @@ class VideoLinkBookingServiceTest {
       assertThat(theBooking)
         .usingRecursiveComparison()
         .isEqualTo(
-          VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = "The court", madeByTheCourt = true).apply {
+          VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = null, courtId = "TSTCRT", madeByTheCourt = true).apply {
             addPreAppointment(appointmentId = 9999L)
             addMainAppointment(appointmentId = 9999L)
             addPostAppointment(appointmentId = 9999L)
           }
         )
+    }
+
+    @Test
+    fun `If courtId is null - update main`() {
+      val service = service()
+
+      val theBooking = VideoLinkBooking(
+        id = 1L,
+        offenderBookingId = 30L,
+        courtName = "The court",
+        madeByTheCourt = true
+      )
+      theBooking.addMainAppointment(appointmentId = 40L, id = 2L)
+
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(theBooking))
+      whenever(prisonApiServiceAuditable.postAppointment(anyLong(), any())).thenReturn(Event(3L, "WRI"))
+
+      val updateSpecification = VideoLinkBookingUpdateSpecification(
+        courtId = null,
+        comment = "New Comment",
+        main = VideoLinkAppointmentSpecification(
+          locationId = 99L,
+          startTime = referenceTime,
+          endTime = referenceTime.plusMinutes(30),
+        )
+      )
+
+      service.updateVideoLinkBooking(1L, updateSpecification)
+
+      verify(prisonApiService).deleteAppointment(40L)
+      verify(prisonApiServiceAuditable).postAppointment(
+        30L,
+        CreateBookingAppointment(
+          appointmentType = "VLB",
+          locationId = 99L,
+          startTime = "2020-10-09T10:30",
+          endTime = "2020-10-09T11:00",
+          comment = "New Comment"
+        )
+      )
+
+      val expectedAfterUpdate =
+        VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = "The court", courtId = null, madeByTheCourt = true)
+      expectedAfterUpdate.addMainAppointment(3L)
+
+      assertThat(theBooking)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedAfterUpdate)
+
+      verify(videoLinkBookingEventListener).bookingUpdated(expectedAfterUpdate, updateSpecification)
     }
   }
 
