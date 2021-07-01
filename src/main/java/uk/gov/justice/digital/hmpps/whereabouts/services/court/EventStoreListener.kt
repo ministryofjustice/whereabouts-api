@@ -56,6 +56,7 @@ class EventStoreListener(
         timestamp = LocalDateTime.now(clock),
         userId = authenticationFacade.currentUsername,
         videoLinkBookingId = booking.id!!,
+        courtId = specification.courtId,
         comment = specification.comment,
         mainNomisAppointmentId = booking.appointments[MAIN]?.appointmentId,
         mainLocationId = specification.main.locationId,

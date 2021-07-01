@@ -432,6 +432,7 @@ class VideoLinkBookingControllerTest : TestController() {
       verify(videoLinkBookingService).updateVideoLinkBooking(
         1L,
         VideoLinkBookingUpdateSpecification(
+          courtId = "TSTCRT",
           comment = "New comment",
           pre = VideoLinkAppointmentSpecification(
             locationId = 1L,

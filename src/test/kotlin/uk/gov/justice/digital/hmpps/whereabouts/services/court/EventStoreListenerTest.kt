@@ -74,6 +74,7 @@ class EventStoreListenerTest {
         timestamp = LocalDateTime.now(clock),
         userId = "A_USER",
         videoLinkBookingId = booking.id!!,
+        courtId = updateSpecification.courtId,
         comment = updateSpecification.comment,
         mainNomisAppointmentId = booking.appointments[MAIN]!!.appointmentId,
         mainLocationId = updateSpecification.main.locationId,
