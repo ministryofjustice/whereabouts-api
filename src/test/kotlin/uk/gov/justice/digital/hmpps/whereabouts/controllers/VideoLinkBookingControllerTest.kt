@@ -407,6 +407,7 @@ class VideoLinkBookingControllerTest : TestController() {
           .content(
             """
               {
+                "courtId": "TSTCRT",
                 "comment": "New comment",
                 "pre": {
                   "locationId" : 1,
