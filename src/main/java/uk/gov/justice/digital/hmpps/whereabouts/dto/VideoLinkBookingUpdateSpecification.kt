@@ -6,10 +6,9 @@ import javax.validation.Valid
 data class VideoLinkBookingUpdateSpecification(
 
   @ApiModelProperty(
-    value = "The identifier of the court that requires the appointment.  This must be one of the court identifier values from the courts register service.",
+    value = "The identifier of the court that requires the appointment.",
     example = "CMBGMC",
     required = false,
-    notes = "One of court or courtId must contain a value.  courtId takes precedence over court."
   )
   val courtId: String? = null,
 
