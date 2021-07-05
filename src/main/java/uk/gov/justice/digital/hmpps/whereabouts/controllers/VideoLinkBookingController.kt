@@ -30,7 +30,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Appointm
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableLocations
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableVideoLinkBookingLocations
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.VideoLinkBookingLocationsSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.VideoLinkBookingOptionsService
+import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.IVideoLinkBookingOptionsService
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptions
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingSearchSpecification
 import java.time.LocalDate
@@ -44,7 +44,7 @@ class VideoLinkBookingController(
   private val courtService: CourtService,
   private val videoLinkBookingService: VideoLinkBookingService,
   private val appointmentLocationsService: AppointmentLocationsService,
-  private val videoLinkBookingOptionsService: VideoLinkBookingOptionsService,
+  private val videoLinkBookingOptionsService: IVideoLinkBookingOptionsService,
 ) {
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/all-courts"])
   @ResponseStatus(HttpStatus.OK)
