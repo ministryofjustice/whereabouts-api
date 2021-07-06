@@ -46,7 +46,7 @@ class EventListenerTestData private constructor() {
     )
 
     val updateSpecification = VideoLinkBookingUpdateSpecification(
-
+      courtId = "TSTCRT2",
       comment = "Comment",
       pre = VideoLinkAppointmentSpecification(
         locationId = 2L,

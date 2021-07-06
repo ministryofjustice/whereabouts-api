@@ -32,7 +32,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Appointm
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableLocations
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Interval
 import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationIdAndDescription
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.VideoLinkBookingOptionsService
+import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptionsService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -407,6 +407,7 @@ class VideoLinkBookingControllerTest : TestController() {
           .content(
             """
               {
+                "courtId": "TSTCRT",
                 "comment": "New comment",
                 "pre": {
                   "locationId" : 1,
@@ -432,6 +433,7 @@ class VideoLinkBookingControllerTest : TestController() {
       verify(videoLinkBookingService).updateVideoLinkBooking(
         1L,
         VideoLinkBookingUpdateSpecification(
+          courtId = "TSTCRT",
           comment = "New comment",
           pre = VideoLinkAppointmentSpecification(
             locationId = 1L,
