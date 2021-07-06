@@ -28,7 +28,8 @@ class InstrumentedVideoLinkBookingOptionsService(
       "date" to specification.date.format(DateTimeFormatter.ISO_DATE),
       "vlbToExclude" to (specification.vlbIdToExclude?.toString() ?: ""),
       "matched" to result.matched.toString(),
-      "alternatives" to result.alternatives.size.toString()
+      "alternativesCount" to result.alternatives.size.toString(),
+      "alternativeMainStartTimes" to result.alternatives.joinToString(",") { formatMainStartTime(it) }
     ) +
       appointmentDetail("main", specification.mainAppointment) +
       (specification.preAppointment?.let { appointmentDetail("pre", it) } ?: emptyMap()) +
@@ -39,10 +40,16 @@ class InstrumentedVideoLinkBookingOptionsService(
     return result
   }
 
-  private fun appointmentDetail(prefix: String, locationAndInterval: LocationAndInterval): Map<String, String> =
-    mapOf(
-      "${prefix}Locationid" to locationAndInterval.locationId.toString(),
-      "${prefix}Start" to locationAndInterval.interval.start.toString(),
-      "${prefix}End" to locationAndInterval.interval.end.toString(),
-    )
+  companion object {
+    private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+    private fun formatMainStartTime(option: VideoLinkBookingOption) = option.main.interval.start.format(formatter)
+
+    private fun appointmentDetail(prefix: String, locationAndInterval: LocationAndInterval): Map<String, String> =
+      mapOf(
+        "${prefix}LocationId" to locationAndInterval.locationId.toString(),
+        "${prefix}Start" to locationAndInterval.interval.start.toString(),
+        "${prefix}End" to locationAndInterval.interval.end.toString(),
+      )
+  }
 }
