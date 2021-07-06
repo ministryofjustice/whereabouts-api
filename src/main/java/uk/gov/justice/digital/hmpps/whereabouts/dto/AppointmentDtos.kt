@@ -151,10 +151,12 @@ data class VideoLinkAppointmentDto(
   val id: Long,
   @ApiModelProperty(value = "Offender booking id", example = "1")
   val bookingId: Long,
-  @ApiModelProperty(value = "Video link booking id. This is the same for any related pre, post and main appointments", example = "1")
-  val videoLinkBookingId: Long,
   @ApiModelProperty(value = "Appointment id, maps to nomis event id", example = "1")
   val appointmentId: Long,
+  @ApiModelProperty(value = "Video link booking id. This is the same for any related pre, post and main appointments", example = "1")
+  val videoLinkBookingId: Long,
+  @ApiModelProperty(value = "The id of the main appointment for the related video link booking")
+  val mainAppointmentId: Long? = null,
 
   @ApiModelProperty(
     value = "The name of the court that requires the appointment",
