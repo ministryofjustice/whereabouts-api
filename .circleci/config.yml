@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@3.5
+  hmpps: ministryofjustice/hmpps@3.7.0
 
 jobs:
   validate:
@@ -78,6 +78,7 @@ workflows:
           type: approval
           requires:
             - deploy_preprod
+          show_changelog: true
       - hmpps/deploy_env:
           name: deploy_prod
           env: "prod"
