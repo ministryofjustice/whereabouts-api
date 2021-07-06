@@ -73,36 +73,83 @@ class VideoLinkBookingServiceTest {
 
   @Test
   fun `Should return and map video link appointments`() {
+    val videoLinkBooking = VideoLinkBooking(
+      id = 21L,
+      offenderBookingId = 3L,
+      courtName = COURT_NAME,
+      courtId = null,
+      madeByTheCourt = true,
+    )
+    val mainAppointment = VideoLinkAppointment(
+      id = 1,
+      appointmentId = 3,
+      hearingType = HearingType.MAIN,
+      videoLinkBooking = videoLinkBooking,
+    )
+    val preAppointment = VideoLinkAppointment(
+      id = 2,
+      appointmentId = 4,
+      hearingType = HearingType.PRE,
+      videoLinkBooking = videoLinkBooking,
+    )
+    val postAppointment = VideoLinkAppointment(
+      id = 3,
+      appointmentId = 5,
+      hearingType = HearingType.POST,
+      videoLinkBooking = videoLinkBooking,
+    )
+    videoLinkBooking.appointments[HearingType.PRE] = preAppointment
+    videoLinkBooking.appointments[HearingType.MAIN] = mainAppointment
+    videoLinkBooking.appointments[HearingType.POST] = postAppointment
+
     whenever(videoLinkAppointmentRepository.findVideoLinkAppointmentByAppointmentIdIn(setOf(3, 4))).thenReturn(
       setOf(
-        VideoLinkAppointment(
-          id = 1,
-          appointmentId = 3,
-          hearingType = HearingType.MAIN,
-          videoLinkBooking = VideoLinkBooking(id = 21L, offenderBookingId = 2L, courtName = COURT_NAME, madeByTheCourt = true)
-        ),
-        VideoLinkAppointment(
-          id = 2,
-          appointmentId = 4,
-          hearingType = HearingType.PRE,
-          videoLinkBooking = VideoLinkBooking(
-            id = 21L,
-            offenderBookingId = 3L,
-            courtName = COURT_NAME,
-            courtId = COURT_ID,
-            madeByTheCourt = false
-          )
-        )
+        preAppointment,
+        mainAppointment,
+        postAppointment,
       )
     )
     val service = service()
     val appointments = service.getVideoLinkAppointments(setOf(3, 4))
 
     assertThat(appointments)
-      .extracting("id", "bookingId", "videoLinkBookingId", "appointmentId", "hearingType", "court", "courtId", "madeByTheCourt")
+      .extracting("id", "bookingId", "appointmentId", "videoLinkBookingId", "mainAppointmentId", "hearingType", "court", "courtId", "madeByTheCourt")
       .containsExactlyInAnyOrder(
-        Tuple.tuple(1L, 2L, 21L, 3L, HearingType.MAIN, COURT_NAME, null, true),
-        Tuple.tuple(2L, 3L, 21L, 4L, HearingType.PRE, COURT_NAME, COURT_ID, false)
+        Tuple.tuple(1L, 3L, 3L, 21L, 3L, HearingType.MAIN, COURT_NAME, null, true),
+        Tuple.tuple(2L, 3L, 4L, 21L, 3L, HearingType.PRE, COURT_NAME, null, true),
+        Tuple.tuple(3L, 3L, 5L, 21L, 3L, HearingType.POST, COURT_NAME, null, true),
+      )
+  }
+
+  @Test
+  fun `Should return and map pre video link appointments without an associated main appointment`() {
+    val videoLinkBooking = VideoLinkBooking(
+      id = 21L,
+      offenderBookingId = 3L,
+      courtName = COURT_NAME,
+      courtId = COURT_ID,
+      madeByTheCourt = false,
+    )
+    val preAppointment = VideoLinkAppointment(
+      id = 2,
+      appointmentId = 4,
+      hearingType = HearingType.PRE,
+      videoLinkBooking = videoLinkBooking,
+    )
+    videoLinkBooking.appointments[HearingType.PRE] = preAppointment
+
+    whenever(videoLinkAppointmentRepository.findVideoLinkAppointmentByAppointmentIdIn(setOf(3, 4))).thenReturn(
+      setOf(
+        preAppointment,
+      )
+    )
+    val service = service()
+    val appointments = service.getVideoLinkAppointments(setOf(3, 4))
+
+    assertThat(appointments)
+      .extracting("id", "bookingId", "appointmentId", "videoLinkBookingId", "mainAppointmentId", "hearingType", "court", "courtId", "madeByTheCourt")
+      .containsExactlyInAnyOrder(
+        Tuple.tuple(2L, 3L, 4L, 21L, null, HearingType.PRE, COURT_NAME, COURT_ID, false)
       )
   }
 

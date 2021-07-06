@@ -65,7 +65,7 @@ class VideoLinkBookingService(
     )
     videoLinkBooking.addAppointments(mainEvent, preEvent, postEvent)
 
-    val persistentBooking = videoLinkBookingRepository.save(videoLinkBooking)!!
+    val persistentBooking = videoLinkBookingRepository.save(videoLinkBooking)
 
     videoLinkBookingEventListener.bookingCreated(persistentBooking, specification, mainEvent.agencyId)
 
@@ -121,8 +121,9 @@ class VideoLinkBookingService(
     VideoLinkAppointmentDto(
       id = appointment.id!!,
       bookingId = appointment.videoLinkBooking.offenderBookingId,
-      videoLinkBookingId = appointment.videoLinkBooking.id!!,
       appointmentId = appointment.appointmentId,
+      videoLinkBookingId = appointment.videoLinkBooking.id!!,
+      mainAppointmentId = appointment.videoLinkBooking.appointments[MAIN]?.appointmentId,
       hearingType = appointment.hearingType,
       court = courtService.chooseCourtName(appointment.videoLinkBooking),
       courtId = appointment.videoLinkBooking.courtId,
