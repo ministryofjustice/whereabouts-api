@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.3.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.3.3"
   kotlin("plugin.spring") version "1.5.10"
   kotlin("plugin.jpa") version "1.5.10"
 }
@@ -33,8 +33,8 @@ dependencies {
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
-  implementation("com.sun.xml.bind:jaxb-impl:3.0.0")
-  implementation("com.sun.xml.bind:jaxb-core:3.0.0")
+  implementation("com.sun.xml.bind:jaxb-impl:3.0.1")
+  implementation("com.sun.xml.bind:jaxb-core:3.0.1")
   implementation("javax.activation:activation:1.1.1")
   implementation("javax.transaction:javax.transaction-api:1.3")
   implementation("javax.validation:validation-api")
@@ -58,10 +58,10 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
 
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.25.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.27.0")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
-  testImplementation("io.mockk:mockk:1.10.6")
+  testImplementation("io.mockk:mockk:1.12.0")
   testCompileOnly("org.projectlombok:lombok:1.18.20")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
 }
