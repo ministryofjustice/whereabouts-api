@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder
+package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 
 import io.mockk.every
 import io.mockk.mockk
@@ -9,12 +9,12 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointme
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
-import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptions
-import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptionsFinder
-import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingSearchSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Interval
+import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationAndInterval
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.util.Optional
 
 class VideoLinkBookingOptionsServiceTest {
 
@@ -106,8 +106,8 @@ class VideoLinkBookingOptionsServiceTest {
     )
 
     every {
-      videoLinkBookingRepository.findAllById(any())
-    } returns listOf(excludedVideoLinkBookingMainOnly)
+      videoLinkBookingRepository.findById(any())
+    } returns Optional.of(excludedVideoLinkBookingMainOnly)
 
     every {
       prisonApiService.getScheduledAppointments(any(), any(), null, any())
@@ -135,7 +135,7 @@ class VideoLinkBookingOptionsServiceTest {
         )
     }
 
-    verify { videoLinkBookingRepository.findAllById(listOf(excludedVideoLinkBookingId)) }
+    verify { videoLinkBookingRepository.findById(excludedVideoLinkBookingId) }
   }
 
   @Test
@@ -149,9 +149,9 @@ class VideoLinkBookingOptionsServiceTest {
     )
 
     every {
-      videoLinkBookingRepository.findAllById(any())
+      videoLinkBookingRepository.findById(any())
     } returns
-      listOf(excludedVideoLinkBooking)
+      Optional.of(excludedVideoLinkBooking)
 
     every {
       prisonApiService.getScheduledAppointments(any(), any(), isNull(), location1)
