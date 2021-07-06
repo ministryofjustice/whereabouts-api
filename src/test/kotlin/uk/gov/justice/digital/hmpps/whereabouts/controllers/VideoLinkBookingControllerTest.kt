@@ -407,6 +407,7 @@ class VideoLinkBookingControllerTest : TestController() {
           .content(
             """
               {
+                "courtId": "TSTCRT",
                 "comment": "New comment",
                 "pre": {
                   "locationId" : 1,
@@ -432,6 +433,7 @@ class VideoLinkBookingControllerTest : TestController() {
       verify(videoLinkBookingService).updateVideoLinkBooking(
         1L,
         VideoLinkBookingUpdateSpecification(
+          courtId = "TSTCRT",
           comment = "New comment",
           pre = VideoLinkAppointmentSpecification(
             locationId = 1L,
