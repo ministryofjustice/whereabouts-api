@@ -42,7 +42,7 @@ class VideoLinkBookingEventServiceTest {
       )
     )
 
-    whenever(videoLinkBookingEventRepository.findByTimestampBetween(any(), any())).thenReturn(eventStream)
+    whenever(videoLinkBookingEventRepository.findByTimestampBetweenOrderByEventId(any(), any())).thenReturn(eventStream)
     whenever(courtsService.getCourtNameForCourtId("EYI")).thenReturn("Elmley")
 
     val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
@@ -65,7 +65,7 @@ class VideoLinkBookingEventServiceTest {
       )
     )
 
-    whenever(videoLinkBookingEventRepository.findByTimestampBetween(any(), any())).thenReturn(eventStream)
+    whenever(videoLinkBookingEventRepository.findByTimestampBetweenOrderByEventId(any(), any())).thenReturn(eventStream)
 
     val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
 
@@ -84,7 +84,7 @@ class VideoLinkBookingEventServiceTest {
       )
     )
 
-    whenever(videoLinkBookingEventRepository.findByTimestampBetween(any(), any())).thenReturn(eventStream)
+    whenever(videoLinkBookingEventRepository.findByTimestampBetweenOrderByEventId(any(), any())).thenReturn(eventStream)
     whenever(courtsService.getCourtNameForCourtId("EYI")).thenReturn(null)
 
     val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
@@ -103,7 +103,7 @@ class VideoLinkBookingEventServiceTest {
       )
     )
 
-    whenever(videoLinkBookingEventRepository.findByTimestampBetween(any(), any())).thenReturn(eventStream)
+    whenever(videoLinkBookingEventRepository.findByTimestampBetweenOrderByEventId(any(), any())).thenReturn(eventStream)
 
     val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
 
