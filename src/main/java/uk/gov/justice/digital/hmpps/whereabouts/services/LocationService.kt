@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.LocationPrefixDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationIdAndDescription
+import uk.gov.justice.digital.hmpps.whereabouts.model.LocationIdAndDescription
 import java.util.Properties
 import javax.persistence.EntityNotFoundException
 

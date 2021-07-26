@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Interval
 import java.time.LocalTime
 import java.util.TreeMap
 

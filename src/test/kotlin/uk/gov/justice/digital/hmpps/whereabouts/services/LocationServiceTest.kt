@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationIdAndDescription
+import uk.gov.justice.digital.hmpps.whereabouts.model.LocationIdAndDescription
 import java.util.Properties
 import java.util.function.Predicate
 import javax.persistence.EntityNotFoundException
