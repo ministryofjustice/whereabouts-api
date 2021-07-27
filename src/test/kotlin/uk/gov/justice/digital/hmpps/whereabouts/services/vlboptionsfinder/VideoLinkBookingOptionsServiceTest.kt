@@ -9,8 +9,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointme
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Interval
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationAndInterval
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime

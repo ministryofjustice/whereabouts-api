@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder
+package uk.gov.justice.digital.hmpps.whereabouts.model
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty

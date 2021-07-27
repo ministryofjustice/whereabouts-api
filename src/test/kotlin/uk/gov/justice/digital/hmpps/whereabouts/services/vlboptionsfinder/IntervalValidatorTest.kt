@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder
+package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

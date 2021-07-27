@@ -10,8 +10,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Interval
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationAndInterval
 import java.time.LocalDate
 import java.time.LocalTime
 
