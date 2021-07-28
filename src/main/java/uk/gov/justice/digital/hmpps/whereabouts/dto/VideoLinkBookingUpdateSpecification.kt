@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto
 
 import io.swagger.annotations.ApiModelProperty
 import javax.validation.Valid
+import javax.validation.constraints.NotEmpty
 
 data class VideoLinkBookingUpdateSpecification(
 
@@ -10,13 +11,14 @@ data class VideoLinkBookingUpdateSpecification(
     example = "CMBGMC",
     required = false,
   )
-  val courtId: String? = null,
+  @field:NotEmpty
+  val courtId: String,
 
   @ApiModelProperty(value = "Free text comments", example = "Requires special access")
   override val comment: String? = null,
 
   @ApiModelProperty(value = "Pre-hearing appointment")
-  @Valid
+  @field:Valid
   override val pre: VideoLinkAppointmentSpecification? = null,
 
   @ApiModelProperty(value = "Main appointment", required = true)
@@ -24,6 +26,6 @@ data class VideoLinkBookingUpdateSpecification(
   override val main: VideoLinkAppointmentSpecification,
 
   @ApiModelProperty(value = "Post-hearing appointment")
-  @Valid
+  @field:Valid
   override val post: VideoLinkAppointmentSpecification? = null
 ) : VideoLinkAppointmentsSpecification

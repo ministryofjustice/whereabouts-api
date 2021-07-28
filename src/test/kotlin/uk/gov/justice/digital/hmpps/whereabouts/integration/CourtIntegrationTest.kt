@@ -27,7 +27,7 @@ class CourtIntegrationTest(
   @MockBean
   lateinit var telemetryClient: TelemetryClient
 
-  val tomorrow: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).plusDays(1)
+  private val tomorrow: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).plusDays(1)
   val yesterday: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).minusDays(1)
   val referenceTime: LocalDateTime = tomorrow.plusHours(9)
 
@@ -443,6 +443,7 @@ class CourtIntegrationTest(
               {
                 "comment": "New comment",
                 "madeByTheCourt": false,
+                "courtId": "CRT",
                 "main": {
                   "locationId": 2,
                   "startTime": "${referenceTime.format(ISO_LOCAL_DATE_TIME)}",
@@ -466,6 +467,7 @@ class CourtIntegrationTest(
               {
                 "comment": "New comment",
                 "madeByTheCourt": false,
+                "courtId": "CRT",
                 "main": {
                   "locationId" : 2,
                   "startTime" : "${referenceTime.format(ISO_LOCAL_DATE_TIME)}",
