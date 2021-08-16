@@ -159,6 +159,22 @@ class AppointmentControllerTest : TestController() {
 
     @Test
     @WithMockUser(username = "ITAG_USER")
+    fun `should return a HTTP 401`() {
+      val response = WebClientResponseException.create(401, "not authed", HttpHeaders(), null, null)
+
+      whenever(appointmentService.createAppointment(any())).thenThrow(response)
+
+      mockMvc.perform(
+        post("/appointment")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(getCreateAppointmentSpecificationAsJson())
+      )
+        .andDo(print())
+        .andExpect(status().isForbidden)
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
     fun `should return a HTTP 400`() {
       mockMvc.perform(
         post("/appointment")
