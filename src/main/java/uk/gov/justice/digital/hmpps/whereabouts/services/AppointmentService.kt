@@ -244,6 +244,7 @@ class AppointmentService(
       id = videoLinkBooking.id!!,
       main = makeVideoLinkAppointmentDto(
         videoLinkBooking.appointments[MAIN]!!,
+        mainAppointmentId = videoLinkBooking.appointments[MAIN]!!.appointmentId,
         startTime = mainAppointmentDetails?.startTime,
         endTime = mainAppointmentDetails?.endTime,
         locationId = mainAppointmentDetails?.eventLocationId
@@ -251,6 +252,7 @@ class AppointmentService(
       pre = videoLinkBooking.appointments[PRE]?.let {
         makeVideoLinkAppointmentDto(
           it,
+          mainAppointmentId = videoLinkBooking.appointments[MAIN]!!.appointmentId,
           startTime = preAppointmentDetails?.startTime,
           endTime = preAppointmentDetails?.endTime,
           locationId = preAppointmentDetails?.eventLocationId
@@ -259,6 +261,7 @@ class AppointmentService(
       post = videoLinkBooking.appointments[POST]?.let {
         makeVideoLinkAppointmentDto(
           it,
+          mainAppointmentId = videoLinkBooking.appointments[MAIN]!!.appointmentId,
           startTime = postAppointmentDetails?.startTime,
           endTime = postAppointmentDetails?.endTime,
           locationId = postAppointmentDetails?.eventLocationId
@@ -268,6 +271,7 @@ class AppointmentService(
 
   private fun makeVideoLinkAppointmentDto(
     videoLinkAppointment: VideoLinkAppointment,
+    mainAppointmentId: Long?,
     startTime: LocalDateTime? = null,
     endTime: LocalDateTime? = null,
     locationId: Long? = null
@@ -275,8 +279,9 @@ class AppointmentService(
     VideoLinkAppointmentDto(
       id = videoLinkAppointment.id!!,
       bookingId = videoLinkAppointment.videoLinkBooking.offenderBookingId,
-      videoLinkBookingId = videoLinkAppointment.videoLinkBooking.id!!,
       appointmentId = videoLinkAppointment.appointmentId,
+      videoLinkBookingId = videoLinkAppointment.videoLinkBooking.id!!,
+      mainAppointmentId = mainAppointmentId,
       court = courtService.chooseCourtName(videoLinkAppointment.videoLinkBooking),
       courtId = videoLinkAppointment.videoLinkBooking.courtId,
       hearingType = videoLinkAppointment.hearingType,

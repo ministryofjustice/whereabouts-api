@@ -20,8 +20,8 @@ class VideoLinkBooking(
   id: Long? = null,
 
   val offenderBookingId: Long,
-  val courtName: String? = null,
-  val courtId: String? = null,
+  var courtName: String? = null,
+  var courtId: String? = null,
   val madeByTheCourt: Boolean? = true,
 ) : BaseEntity(id) {
   @OneToMany(

@@ -25,12 +25,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecif
 import uk.gov.justice.digital.hmpps.whereabouts.model.Court
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsService
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AppointmentLocationsSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableLocations
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.AvailableVideoLinkBookingLocations
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.VideoLinkBookingLocationsSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.VideoLinkBookingOptionsService
+import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.IVideoLinkBookingOptionsService
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptions
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingSearchSpecification
 import java.time.LocalDate
@@ -43,8 +38,7 @@ import javax.validation.constraints.NotNull
 class VideoLinkBookingController(
   private val courtService: CourtService,
   private val videoLinkBookingService: VideoLinkBookingService,
-  private val appointmentLocationsService: AppointmentLocationsService,
-  private val videoLinkBookingOptionsService: VideoLinkBookingOptionsService,
+  private val videoLinkBookingOptionsService: IVideoLinkBookingOptionsService,
 ) {
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/all-courts"])
   @ResponseStatus(HttpStatus.OK)
@@ -193,47 +187,6 @@ class VideoLinkBookingController(
      * so that it reverts to an implicit type of :Unit
      */
     return ResponseEntity.noContent().build()
-  }
-
-  @PostMapping(
-    path = ["/appointment-location-finder"],
-    consumes = [MediaType.APPLICATION_JSON_VALUE],
-    produces = [MediaType.APPLICATION_JSON_VALUE]
-  )
-  @ApiOperation(
-    value = "Request the locations that are available for a series of appointment intervals optionally including locations currently assigned to selected video link bookings.",
-    response = AvailableLocations::class,
-    responseContainer = "List"
-  )
-  fun findLocationsForAppointmentIntervals(
-    @Valid
-    @RequestBody
-    specification: AppointmentLocationsSpecification
-  ): List<AvailableLocations> {
-    return appointmentLocationsService.findLocationsForAppointmentIntervals(specification)
-  }
-
-  @PostMapping(
-    path = ["/vlb-appointment-location-finder"],
-    consumes = [MediaType.APPLICATION_JSON_VALUE],
-    produces = [MediaType.APPLICATION_JSON_VALUE]
-  )
-  @ApiOperation(
-    value = "Request the locations that could be used for a new Video Link Booking, optionally including locations currently assigned to selected current video link bookings.",
-    response = AvailableVideoLinkBookingLocations::class
-  )
-  fun findLocationsForVideoLinkBookingIntervals(
-    @Valid
-    @RequestBody
-    specification: VideoLinkBookingLocationsSpecification
-  ): AvailableVideoLinkBookingLocations {
-    val availableLocations = appointmentLocationsService
-      .findLocationsForAppointmentIntervals(specification.toAppointmentLocationsSpecification())
-
-    return AvailableVideoLinkBookingLocations.fromAvailableLocations(
-      availableLocations,
-      specification.preInterval != null
-    )
   }
 
   @PostMapping(

@@ -27,7 +27,7 @@ class CourtIntegrationTest(
   @MockBean
   lateinit var telemetryClient: TelemetryClient
 
-  val tomorrow: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).plusDays(1)
+  private val tomorrow: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).plusDays(1)
   val yesterday: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).minusDays(1)
   val referenceTime: LocalDateTime = tomorrow.plusHours(9)
 
@@ -443,6 +443,7 @@ class CourtIntegrationTest(
               {
                 "comment": "New comment",
                 "madeByTheCourt": false,
+                "courtId": "CRT",
                 "main": {
                   "locationId": 2,
                   "startTime": "${referenceTime.format(ISO_LOCAL_DATE_TIME)}",
@@ -466,6 +467,7 @@ class CourtIntegrationTest(
               {
                 "comment": "New comment",
                 "madeByTheCourt": false,
+                "courtId": "CRT",
                 "main": {
                   "locationId" : 2,
                   "startTime" : "${referenceTime.format(ISO_LOCAL_DATE_TIME)}",
@@ -553,14 +555,14 @@ class CourtIntegrationTest(
         .expectStatus().isOk
         .expectBody().json(
           """
-            {
-              "matched":false,
-              "alternatives":[
-                {"pre":null,"main":{"locationId":1,"interval":{"start":"09:30:00","end":"10:00:00"}},"post":null},
-                {"pre":null,"main":{"locationId":1,"interval":{"start":"10:30:00","end":"11:00:00"}},"post":null},
-                {"pre":null,"main":{"locationId":1,"interval":{"start":"10:45:00","end":"11:15:00"}},"post":null}
-              ]
-            }
+          {
+            "matched": false,
+            "alternatives": [
+              { "pre": null, "main": { "locationId": 1, "interval": { "start": "08:15:00", "end": "08:45:00" }}, "post": null },
+              { "pre": null, "main": { "locationId": 1, "interval": { "start": "08:30:00", "end": "09:00:00" }}, "post": null },
+              { "pre": null, "main": { "locationId": 1, "interval": { "start": "09:30:00", "end": "10:00:00" }}, "post": null }
+            ]
+          }
           """
         )
     }

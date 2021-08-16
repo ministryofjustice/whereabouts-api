@@ -65,7 +65,7 @@ class VideoLinkBookingService(
     )
     videoLinkBooking.addAppointments(mainEvent, preEvent, postEvent)
 
-    val persistentBooking = videoLinkBookingRepository.save(videoLinkBooking)!!
+    val persistentBooking = videoLinkBookingRepository.save(videoLinkBooking)
 
     videoLinkBookingEventListener.bookingCreated(persistentBooking, specification, mainEvent.agencyId)
 
@@ -87,6 +87,8 @@ class VideoLinkBookingService(
     val (mainEvent, preEvent, postEvent) = createPrisonAppointments(booking.offenderBookingId, specification)
 
     with(booking) {
+      courtName = null
+      courtId = specification.courtId
       /**
        * Call flush() to persuade Hibernate to remove the old appointments (if any).
        * Have to do this manually because Hibernate doesn't delete the old appointments before attempting
@@ -117,8 +119,9 @@ class VideoLinkBookingService(
     VideoLinkAppointmentDto(
       id = appointment.id!!,
       bookingId = appointment.videoLinkBooking.offenderBookingId,
-      videoLinkBookingId = appointment.videoLinkBooking.id!!,
       appointmentId = appointment.appointmentId,
+      videoLinkBookingId = appointment.videoLinkBooking.id!!,
+      mainAppointmentId = appointment.videoLinkBooking.appointments[MAIN]?.appointmentId,
       hearingType = appointment.hearingType,
       court = courtService.chooseCourtName(appointment.videoLinkBooking),
       courtId = appointment.videoLinkBooking.courtId,

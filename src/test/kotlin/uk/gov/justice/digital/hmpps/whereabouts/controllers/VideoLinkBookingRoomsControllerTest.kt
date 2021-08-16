@@ -11,9 +11,10 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import uk.gov.justice.digital.hmpps.whereabouts.model.LocationIdAndDescription
 import uk.gov.justice.digital.hmpps.whereabouts.services.LocationService
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationIdAndDescription
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
+
 @WebMvcTest(VideoLinkBookingRoomsController::class)
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)
 class VideoLinkBookingRoomsControllerTest : TestController() {

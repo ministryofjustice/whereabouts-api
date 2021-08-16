@@ -19,13 +19,13 @@ interface VideoLinkBookingEventRepository : JpaRepository<VideoLinkBookingEvent,
       QueryHint(name = HINT_READONLY, value = "true")
     ]
   )
-  fun findByTimestampBetween(start: LocalDateTime, end: LocalDateTime): Stream<VideoLinkBookingEvent>
+  fun findByTimestampBetweenOrderByEventId(start: LocalDateTime, end: LocalDateTime): Stream<VideoLinkBookingEvent>
 }
 
 fun VideoLinkBookingEventRepository.findByDatesBetween(
   start: LocalDate,
   end: LocalDate
-): Stream<VideoLinkBookingEvent> = findByTimestampBetween(
+): Stream<VideoLinkBookingEvent> = findByTimestampBetweenOrderByEventId(
   start.atStartOfDay(),
   end.plusDays(1).atStartOfDay().minusSeconds(1)
 )

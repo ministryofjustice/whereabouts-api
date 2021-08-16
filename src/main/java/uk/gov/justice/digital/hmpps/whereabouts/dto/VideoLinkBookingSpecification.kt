@@ -36,7 +36,7 @@ data class VideoLinkBookingSpecification(
   override val comment: String? = null,
 
   @ApiModelProperty(value = "Pre-hearing appointment")
-  @Valid
+  @field:Valid
   override val pre: VideoLinkAppointmentSpecification? = null,
 
   @ApiModelProperty(value = "Main appointment", required = true)
@@ -44,6 +44,6 @@ data class VideoLinkBookingSpecification(
   override val main: VideoLinkAppointmentSpecification,
 
   @ApiModelProperty(value = "Post-hearing appointment")
-  @Valid
+  @field:Valid
   override val post: VideoLinkAppointmentSpecification? = null
 ) : VideoLinkAppointmentsSpecification

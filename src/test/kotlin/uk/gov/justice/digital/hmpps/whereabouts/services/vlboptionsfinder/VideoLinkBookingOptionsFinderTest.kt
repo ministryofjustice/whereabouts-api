@@ -8,8 +8,6 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.arguments
 import org.junit.jupiter.params.provider.MethodSource
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.Interval
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationAndInterval
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.AppointmentBuilder.Companion.from
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.ScheduledAppointmentDtoBuilder.Companion.room
 import java.time.Duration

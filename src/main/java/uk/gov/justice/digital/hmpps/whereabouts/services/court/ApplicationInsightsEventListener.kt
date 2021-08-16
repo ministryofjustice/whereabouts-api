@@ -26,6 +26,7 @@ class ApplicationInsightsEventListener(
       "id" to (booking.id?.toString()),
       "bookingId" to booking.offenderBookingId.toString(),
       "court" to specification.court,
+      "courtId" to specification.courtId,
       "user" to authenticationFacade.currentUsername,
       "agencyId" to agencyId,
       "madeByTheCourt" to specification.madeByTheCourt.toString(),
@@ -42,7 +43,7 @@ class ApplicationInsightsEventListener(
     val properties = mutableMapOf(
       "id" to (booking.id?.toString()),
       "bookingId" to booking.offenderBookingId.toString(),
-      "court" to booking.courtName,
+      "courtId" to specification.courtId,
       "user" to authenticationFacade.currentUsername,
     )
 
@@ -62,6 +63,7 @@ class ApplicationInsightsEventListener(
       "id" to (booking.id?.toString()),
       "bookingId" to booking.offenderBookingId.toString(),
       "court" to booking.courtName,
+      "courtId" to booking.courtId,
       "user" to authenticationFacade.currentUsername,
     )
 
