@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
@@ -15,6 +16,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
@@ -137,6 +139,22 @@ class AppointmentControllerTest : TestController() {
       )
         .andDo(print())
         .andExpect(status().is5xxServerError)
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `should return a HTTP 403`() {
+      val response = WebClientResponseException.create(403, "not authed", HttpHeaders(), null, null)
+
+      whenever(appointmentService.createAppointment(any())).thenThrow(response)
+
+      mockMvc.perform(
+        post("/appointment")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(getCreateAppointmentSpecificationAsJson())
+      )
+        .andDo(print())
+        .andExpect(status().isUnauthorized)
     }
 
     @Test
