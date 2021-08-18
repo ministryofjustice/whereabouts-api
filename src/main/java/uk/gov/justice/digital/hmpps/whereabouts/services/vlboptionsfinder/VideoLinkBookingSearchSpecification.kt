@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 
 import io.swagger.annotations.ApiModelProperty
-import uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder.LocationAndInterval
 import java.time.LocalDate
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank

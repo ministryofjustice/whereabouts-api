@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services.locationfinder
+package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 
 import io.swagger.annotations.ApiModelProperty
 import java.time.Duration

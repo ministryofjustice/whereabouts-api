@@ -32,45 +32,18 @@ class ControllerAdvice {
   }
 
   @ExceptionHandler(RestClientException::class)
-  fun handleException(e: RestClientException): ResponseEntity<ErrorResponse> {
-    log.error("Unexpected exception {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .body(
-        ErrorResponse
-          .builder()
-          .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-          .developerMessage(e.message)
-          .build()
-      )
-  }
+  fun handleException(e: RestClientException): ResponseEntity<ErrorResponse> = handleServerError(e)
 
   @ExceptionHandler(WebClientResponseException::class)
   fun handleException(e: WebClientResponseException): ResponseEntity<ErrorResponse> {
-    log.error("Unexpected exception", e)
-    return ResponseEntity
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .body(
-        ErrorResponse
-          .builder()
-          .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-          .developerMessage(e.message)
-          .build()
-      )
+    if (e.statusCode.value() == 403) return handleWebClientUnAuthorised(e)
+    if (e.statusCode.value() == 401) return handleWebClientForbidden(e)
+
+    return handleServerError(e)
   }
 
   @ExceptionHandler(AccessDeniedException::class)
-  fun handleException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {
-    log.debug("Forbidden (403) returned {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.FORBIDDEN)
-      .body(
-        ErrorResponse
-          .builder()
-          .status(HttpStatus.FORBIDDEN.value())
-          .build()
-      )
-  }
+  fun handleException(e: AccessDeniedException): ResponseEntity<ErrorResponse> = handleWebClientUnAuthorised(e)
 
   @ExceptionHandler(AttendanceExists::class)
   fun handleAttendanceExists(e: AttendanceExists): ResponseEntity<ErrorResponse> {
@@ -213,6 +186,43 @@ class ControllerAdvice {
         ErrorResponse
           .builder()
           .status(HttpStatus.NOT_FOUND.value())
+          .developerMessage(e.message)
+          .build()
+      )
+  }
+
+  fun handleWebClientUnAuthorised(e: Exception): ResponseEntity<ErrorResponse> {
+    log.debug("Forbidden (403) returned {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.UNAUTHORIZED)
+      .body(
+        ErrorResponse
+          .builder()
+          .status(HttpStatus.UNAUTHORIZED.value())
+          .build()
+      )
+  }
+
+  fun handleWebClientForbidden(e: Exception): ResponseEntity<ErrorResponse> {
+    log.debug("Forbidden (401) returned {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.FORBIDDEN)
+      .body(
+        ErrorResponse
+          .builder()
+          .status(HttpStatus.FORBIDDEN.value())
+          .build()
+      )
+  }
+
+  fun handleServerError(e: Exception): ResponseEntity<ErrorResponse> {
+    log.error("Unexpected exception {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .body(
+        ErrorResponse
+          .builder()
+          .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
           .developerMessage(e.message)
           .build()
       )
