@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.3.4"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.3.6"
   kotlin("plugin.spring") version "1.5.20"
   kotlin("plugin.jpa") version "1.5.20"
 }
@@ -33,8 +33,8 @@ dependencies {
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
-  implementation("com.sun.xml.bind:jaxb-impl:3.0.1")
-  implementation("com.sun.xml.bind:jaxb-core:3.0.1")
+  implementation("com.sun.xml.bind:jaxb-impl:3.0.2")
+  implementation("com.sun.xml.bind:jaxb-core:3.0.2")
   implementation("javax.activation:activation:1.1.1")
   implementation("javax.transaction:javax.transaction-api:1.3")
   implementation("javax.validation:validation-api")
