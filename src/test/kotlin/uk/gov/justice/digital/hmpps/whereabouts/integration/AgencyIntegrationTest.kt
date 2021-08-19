@@ -29,9 +29,9 @@ class AgencyIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath("[0].name").isEqualTo("Casu")
-      .jsonPath("[1].name").isEqualTo("Houseblock 1")
-      .jsonPath("[1].key").isEqualTo("Houseblock 1")
+      .jsonPath("[0].name").isEqualTo("Houseblock 1")
+      .jsonPath("[1].name").isEqualTo("Houseblock 2")
+      .jsonPath("[1].key").isEqualTo("Houseblock 2")
       .jsonPath("[1].children[0].name").isEqualTo("A-Wing")
       .jsonPath("[1].children[0].key").isEqualTo("A-Wing")
       .jsonPath("[1].children[0].children").isEmpty
