@@ -66,3 +66,4 @@ With localstack now up and running (see previous section), run
 ```bash
 ./gradlew test
 ```
+
