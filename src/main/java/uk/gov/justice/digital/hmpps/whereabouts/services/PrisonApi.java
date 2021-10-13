@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
+import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.OffenderAttendance;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto;
@@ -69,6 +71,30 @@ public class PrisonApi {
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+    }
+
+    @Data
+    public static class AttendancePage {
+        List<OffenderAttendance> content;
+        Integer total;
+    }
+
+    public List<OffenderAttendance> getAttendanceForOffender(final String offenderNo, final LocalDate fromDate, final LocalDate toDate) {
+        final var data = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/offender-activities/{offenderNo}/attendance-history")
+                        .queryParam("fromDate", fromDate)
+                        .queryParam("toDate", toDate)
+                        .queryParam("page", 0)
+                        .queryParam("size", 10000)
+                        .build(offenderNo))
+                .retrieve()
+                .bodyToMono(AttendancePage.class)
+                .block();
+        if (data.total > 10000) {
+            throw new RuntimeException("Too many rows returned");
+        }
+        return data.content;
     }
 
     public Set<Long> getBookingIdsForScheduleActivities(final String prisonId, final LocalDate date, final TimePeriod period) {

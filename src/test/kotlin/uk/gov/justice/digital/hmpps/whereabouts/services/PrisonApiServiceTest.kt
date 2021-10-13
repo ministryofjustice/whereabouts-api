@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.OffenderAttendance
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
@@ -164,6 +165,27 @@ class PrisonApiServiceTest {
           locationPrefix = "XXX",
           operationalCapacity = 10
         )
+      )
+  }
+
+  @Test
+  fun `get Attendance for offender`() {
+    val offenderNo = "A1234AC"
+    val fromDate = LocalDate.of(2021, 5, 31)
+    val toDate = LocalDate.of(2021, 6, 30)
+
+    prisonApiMockServer.stubGetAttendanceForOffender(offenderNo, fromDate, toDate)
+
+    val result = prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate)
+
+    assertThat(result)
+      .containsExactly(
+        OffenderAttendance(eventDate = LocalDate.of(2021, 5, 4), outcome = "ATT"),
+        OffenderAttendance(eventDate = LocalDate.of(2021, 5, 4), outcome = "ACCAB"),
+        OffenderAttendance(eventDate = LocalDate.of(2021, 6, 4), outcome = "UNACAB"),
+        OffenderAttendance(eventDate = LocalDate.of(2021, 6, 5), outcome = "ATT"),
+        OffenderAttendance(eventDate = LocalDate.of(2021, 7, 14), outcome = "UNACAB"),
+        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 14), outcome = "ATT"),
       )
   }
 }

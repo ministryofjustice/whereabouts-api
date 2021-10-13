@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
 
 class AttendancesIntegrationTest : IntegrationTest() {
@@ -444,5 +445,33 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .expectStatus().isOk()
       .expectBody()
       .jsonPath(".absences[0].attendanceId").isEqualTo(1)
+  }
+
+  @Test
+  fun `should return attendence summary for offender`() {
+    val offenderNo = "A1234AX"
+    val START = LocalDate.of(2021, 3, 14)
+    val END = LocalDate.of(2021, 5, 24)
+
+    prisonApiMockServer.stubGetAttendanceForOffender(offenderNo, START, END)
+
+    val m = prisonApiMockServer.stubMappings
+
+    webTestClient
+      .get()
+      .uri({
+        it.path("/attendances/offender/$offenderNo/unacceptableAbsenceCount")
+          .queryParam("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .queryParam("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .build()
+      })
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk()
+      .expectBody()
+      .jsonPath("[0].month").isEqualTo("2021-05")
+      .jsonPath("[0].total").isEqualTo(2)
+      .jsonPath("[0].acceptableAbsence").isEqualTo(1)
+      .jsonPath("[0].unacceptableAbsence").isEqualTo(0)
   }
 }

@@ -22,8 +22,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendAllDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceSummary
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.OffenderAttendance
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
@@ -34,6 +36,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepo
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.YearMonth
 import java.util.Optional
 import java.util.stream.Collectors
 
@@ -1568,5 +1571,38 @@ class AttendanceServiceTest {
     assertThat(change.eventLocationId).isEqualTo(3)
     assertThat(change.changedBy).isEqualTo("ITAG_USER")
     assertThat(change.prisonId).isEqualTo("LEI")
+  }
+
+  @Test
+  fun `should get attendance summary data for offender`() {
+    val offenderNo = "A1234AA"
+
+    whenever(
+      prisonApiService.getAttendanceForOffender(
+        offenderNo,
+        LocalDate.now().minusYears(1),
+        LocalDate.now()
+      )
+    ).thenReturn(
+      listOf(
+        OffenderAttendance(eventDate = LocalDate.of(2021, 6, 1), outcome = "ATT"),
+        OffenderAttendance(eventDate = LocalDate.of(2021, 6, 1), outcome = "ATT"),
+        OffenderAttendance(eventDate = LocalDate.of(2021, 6, 1), outcome = "ABS"),
+        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 1), outcome = "ATT"),
+        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 1), outcome = "UNACAB"),
+        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 1), outcome = "ATT"),
+        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 1), outcome = ""),
+        OffenderAttendance(eventDate = LocalDate.of(2021, 5, 1), outcome = null),
+      )
+    )
+
+    val result =
+      service.getAttendanceAbsenceSummaryForOffender(offenderNo, LocalDate.now().minusYears(1), LocalDate.now())
+
+    assertThat(result).asList().containsExactlyInAnyOrder(
+      AttendanceSummary(month = YearMonth.of(2021, 6), acceptableAbsence = 1, unacceptableAbsence = 0, total = 3),
+      AttendanceSummary(month = YearMonth.of(2021, 8), acceptableAbsence = 0, unacceptableAbsence = 1, total = 3),
+      AttendanceSummary(month = YearMonth.of(2021, 5), acceptableAbsence = 0, unacceptableAbsence = 0, total = 0),
+    )
   }
 }

@@ -4,7 +4,7 @@ services:
     image: localstack/localstack:0.12.9.1
     networks:
       - hmpps
-    container_name: localstack
+    container_name: localstack-whereabouts-api
     ports:
       - "4566-4597:4566-4597"
     environment:

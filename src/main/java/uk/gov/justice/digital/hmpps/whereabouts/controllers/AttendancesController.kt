@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsencesResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceChangesResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceSummary
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesResponse
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
@@ -225,4 +226,15 @@ class AttendancesController(private val attendanceService: AttendanceService) {
       changes = attendanceService.getAttendanceChanges(fromDateTime, toDateTime)
     )
   }
+
+  @GetMapping("/offender/{offenderNo}/unacceptableAbsenceCount")
+  @ApiOperation(value = "Return counts of unacceptable absences and totals over time for an offender")
+  fun getAttendanceSummary(
+    @ApiParam(value = "offender or Prison number or Noms id")
+    @PathVariable(name = "offenderNo") offenderNo: String,
+    @ApiParam(value = "Start date of range to summarise in format YYYY-MM-DD", required = true)
+    @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
+    @ApiParam(value = "End date of range to summarise in format YYYY-MM-DD", required = true)
+    @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate
+  ): List<AttendanceSummary> = attendanceService.getAttendanceAbsenceSummaryForOffender(offenderNo, fromDate, toDate)
 }
