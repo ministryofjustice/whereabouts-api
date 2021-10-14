@@ -9,6 +9,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
@@ -208,6 +210,40 @@ class PrisonApiMockServer : WireMockServer(8999) {
                   mapOf("bookingId" to 1L, "eventId" to 1L),
                   mapOf("bookingId" to 2L, "eventId" to 12L)
                 )
+              )
+            )
+            .withStatus(200)
+        )
+    )
+  }
+
+  fun stubGetAttendanceForOffender(
+    offenderNo: String,
+    fromDate: LocalDate = LocalDate.now().minusYears(1),
+    toDate: LocalDate = LocalDate.now(),
+  ) {
+    val testUrl =
+      "/api/offender-activities/$offenderNo/attendance-history?fromDate=$fromDate&toDate=$toDate&page=0&size=10000"
+
+    stubFor(
+      get(urlEqualTo(testUrl))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(
+              gson.toJson(
+                PageImpl(
+                  listOf(
+                    mapOf("eventDate" to "2021-05-04", "outcome" to "ATT"),
+                    mapOf("eventDate" to "2021-05-04", "outcome" to "ACCAB"),
+                    mapOf("eventDate" to "2021-06-04", "outcome" to "UNACAB"),
+                    mapOf("eventDate" to "2021-06-05", "outcome" to "ATT"),
+                    mapOf("eventDate" to "2021-07-14", "outcome" to "UNACAB"),
+                    mapOf("eventDate" to "2021-08-14", "outcome" to "ATT"),
+                  ),
+                  PageRequest.of(0, 10000), 5
+                ),
+                PageImpl::class.java
               )
             )
             .withStatus(200)

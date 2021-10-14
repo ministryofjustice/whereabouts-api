@@ -9,8 +9,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsenceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendAllDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceChangeDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceSummary
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.OffenderAttendance
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
@@ -21,6 +23,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepo
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.YearMonth
 import java.time.temporal.ChronoUnit
 import java.util.function.Predicate
 import java.util.stream.Collectors
@@ -327,6 +330,41 @@ class AttendanceService(
 
         )
       }.toSet()
+  }
+
+  private fun addAttendance(
+    map: MutableMap<YearMonth, AttendanceSummary>,
+    offenderAttendance: OffenderAttendance
+  ): MutableMap<YearMonth, AttendanceSummary> {
+
+    val yearMonth = YearMonth.of(offenderAttendance.eventDate.year, offenderAttendance.eventDate.month)
+    val slot = map.getOrPut(yearMonth) { AttendanceSummary(yearMonth) }
+
+    when (offenderAttendance.outcome) {
+      "UNACAB" -> {
+        slot.unacceptableAbsence++
+        slot.total++
+      }
+      "ATT", "UNBEH" -> slot.total++
+      "", null -> {}
+      else -> {
+        slot.acceptableAbsence++
+        slot.total++
+      }
+    }
+
+    return map
+  }
+
+  fun getAttendanceAbsenceSummaryForOffender(
+    offenderNo: String,
+    fromDate: LocalDate,
+    toDate: LocalDate
+  ): List<AttendanceSummary> {
+    val attendances =
+      prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate)
+    val initialMap = mutableMapOf<YearMonth, AttendanceSummary>()
+    return attendances.fold(initialMap, this::addAttendance).values.sortedBy { it.month }
   }
 
   private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails {
