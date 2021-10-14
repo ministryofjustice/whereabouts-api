@@ -40,7 +40,7 @@ class AttendancesControllerTest : TestController() {
 
     mockMvc
       .perform(
-        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptableAbsenceCount")
+        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absence-count")
           .param("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
       )
@@ -58,7 +58,7 @@ class AttendancesControllerTest : TestController() {
 
     mockMvc
       .perform(
-        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptableAbsenceCount")
+        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absence-count")
           .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest)
@@ -69,7 +69,7 @@ class AttendancesControllerTest : TestController() {
   fun `getAttendances unauthorised`() {
     mockMvc
       .perform(
-        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptableAbsenceCount")
+        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absence-count")
           .param("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
       )

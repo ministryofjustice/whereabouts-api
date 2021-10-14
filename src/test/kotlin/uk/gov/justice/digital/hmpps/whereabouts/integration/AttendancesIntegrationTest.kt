@@ -455,12 +455,10 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     prisonApiMockServer.stubGetAttendanceForOffender(offenderNo, START, END)
 
-    val m = prisonApiMockServer.stubMappings
-
     webTestClient
       .get()
       .uri({
-        it.path("/attendances/offender/$offenderNo/unacceptableAbsenceCount")
+        it.path("/attendances/offender/$offenderNo/unacceptable-absence-count")
           .queryParam("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .queryParam("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .build()

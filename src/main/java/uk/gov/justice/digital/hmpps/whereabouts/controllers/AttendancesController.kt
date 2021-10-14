@@ -227,7 +227,7 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     )
   }
 
-  @GetMapping("/offender/{offenderNo}/unacceptableAbsenceCount")
+  @GetMapping("/offender/{offenderNo}/unacceptable-absence-count")
   @ApiOperation(value = "Return counts of unacceptable absences and totals over time for an offender")
   fun getAttendanceSummary(
     @ApiParam(value = "offender or Prison number or Noms id")

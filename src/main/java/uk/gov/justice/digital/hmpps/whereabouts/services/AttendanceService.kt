@@ -338,12 +338,7 @@ class AttendanceService(
   ): MutableMap<YearMonth, AttendanceSummary> {
 
     val yearMonth = YearMonth.of(offenderAttendance.eventDate.year, offenderAttendance.eventDate.month)
-    var slot = map.get(yearMonth)
-    if (slot == null) {
-      val new = AttendanceSummary(yearMonth)
-      map.put(yearMonth, new)
-      slot = new
-    }
+    val slot = map.getOrPut(yearMonth) { AttendanceSummary(yearMonth) }
 
     when (offenderAttendance.outcome) {
       "UNACAB" -> {
@@ -369,7 +364,7 @@ class AttendanceService(
     val attendances =
       prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate)
     val initialMap = mutableMapOf<YearMonth, AttendanceSummary>()
-    return attendances.fold(initialMap, this::addAttendance).values.map { it }.sortedBy { it.month }
+    return attendances.fold(initialMap, this::addAttendance).values.sortedBy { it.month }
   }
 
   private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails {

@@ -1599,10 +1599,10 @@ class AttendanceServiceTest {
     val result =
       service.getAttendanceAbsenceSummaryForOffender(offenderNo, LocalDate.now().minusYears(1), LocalDate.now())
 
-    assertThat(result).asList().containsExactlyInAnyOrder(
+    assertThat(result).asList().containsExactly(
+      AttendanceSummary(month = YearMonth.of(2021, 5), acceptableAbsence = 0, unacceptableAbsence = 0, total = 0),
       AttendanceSummary(month = YearMonth.of(2021, 6), acceptableAbsence = 1, unacceptableAbsence = 0, total = 3),
       AttendanceSummary(month = YearMonth.of(2021, 8), acceptableAbsence = 0, unacceptableAbsence = 1, total = 3),
-      AttendanceSummary(month = YearMonth.of(2021, 5), acceptableAbsence = 0, unacceptableAbsence = 0, total = 0),
     )
   }
 }
