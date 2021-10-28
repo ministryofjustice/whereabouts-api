@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.3.9"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.3.12"
   kotlin("plugin.spring") version "1.5.30"
   kotlin("plugin.jpa") version "1.5.30"
 }
@@ -13,9 +13,9 @@ configurations {
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.20")
+  annotationProcessor("org.projectlombok:lombok:1.18.22")
 
-  compileOnly("org.projectlombok:lombok:1.18.20")
+  compileOnly("org.projectlombok:lombok:1.18.22")
 
   runtimeOnly("com.h2database:h2")
   runtimeOnly("org.flywaydb:flyway-core")
@@ -62,7 +62,7 @@ dependencies {
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
   testImplementation("io.mockk:mockk:1.12.0")
-  testCompileOnly("org.projectlombok:lombok:1.18.20")
+  testCompileOnly("org.projectlombok:lombok:1.18.22")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
 }
 
