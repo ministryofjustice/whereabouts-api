@@ -14,6 +14,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Slf4j
 @AllArgsConstructor(access = PROTECTED)
 public abstract class HealthCheck implements HealthIndicator {
+
     private final WebClient webClient;
     private final Duration timeout;
 
