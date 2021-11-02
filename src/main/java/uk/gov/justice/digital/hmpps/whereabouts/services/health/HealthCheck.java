@@ -29,10 +29,10 @@ public abstract class HealthCheck implements HealthIndicator {
                             .block(timeout);
             return Health.up().withDetail("HttpStatus", responseEntity.getStatusCode()).build();
         } catch (final WebClientResponseException e) {
-            log.error("Dependant health check failed", e);
+            log.error("Dependant health check failed in class: " + this.getClass(), e);
             return Health.down(e).withDetail("body", e.getResponseBodyAsString()).build();
         } catch (final Exception e) {
-            log.error("Dependant health check failed", e);
+            log.error("Dependant health check failed in class: " + this.getClass(), e);
             return Health.down(e).build();
         }
     }
