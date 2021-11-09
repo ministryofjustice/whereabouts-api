@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto.attendance
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
-import java.time.YearMonth
 
 @ApiModel(description = "Attendances aggregate data")
 data class AttendanceSummary(
