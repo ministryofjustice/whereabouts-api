@@ -467,9 +467,8 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk()
       .expectBody()
-      .jsonPath("[0].month").isEqualTo("2021-05")
-      .jsonPath("[0].total").isEqualTo(2)
-      .jsonPath("[0].acceptableAbsence").isEqualTo(1)
-      .jsonPath("[0].unacceptableAbsence").isEqualTo(0)
+      .jsonPath("$.total").isEqualTo(6)
+      .jsonPath("$.acceptableAbsence").isEqualTo(1)
+      .jsonPath("$.unacceptableAbsence").isEqualTo(2)
   }
 }

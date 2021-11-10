@@ -23,7 +23,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepo
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.YearMonth
 import java.time.temporal.ChronoUnit
 import java.util.function.Predicate
 import java.util.stream.Collectors
@@ -332,39 +331,32 @@ class AttendanceService(
       }.toSet()
   }
 
-  private fun addAttendance(
-    map: MutableMap<YearMonth, AttendanceSummary>,
-    offenderAttendance: OffenderAttendance
-  ): MutableMap<YearMonth, AttendanceSummary> {
-
-    val yearMonth = YearMonth.of(offenderAttendance.eventDate.year, offenderAttendance.eventDate.month)
-    val slot = map.getOrPut(yearMonth) { AttendanceSummary(yearMonth) }
-
-    when (offenderAttendance.outcome) {
-      "UNACAB" -> {
-        slot.unacceptableAbsence++
-        slot.total++
-      }
-      "ATT", "UNBEH" -> slot.total++
-      "", null -> {}
-      else -> {
-        slot.acceptableAbsence++
-        slot.total++
+  private fun countAttendances(offenderAttendances: List<OffenderAttendance>): AttendanceSummary {
+    val summary = AttendanceSummary()
+    offenderAttendances.forEach { offenderAttendance ->
+      when (offenderAttendance.outcome) {
+        "UNACAB" -> {
+          summary.unacceptableAbsence++
+          summary.total++
+        }
+        "ATT", "UNBEH" -> summary.total++
+        "", null -> {}
+        else -> {
+          summary.acceptableAbsence++
+          summary.total++
+        }
       }
     }
-
-    return map
+    return summary
   }
 
   fun getAttendanceAbsenceSummaryForOffender(
     offenderNo: String,
     fromDate: LocalDate,
     toDate: LocalDate
-  ): List<AttendanceSummary> {
-    val attendances =
-      prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate)
-    val initialMap = mutableMapOf<YearMonth, AttendanceSummary>()
-    return attendances.fold(initialMap, this::addAttendance).values.sortedBy { it.month }
+  ): AttendanceSummary {
+    val attendances = prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate)
+    return countAttendances(attendances)
   }
 
   private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails {
@@ -403,8 +395,7 @@ class AttendanceService(
 
   private fun findAttendance(bookingId: Long, eventId: Long?, period: TimePeriod): Predicate<in OffenderDetails> {
     return Predicate { (bookingId1, _, eventId1, _, _, timeSlot) ->
-      bookingId1 == bookingId &&
-        eventId1 == eventId && TimePeriod.valueOf(timeSlot!!) == period
+      bookingId1 == bookingId && eventId1 == eventId && TimePeriod.valueOf(timeSlot!!) == period
     }
   }
 
