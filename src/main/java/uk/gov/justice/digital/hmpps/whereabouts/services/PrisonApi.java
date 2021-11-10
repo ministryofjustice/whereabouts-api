@@ -20,6 +20,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDetailsDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.OffenderAttendance;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto;
@@ -90,6 +91,29 @@ public class PrisonApi {
                         .build(offenderNo))
                 .retrieve()
                 .bodyToMono(AttendancePage.class)
+                .block();
+        if (data.total > 10000) {
+            throw new RuntimeException("Too many rows returned");
+        }
+        return data.content;
+    }
+
+    @Data
+    public static class AttendanceInWhereaboutsOrPrisonApiPage {
+        List<AttendanceDetailsDto> content;
+        Integer total;
+    }
+    public List<AttendanceDetailsDto> getAttendanceHistoryForOffender(final String offenderNo, final LocalDate fromDate, final LocalDate toDate) {
+        final var data = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/offender-activities/{offenderNo}/attendance-history")
+                        .queryParam("fromDate", fromDate)
+                        .queryParam("toDate", toDate)
+                        .queryParam("page", 0)
+                        .queryParam("size", 10000)
+                        .build(offenderNo))
+                .retrieve()
+                .bodyToMono(AttendanceInWhereaboutsOrPrisonApiPage.class)
                 .block();
         if (data.total > 10000) {
             throw new RuntimeException("Too many rows returned");

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsencesResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceChangesResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceSummary
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesResponse
@@ -118,6 +119,22 @@ class AttendancesController(private val attendanceService: AttendanceService) {
       attendances = attendanceService.getAttendanceForBookings(prisonId, bookings, date, period)
     )
   }
+
+  @GetMapping("/offender/{offenderNo}/attendances-in-whereabouts-or-prisonapi")
+  @ApiOperation(
+    value = "Returns set of attendance details for set of booking ids: search in whereAbouts Api first, if not found then use prisonApi",
+    response = AttendanceDetailsDto::class,
+    notes = "Request attendance details"
+  )
+  fun getAttendanceForBookingsInWhereaboutsOrPrisonApi(
+    @ApiParam(value = "offender or Prison number or Noms id") @PathVariable(name = "offenderNo") offenderNo: String,
+    @ApiParam(value = "Start date of range to summarise in format YYYY-MM-DD", required = true)
+    @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
+    @ApiParam(value = "End date of range to summarise in format YYYY-MM-DD", required = true)
+    @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate
+  ): List<AttendanceDetailsDto> =
+    attendanceService.getAttendanceDetailsFromBookings(offenderNo, fromDate, toDate)
+      .toList()
 
   @PostMapping("/{prison}")
   @ApiOperation(

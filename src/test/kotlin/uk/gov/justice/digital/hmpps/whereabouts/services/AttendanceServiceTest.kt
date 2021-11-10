@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendAllDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceSummary
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
@@ -62,6 +63,12 @@ class AttendanceServiceTest {
       eventDate = today,
       comments = "hello"
     )
+
+  private val bookingActivities = mutableSetOf(BookingActivity(1001, 1002))
+  private val testAttendanceInWhereaboutsOrPrisonApiDto = AttendanceDetailsDto(
+    LocalDate.now(), "comment 1",
+    bookingActivities, 1L, "HMP Moorland"
+  )
 
   private lateinit var service: AttendanceService
 
@@ -1604,5 +1611,60 @@ class AttendanceServiceTest {
       AttendanceSummary(month = YearMonth.of(2021, 6), acceptableAbsence = 1, unacceptableAbsence = 0, total = 3),
       AttendanceSummary(month = YearMonth.of(2021, 8), acceptableAbsence = 0, unacceptableAbsence = 1, total = 3),
     )
+  }
+
+  @Test
+  fun `should get attendance data by calling prisonApi because bookingIds are missing`() {
+    val offenderNo = "A1234AA"
+
+    whenever(
+      prisonApiService.getAttendanceHistoryForOffender(
+        offenderNo,
+        LocalDate.now().minusYears(1),
+        LocalDate.now()
+      )
+    ).thenReturn(
+      listOf(
+        AttendanceDetailsDto(
+          eventDate = testAttendanceInWhereaboutsOrPrisonApiDto.eventDate,
+          comments = testAttendanceInWhereaboutsOrPrisonApiDto.comments,
+          bookingActivities = testAttendanceInWhereaboutsOrPrisonApiDto.bookingActivities,
+          locationId = testAttendanceInWhereaboutsOrPrisonApiDto.locationId,
+          location = testAttendanceInWhereaboutsOrPrisonApiDto.location
+        )
+      )
+    )
+
+    var result =
+      service.getAttendanceDetailsFromBookings(
+        offenderNo,
+        LocalDate.now().minusYears(1),
+        LocalDate.now()
+      )
+
+    assertThat(result.isNotEmpty())
+    assertThat(result.get(0).location).isEqualTo(testAttendanceInWhereaboutsOrPrisonApiDto.location)
+  }
+
+  @Test
+  fun `should get attendance data by calling whereabouts-api with valid booking Ids`() {
+    val offenderNo = "A1234AA"
+    // val bookingIds = listOf(1L, 2L)
+    //
+    // whenever(
+    //   prisonApiService.getOffenderDetailsFromOffenderNos(
+    //     listOf(offenderNo)
+    //   )
+    // ).thenReturn(bookingIds)
+    //
+    // var result =
+    //   service.getAttendanceDetailsFromBookings(
+    //     offenderNo,
+    //     LocalDate.now().minusYears(1),
+    //     LocalDate.now()
+    //   )
+    //
+    // assertThat(result.isNotEmpty())
+    // assertThat( result.get(0).location).isEqualTo(testAttendanceInWhereaboutsOrPrisonApiDto.location)
   }
 }

@@ -8,6 +8,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsenceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendAllDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceChangeDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceSummary
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
@@ -75,6 +76,14 @@ class AttendanceService(
     val attendance = attendanceRepository
       .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookings, date, period)
 
+    return attendance.map { toAttendanceDto(it) }.toSet()
+  }
+
+  fun getAttendanceForBookingsAndDate(
+    bookingIds: Set<Long>,
+    date: LocalDate
+  ): Set<AttendanceDto> {
+    val attendance = attendanceRepository.findByBookingIdInAndEventDate(bookingIds, date)
     return attendance.map { toAttendanceDto(it) }.toSet()
   }
 
@@ -365,6 +374,41 @@ class AttendanceService(
       prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate)
     val initialMap = mutableMapOf<YearMonth, AttendanceSummary>()
     return attendances.fold(initialMap, this::addAttendance).values.sortedBy { it.month }
+  }
+
+  fun getAttendanceDetailsFromBookings(
+    offenderNo: String,
+    fromDate: LocalDate,
+    toDate: LocalDate
+  ): List<AttendanceDetailsDto> {
+
+    val bookingIds = prisonApiService.getOffenderDetailsFromOffenderNos(listOf(offenderNo))
+      .map { it.bookingId }
+      .toSet()
+
+    val attendances = getAttendanceForBookingsAndDate(bookingIds, fromDate)
+    if (attendances.isEmpty()) {
+      return prisonApiService.getAttendanceHistoryForOffender(offenderNo, fromDate, toDate).map {
+        AttendanceDetailsDto(
+          eventDate = it.eventDate,
+          comments = it.comments,
+          locationId = it.locationId,
+          location = it.location,
+          bookingActivities = it.bookingActivities
+        )
+      }
+    }
+
+    return attendances
+      .map {
+        AttendanceDetailsDto(
+          eventDate = it.eventDate,
+          comments = it.comments,
+          locationId = it.eventLocationId,
+          location = "",
+          bookingActivities = setOf()
+        )
+      }
   }
 
   private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails {
