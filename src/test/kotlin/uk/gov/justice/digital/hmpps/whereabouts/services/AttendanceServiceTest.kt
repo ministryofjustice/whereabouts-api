@@ -19,6 +19,7 @@ import org.mockito.ArgumentMatchers.anySet
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
+import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendAllDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDetailsDto
@@ -66,7 +67,7 @@ class AttendanceServiceTest {
 
   private val bookingActivities = mutableSetOf(BookingActivity(1001, 1002))
   private val testAttendanceInWhereaboutsOrPrisonApiDto = AttendanceDetailsDto(
-    LocalDate.now(), "comment 1",
+    LocalDate.of(2021, 11, 1), "comment 1",
     bookingActivities, 1L, "HMP Moorland"
   )
 
@@ -1644,27 +1645,56 @@ class AttendanceServiceTest {
 
     assertThat(result.isNotEmpty())
     assertThat(result.get(0).location).isEqualTo(testAttendanceInWhereaboutsOrPrisonApiDto.location)
+    assertThat(result.get(0).eventDate).isEqualTo(testAttendanceInWhereaboutsOrPrisonApiDto.eventDate)
+    assertThat(result.get(0).comments).isEqualTo(testAttendanceInWhereaboutsOrPrisonApiDto.comments)
   }
 
   @Test
   fun `should get attendance data by calling whereabouts-api with valid booking Ids`() {
     val offenderNo = "A1234AA"
-    // val bookingIds = listOf(1L, 2L)
-    //
-    // whenever(
-    //   prisonApiService.getOffenderDetailsFromOffenderNos(
-    //     listOf(offenderNo)
-    //   )
-    // ).thenReturn(bookingIds)
-    //
-    // var result =
-    //   service.getAttendanceDetailsFromBookings(
-    //     offenderNo,
-    //     LocalDate.now().minusYears(1),
-    //     LocalDate.now()
-    //   )
-    //
-    // assertThat(result.isNotEmpty())
-    // assertThat( result.get(0).location).isEqualTo(testAttendanceInWhereaboutsOrPrisonApiDto.location)
+    val bookingIds = setOf(100L, 200L)
+
+    val attendance = Attendance.builder()
+      .id(1)
+      .absentReason(AbsentReason.NotRequired)
+      .attended(false)
+      .paid(false)
+      .eventId(2)
+      .eventLocationId(3)
+      .period(TimePeriod.AM)
+      .prisonId("LEI")
+      .bookingId(100)
+      .createUserId("user")
+      .caseNoteId(1)
+      .eventDate(testAttendanceInWhereaboutsOrPrisonApiDto.eventDate)
+      .period((TimePeriod.AM))
+      .comments(testAttendanceInWhereaboutsOrPrisonApiDto.comments)
+      .build()
+
+    whenever(
+      prisonApiService.getOffenderDetailsFromOffenderNos(
+        listOf(offenderNo)
+      )
+    ).thenReturn(
+      listOf(OffenderBooking(bookingIds.first(), "1001", offenderNo, "Jon", "Doe", "AGC", testAttendanceInWhereaboutsOrPrisonApiDto.eventDate, 1L, ""))
+    )
+
+    whenever(
+      attendanceRepository.findByBookingIdInAndEventDate(any(), any())
+    ).thenReturn(
+      setOf(attendance)
+    )
+
+    var result =
+      service.getAttendanceDetailsFromBookings(
+        offenderNo,
+        LocalDate.now().minusYears(1),
+        LocalDate.now()
+      )
+
+    assertThat(result.isNotEmpty())
+    assertThat(result.get(0).eventDate).isEqualTo(attendance.eventDate)
+    assertThat(result.get(0).comments).isEqualTo(attendance.comments)
+    assertThat(result.get(0).locationId).isEqualTo(attendance.eventLocationId)
   }
 }

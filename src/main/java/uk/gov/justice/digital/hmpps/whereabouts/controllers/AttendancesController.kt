@@ -120,13 +120,13 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     )
   }
 
-  @GetMapping("/offender/{offenderNo}/attendances-in-whereabouts-or-prisonapi")
+  @GetMapping("/offender/{offenderNo}/attendance-detail")
   @ApiOperation(
     value = "Returns set of attendance details for set of booking ids: search in whereAbouts Api first, if not found then use prisonApi",
     response = AttendanceDetailsDto::class,
     notes = "Request attendance details"
   )
-  fun getAttendanceForBookingsInWhereaboutsOrPrisonApi(
+  fun getAttendanceDetailsFromBookings(
     @ApiParam(value = "offender or Prison number or Noms id") @PathVariable(name = "offenderNo") offenderNo: String,
     @ApiParam(value = "Start date of range to summarise in format YYYY-MM-DD", required = true)
     @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
