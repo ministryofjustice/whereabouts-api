@@ -1584,14 +1584,14 @@ class AttendanceServiceTest {
       )
     ).thenReturn(
       listOf(
-        OffenderAttendance(eventDate = LocalDate.of(2021, 6, 1), outcome = "ATT"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 6, 1), outcome = "ATT"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 6, 1), outcome = "ABS"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 1), outcome = "ATT"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 1), outcome = "UNACAB"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 1), outcome = "ATT"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 1), outcome = ""),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 5, 1), outcome = null),
+        OffenderAttendance(eventDate = "2021-06-01", outcome = "ATT"),
+        OffenderAttendance(eventDate = "2021-06-01", outcome = "ATT"),
+        OffenderAttendance(eventDate = "2021-06-01", outcome = "ABS"),
+        OffenderAttendance(eventDate = "2021-08-01", outcome = "ATT"),
+        OffenderAttendance(eventDate = "2021-08-01", outcome = "UNACAB"),
+        OffenderAttendance(eventDate = "2021-08-01", outcome = "ATT"),
+        OffenderAttendance(eventDate = "2021-08-01", outcome = ""),
+        OffenderAttendance(eventDate = "2021-05-01", outcome = null),
       )
     )
 

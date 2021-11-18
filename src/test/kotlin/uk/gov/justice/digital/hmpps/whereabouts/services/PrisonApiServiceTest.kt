@@ -153,7 +153,7 @@ class PrisonApiServiceTest {
     val locationType = "APP"
 
     prisonApiMockServer.stubGetAgencyLocationsForTypeUnrestricted(agencyId, locationType, getLocation())
-    val locations = prisonApiService.getAgencyLocationsForTypeUnrestricted(agencyId, locationType,)
+    val locations = prisonApiService.getAgencyLocationsForTypeUnrestricted(agencyId, locationType)
     assertThat(locations)
       .containsExactly(
         Location(
@@ -180,12 +180,12 @@ class PrisonApiServiceTest {
 
     assertThat(result)
       .containsExactly(
-        OffenderAttendance(eventDate = LocalDate.of(2021, 5, 4), outcome = "ATT"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 5, 4), outcome = "ACCAB"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 6, 4), outcome = "UNACAB"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 6, 5), outcome = "ATT"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 7, 14), outcome = "UNACAB"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 14), outcome = "ATT"),
+        OffenderAttendance(eventDate = "2021-05-04", outcome = "ATT"),
+        OffenderAttendance(eventDate = "2021-05-04", outcome = "ACCAB"),
+        OffenderAttendance(eventDate = "2021-06-04", outcome = "UNACAB"),
+        OffenderAttendance(eventDate = "2021-06-05", outcome = "ATT"),
+        OffenderAttendance(eventDate = "2021-07-14", outcome = "UNACAB"),
+        OffenderAttendance(eventDate = "2021-08-14", outcome = "ATT"),
       )
   }
 }

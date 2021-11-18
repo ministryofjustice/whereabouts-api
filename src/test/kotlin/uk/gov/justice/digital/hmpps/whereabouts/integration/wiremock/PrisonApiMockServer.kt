@@ -9,11 +9,12 @@ import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
+import com.google.gson.reflect.TypeToken
 import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.PageRequest
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.OffenderAttendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellAttribute
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
@@ -140,7 +141,11 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
-  fun stubGetScheduledAppointmentsByAgencyDateAndLocationId(agencyId: String, offenderNo: String = "A1234AA", locationId: Long) {
+  fun stubGetScheduledAppointmentsByAgencyDateAndLocationId(
+    agencyId: String,
+    offenderNo: String = "A1234AA",
+    locationId: Long
+  ) {
     stubFor(
       get(urlEqualTo("/api/schedules/$agencyId/appointments?date=2020-12-25&locationId=$locationId"))
         .willReturn(
@@ -231,20 +236,43 @@ class PrisonApiMockServer : WireMockServer(8999) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(
-              gson.toJson(
-                PageImpl(
-                  listOf(
-                    mapOf("eventDate" to "2021-05-04", "outcome" to "ATT"),
-                    mapOf("eventDate" to "2021-05-04", "outcome" to "ACCAB"),
-                    mapOf("eventDate" to "2021-06-04", "outcome" to "UNACAB"),
-                    mapOf("eventDate" to "2021-06-05", "outcome" to "ATT"),
-                    mapOf("eventDate" to "2021-07-14", "outcome" to "UNACAB"),
-                    mapOf("eventDate" to "2021-08-14", "outcome" to "ATT"),
-                  ),
-                  PageRequest.of(0, 10000), 5
-                ),
-                PageImpl::class.java
-              )
+              """{
+"content":[
+  {"eventDate":"2021-05-04","outcome":"ATT"},
+  {"eventDate":"2021-05-04","outcome":"ACCAB"},
+  {"eventDate":"2021-06-04","outcome":"UNACAB"},
+  {"eventDate":"2021-06-05","outcome":"ATT"},
+  {"eventDate":"2021-07-14","outcome":"UNACAB"},
+  {"eventDate":"2021-08-14","outcome":"ATT"}
+],
+"pageable":{"pageNumber":0,"pageSize":10000},
+"totalPages": 1
+}"""
+            )
+            .withStatus(200)
+        )
+    )
+  }
+
+  fun stubGetAttendanceForOffenderEmpty(
+    offenderNo: String,
+    fromDate: LocalDate = LocalDate.now().minusYears(1),
+    toDate: LocalDate = LocalDate.now(),
+  ) {
+    val testUrl =
+      "/api/offender-activities/$offenderNo/attendance-history?fromDate=$fromDate&toDate=$toDate&page=0&size=10000"
+
+    stubFor(
+      get(urlEqualTo(testUrl))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(
+              """{
+"content":[],
+"pageable":{"pageNumber":0,"pageSize":10000},
+"totalPages": 0
+}"""
             )
             .withStatus(200)
         )
