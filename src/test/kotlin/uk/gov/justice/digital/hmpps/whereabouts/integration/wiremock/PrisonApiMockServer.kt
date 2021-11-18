@@ -9,12 +9,9 @@ import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
-import com.google.gson.reflect.TypeToken
-import org.springframework.data.domain.PageImpl
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
-import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.OffenderAttendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellAttribute
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
