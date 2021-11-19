@@ -448,7 +448,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
   }
 
   @Test
-  fun `should return attendence summary for offender`() {
+  fun `should return attendance summary for offender`() {
     val offenderNo = "A1234AX"
     val START = LocalDate.of(2021, 3, 14)
     val END = LocalDate.of(2021, 5, 24)
@@ -470,5 +470,30 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .jsonPath("$.total").isEqualTo(6)
       .jsonPath("$.acceptableAbsence").isEqualTo(1)
       .jsonPath("$.unacceptableAbsence").isEqualTo(2)
+  }
+
+  @Test
+  fun `should handle empty attendance summary data for offender`() {
+    val offenderNo = "A1234AX"
+    val START = LocalDate.of(2021, 3, 14)
+    val END = LocalDate.of(2021, 5, 24)
+
+    prisonApiMockServer.stubGetAttendanceForOffenderEmpty(offenderNo, START, END)
+
+    webTestClient
+      .get()
+      .uri({
+        it.path("/attendances/offender/$offenderNo/unacceptable-absence-count")
+          .queryParam("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .queryParam("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .build()
+      })
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk()
+      .expectBody()
+      .jsonPath("$.total").isEqualTo(0)
+      .jsonPath("$.acceptableAbsence").isEqualTo(0)
+      .jsonPath("$.unacceptableAbsence").isEqualTo(0)
   }
 }

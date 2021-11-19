@@ -76,7 +76,7 @@ public class PrisonApi {
     @Data
     public static class AttendancePage {
         List<OffenderAttendance> content;
-        Integer total;
+        Integer totalPages;
     }
 
     public List<OffenderAttendance> getAttendanceForOffender(final String offenderNo, final LocalDate fromDate, final LocalDate toDate) {
@@ -91,7 +91,7 @@ public class PrisonApi {
                 .retrieve()
                 .bodyToMono(AttendancePage.class)
                 .block();
-        if (data.total > 10000) {
+        if (data.getTotalPages() > 1) {
             throw new RuntimeException("Too many rows returned");
         }
         return data.content;
