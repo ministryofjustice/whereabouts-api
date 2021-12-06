@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
 import com.nhaarman.mockitokotlin2.whenever
-import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -13,7 +12,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceSummary
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
 import java.time.LocalDate
-import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 @WebMvcTest(AttendancesController::class)
@@ -32,13 +30,10 @@ class AttendancesControllerTest : TestController() {
   fun `getAttendances valid call returns expected data`() {
     whenever(attendanceService.getAttendanceAbsenceSummaryForOffender(OFFENDER_NO, START, END))
       .thenReturn(
-        listOf(
-          AttendanceSummary(
-            month = YearMonth.of(2021, 5),
-            acceptableAbsence = 6,
-            unacceptableAbsence = 4,
-            total = 23
-          )
+        AttendanceSummary(
+          acceptableAbsence = 6,
+          unacceptableAbsence = 4,
+          total = 23
         )
       )
 
@@ -49,11 +44,9 @@ class AttendancesControllerTest : TestController() {
           .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
       )
       .andExpect(MockMvcResultMatchers.status().isOk)
-      .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize<Array<Any>>(1)))
-      .andExpect(MockMvcResultMatchers.jsonPath("[0].month").value("2021-05"))
-      .andExpect(MockMvcResultMatchers.jsonPath("[0].acceptableAbsence").value(6))
-      .andExpect(MockMvcResultMatchers.jsonPath("[0].unacceptableAbsence").value(4))
-      .andExpect(MockMvcResultMatchers.jsonPath("[0].total").value(23))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.acceptableAbsence").value(6))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.unacceptableAbsence").value(4))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.total").value(23))
   }
 
   @Test

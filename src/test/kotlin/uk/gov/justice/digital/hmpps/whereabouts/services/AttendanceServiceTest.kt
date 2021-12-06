@@ -38,7 +38,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepo
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.YearMonth
 import java.util.Optional
 import java.util.stream.Collectors
 
@@ -1593,25 +1592,21 @@ class AttendanceServiceTest {
       )
     ).thenReturn(
       listOf(
-        OffenderAttendance(eventDate = LocalDate.of(2021, 6, 1), outcome = "ATT"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 6, 1), outcome = "ATT"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 6, 1), outcome = "ABS"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 1), outcome = "ATT"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 1), outcome = "UNACAB"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 1), outcome = "ATT"),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 8, 1), outcome = ""),
-        OffenderAttendance(eventDate = LocalDate.of(2021, 5, 1), outcome = null),
+        OffenderAttendance(eventDate = "2021-06-01", outcome = "ATT"),
+        OffenderAttendance(eventDate = "2021-06-01", outcome = "ATT"),
+        OffenderAttendance(eventDate = "2021-06-01", outcome = "ABS"),
+        OffenderAttendance(eventDate = "2021-08-01", outcome = "ATT"),
+        OffenderAttendance(eventDate = "2021-08-01", outcome = "UNACAB"),
+        OffenderAttendance(eventDate = "2021-08-01", outcome = "ATT"),
+        OffenderAttendance(eventDate = "2021-08-01", outcome = ""),
+        OffenderAttendance(eventDate = "2021-05-01", outcome = null),
       )
     )
 
     val result =
       service.getAttendanceAbsenceSummaryForOffender(offenderNo, LocalDate.now().minusYears(1), LocalDate.now())
 
-    assertThat(result).asList().containsExactly(
-      AttendanceSummary(month = YearMonth.of(2021, 5), acceptableAbsence = 0, unacceptableAbsence = 0, total = 0),
-      AttendanceSummary(month = YearMonth.of(2021, 6), acceptableAbsence = 1, unacceptableAbsence = 0, total = 3),
-      AttendanceSummary(month = YearMonth.of(2021, 8), acceptableAbsence = 0, unacceptableAbsence = 1, total = 3),
-    )
+    assertThat(result).isEqualTo(AttendanceSummary(acceptableAbsence = 1, unacceptableAbsence = 1, total = 6))
   }
 
   @Test

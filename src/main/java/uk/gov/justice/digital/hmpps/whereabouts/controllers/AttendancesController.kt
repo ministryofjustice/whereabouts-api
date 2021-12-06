@@ -253,5 +253,5 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
     @ApiParam(value = "End date of range to summarise in format YYYY-MM-DD", required = true)
     @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate
-  ): List<AttendanceSummary> = attendanceService.getAttendanceAbsenceSummaryForOffender(offenderNo, fromDate, toDate)
+  ): AttendanceSummary = attendanceService.getAttendanceAbsenceSummaryForOffender(offenderNo, fromDate, toDate)
 }
