@@ -4,6 +4,9 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import lombok.extern.slf4j.Slf4j
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.format.annotation.DateTimeFormat.ISO.DATE
 import org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME
@@ -19,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsencesResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceChangesResponse
-import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDetailsDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceHistoryDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceSummary
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesResponse
@@ -120,21 +123,21 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     )
   }
 
-  @GetMapping("/offender/{offenderNo}/attendance-detail")
+  @GetMapping("/offender/{offenderNo}/unacceptable-absences")
   @ApiOperation(
-    value = "Returns set of attendance details for set of booking ids: search in whereAbouts Api first, if not found then use prisonApi",
-    response = AttendanceDetailsDto::class,
-    notes = "Request attendance details"
+    value = "Returns unacceptable absence attendance details for an offender",
+    response = AttendanceHistoryDto::class,
+    notes = "Request unacceptable absence details"
   )
-  fun getAttendanceDetailsFromBookings(
+  fun getAttendanceDetailsForOffender(
     @ApiParam(value = "offender or Prison number or Noms id") @PathVariable(name = "offenderNo") offenderNo: String,
     @ApiParam(value = "Start date of range to summarise in format YYYY-MM-DD", required = true)
     @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
     @ApiParam(value = "End date of range to summarise in format YYYY-MM-DD", required = true)
-    @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate
-  ): List<AttendanceDetailsDto> =
-    attendanceService.getAttendanceDetailsFromBookings(offenderNo, fromDate, toDate)
-      .toList()
+    @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate,
+    @PageableDefault(page = 0, size = 20) pageable: Pageable
+  ): Page<AttendanceHistoryDto> =
+    attendanceService.getAttendanceDetailsForOffender(offenderNo, fromDate, toDate, pageable)
 
   @PostMapping("/{prison}")
   @ApiOperation(

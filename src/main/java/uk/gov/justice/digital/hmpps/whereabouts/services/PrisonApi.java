@@ -6,6 +6,9 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -20,7 +23,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDetailsDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.OffenderAttendance;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto;
@@ -80,45 +82,28 @@ public class PrisonApi {
         Integer totalPages;
     }
 
-    public List<OffenderAttendance> getAttendanceForOffender(final String offenderNo, final LocalDate fromDate, final LocalDate toDate) {
+    public Page<OffenderAttendance> getAttendanceForOffender(final String offenderNo, final LocalDate fromDate, final LocalDate toDate,
+                                                             final Optional<String> outcome, final Pageable pageable) {
+
         final var data = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/offender-activities/{offenderNo}/attendance-history")
                         .queryParam("fromDate", fromDate)
                         .queryParam("toDate", toDate)
-                        .queryParam("page", 0)
-                        .queryParam("size", 10000)
+                        .queryParamIfPresent("outcome", outcome)
+                        .queryParam("page", pageable.isPaged() ? pageable.getPageNumber() : 0)
+                        .queryParam("size", pageable.isPaged() ? pageable.getPageSize() : 10000)
                         .build(offenderNo))
                 .retrieve()
                 .bodyToMono(AttendancePage.class)
                 .block();
+        if (data == null) {
+            throw new RuntimeException("No data returned");
+        }
         if (data.getTotalPages() > 1) {
             throw new RuntimeException("Too many rows returned");
         }
-        return data.content;
-    }
-
-    @Data
-    public static class AttendanceInWhereaboutsOrPrisonApiPage {
-        List<AttendanceDetailsDto> content;
-        Integer total;
-    }
-    public List<AttendanceDetailsDto> getAttendanceHistoryForOffender(final String offenderNo, final LocalDate fromDate, final LocalDate toDate) {
-        final var data = webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/offender-activities/{offenderNo}/attendance-history")
-                        .queryParam("fromDate", fromDate)
-                        .queryParam("toDate", toDate)
-                        .queryParam("page", 0)
-                        .queryParam("size", 10000)
-                        .build(offenderNo))
-                .retrieve()
-                .bodyToMono(AttendanceInWhereaboutsOrPrisonApiPage.class)
-                .block();
-        if (data.total > 10000) {
-            throw new RuntimeException("Too many rows returned");
-        }
-        return data.content;
+        return new PageImpl<OffenderAttendance>(data.content, pageable, data.totalPages);
     }
 
     public Set<Long> getBookingIdsForScheduleActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
@@ -126,10 +111,10 @@ public class PrisonApi {
         };
 
         return Objects.requireNonNull(webClient.get()
-                .uri("/schedules/{prisonId}/activities?date={date}&timeSlot={period}", prisonId, date, period)
-                .retrieve()
-                .bodyToMono(responseType)
-                .block())
+                        .uri("/schedules/{prisonId}/activities?date={date}&timeSlot={period}", prisonId, date, period)
+                        .retrieve()
+                        .bodyToMono(responseType)
+                        .block())
                 .stream()
                 .map(entry -> Long.parseLong(entry.get("bookingId").toString()))
                 .collect(Collectors.toSet());

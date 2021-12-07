@@ -74,7 +74,7 @@ class AttendanceChangesRepositoryTest {
 
     val recordedChanges = attendanceChangesRepository.findById(id).get()
 
-    assertThat(recordedChanges.attendance?.id).isEqualTo(attendanceId)
+    assertThat(recordedChanges.attendance.id).isEqualTo(attendanceId)
     assertThat(recordedChanges.changedFrom).isEqualTo(AttendanceChangeValues.Refused)
     assertThat(recordedChanges.changedTo).isEqualTo(AttendanceChangeValues.NotRequired)
     assertThat(recordedChanges.createUserId).isEqualTo("user")

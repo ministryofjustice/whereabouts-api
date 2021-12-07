@@ -6,6 +6,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 public interface AttendanceRepository extends CrudRepository<Attendance, Long> {
@@ -31,5 +32,5 @@ public interface AttendanceRepository extends CrudRepository<Attendance, Long> {
 
     Set<Attendance> findByBookingId(long bookingId);
 
-    Set<Attendance> findByBookingIdInAndEventDate(Set<Long> bookingIds, LocalDate date);
+    List<Attendance> findByBookingIdInAndEventDateBetween(Set<Long> bookingIds, LocalDate from, LocalDate to);
 }

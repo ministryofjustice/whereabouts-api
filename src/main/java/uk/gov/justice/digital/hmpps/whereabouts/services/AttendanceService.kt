@@ -3,13 +3,15 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 import com.microsoft.applicationinsights.TelemetryClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsenceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendAllDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceChangeDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceHistoryDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceSummary
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceDto
@@ -25,6 +27,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import java.util.Optional
 import java.util.function.Predicate
 import java.util.stream.Collectors
 import javax.transaction.Transactional
@@ -75,14 +78,6 @@ class AttendanceService(
     val attendance = attendanceRepository
       .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookings, date, period)
 
-    return attendance.map { toAttendanceDto(it) }.toSet()
-  }
-
-  fun getAttendanceForBookingsAndDate(
-    bookingIds: Set<Long>,
-    date: LocalDate
-  ): Set<AttendanceDto> {
-    val attendance = attendanceRepository.findByBookingIdInAndEventDate(bookingIds, date)
     return attendance.map { toAttendanceDto(it) }.toSet()
   }
 
@@ -364,44 +359,28 @@ class AttendanceService(
     fromDate: LocalDate,
     toDate: LocalDate
   ): AttendanceSummary {
-    val attendances = prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate)
-    return countAttendances(attendances)
+    val attendances =
+      prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate, Optional.empty(), Pageable.unpaged())
+    return countAttendances(attendances.content)
   }
 
-  fun getAttendanceDetailsFromBookings(
+  fun getAttendanceDetailsForOffender(
     offenderNo: String,
     fromDate: LocalDate,
-    toDate: LocalDate
-  ): List<AttendanceDetailsDto> {
+    toDate: LocalDate,
+    pageable: Pageable
+  ): Page<AttendanceHistoryDto> =
 
-    val bookingIds = prisonApiService.getOffenderDetailsFromOffenderNos(listOf(offenderNo))
-      .map { it.bookingId }
-      .toSet()
-
-    val attendances = getAttendanceForBookingsAndDate(bookingIds, fromDate)
-    if (attendances.isEmpty()) {
-      return prisonApiService.getAttendanceHistoryForOffender(offenderNo, fromDate, toDate).map {
-        AttendanceDetailsDto(
-          eventDate = it.eventDate,
-          comments = it.comments,
-          locationId = it.locationId,
-          location = it.location,
-          bookingActivities = it.bookingActivities
-        )
-      }
-    }
-
-    return attendances
+    prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate, Optional.of("UNACAB"), pageable)
       .map {
-        AttendanceDetailsDto(
-          eventDate = it.eventDate,
+        AttendanceHistoryDto(
+          eventDate = LocalDate.parse(it.eventDate),
+          activity = it.activity,
+          activityDescription = it.activityDescription,
+          location = it.location,
           comments = it.comments,
-          locationId = it.eventLocationId,
-          location = "",
-          bookingActivities = setOf()
         )
       }
-  }
 
   private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails {
     return details.copy(

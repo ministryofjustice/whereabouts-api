@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.data.domain.Pageable
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.OffenderAttendance
@@ -18,6 +19,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointme
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import java.time.LocalDate
+import java.util.Optional
 
 class PrisonApiServiceTest {
 
@@ -168,6 +170,8 @@ class PrisonApiServiceTest {
       )
   }
 
+  val pageable = Pageable.ofSize(10000)
+
   @Test
   fun `get Attendance for offender`() {
     val offenderNo = "A1234AC"
@@ -176,16 +180,58 @@ class PrisonApiServiceTest {
 
     prisonApiMockServer.stubGetAttendanceForOffender(offenderNo, fromDate, toDate)
 
-    val result = prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate)
+    val result = prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate, Optional.empty(), pageable)
 
-    assertThat(result)
+    assertThat(result.content)
       .containsExactly(
-        OffenderAttendance(eventDate = "2021-05-04", outcome = "ATT"),
-        OffenderAttendance(eventDate = "2021-05-04", outcome = "ACCAB"),
-        OffenderAttendance(eventDate = "2021-06-04", outcome = "UNACAB"),
-        OffenderAttendance(eventDate = "2021-06-05", outcome = "ATT"),
-        OffenderAttendance(eventDate = "2021-07-14", outcome = "UNACAB"),
-        OffenderAttendance(eventDate = "2021-08-14", outcome = "ATT"),
+        OffenderAttendance(
+          eventDate = "2021-05-04",
+          outcome = "ATT",
+          location = "MDI",
+          activity = "act 1",
+          activityDescription = "desc 1",
+          comments = "comment 1"
+        ),
+        OffenderAttendance(
+          eventDate = "2021-05-04",
+          outcome = "ACCAB",
+          location = "MDI",
+          activity = "act 2",
+          activityDescription = "desc 2",
+          comments = "comment 2"
+        ),
+        OffenderAttendance(
+          eventDate = "2021-06-04",
+          outcome = "UNACAB",
+          location = "MDI",
+          activity = "act 3",
+          activityDescription = "desc 3",
+          comments = "comment 3"
+        ),
+        OffenderAttendance(
+          eventDate = "2021-06-05",
+          outcome = "ATT",
+          location = "WWI",
+          activity = "act 4",
+          activityDescription = "desc 4",
+          comments = null
+        ),
+        OffenderAttendance(
+          eventDate = "2021-07-14",
+          outcome = "UNACAB",
+          location = "WWI",
+          activity = "act 5",
+          activityDescription = "desc 5",
+          comments = "comment 5"
+        ),
+        OffenderAttendance(
+          eventDate = "2021-08-14",
+          outcome = "ATT",
+          location = "WWI",
+          activity = "act 6",
+          activityDescription = "desc 6",
+          comments = "comment 6"
+        ),
       )
   }
 }
