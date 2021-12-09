@@ -23,7 +23,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.OffenderAttendance;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto;
@@ -83,14 +83,14 @@ public class PrisonApi {
     }
 
     public Page<OffenderAttendance> getAttendanceForOffender(final String offenderNo, final LocalDate fromDate, final LocalDate toDate,
-                                                             final Optional<String> outcome, final Pageable pageable) {
+                                                             final String outcome, final Pageable pageable) {
 
         final var data = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/offender-activities/{offenderNo}/attendance-history")
                         .queryParam("fromDate", fromDate)
                         .queryParam("toDate", toDate)
-                        .queryParamIfPresent("outcome", outcome)
+                        .queryParamIfPresent("outcome", Optional.ofNullable(outcome))
                         .queryParam("page", pageable.isPaged() ? pageable.getPageNumber() : 0)
                         .queryParam("size", pageable.isPaged() ? pageable.getPageSize() : 10000)
                         .build(offenderNo))
@@ -103,7 +103,7 @@ public class PrisonApi {
         if (data.getTotalPages() > 1) {
             throw new RuntimeException("Too many rows returned");
         }
-        return new PageImpl<OffenderAttendance>(data.content, pageable, data.totalPages);
+        return new PageImpl<>(data.content, pageable, data.totalPages);
     }
 
     public Set<Long> getBookingIdsForScheduleActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
