@@ -16,12 +16,16 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.anySet
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
+import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendAllDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceHistoryDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceSummary
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceDto
@@ -60,6 +64,17 @@ class AttendanceServiceTest {
       bookingId = 100,
       eventDate = today,
       comments = "hello"
+    )
+
+  private val START = LocalDate.of(2021, 3, 14)
+  private val MOORLAND = "MDI"
+  private val testAttendanceHistoryDto =
+    AttendanceHistoryDto(
+      eventDate = START,
+      comments = "Test comment",
+      location = MOORLAND,
+      activity = "a",
+      activityDescription = "d",
     )
 
   private lateinit var service: AttendanceService
@@ -1572,6 +1587,11 @@ class AttendanceServiceTest {
     assertThat(change.prisonId).isEqualTo("LEI")
   }
 
+  val pageable = Pageable.ofSize(10)
+
+  private fun createOffenderAttendance(eventDate: String, outcome: String?): OffenderAttendance =
+    OffenderAttendance(eventDate, outcome, prisonId = "MDI", activity = "a", description = "d")
+
   @Test
   fun `should get attendance summary data for offender`() {
     val offenderNo = "A1234AA"
@@ -1580,18 +1600,22 @@ class AttendanceServiceTest {
       prisonApiService.getAttendanceForOffender(
         offenderNo,
         LocalDate.now().minusYears(1),
-        LocalDate.now()
+        LocalDate.now(),
+        Optional.empty(),
+        Pageable.unpaged()
       )
     ).thenReturn(
-      listOf(
-        OffenderAttendance(eventDate = "2021-06-01", outcome = "ATT"),
-        OffenderAttendance(eventDate = "2021-06-01", outcome = "ATT"),
-        OffenderAttendance(eventDate = "2021-06-01", outcome = "ABS"),
-        OffenderAttendance(eventDate = "2021-08-01", outcome = "ATT"),
-        OffenderAttendance(eventDate = "2021-08-01", outcome = "UNACAB"),
-        OffenderAttendance(eventDate = "2021-08-01", outcome = "ATT"),
-        OffenderAttendance(eventDate = "2021-08-01", outcome = ""),
-        OffenderAttendance(eventDate = "2021-05-01", outcome = null),
+      PageImpl(
+        listOf(
+          createOffenderAttendance(eventDate = "2021-06-01", outcome = "ATT"),
+          createOffenderAttendance(eventDate = "2021-06-01", outcome = "ATT"),
+          createOffenderAttendance(eventDate = "2021-06-01", outcome = "ABS"),
+          createOffenderAttendance(eventDate = "2021-08-01", outcome = "ATT"),
+          createOffenderAttendance(eventDate = "2021-08-01", outcome = "UNACAB"),
+          createOffenderAttendance(eventDate = "2021-08-01", outcome = "ATT"),
+          createOffenderAttendance(eventDate = "2021-08-01", outcome = ""),
+          createOffenderAttendance(eventDate = "2021-05-01", outcome = null),
+        )
       )
     )
 
@@ -1599,5 +1623,110 @@ class AttendanceServiceTest {
       service.getAttendanceAbsenceSummaryForOffender(offenderNo, LocalDate.now().minusYears(1), LocalDate.now())
 
     assertThat(result).isEqualTo(AttendanceSummary(acceptableAbsence = 1, unacceptableAbsence = 1, total = 6))
+  }
+
+  @Test
+  fun `should get attendance data by calling prisonApi`() {
+    val offenderNo = "A1234AA"
+
+    whenever(
+      prisonApiService.getAttendanceForOffender(
+        offenderNo,
+        LocalDate.now().minusYears(1),
+        LocalDate.now(),
+        Optional.of("UNACAB"),
+        pageable
+      )
+    ).thenReturn(
+      PageImpl(
+        listOf(
+          OffenderAttendance(
+            "2021-03-11",
+            "ATT",
+            prisonId = "WWI",
+            activity = "a1",
+            description = "d1",
+            comment = "Test comment 1"
+          ),
+          OffenderAttendance(
+            "2021-03-14",
+            "UNACAB",
+            prisonId = "MDI",
+            activity = "a",
+            description = "d",
+            comment = "Test comment"
+          )
+        )
+      )
+    )
+
+    val result =
+      service.getAttendanceDetailsForOffender(
+        offenderNo,
+        LocalDate.now().minusYears(1),
+        LocalDate.now(),
+        pageable
+      )
+
+    assertThat(result.content).hasSize(2)
+    assertThat(result.content.get(1)).isEqualTo(testAttendanceHistoryDto)
+  }
+
+  // disabled for now: @Test
+  fun `should get attendance data by calling whereabouts-api with valid booking Ids`() {
+    val offenderNo = "A1234AA"
+
+    val attendance = Attendance.builder()
+      .id(1)
+      .absentReason(AbsentReason.NotRequired)
+      .attended(false)
+      .paid(false)
+      .eventId(2)
+      .eventLocationId(3)
+      .period(TimePeriod.AM)
+      .prisonId("LEI")
+      .bookingId(100)
+      .createUserId("user")
+      .caseNoteId(1)
+      .eventDate(testAttendanceHistoryDto.eventDate)
+      .period((TimePeriod.AM))
+      .comments(testAttendanceHistoryDto.comments)
+      .build()
+
+    whenever(
+      prisonApiService.getOffenderDetailsFromOffenderNos(
+        listOf(offenderNo)
+      )
+    ).thenReturn(
+      listOf(
+        OffenderBooking(
+          101L,
+          "1001",
+          offenderNo,
+          "Jon",
+          "Doe",
+          "AGC",
+          testAttendanceHistoryDto.eventDate, null, null
+        )
+      )
+    )
+
+    whenever(
+      attendanceRepository.findByBookingIdInAndEventDateBetween(any(), any(), any())
+    ).thenReturn(
+      listOf(attendance)
+    )
+
+    val result =
+      service.getAttendanceDetailsForOffender(
+        offenderNo,
+        LocalDate.now().minusYears(1),
+        LocalDate.now(),
+        pageable
+      )
+
+    assertThat(result.content).hasSize(1)
+    assertThat(result.content.get(0).eventDate).isEqualTo(attendance.eventDate)
+    assertThat(result.content.get(0).comments).isEqualTo(attendance.comments)
   }
 }

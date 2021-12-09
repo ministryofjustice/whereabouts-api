@@ -496,4 +496,31 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .jsonPath("$.acceptableAbsence").isEqualTo(0)
       .jsonPath("$.unacceptableAbsence").isEqualTo(0)
   }
+
+  @Test
+  fun `should return unacceptable absence details for offender`() {
+    val offenderNo = "A1234AX"
+    val START = LocalDate.of(2021, 3, 14)
+    val END = LocalDate.of(2021, 5, 24)
+
+    prisonApiMockServer.stubGetAttendanceForOffender(offenderNo, START, END, "UNACAB", "0", "20")
+
+    webTestClient
+      .get()
+      .uri({
+        it.path("/attendances/offender/$offenderNo/unacceptable-absences")
+          .queryParam("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .queryParam("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .build()
+      })
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk()
+      .expectBody()
+      .jsonPath("$.totalPages").isEqualTo(1)
+      .jsonPath("$.content[0].activity").isEqualTo("act 1")
+      .jsonPath("$.content[2].comments").isEqualTo("comment 3")
+      .jsonPath("$.content[3].comments").isEmpty()
+      .jsonPath("$.content[5].activity").isEqualTo("act 6")
+  }
 }

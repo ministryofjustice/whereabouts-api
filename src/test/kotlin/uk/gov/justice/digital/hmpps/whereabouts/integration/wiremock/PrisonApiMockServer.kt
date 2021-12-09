@@ -223,9 +223,13 @@ class PrisonApiMockServer : WireMockServer(8999) {
     offenderNo: String,
     fromDate: LocalDate = LocalDate.now().minusYears(1),
     toDate: LocalDate = LocalDate.now(),
+    outcome: String? = null,
+    page: String? = "0",
+    size: String? = "10000"
   ) {
+    val outcomeParam = if (outcome != null) "&outcome=$outcome" else ""
     val testUrl =
-      "/api/offender-activities/$offenderNo/attendance-history?fromDate=$fromDate&toDate=$toDate&page=0&size=10000"
+      "/api/offender-activities/$offenderNo/attendance-history?fromDate=$fromDate&toDate=$toDate$outcomeParam&page=$page&size=$size"
 
     stubFor(
       get(urlEqualTo(testUrl))
@@ -235,13 +239,13 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withBody(
               """{
 "content":[
-  {"eventDate":"2021-05-04","outcome":"ATT"},
-  {"eventDate":"2021-05-04","outcome":"ACCAB"},
-  {"eventDate":"2021-06-04","outcome":"UNACAB"},
-  {"eventDate":"2021-06-05","outcome":"ATT"},
-  {"eventDate":"2021-07-14","outcome":"UNACAB"},
-  {"eventDate":"2021-08-14","outcome":"ATT"}
-],
+  {"eventDate": "2021-05-04", "outcome": "ATT",    "prisonId":"MDI", "activity": "act 1", "description":"desc 1", "comment": "comment 1"},
+  {"eventDate": "2021-05-04", "outcome": "ACCAB",  "prisonId":"MDI", "activity": "act 2", "description":"desc 2", "comment": "comment 2"},
+  {"eventDate": "2021-06-04", "outcome": "UNACAB", "prisonId":"MDI", "activity": "act 3", "description":"desc 3", "comment": "comment 3"},
+  {"eventDate": "2021-06-05", "outcome": "ATT",    "prisonId":"WWI", "activity": "act 4", "description":"desc 4"},
+  {"eventDate": "2021-07-14", "outcome": "UNACAB", "prisonId":"WWI", "activity": "act 5", "description":"desc 5", "comment": "comment 5"},
+  {"eventDate": "2021-08-14", "outcome": "ATT",    "prisonId":"WWI", "activity": "act 6", "description":"desc 6", "comment": "comment 6"}
+], 
 "pageable":{"pageNumber":0,"pageSize":10000},
 "totalPages": 1
 }"""
@@ -255,9 +259,13 @@ class PrisonApiMockServer : WireMockServer(8999) {
     offenderNo: String,
     fromDate: LocalDate = LocalDate.now().minusYears(1),
     toDate: LocalDate = LocalDate.now(),
+    outcome: String? = null,
+    page: String? = "0",
+    size: String? = "10000"
   ) {
+    val outcomeParam = if (outcome != null) "&outcome=$outcome" else ""
     val testUrl =
-      "/api/offender-activities/$offenderNo/attendance-history?fromDate=$fromDate&toDate=$toDate&page=0&size=10000"
+      "/api/offender-activities/$offenderNo/attendance-history?fromDate=$fromDate&toDate=$toDate$outcomeParam&page=$page&size=$size"
 
     stubFor(
       get(urlEqualTo(testUrl))
@@ -560,10 +568,6 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withStatus(200)
         )
     )
-  }
-
-  fun stubGetPrisonAppointmentNotFound(appointmentId: Long) {
-    stubFor(get(urlPathEqualTo("/api/appointments/$appointmentId")).willReturn(aResponse().withStatus(404)))
   }
 
   fun stubGetLocation(locationId: Long, locationType: String = "VIDE") {
