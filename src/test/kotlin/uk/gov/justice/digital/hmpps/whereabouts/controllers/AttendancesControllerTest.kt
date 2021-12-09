@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceHistoryDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceSummary
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
@@ -23,7 +22,6 @@ class AttendancesControllerTest : TestController() {
   private val START = LocalDate.of(2021, 3, 14)
   private val END = LocalDate.of(2021, 5, 24)
   private val MOORLAND = "HMP Moorland"
-  private val BOOKING_ACTIVITIES = mutableSetOf(BookingActivity(1001, 1002))
   private val testAttendanceHistoryDto = PageImpl(
     listOf(
       AttendanceHistoryDto(
@@ -71,7 +69,7 @@ class AttendancesControllerTest : TestController() {
     whenever(attendanceService.getAttendanceDetailsForOffender(OFFENDER_NO, START, END, pageable))
       .thenReturn(testAttendanceHistoryDto)
 
-    val result = mockMvc
+    mockMvc
       .perform(
         MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absences")
           .param("offenderNo", OFFENDER_NO)
@@ -88,9 +86,6 @@ class AttendancesControllerTest : TestController() {
 
   @Test
   fun `getAttendances details - unauthorised`() {
-    whenever(attendanceService.getAttendanceDetailsForOffender(OFFENDER_NO, START, END, pageable))
-      .thenReturn(testAttendanceHistoryDto)
-
     mockMvc
       .perform(
         MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absences")
@@ -104,10 +99,6 @@ class AttendancesControllerTest : TestController() {
   @Test
   @WithMockUser(username = "ITAG_USER")
   fun `getAttendances details - missing parameter`() {
-
-    whenever(attendanceService.getAttendanceDetailsForOffender(OFFENDER_NO, START, END, pageable))
-      .thenReturn(testAttendanceHistoryDto)
-
     mockMvc
       .perform(
         MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absences")
@@ -124,7 +115,6 @@ class AttendancesControllerTest : TestController() {
   @Test
   @WithMockUser(username = "ITAG_USER")
   fun `getAttendances invalid call no fromDate`() {
-
     mockMvc
       .perform(
         MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absence-count")
