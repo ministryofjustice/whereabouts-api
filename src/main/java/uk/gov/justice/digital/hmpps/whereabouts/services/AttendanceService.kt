@@ -376,9 +376,9 @@ class AttendanceService(
         AttendanceHistoryDto(
           eventDate = LocalDate.parse(it.eventDate),
           activity = it.activity,
-          activityDescription = it.activityDescription,
-          location = it.location,
-          comments = it.comments,
+          activityDescription = it.description,
+          location = it.prisonId,
+          comments = it.comment,
         )
       }
 

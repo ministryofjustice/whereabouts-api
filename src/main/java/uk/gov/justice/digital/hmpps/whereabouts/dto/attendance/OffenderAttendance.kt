@@ -6,8 +6,8 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto.attendance
 data class OffenderAttendance(
   var eventDate: String,
   var outcome: String? = null,
-  val location: String,
+  val prisonId: String,
   val activity: String,
-  val activityDescription: String,
-  val comments: String? = null
+  val description: String,
+  val comment: String? = null
 )

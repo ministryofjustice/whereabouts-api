@@ -187,50 +187,50 @@ class PrisonApiServiceTest {
         OffenderAttendance(
           eventDate = "2021-05-04",
           outcome = "ATT",
-          location = "MDI",
+          prisonId = "MDI",
           activity = "act 1",
-          activityDescription = "desc 1",
-          comments = "comment 1"
+          description = "desc 1",
+          comment = "comment 1"
         ),
         OffenderAttendance(
           eventDate = "2021-05-04",
           outcome = "ACCAB",
-          location = "MDI",
+          prisonId = "MDI",
           activity = "act 2",
-          activityDescription = "desc 2",
-          comments = "comment 2"
+          description = "desc 2",
+          comment = "comment 2"
         ),
         OffenderAttendance(
           eventDate = "2021-06-04",
           outcome = "UNACAB",
-          location = "MDI",
+          prisonId = "MDI",
           activity = "act 3",
-          activityDescription = "desc 3",
-          comments = "comment 3"
+          description = "desc 3",
+          comment = "comment 3"
         ),
         OffenderAttendance(
           eventDate = "2021-06-05",
           outcome = "ATT",
-          location = "WWI",
+          prisonId = "WWI",
           activity = "act 4",
-          activityDescription = "desc 4",
-          comments = null
+          description = "desc 4",
+          comment = null
         ),
         OffenderAttendance(
           eventDate = "2021-07-14",
           outcome = "UNACAB",
-          location = "WWI",
+          prisonId = "WWI",
           activity = "act 5",
-          activityDescription = "desc 5",
-          comments = "comment 5"
+          description = "desc 5",
+          comment = "comment 5"
         ),
         OffenderAttendance(
           eventDate = "2021-08-14",
           outcome = "ATT",
-          location = "WWI",
+          prisonId = "WWI",
           activity = "act 6",
-          activityDescription = "desc 6",
-          comments = "comment 6"
+          description = "desc 6",
+          comment = "comment 6"
         ),
       )
   }

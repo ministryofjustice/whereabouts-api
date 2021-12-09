@@ -1590,7 +1590,7 @@ class AttendanceServiceTest {
   val pageable = Pageable.ofSize(10)
 
   private fun createOffenderAttendance(eventDate: String, outcome: String?): OffenderAttendance =
-    OffenderAttendance(eventDate, outcome, location = "MDI", activity = "a", activityDescription = "d")
+    OffenderAttendance(eventDate, outcome, prisonId = "MDI", activity = "a", description = "d")
 
   @Test
   fun `should get attendance summary data for offender`() {
@@ -1643,18 +1643,18 @@ class AttendanceServiceTest {
           OffenderAttendance(
             "2021-03-11",
             "ATT",
-            location = "WWI",
+            prisonId = "WWI",
             activity = "a1",
-            activityDescription = "d1",
-            comments = "Test comment 1"
+            description = "d1",
+            comment = "Test comment 1"
           ),
           OffenderAttendance(
             "2021-03-14",
             "UNACAB",
-            location = "MDI",
+            prisonId = "MDI",
             activity = "a",
-            activityDescription = "d",
-            comments = "Test comment"
+            description = "d",
+            comment = "Test comment"
           )
         )
       )

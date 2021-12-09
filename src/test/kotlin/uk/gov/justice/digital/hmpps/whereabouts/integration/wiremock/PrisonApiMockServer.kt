@@ -239,12 +239,12 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withBody(
               """{
 "content":[
-  {"eventDate": "2021-05-04", "outcome": "ATT",    "location":"MDI", "activity": "act 1", "activityDescription":"desc 1", "comments": "comment 1"},
-  {"eventDate": "2021-05-04", "outcome": "ACCAB",  "location":"MDI", "activity": "act 2", "activityDescription":"desc 2", "comments": "comment 2"},
-  {"eventDate": "2021-06-04", "outcome": "UNACAB", "location":"MDI", "activity": "act 3", "activityDescription":"desc 3", "comments": "comment 3"},
-  {"eventDate": "2021-06-05", "outcome": "ATT",    "location":"WWI", "activity": "act 4", "activityDescription":"desc 4"},
-  {"eventDate": "2021-07-14", "outcome": "UNACAB", "location":"WWI", "activity": "act 5", "activityDescription":"desc 5", "comments": "comment 5"},
-  {"eventDate": "2021-08-14", "outcome": "ATT",    "location":"WWI", "activity": "act 6", "activityDescription":"desc 6", "comments": "comment 6"}
+  {"eventDate": "2021-05-04", "outcome": "ATT",    "prisonId":"MDI", "activity": "act 1", "description":"desc 1", "comment": "comment 1"},
+  {"eventDate": "2021-05-04", "outcome": "ACCAB",  "prisonId":"MDI", "activity": "act 2", "description":"desc 2", "comment": "comment 2"},
+  {"eventDate": "2021-06-04", "outcome": "UNACAB", "prisonId":"MDI", "activity": "act 3", "description":"desc 3", "comment": "comment 3"},
+  {"eventDate": "2021-06-05", "outcome": "ATT",    "prisonId":"WWI", "activity": "act 4", "description":"desc 4"},
+  {"eventDate": "2021-07-14", "outcome": "UNACAB", "prisonId":"WWI", "activity": "act 5", "description":"desc 5", "comment": "comment 5"},
+  {"eventDate": "2021-08-14", "outcome": "ATT",    "prisonId":"WWI", "activity": "act 6", "description":"desc 6", "comment": "comment 6"}
 ], 
 "pageable":{"pageNumber":0,"pageSize":10000},
 "totalPages": 1
