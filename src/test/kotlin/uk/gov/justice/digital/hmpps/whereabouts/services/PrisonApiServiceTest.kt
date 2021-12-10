@@ -14,12 +14,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.data.domain.Pageable
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError
-import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.OffenderAttendance
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import java.time.LocalDate
-import java.util.Optional
 
 class PrisonApiServiceTest {
 
@@ -180,7 +179,7 @@ class PrisonApiServiceTest {
 
     prisonApiMockServer.stubGetAttendanceForOffender(offenderNo, fromDate, toDate)
 
-    val result = prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate, Optional.empty(), pageable)
+    val result = prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate, null, pageable)
 
     assertThat(result.content)
       .containsExactly(
@@ -204,7 +203,7 @@ class PrisonApiServiceTest {
           eventDate = "2021-06-04",
           outcome = "UNACAB",
           prisonId = "MDI",
-          activity = "act 3",
+          activity = null,
           description = "desc 3",
           comment = "comment 3"
         ),
@@ -226,7 +225,7 @@ class PrisonApiServiceTest {
         ),
         OffenderAttendance(
           eventDate = "2021-08-14",
-          outcome = "ATT",
+          outcome = null,
           prisonId = "WWI",
           activity = "act 6",
           description = "desc 6",

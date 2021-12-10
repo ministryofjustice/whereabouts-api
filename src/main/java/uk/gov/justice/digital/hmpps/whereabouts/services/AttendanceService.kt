@@ -15,8 +15,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceHistory
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceSummary
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.OffenderAttendance
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.AttendanceChange
@@ -27,7 +27,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.Optional
 import java.util.function.Predicate
 import java.util.stream.Collectors
 import javax.transaction.Transactional
@@ -55,18 +54,14 @@ class AttendanceService(
     val attendance = attendanceRepository
       .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(prisonId, eventLocationId, date, period)
 
-    return attendance
-      .map { toAttendanceDto(it) }
-      .toSet()
+    return attendance.map(this::toAttendanceDto).toSet()
   }
 
   fun getAbsencesForReason(prisonId: String?, date: LocalDate?, period: TimePeriod?): Set<AttendanceDto> {
     val attendance = attendanceRepository
       .findByPrisonIdAndEventDateAndPeriodAndAbsentReasonNotNull(prisonId, date, period)
 
-    return attendance
-      .map { toAttendanceDto(it) }
-      .toSet()
+    return attendance.map(this::toAttendanceDto).toSet()
   }
 
   fun getAttendanceForBookings(
@@ -78,7 +73,7 @@ class AttendanceService(
     val attendance = attendanceRepository
       .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookings, date, period)
 
-    return attendance.map { toAttendanceDto(it) }.toSet()
+    return attendance.map(this::toAttendanceDto).toSet()
   }
 
   fun getAttendanceForBookingsOverDateRange(
@@ -95,7 +90,7 @@ class AttendanceService(
     val attendances = attendanceRepository
       .findByPrisonIdAndBookingIdInAndEventDateBetweenAndPeriodIn(prisonId, bookings, fromDate, endDate, periods)
 
-    return attendances.map { toAttendanceDto(it) }.toSet()
+    return attendances.map(this::toAttendanceDto).toSet()
   }
 
   @Transactional
@@ -187,10 +182,7 @@ class AttendanceService(
 
     attendanceRepository.saveAll(attendances)
 
-    return attendances
-      .stream()
-      .map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }
-      .collect(Collectors.toSet())
+    return attendances.stream().map(this::toAttendanceDto).collect(Collectors.toSet())
   }
 
   private fun postNomisAttendance(attendance: Attendance) {
@@ -221,8 +213,7 @@ class AttendanceService(
     val bookingIds = prisonApiService.getBookingIdsForScheduleActivities(prisonId, date, period)
     val attendances =
       attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookingIds, date, period)
-    return attendances.stream().map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }
-      .collect(Collectors.toSet())
+    return attendances.stream().map(this::toAttendanceDto).collect(Collectors.toSet())
   }
 
   @Transactional
@@ -255,10 +246,7 @@ class AttendanceService(
 
     prisonApiService.putAttendanceForMultipleBookings(attendancesDto.bookingActivities, eventOutcome)
 
-    return attendances
-      .stream()
-      .map { attendanceData: Attendance -> toAttendanceDto(attendanceData) }
-      .collect(Collectors.toSet())
+    return attendances.stream().map(this::toAttendanceDto).collect(Collectors.toSet())
   }
 
   fun getAbsencesForReason(
@@ -360,7 +348,7 @@ class AttendanceService(
     toDate: LocalDate
   ): AttendanceSummary {
     val attendances =
-      prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate, Optional.empty(), Pageable.unpaged())
+      prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate, null, Pageable.unpaged())
     return countAttendances(attendances.content)
   }
 
@@ -371,7 +359,7 @@ class AttendanceService(
     pageable: Pageable
   ): Page<AttendanceHistoryDto> =
 
-    prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate, Optional.of("UNACAB"), pageable)
+    prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate, "UNACAB", pageable)
       .map {
         AttendanceHistoryDto(
           eventDate = LocalDate.parse(it.eventDate),
@@ -382,8 +370,8 @@ class AttendanceService(
         )
       }
 
-  private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails {
-    return details.copy(
+  private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails =
+    details.copy(
       details.bookingId,
       details.offenderNo,
       details.eventId,
@@ -395,10 +383,9 @@ class AttendanceService(
       details.comment,
       details.suspended
     )
-  }
 
-  private fun toAbsenceDto(details: OffenderDetails, attendance: Attendance): AbsenceDto {
-    return AbsenceDto(
+  private fun toAbsenceDto(details: OffenderDetails, attendance: Attendance): AbsenceDto =
+    AbsenceDto(
       attendance.id,
       attendance.bookingId,
       details.offenderNo,
@@ -414,7 +401,6 @@ class AttendanceService(
       details.lastName,
       details.suspended
     )
-  }
 
   private fun findAttendance(bookingId: Long, eventId: Long?, period: TimePeriod): Predicate<in OffenderDetails> {
     return Predicate { (bookingId1, _, eventId1, _, _, timeSlot) ->
@@ -422,8 +408,8 @@ class AttendanceService(
     }
   }
 
-  private fun toAttendance(attendanceDto: CreateAttendanceDto): Attendance {
-    return Attendance
+  private fun toAttendance(attendanceDto: CreateAttendanceDto): Attendance =
+    Attendance
       .builder()
       .eventLocationId(attendanceDto.eventLocationId)
       .eventDate(attendanceDto.eventDate)
@@ -436,10 +422,9 @@ class AttendanceService(
       .absentReason(attendanceDto.absentReason)
       .comments(attendanceDto.comments)
       .build()
-  }
 
-  private fun toAttendanceDto(attendanceData: Attendance): AttendanceDto {
-    return AttendanceDto.builder()
+  private fun toAttendanceDto(attendanceData: Attendance): AttendanceDto =
+    AttendanceDto.builder()
       .id(attendanceData.id)
       .eventDate(attendanceData.eventDate)
       .eventId(attendanceData.eventId)
@@ -458,5 +443,4 @@ class AttendanceService(
       .modifyDateTime(attendanceData.modifyDateTime)
       .modifyUserId(attendanceData.modifyUserId)
       .build()
-  }
 }

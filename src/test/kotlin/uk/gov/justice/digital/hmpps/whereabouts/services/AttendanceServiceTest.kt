@@ -29,8 +29,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceHistory
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceSummary
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.OffenderAttendance
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.AttendanceChange
@@ -1601,7 +1601,7 @@ class AttendanceServiceTest {
         offenderNo,
         LocalDate.now().minusYears(1),
         LocalDate.now(),
-        Optional.empty(),
+        null,
         Pageable.unpaged()
       )
     ).thenReturn(
@@ -1634,7 +1634,7 @@ class AttendanceServiceTest {
         offenderNo,
         LocalDate.now().minusYears(1),
         LocalDate.now(),
-        Optional.of("UNACAB"),
+        "UNACAB",
         pageable
       )
     ).thenReturn(

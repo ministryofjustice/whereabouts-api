@@ -467,7 +467,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk()
       .expectBody()
-      .jsonPath("$.total").isEqualTo(6)
+      .jsonPath("$.total").isEqualTo(5)
       .jsonPath("$.acceptableAbsence").isEqualTo(1)
       .jsonPath("$.unacceptableAbsence").isEqualTo(2)
   }

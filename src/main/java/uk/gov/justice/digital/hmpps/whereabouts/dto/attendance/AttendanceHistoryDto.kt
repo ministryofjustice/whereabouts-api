@@ -12,13 +12,13 @@ data class AttendanceHistoryDto(
   val eventDate: LocalDate,
 
   @ApiModelProperty(required = true, value = "Activity name", example = "Industries - Food Packing")
-  val activity: String,
+  val activity: String?,
 
   @ApiModelProperty(required = true, value = "Activity description", example = "Workshop 7")
-  val activityDescription: String,
+  val activityDescription: String?,
 
   @ApiModelProperty(required = true, value = "Prison.", example = "MDI")
-  val location: String,
+  val location: String?,
 
   @ApiModelProperty(
     value = "Any activity outcome captured (n.b. for outcomes captured via Whereabouts, this is also the Case note text)",
