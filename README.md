@@ -6,23 +6,11 @@ A Spring Boot app to manage the location (whereabouts) of prisoners for the Digi
 
 Swagger API documentation is available (here)[https://whereabouts-api-dev.service.justice.gov.uk/swagger-ui/index.html] 
 
-### To build:
-
-```bash
-./gradlew build
-```
-
 ### Code style & formatting
 ```bash
 ./gradlew ktlintApplyToIdea addKtlintFormatGitPreCommitHook
 ```
 will apply ktlint styles to intellij and also add a pre-commit hook to format all changed kotlin files.
-
-### To run:
-This service requires oauth, prison-api and the offender-case-notes to work. Bootstrap these services by running. 
-```bash
-docker-compose up
-```
 
 ### Health
 
@@ -46,24 +34,36 @@ Whereabouts api is best tested by the front end (https://digital-preprod.prison.
 1. Click [View prisoners unaccounted for](https://digital-preprod.prison.service.justice.gov.uk/manage-prisoner-whereabouts/prisoners-unaccounted-for) and check page loads with data
 1. Click [View attendance reason statistics](https://digital-preprod.prison.service.justice.gov.uk/manage-prisoner-whereabouts/attendance-reason-statistics) and check page loads with data (generated from yes / no above)
 
-### Running against localstack
+### Starting localstack
 
 Localstack has been introduced for some integration tests and it is also possible to run the application against localstack.
 
-* In the root of the localstack project, run command
+* In the root of the project, to clear down and then bring up localstack, run:
 ```
 rm -rf /tmp/localstack && docker-compose -f docker-compose-localstack.yaml down && TMPDIR=/private$TMPDIR docker-compose -f docker-compose-localstack.yaml up
 ```
-to clear down and then bring up localstack
-* Start the Spring Boot app with profiles of 'localstack,local,dev'
+
 * You can now use the aws CLI to send messages to the queue
-* The queue's health status should appear at the local healthcheck: http://localhost:8082/health
-* Note that you will also need local copies of Oauth server, Case notes API and Delius API running to do anything useful
+* When running the service, the queue's health status should appear as a local healthcheck: http://localhost:8082/health
 
 ### Running the tests
 
-With localstack now up and running (see previous section), run
+With localstack now up and running (see previous section), run:
 ```bash
 ./gradlew test
 ```
 
+### Running the service:
+
+As well as localstack, this service also requires oauth, prison-api and the offender-case-notes services running to work. 
+
+Bootstrap these services by running:
+```bash
+docker-compose up
+```
+
+To run the app, the following profiles need to be enabled: 'dev,localstack,local'
+therefore with gradle, run:
+```bash
+./gradlew bootRun --args='--spring.profiles.active=dev,localstack,local'
+```
