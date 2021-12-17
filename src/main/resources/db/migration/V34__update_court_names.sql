@@ -1,0 +1,22 @@
+update enabled_court set name = 'Bromley Magistrates' where id = 'BROMMC';
+update enabled_court set name = 'Cheltenham Magistrates' where id = 'CHELMC';
+update enabled_court set name = 'City of London Magistrates' where id = 'CITYMC';
+update enabled_court set name = 'Dudley Magistrates' where id = 'DUDLMC';
+update enabled_court set name = 'Inner London Crown' where id = 'INNRCC';
+update enabled_court set name = 'Kidderminster Magistrates' where id = 'KIDDMC';
+update enabled_court set name = 'Kingston upon Thames Crown' where id = 'KNGTCC';
+update enabled_court set name = 'Leamington Spa Magistrates' where id = 'LEAMMC';
+update enabled_court set name = 'Redditch Magistrates' where id = 'RDDTMC';
+update enabled_court set name = 'South Derbyshire Magistrates' where id = 'DRBYMC';
+update enabled_court set name = 'Southwark Crown' where id = 'STHWCC';
+update enabled_court set name = 'Telford Magistrates' where id = 'TELFMC';
+update enabled_court set name = 'Walsall Magistrates' where id = 'WLLSMC';
+update enabled_court set name = 'Warwick Crown' where id = 'WRWKCC';
+update enabled_court set name = 'Westminster Magistrates' where id = 'CRT034';
+update enabled_court set name = 'Wimbledon Magistrates' where id = 'WMBLMC';
+update enabled_court set name = 'Southwark Crown' where id = 'STHWCC';
+update enabled_court set name = 'Thames Magistrates' where id = 'THMSMC';
+update enabled_court set name = 'Wood Green Crown' where id = 'WDGRCC';
+update enabled_court set name = 'Woolwich Crown' where id = 'WOOLCC';
+update enabled_court set name = 'Llandudno Magistrates' where id = 'LLDUMC';
+
