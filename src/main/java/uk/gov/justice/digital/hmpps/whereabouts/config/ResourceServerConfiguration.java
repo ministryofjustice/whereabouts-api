@@ -42,6 +42,7 @@ public class ResourceServerConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(final HttpSecurity http) throws Exception {
         http
+                .headers().frameOptions().sameOrigin().and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
@@ -57,7 +58,6 @@ public class ResourceServerConfiguration extends WebSecurityConfigurerAdapter {
                                 .permitAll().anyRequest().authenticated()
                 )
                 .oauth2ResourceServer().jwt().jwtAuthenticationConverter(new AuthAwareTokenConverter());
-
     }
 
     @Bean
