@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import java.util.function.Consumer
 
 const val USERNAME = "username1"
 
@@ -269,59 +270,59 @@ class VideoLinkBookingRepositoryTest(
     TestTransaction.start()
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(1)
   }
-// TODO - work out what the overload should be
-//  @Test
-//  fun `Replacing appointments should delete old and persist new`() {
-//
-//    val id = repository.save(
-//      VideoLinkBooking(
-//        offenderBookingId = 1,
-//        courtName = "A Court",
-//        madeByTheCourt = true
-//      ).apply {
-//        addMainAppointment(appointmentId = 4)
-//        addPreAppointment(appointmentId = 12)
-//        addPostAppointment(appointmentId = 22)
-//      }
-//    ).id!!
-//
-//    TestTransaction.flagForCommit()
-//    TestTransaction.end()
-//    TestTransaction.start()
-//
-//    val booking = repository.getById(id)
-//
-//    /**
-//     * Have to flush() to force Hibernate to delete any old appointments before adding replacements.
-//     * This seems wrong to me. Now the clients have to remember to call flush(). (See updateVideoLinkBooking#updateVideoLinkBooking)
-//     */
-//    booking.appointments.clear()
-//    repository.flush()
-//
-//    booking.addMainAppointment(appointmentId = 100)
-//    booking.addPreAppointment(appointmentId = 101)
-//    booking.addPostAppointment(appointmentId = 102)
-//
-//    /**
-//     * Confirm that calling flush()  populates ids in the new VideoLinkAppointment objects.
-//     * CourtService#updateVideoLinkBooking depends on this behaviour to add those ids to an Application Insights custom
-//     * event.
-//     */
-//    assertThat(booking.appointments.values).allSatisfy { assertThat(it.id).isNull() }
-//
-//    repository.flush()
-//
-//    assertThat(booking.appointments.values).allSatisfy { assertThat(it.id).isNotNull() }
-//
-//    TestTransaction.flagForCommit()
-//    TestTransaction.end()
-//    TestTransaction.start()
-//
-//    assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(3)
-//
-//    val updatedBooking = repository.getById(id)
-//    assertThat(updatedBooking.appointments.values.map { it.appointmentId }).contains(100, 101, 102)
-//  }
+
+  @Test
+  fun `Replacing appointments should delete old and persist new`() {
+
+    val id = repository.save(
+      VideoLinkBooking(
+        offenderBookingId = 1,
+        courtName = "A Court",
+        madeByTheCourt = true
+      ).apply {
+        addMainAppointment(appointmentId = 4)
+        addPreAppointment(appointmentId = 12)
+        addPostAppointment(appointmentId = 22)
+      }
+    ).id!!
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+
+    val booking = repository.getById(id)
+
+    /**
+     * Have to flush() to force Hibernate to delete any old appointments before adding replacements.
+     * This seems wrong to me. Now the clients have to remember to call flush(). (See updateVideoLinkBooking#updateVideoLinkBooking)
+     */
+    booking.appointments.clear()
+    repository.flush()
+
+    booking.addMainAppointment(appointmentId = 100)
+    booking.addPreAppointment(appointmentId = 101)
+    booking.addPostAppointment(appointmentId = 102)
+
+    /**
+     * Confirm that calling flush()  populates ids in the new VideoLinkAppointment objects.
+     * CourtService#updateVideoLinkBooking depends on this behaviour to add those ids to an Application Insights custom
+     * event.
+     */
+    assertThat(booking.appointments.values).allSatisfy(Consumer { assertThat(it.id).isNull() })
+
+    repository.flush()
+
+    assertThat(booking.appointments.values).allSatisfy(Consumer { assertThat(it.id).isNotNull() })
+
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+    TestTransaction.start()
+
+    assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(3)
+
+    val updatedBooking = repository.getById(id)
+    assertThat(updatedBooking.appointments.values.map { it.appointmentId }).contains(100, 101, 102)
+  }
 
   fun videoLinkBookings(): List<VideoLinkBooking> =
     (1..10L).map {
