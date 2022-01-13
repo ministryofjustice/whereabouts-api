@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest

@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
-import com.nhaarman.mockitokotlin2.argThat
+import org.mockito.kotlin.argThat
 
 /**
  * An implementation of equals which compares the properties of two VideoLinkBookings, including the appointments map.

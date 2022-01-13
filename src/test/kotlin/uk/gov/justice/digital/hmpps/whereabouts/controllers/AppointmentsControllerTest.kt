@@ -1,9 +1,9 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.anyOrNull
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
