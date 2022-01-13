@@ -1,11 +1,11 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 
 class LocationGroupServiceSelectorTest {

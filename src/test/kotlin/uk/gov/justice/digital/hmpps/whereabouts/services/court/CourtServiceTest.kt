@@ -1,14 +1,14 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.isA
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
 import org.springframework.data.domain.Sort
 import uk.gov.justice.digital.hmpps.whereabouts.model.Court
 import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtRepository

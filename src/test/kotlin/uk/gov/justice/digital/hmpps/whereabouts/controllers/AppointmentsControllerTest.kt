@@ -1,12 +1,12 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
+import org.hamcrest.Matchers
+import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.hamcrest.Matchers
-import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.security.test.context.support.WithMockUser

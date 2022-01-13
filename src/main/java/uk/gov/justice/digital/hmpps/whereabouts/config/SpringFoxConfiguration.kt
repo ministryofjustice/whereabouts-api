@@ -55,7 +55,6 @@ class SpringFoxConfiguration {
     return docket
   }
 
-
   @Bean
   fun springfoxHandlerProviderBeanPostProcessor(): BeanPostProcessor? = object : BeanPostProcessor {
     @Throws(BeansException::class)

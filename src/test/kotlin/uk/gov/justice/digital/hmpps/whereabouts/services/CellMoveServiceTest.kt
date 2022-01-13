@@ -1,14 +1,14 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.microsoft.applicationinsights.TelemetryClient
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.CaseNoteDto

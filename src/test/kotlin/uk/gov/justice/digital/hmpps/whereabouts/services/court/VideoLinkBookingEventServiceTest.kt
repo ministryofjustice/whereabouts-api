@@ -1,12 +1,12 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventType
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingEventRepository

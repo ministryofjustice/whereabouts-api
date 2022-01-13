@@ -1,11 +1,11 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
 import com.microsoft.applicationinsights.TelemetryClient
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 
 class ApplicationInsightsEventListenerTest {

@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
-import org.mockito.kotlin.mock
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.mock
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 
 class LocationGroupFromElite2ServiceTest {

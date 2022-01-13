@@ -1,11 +1,11 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock
+import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anySet
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anySet
 import org.springframework.boot.test.mock.mockito.MockBean
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto

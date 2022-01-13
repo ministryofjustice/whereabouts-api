@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import org.mockito.kotlin.any
-import org.mockito.kotlin.whenever
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyLong
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
