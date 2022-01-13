@@ -39,7 +39,8 @@ class SpringFoxConfiguration {
     val apiInfo = ApiInfo(
       "Whereabouts API Documentation",
       "API for accessing the Whereabouts services.",
-      getVersion(), "", contactInfo(), "", "", emptyList())
+      getVersion(), "", contactInfo(), "", "", emptyList()
+    )
     val docket = Docket(DocumentationType.OAS_30)
       .useDefaultResponseMessages(false)
       .apiInfo(apiInfo)
