@@ -1,9 +1,9 @@
 package uk.gov.justice.digital.hmpps.whereabouts.repository
 
-import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import java.util.function.Consumer
 
 const val USERNAME = "username1"
 
@@ -307,11 +308,11 @@ class VideoLinkBookingRepositoryTest(
      * CourtService#updateVideoLinkBooking depends on this behaviour to add those ids to an Application Insights custom
      * event.
      */
-    assertThat(booking.appointments.values).allSatisfy { assertThat(it.id).isNull() }
+    assertThat(booking.appointments.values).allSatisfy(Consumer { assertThat(it.id).isNull() })
 
     repository.flush()
 
-    assertThat(booking.appointments.values).allSatisfy { assertThat(it.id).isNotNull() }
+    assertThat(booking.appointments.values).allSatisfy(Consumer { assertThat(it.id).isNotNull() })
 
     TestTransaction.flagForCommit()
     TestTransaction.end()

@@ -308,7 +308,7 @@ class CourtIntegrationTest(
 
       assertThat(bookings[0])
         .usingRecursiveComparison()
-        .ignoringFields("id", "appointments.id", "appointments.videoLinkBooking")
+        .ignoringFields("id", "appointments.MAIN.id", "appointments.MAIN.videoLinkBooking")
         .isEqualTo(
           VideoLinkBooking(
             offenderBookingId = bookingId,
