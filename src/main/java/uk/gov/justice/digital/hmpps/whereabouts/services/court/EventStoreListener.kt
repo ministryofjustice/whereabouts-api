@@ -80,7 +80,8 @@ class EventStoreListener(
         eventType = VideoLinkBookingEventType.DELETE,
         timestamp = LocalDateTime.now(clock),
         userId = authenticationFacade.currentUsername,
-        videoLinkBookingId = booking.id!!
+        videoLinkBookingId = booking.id!!,
+        court = booking.courtName
       )
     )
   }
