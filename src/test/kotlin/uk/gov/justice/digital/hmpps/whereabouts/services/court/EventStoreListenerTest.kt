@@ -101,7 +101,8 @@ class EventStoreListenerTest {
         eventType = VideoLinkBookingEventType.DELETE,
         timestamp = LocalDateTime.now(clock),
         userId = "A_USER",
-        videoLinkBookingId = booking.id!!
+        videoLinkBookingId = booking.id!!,
+        court = booking.courtName
       )
     )
   }
