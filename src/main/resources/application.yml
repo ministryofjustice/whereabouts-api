@@ -18,7 +18,7 @@ spring:
 
     hikari:
       pool-name: OffenderActivity-CP
-      connectionTimeout: 1000
+      connectionTimeout: 2000
       validationTimeout: 500
 
   jackson:
