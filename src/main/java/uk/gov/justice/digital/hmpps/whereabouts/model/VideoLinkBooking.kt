@@ -68,4 +68,15 @@ class VideoLinkBooking(
 
   override fun toString(): String =
     "VideoLinkBooking(id = $id, offenderBookingId = $offenderBookingId, courtName = $courtName, courtId = $courtId, madeByTheCourt = $madeByTheCourt)"
+
+  fun copy(): VideoLinkBooking = VideoLinkBooking(
+    id,
+    offenderBookingId,
+    courtName,
+    courtId,
+    madeByTheCourt
+  ).also {
+    it.appointments.putAll(appointments)
+    it.createdByUsername = createdByUsername
+  }
 }

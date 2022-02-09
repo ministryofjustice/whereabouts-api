@@ -81,7 +81,8 @@ class EventStoreListener(
         timestamp = LocalDateTime.now(clock),
         userId = authenticationFacade.currentUsername,
         videoLinkBookingId = booking.id!!,
-        court = booking.courtName
+        court = booking.courtName,
+        courtId = booking.courtId
       )
     )
   }
