@@ -10,7 +10,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 @Component
 class DelegatingVideoLinkBookingEventListener(
   val eventStoreListener: EventStoreListener,
-  val applicationInsightsEventListener: ApplicationInsightsEventListener
+  val applicationInsightsEventListener: ApplicationInsightsEventListener,
+  val courtService: CourtService
 ) : VideoLinkBookingEventListener {
   override fun bookingCreated(
     booking: VideoLinkBooking,
@@ -22,12 +23,21 @@ class DelegatingVideoLinkBookingEventListener(
   }
 
   override fun bookingUpdated(booking: VideoLinkBooking, specification: VideoLinkBookingUpdateSpecification) {
-    eventStoreListener.bookingUpdated(booking, specification)
-    applicationInsightsEventListener.bookingUpdated(booking, specification)
+    val copy = copyWithCourtName(booking)
+    eventStoreListener.bookingUpdated(copy, specification)
+    applicationInsightsEventListener.bookingUpdated(copy, specification)
   }
 
   override fun bookingDeleted(booking: VideoLinkBooking) {
-    eventStoreListener.bookingDeleted(booking)
-    applicationInsightsEventListener.bookingDeleted(booking)
+    val copy = copyWithCourtName(booking)
+    eventStoreListener.bookingDeleted(copy)
+    applicationInsightsEventListener.bookingDeleted(copy)
+  }
+
+  // ensure changes aren't persisted to existing booking
+  private fun copyWithCourtName(booking: VideoLinkBooking): VideoLinkBooking {
+    val bookingCopy = booking.copy()
+    bookingCopy.courtName = courtService.chooseCourtName(booking)
+    return bookingCopy
   }
 }

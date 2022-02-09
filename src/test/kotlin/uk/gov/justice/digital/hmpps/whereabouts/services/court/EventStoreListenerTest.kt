@@ -75,6 +75,7 @@ class EventStoreListenerTest {
         userId = "A_USER",
         videoLinkBookingId = booking.id!!,
         courtId = updateSpecification.courtId,
+        court = booking.courtName,
         comment = updateSpecification.comment,
         mainNomisAppointmentId = booking.appointments[MAIN]!!.appointmentId,
         mainLocationId = updateSpecification.main.locationId,
@@ -102,7 +103,8 @@ class EventStoreListenerTest {
         timestamp = LocalDateTime.now(clock),
         userId = "A_USER",
         videoLinkBookingId = booking.id!!,
-        court = booking.courtName
+        court = booking.courtName,
+        courtId = booking.courtId,
       )
     )
   }
