@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.3-beta"
-  kotlin("plugin.spring") version "1.5.31"
-  kotlin("plugin.jpa") version "1.5.31"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.3"
+  kotlin("plugin.spring") version "1.6.10"
+  kotlin("plugin.jpa") version "1.6.10"
 }
 
 configurations {
@@ -18,18 +18,15 @@ dependencies {
   compileOnly("org.projectlombok:lombok:1.18.22")
 
   runtimeOnly("com.h2database:h2:2.1.210")
-  runtimeOnly("org.flywaydb:flyway-core:8.4.1")
+  runtimeOnly("org.flywaydb:flyway-core:8.4.4")
   runtimeOnly("org.postgresql:postgresql:42.3.2")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-security")
-
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-
-  implementation("org.springframework:spring-webflux")
-  implementation("org.springframework.boot:spring-boot-starter-reactor-netty")
+  implementation("org.springframework.boot:spring-boot-starter-webflux")
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
@@ -58,9 +55,9 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
 
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.28.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.31.0")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("io.mockk:mockk:1.12.1")
+  testImplementation("io.mockk:mockk:1.12.2")
   testCompileOnly("org.projectlombok:lombok:1.18.22")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
 }
@@ -84,10 +81,14 @@ allOpen {
   )
 }
 
+java {
+  toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
 tasks {
-  compileKotlin {
+  withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
-      jvmTarget = "16"
+      jvmTarget = "17"
     }
   }
 }

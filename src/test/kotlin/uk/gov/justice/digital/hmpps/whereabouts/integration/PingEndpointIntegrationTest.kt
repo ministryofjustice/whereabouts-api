@@ -19,16 +19,6 @@ class PingEndpointIntegrationTest {
   lateinit var testRestTemplate: TestRestTemplate
 
   @Test
-  fun `ping endpoint responds with pong`() {
-    val response = testRestTemplate.getForEntity("/ping", String::class.java)
-
-    assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-
-    assertThat(response.body).isEqualTo("pong")
-    assertThat(response.headers.contentType).isEqualTo(MimeType.valueOf("text/plain;charset=UTF-8"))
-  }
-
-  @Test
   fun `health ping endpoint responds with ok`() {
     val response = testRestTemplate.getForEntity("/health/ping", String::class.java)
 
