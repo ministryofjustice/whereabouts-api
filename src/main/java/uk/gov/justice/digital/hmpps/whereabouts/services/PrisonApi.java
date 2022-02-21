@@ -23,8 +23,9 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.ScheduledEventDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto;
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes;
@@ -45,7 +46,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-public class PrisonApi {
+public abstract class PrisonApi {
     private static final Logger logger = LoggerFactory.getLogger(PrisonApi.class);
     private final WebClient webClient;
 
@@ -351,6 +352,19 @@ public class PrisonApi {
                 .bodyValue(appointmentIds)
                 .retrieve()
                 .toBodilessEntity()
+                .block();
+    }
+
+    public List<ScheduledEventDto> getEvents(final String offenderNo, final LocalDate fromDate, final LocalDate toDate) {
+        return webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/offenders/{offenderNo}/events")
+                        .queryParam("fromDate", "{fromDate}")
+                        .queryParam("toDate", "{toDate}")
+                        .build(offenderNo, fromDate, toDate))
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<ScheduledEventDto>>() {
+                })
                 .block();
     }
 }
