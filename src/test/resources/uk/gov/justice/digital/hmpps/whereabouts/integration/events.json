@@ -1,0 +1,37 @@
+[
+  {
+    "bookingId": 1095687,
+    "eventClass": "INT_MOV",
+    "eventStatus": "SCH",
+    "eventType": "VISIT",
+    "eventTypeDesc": "Visit",
+    "eventSubType": "VISIT",
+    "eventSubTypeDesc": "Visits",
+    "eventDate": "2016-05-11",
+    "startTime": "2016-05-11T09:15:00",
+    "endTime": "2016-05-11T11:15:00",
+    "eventLocation": "SOCIAL VISITS",
+    "eventSource": "VIS",
+    "eventSourceCode": "SCON",
+    "eventSourceDesc": "Social Contact"
+  },
+  {
+    "bookingId": 1095687,
+    "eventClass": "INT_MOV",
+    "eventStatus": "SCH",
+    "eventType": "PRISON_ACT",
+    "eventTypeDesc": "Prison Activities",
+    "eventSubType": "PA",
+    "eventSubTypeDesc": "Prison Activities",
+    "eventDate": "2022-07-06",
+    "startTime": "2022-07-06T13:45:00",
+    "endTime": "2022-07-06T16:45:00",
+    "eventLocation": "CHAPEL",
+    "eventLocationId": 178668,
+    "eventSource": "PA",
+    "eventSourceCode": "S1 ALPHA",
+    "eventSourceDesc": "Alpha Course",
+    "paid": false,
+    "locationCode": "CHAPEL"
+  }
+]
