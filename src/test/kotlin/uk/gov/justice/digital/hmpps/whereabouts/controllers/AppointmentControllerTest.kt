@@ -154,7 +154,7 @@ class AppointmentControllerTest : TestController() {
           .content(getCreateAppointmentSpecificationAsJson())
       )
         .andDo(print())
-        .andExpect(status().isUnauthorized)
+        .andExpect(status().isForbidden)
     }
 
     @Test
@@ -170,7 +170,7 @@ class AppointmentControllerTest : TestController() {
           .content(getCreateAppointmentSpecificationAsJson())
       )
         .andDo(print())
-        .andExpect(status().isForbidden)
+        .andExpect(status().isUnauthorized)
     }
 
     @Test

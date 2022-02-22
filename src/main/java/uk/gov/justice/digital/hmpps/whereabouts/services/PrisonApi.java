@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatePrisonAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatedAppointmentDetailsDto;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking;
@@ -363,6 +364,9 @@ public abstract class PrisonApi {
                         .queryParam("toDate", "{toDate}")
                         .build(offenderNo, fromDate, toDate))
                 .retrieve()
+                .onStatus(s -> s == NOT_FOUND, response ->
+                        response.bodyToMono(ErrorResponse.class).map(r -> new EntityNotFoundException(r.getDeveloperMessage()))
+                )
                 .bodyToMono(new ParameterizedTypeReference<List<ScheduledEventDto>>() {
                 })
                 .block();
