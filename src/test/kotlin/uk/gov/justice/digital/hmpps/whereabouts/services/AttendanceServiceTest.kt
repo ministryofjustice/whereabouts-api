@@ -376,6 +376,7 @@ class AttendanceServiceTest {
         anyOrNull(),
         any(),
         any(),
+        any(),
         any()
       )
     ).thenReturn(Optional.of(100L))
@@ -670,6 +671,7 @@ class AttendanceServiceTest {
       iepWarningService.postIEPWarningIfRequired(
         any(),
         anyOrNull(),
+        any(),
         any(),
         any(),
         any()
