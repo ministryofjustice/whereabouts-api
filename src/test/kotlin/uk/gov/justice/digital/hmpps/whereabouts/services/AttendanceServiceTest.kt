@@ -349,7 +349,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should call nomisEventOutcomeMapper with the correct parameters`() {
-    whenever(nomisEventOutcomeMapper.getEventOutcome(any(), any(), any(), any())).thenReturn(
+    whenever(nomisEventOutcomeMapper.getEventOutcome(any(), any(), any(), any(), any())).thenReturn(
       EventOutcome(
         "ACCAB",
         null,
@@ -365,7 +365,7 @@ class AttendanceServiceTest {
 
     service.createAttendance(attendance)
 
-    verify(nomisEventOutcomeMapper).getEventOutcome(AbsentReason.AcceptableAbsence, false, true, "hello")
+    verify(nomisEventOutcomeMapper).getEventOutcome(AbsentReason.AcceptableAbsence, AbsentSubReason.ExternalMoves, false, true, "hello")
   }
 
   @Test
@@ -834,7 +834,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should create an attendance record locally and via elite for multiple bookings for attend-all`() {
-    whenever(nomisEventOutcomeMapper.getEventOutcome(anyOrNull(), any(), any(), any())).thenReturn(
+    whenever(nomisEventOutcomeMapper.getEventOutcome(anyOrNull(), anyOrNull(), any(), any(), any())).thenReturn(
       EventOutcome(
         "ATT",
         "STANDARD",
@@ -1007,7 +1007,7 @@ class AttendanceServiceTest {
 
   @Test
   fun `should create an attendance records locally and push event out-comes up to elite for multiple bookings`() {
-    whenever(nomisEventOutcomeMapper.getEventOutcome(any(), any(), any(), any())).thenReturn(
+    whenever(nomisEventOutcomeMapper.getEventOutcome(any(), anyOrNull(), any(), any(), any())).thenReturn(
       EventOutcome(
         "ACCAB",
         null,

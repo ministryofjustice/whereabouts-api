@@ -164,7 +164,7 @@ class AttendanceService(
 
   @Transactional
   fun attendAll(attendAll: AttendAllDto): Set<AttendanceDto> {
-    val eventOutcome = nomisEventOutcomeMapper.getEventOutcome(null, true, true, "")
+    val eventOutcome = nomisEventOutcomeMapper.getEventOutcome(null, null, true, true, "")
 
     prisonApiService.putAttendanceForMultipleBookings(attendAll.bookingActivities, eventOutcome)
 
@@ -189,6 +189,7 @@ class AttendanceService(
   private fun postNomisAttendance(attendance: Attendance) {
     val eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
       attendance.absentReason,
+      attendance.absentSubReason,
       attendance.attended,
       attendance.paid,
       attendance.comments
@@ -240,6 +241,7 @@ class AttendanceService(
 
     val eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
       attendancesDto.reason,
+      null, // for creating multiple attendances can only specify reasons where sub reason not required
       attendancesDto.attended,
       attendancesDto.paid,
       attendancesDto.comments
