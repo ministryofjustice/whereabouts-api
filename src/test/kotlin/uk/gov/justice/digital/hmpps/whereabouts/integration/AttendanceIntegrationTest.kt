@@ -105,7 +105,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
           objectMapper.writeValueAsString(
             mapOf(
               "eventOutcome" to "UNACAB",
-              "outcomeComment" to "Test comment"
+              "outcomeComment" to "External moves. Test comment"
             )
           )
         )
@@ -116,7 +116,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       postRequestedFor(urlEqualTo("/case-notes/$offenderNo"))
         .withRequestBody(matchingJsonPath("$[?(@.type == 'NEG')]"))
         .withRequestBody(matchingJsonPath("$[?(@.subType == 'IEP_WARN')]"))
-        .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused - Incentive Level warning - $comments')]"))
+        .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused - Incentive Level warning - Test comment')]"))
         .withRequestBody(matchingJsonPath("$.occurrenceDateTime"))
     )
   }
