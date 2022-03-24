@@ -17,6 +17,7 @@ import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
@@ -50,6 +51,7 @@ class AttendanceRepositoryTest {
     .eventId(1)
     .eventLocationId(1)
     .absentReason(AbsentReason.Refused)
+    .absentSubReason(AbsentSubReason.ExternalMoves)
     .prisonId("LEI")
     .period(TimePeriod.AM)
     .build()
@@ -81,6 +83,7 @@ class AttendanceRepositoryTest {
     assertThat(savedAttendance.eventId).isEqualTo(1)
     assertThat(savedAttendance.eventLocationId).isEqualTo(1)
     assertThat(savedAttendance.absentReason).isEqualTo(AbsentReason.Refused)
+    assertThat(savedAttendance.absentSubReason).isEqualTo(AbsentSubReason.ExternalMoves)
     assertThat(savedAttendance.prisonId).isEqualToIgnoringCase("LEI")
     assertThat(savedAttendance.period).isEqualTo(TimePeriod.AM)
 
@@ -261,6 +264,7 @@ class AttendanceRepositoryTest {
         .attended(false)
         .paid(true)
         .absentReason(AbsentReason.Refused)
+        .absentSubReason(AbsentSubReason.Courses)
         .build(),
       Attendance.builder()
         .bookingId(1)
