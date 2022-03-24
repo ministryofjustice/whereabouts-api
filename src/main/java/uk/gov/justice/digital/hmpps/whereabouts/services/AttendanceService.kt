@@ -41,8 +41,8 @@ class AttendanceService(
   private val telemetryClient: TelemetryClient
 ) {
 
-  companion object {
-    val log: Logger = LoggerFactory.getLogger(this::class.java)
+  private companion object {
+    private val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
   fun getAttendanceForEventLocation(
@@ -114,11 +114,11 @@ class AttendanceService(
 
     postNomisAttendance(attendance)
     iepWarningService.postIEPWarningIfRequired(
-      attendance.bookingId,
-      attendance.caseNoteId,
-      attendance.absentReason,
-      attendance.comments,
-      attendance.eventDate
+      bookingId = attendance.bookingId,
+      caseNoteId = attendance.caseNoteId,
+      reason = attendance.absentReason,
+      text = attendance.comments,
+      eventDate = attendance.eventDate
     ).ifPresent { caseNoteId: Long? -> attendance.caseNoteId = caseNoteId }
     log.info("attendance created {}", attendance.toBuilder().comments(null))
     return toAttendanceDto(attendance)
@@ -164,7 +164,13 @@ class AttendanceService(
 
   @Transactional
   fun attendAll(attendAll: AttendAllDto): Set<AttendanceDto> {
-    val eventOutcome = nomisEventOutcomeMapper.getEventOutcome(null, null, true, true, "")
+    val eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
+      reason = null,
+      subReason = null,
+      attended = true,
+      paid = true,
+      comment = ""
+    )
 
     prisonApiService.putAttendanceForMultipleBookings(attendAll.bookingActivities, eventOutcome)
 
@@ -188,11 +194,11 @@ class AttendanceService(
 
   private fun postNomisAttendance(attendance: Attendance) {
     val eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
-      attendance.absentReason,
-      attendance.absentSubReason,
-      attendance.attended,
-      attendance.paid,
-      attendance.comments
+      reason = attendance.absentReason,
+      subReason = attendance.absentSubReason,
+      attended = attendance.attended,
+      paid = attendance.paid,
+      comment = attendance.comments
     )
 
     log.info("Updating attendance on NOMIS {} {}", attendance.toBuilder().comments(null).build(), eventOutcome)
@@ -240,11 +246,11 @@ class AttendanceService(
     attendanceRepository.saveAll(attendances)
 
     val eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
-      attendancesDto.reason,
-      null, // for creating multiple attendances can only specify reasons where sub reason not required
-      attendancesDto.attended,
-      attendancesDto.paid,
-      attendancesDto.comments
+      reason = attendancesDto.reason,
+      subReason = null, // for creating multiple attendances can only specify reasons where sub reason not required
+      attended = attendancesDto.attended,
+      paid = attendancesDto.paid,
+      comment = attendancesDto.comments
     )
 
     prisonApiService.putAttendanceForMultipleBookings(attendancesDto.bookingActivities, eventOutcome)
@@ -375,35 +381,35 @@ class AttendanceService(
 
   private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails =
     details.copy(
-      details.bookingId,
-      details.offenderNo,
-      details.eventId,
-      details.cellLocation,
-      details.eventDate,
-      period.toString(),
-      details.firstName,
-      details.lastName,
-      details.comment,
-      details.suspended
+      bookingId = details.bookingId,
+      offenderNo = details.offenderNo,
+      eventId = details.eventId,
+      cellLocation = details.cellLocation,
+      eventDate = details.eventDate,
+      timeSlot = period.toString(),
+      firstName = details.firstName,
+      lastName = details.lastName,
+      comment = details.comment,
+      suspended = details.suspended
     )
 
   private fun toAbsenceDto(details: OffenderDetails, attendance: Attendance): AbsenceDto =
     AbsenceDto(
-      attendance.id,
-      attendance.bookingId,
-      details.offenderNo,
-      attendance.eventId,
-      attendance.eventLocationId,
-      attendance.eventDate,
-      TimePeriod.valueOf(details.timeSlot!!),
-      attendance.absentReason,
-      attendance.absentSubReason,
-      details.comment,
-      attendance.comments,
-      details.cellLocation,
-      details.firstName,
-      details.lastName,
-      details.suspended
+      attendanceId = attendance.id,
+      bookingId = attendance.bookingId,
+      offenderNo = details.offenderNo,
+      eventId = attendance.eventId,
+      eventLocationId = attendance.eventLocationId,
+      eventDate = attendance.eventDate,
+      period = TimePeriod.valueOf(details.timeSlot!!),
+      reason = attendance.absentReason,
+      subReason = attendance.absentSubReason,
+      eventDescription = details.comment,
+      comments = attendance.comments,
+      cellLocation = details.cellLocation,
+      firstName = details.firstName,
+      lastName = details.lastName,
+      suspended = details.suspended
     )
 
   private fun findAttendance(bookingId: Long, eventId: Long?, period: TimePeriod): Predicate<in OffenderDetails> {
