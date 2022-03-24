@@ -148,6 +148,7 @@ class AttendanceService(
     attendance.attended = newAttendanceDetails.attended
     attendance.paid = newAttendanceDetails.paid
     attendance.absentReason = newAttendanceDetails.absentReason
+    attendance.absentSubReason = newAttendanceDetails.absentSubReason
 
     attendanceRepository.save(attendance)
     postNomisAttendance(attendance)
@@ -394,6 +395,7 @@ class AttendanceService(
       attendance.eventDate,
       TimePeriod.valueOf(details.timeSlot!!),
       attendance.absentReason,
+      attendance.absentSubReason,
       details.comment,
       attendance.comments,
       details.cellLocation,
@@ -420,6 +422,7 @@ class AttendanceService(
       .attended(attendanceDto.attended)
       .prisonId(attendanceDto.prisonId)
       .absentReason(attendanceDto.absentReason)
+      .absentSubReason(attendanceDto.absentSubReason)
       .comments(attendanceDto.comments)
       .build()
 
@@ -434,6 +437,7 @@ class AttendanceService(
       .attended(attendanceData.attended)
       .prisonId(attendanceData.prisonId)
       .absentReason(attendanceData.absentReason)
+      .absentSubReason(attendanceData.absentSubReason)
       .eventLocationId(attendanceData.eventLocationId)
       .comments(attendanceData.comments)
       .createUserId(attendanceData.createUserId)

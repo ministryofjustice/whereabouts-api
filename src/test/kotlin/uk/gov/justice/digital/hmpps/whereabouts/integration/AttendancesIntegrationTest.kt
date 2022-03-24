@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
@@ -36,6 +37,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .builder()
             .id(1)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .period(TimePeriod.PM)
             .prisonId("LEI")
             .eventLocationId(2)
@@ -63,6 +65,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .expectBody()
       .jsonPath(".attendances[0].id").isEqualTo(1)
       .jsonPath(".attendances[0].absentReason").isEqualTo("Refused")
+      .jsonPath(".attendances[0].absentSubReason").isEqualTo("ExternalMoves")
       .jsonPath(".attendances[0].period").isEqualTo("PM")
       .jsonPath(".attendances[0].prisonId").isEqualTo("LEI")
       .jsonPath(".attendances[0].eventLocationId").isEqualTo(2)
@@ -90,6 +93,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .paid(false)
             .attended(false)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .comments("Refused")
             .eventDate(LocalDate.of(2019, 10, 10))
             .eventId(1)
@@ -132,6 +136,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .builder()
             .id(1)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .period(TimePeriod.PM)
             .prisonId("LEI")
             .eventLocationId(2)
@@ -146,6 +151,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .builder()
             .id(2)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .period(TimePeriod.PM)
             .prisonId("LEI")
             .eventLocationId(2)
@@ -189,6 +195,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .builder()
             .id(1)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .period(TimePeriod.PM)
             .prisonId("LEI")
             .eventLocationId(2)
@@ -203,6 +210,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .builder()
             .id(2)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .period(TimePeriod.PM)
             .prisonId("LEI")
             .eventLocationId(2)
@@ -255,6 +263,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .builder()
             .id(1)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .period(TimePeriod.PM)
             .prisonId("LEI")
             .eventLocationId(2)
@@ -269,6 +278,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .builder()
             .id(2)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .period(TimePeriod.PM)
             .prisonId("LEI")
             .eventLocationId(2)
