@@ -117,6 +117,7 @@ class AttendanceService(
       bookingId = attendance.bookingId,
       caseNoteId = attendance.caseNoteId,
       reason = attendance.absentReason,
+      subReason = attendance.absentSubReason,
       text = attendance.comments,
       eventDate = attendance.eventDate
     ).ifPresent { caseNoteId: Long? -> attendance.caseNoteId = caseNoteId }

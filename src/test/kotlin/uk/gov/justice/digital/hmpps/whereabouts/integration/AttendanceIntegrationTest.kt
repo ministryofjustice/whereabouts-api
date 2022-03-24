@@ -116,7 +116,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       postRequestedFor(urlEqualTo("/case-notes/$offenderNo"))
         .withRequestBody(matchingJsonPath("$[?(@.type == 'NEG')]"))
         .withRequestBody(matchingJsonPath("$[?(@.subType == 'IEP_WARN')]"))
-        .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused - Incentive Level warning - Test comment')]"))
+        .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused - Incentive Level warning - External moves. Test comment')]"))
         .withRequestBody(matchingJsonPath("$.occurrenceDateTime"))
     )
   }

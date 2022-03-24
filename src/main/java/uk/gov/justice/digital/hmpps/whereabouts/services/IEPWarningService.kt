@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.utils.AbsentReasonFormatter
 import java.time.LocalDate
@@ -15,8 +16,8 @@ class IEPWarningService(
   private val caseNotesService: CaseNotesService,
   private val prisonApiService: PrisonApiService
 ) {
-  companion object {
-    val log: Logger = LoggerFactory.getLogger(this::class.java)
+  private companion object {
+    private val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
   fun handleIEPWarningScenarios(attendance: Attendance, newAttendanceDetails: UpdateAttendanceDto): Optional<Long> {
@@ -53,21 +54,23 @@ class IEPWarningService(
       attendance.bookingId,
       attendance.caseNoteId,
       newAttendanceDetails.absentReason,
+      newAttendanceDetails.absentSubReason,
       newAttendanceDetails.comments,
       attendance.eventDate
     )
   }
 
-  open fun postIEPWarningIfRequired(
+  fun postIEPWarningIfRequired(
     bookingId: Long?,
     caseNoteId: Long?,
     reason: AbsentReason?,
+    subReason: AbsentSubReason?,
     text: String?,
     eventDate: LocalDate
   ): Optional<Long> {
     if (caseNoteId == null && reason != null && AbsentReason.iepTriggers.contains(reason)) {
       val offenderNo = prisonApiService.getOffenderNoFromBookingId(bookingId)
-      val modifiedTextWithReason = formatReasonAndComment(reason, text)
+      val modifiedTextWithReason = formatReasonAndComment(reason, subReason, text)
       val caseNote = caseNotesService.postCaseNote(
         offenderNo,
         "NEG", // "Negative Behaviour"
@@ -82,14 +85,11 @@ class IEPWarningService(
     return Optional.empty()
   }
 
-  private fun formatReasonAndComment(reason: AbsentReason, comment: String?): String {
+  private fun formatReasonAndComment(reason: AbsentReason, subReason: AbsentSubReason?, comment: String?): String {
+    val caseNoteComment = subReason?.let { "${subReason.label}. $comment" } ?: comment
     return when (reason) {
-      AbsentReason.RefusedIncentiveLevelWarning -> {
-        "Refused - Incentive Level warning - $comment"
-      }
-      else -> {
-        AbsentReasonFormatter.titlecase(reason.toString()) + " - " + comment
-      }
+      AbsentReason.RefusedIncentiveLevelWarning -> "Refused - Incentive Level warning - $caseNoteComment"
+      else -> "${AbsentReasonFormatter.titlecase(reason.toString())} - $caseNoteComment"
     }
   }
 }

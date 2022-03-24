@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.any
 import org.mockito.Mockito.anyLong
@@ -13,6 +12,7 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.CaseNoteDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -21,15 +21,9 @@ class IEPWarningServiceTest {
 
   private val prisonApiService: PrisonApiService = mock()
   private val caseNotesService: CaseNotesService = mock()
+  private val service = IEPWarningService(caseNotesService, prisonApiService)
 
-  private val today: LocalDate = LocalDate.now()
-
-  private lateinit var service: IEPWarningService
-
-  @BeforeEach
-  fun before() {
-    service = IEPWarningService(caseNotesService, prisonApiService)
-  }
+  private val today = LocalDate.now()
 
   @Test
   fun `should create a negative case note using user supplied comment`() {
@@ -49,7 +43,7 @@ class IEPWarningServiceTest {
 
     whenever(prisonApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
-    service.postIEPWarningIfRequired(1, null, AbsentReason.RefusedIncentiveLevelWarning, "test comment", date)
+    service.postIEPWarningIfRequired(1, null, AbsentReason.RefusedIncentiveLevelWarning, null, "test comment", date)
 
     verify(caseNotesService)
       .postCaseNote(
@@ -57,6 +51,35 @@ class IEPWarningServiceTest {
         eq("NEG"),
         eq("IEP_WARN"),
         eq("Refused - Incentive Level warning - test comment"),
+        eq(date.atStartOfDay())
+      )
+  }
+  @Test
+  fun `should prefix the sub reason into the comment when creating an iep warning`() {
+
+    val date = LocalDate.of(2019, 10, 10)
+
+    whenever(
+      caseNotesService.postCaseNote(
+        anyString(),
+        anyString(),
+        anyString(),
+        anyString(),
+        any(LocalDateTime::class.java)
+      )
+    )
+      .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
+
+    whenever(prisonApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
+
+    service.postIEPWarningIfRequired(1, null, AbsentReason.RefusedIncentiveLevelWarning, AbsentSubReason.ExternalMoves, "test comment", date)
+
+    verify(caseNotesService)
+      .postCaseNote(
+        eq("AB1234C"),
+        eq("NEG"),
+        eq("IEP_WARN"),
+        eq("Refused - Incentive Level warning - External moves. test comment"),
         eq(date.atStartOfDay())
       )
   }
