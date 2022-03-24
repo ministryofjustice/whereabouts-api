@@ -32,6 +32,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceD
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.AttendanceChange
 import uk.gov.justice.digital.hmpps.whereabouts.model.AttendanceChangeValues
@@ -57,6 +58,7 @@ class AttendanceServiceTest {
       attended = false,
       paid = false,
       absentReason = AbsentReason.Refused,
+      absentSubReason = AbsentSubReason.ExternalMoves,
       eventId = 2,
       eventLocationId = 3,
       period = TimePeriod.AM,
@@ -77,7 +79,14 @@ class AttendanceServiceTest {
       activityDescription = "d",
     )
 
-  private lateinit var service: AttendanceService
+  private val service = AttendanceService(
+    attendanceRepository,
+    attendanceChangesRepository,
+    prisonApiService,
+    iepWarningService,
+    nomisEventOutcomeMapper,
+    telemetryClient
+  )
 
   init {
     SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
@@ -88,14 +97,6 @@ class AttendanceServiceTest {
     // return the attendance entity on save
     doAnswer { it.getArgument(0) as Attendance }.whenever(attendanceRepository)
       .save(ArgumentMatchers.any(Attendance::class.java))
-    service = AttendanceService(
-      attendanceRepository,
-      attendanceChangesRepository,
-      prisonApiService,
-      iepWarningService,
-      nomisEventOutcomeMapper,
-      telemetryClient
-    )
   }
 
   @Test
@@ -112,6 +113,7 @@ class AttendanceServiceTest {
           Attendance.builder()
             .id(1)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .attended(false)
             .paid(false)
             .eventId(2)
@@ -135,6 +137,7 @@ class AttendanceServiceTest {
           .builder()
           .id(1)
           .absentReason(AbsentReason.Refused)
+          .absentSubReason(AbsentSubReason.ExternalMoves)
           .attended(false)
           .paid(false)
           .eventId(2)
@@ -165,6 +168,7 @@ class AttendanceServiceTest {
           Attendance.builder()
             .id(1)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .attended(false)
             .paid(false)
             .eventId(2)
@@ -188,6 +192,7 @@ class AttendanceServiceTest {
           .builder()
           .id(1)
           .absentReason(AbsentReason.Refused)
+          .absentSubReason(AbsentSubReason.ExternalMoves)
           .attended(false)
           .paid(false)
           .eventId(2)
@@ -218,6 +223,7 @@ class AttendanceServiceTest {
           Attendance.builder()
             .id(1)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .attended(false)
             .paid(false)
             .eventId(2)
@@ -241,6 +247,7 @@ class AttendanceServiceTest {
           .builder()
           .id(1)
           .absentReason(AbsentReason.Refused)
+          .absentSubReason(AbsentSubReason.ExternalMoves)
           .attended(false)
           .paid(false)
           .eventId(2)
@@ -271,6 +278,7 @@ class AttendanceServiceTest {
           Attendance.builder()
             .id(1)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .attended(false)
             .paid(true)
             .eventId(2)
@@ -294,6 +302,7 @@ class AttendanceServiceTest {
           .builder()
           .id(1)
           .absentReason(AbsentReason.Refused)
+          .absentSubReason(AbsentSubReason.ExternalMoves)
           .attended(false)
           .paid(true)
           .eventId(2)
@@ -318,7 +327,8 @@ class AttendanceServiceTest {
       testAttendanceDto.copy(
         paid = true,
         attended = true,
-        absentReason = null
+        absentReason = null,
+        absentSubReason = null,
       )
     )
 
@@ -376,6 +386,7 @@ class AttendanceServiceTest {
           attended = false,
           paid = false,
           absentReason = AbsentReason.Refused,
+          absentSubReason = AbsentSubReason.ExternalMoves,
           eventId = 2,
           eventLocationId = 3,
           period = TimePeriod.AM,
@@ -392,6 +403,7 @@ class AttendanceServiceTest {
         .attended(false)
         .paid(false)
         .absentReason(AbsentReason.Refused)
+        .absentSubReason(AbsentSubReason.ExternalMoves)
         .eventId(2)
         .eventLocationId(3)
         .period(TimePeriod.AM)
@@ -445,6 +457,7 @@ class AttendanceServiceTest {
       service.createAttendance(
         CreateAttendanceDto(
           absentReason = AbsentReason.Refused,
+          absentSubReason = AbsentSubReason.ExternalMoves,
           attended = false,
           paid = false,
           bookingId = 1,
@@ -483,6 +496,7 @@ class AttendanceServiceTest {
       1,
       UpdateAttendanceDto(
         absentReason = AbsentReason.SessionCancelled,
+        absentSubReason = AbsentSubReason.ExternalMoves,
         attended = false,
         paid = false,
         comments = "Session cancelled due to riot"
@@ -497,6 +511,7 @@ class AttendanceServiceTest {
         .paid(false)
         .comments("Session cancelled due to riot")
         .absentReason(AbsentReason.SessionCancelled)
+        .absentSubReason(AbsentSubReason.ExternalMoves)
         .eventId(1)
         .eventLocationId(2)
         .eventDate(LocalDate.now())
@@ -520,6 +535,7 @@ class AttendanceServiceTest {
           .attended(false)
           .paid(false)
           .absentReason(AbsentReason.Refused)
+          .absentSubReason(AbsentSubReason.ExternalMoves)
           .comments("test comments")
           .caseNoteId(100)
           .eventId(1)
@@ -663,6 +679,7 @@ class AttendanceServiceTest {
     val created = service.createAttendance(
       CreateAttendanceDto(
         absentReason = AbsentReason.Refused,
+        absentSubReason = AbsentSubReason.ExternalMoves,
         attended = false,
         paid = false,
         bookingId = 1,
@@ -683,6 +700,7 @@ class AttendanceServiceTest {
         .comments(null)
         .caseNoteId(100L)
         .absentReason(AbsentReason.Refused)
+        .absentSubReason(AbsentSubReason.ExternalMoves)
         .eventId(1)
         .eventLocationId(2)
         .eventDate(LocalDate.now())
@@ -709,6 +727,7 @@ class AttendanceServiceTest {
       .caseNoteId(1)
       .comments("Refused")
       .absentReason(AbsentReason.Refused)
+      .absentSubReason(AbsentSubReason.ExternalMoves)
       .build()
 
     whenever(attendanceRepository.findById(1)).thenReturn(Optional.of(attendanceEntity.toBuilder().id(1).build()))
@@ -721,6 +740,7 @@ class AttendanceServiceTest {
         .id(1)
         .comments(null)
         .absentReason(null)
+        .absentSubReason(null)
         .attended(true)
         .paid(true)
         .build()
@@ -756,6 +776,7 @@ class AttendanceServiceTest {
           Attendance.builder()
             .id(1)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .attended(false)
             .paid(false)
             .eventId(2)
@@ -793,6 +814,7 @@ class AttendanceServiceTest {
           .builder()
           .id(1)
           .absentReason(AbsentReason.Refused)
+          .absentSubReason(AbsentSubReason.ExternalMoves)
           .attended(false)
           .paid(false)
           .eventId(2)
@@ -916,6 +938,7 @@ class AttendanceServiceTest {
           Attendance.builder()
             .id(1)
             .absentReason(AbsentReason.Refused)
+            .absentSubReason(AbsentSubReason.ExternalMoves)
             .attended(false)
             .paid(false)
             .eventId(2)
@@ -965,6 +988,7 @@ class AttendanceServiceTest {
           .builder()
           .id(1)
           .absentReason(AbsentReason.Refused)
+          .absentSubReason(AbsentSubReason.ExternalMoves)
           .attended(false)
           .paid(false)
           .eventId(2)
@@ -1251,6 +1275,7 @@ class AttendanceServiceTest {
           .prisonId(prison)
           .period(TimePeriod.AM)
           .absentReason(AbsentReason.Refused)
+          .absentSubReason(AbsentSubReason.ExternalMoves)
           .comments("comment1")
           .eventDate(eventDate)
           .build(),
@@ -1264,6 +1289,7 @@ class AttendanceServiceTest {
           .prisonId(prison)
           .period(TimePeriod.AM)
           .absentReason(AbsentReason.Refused)
+          .absentSubReason(AbsentSubReason.ExternalMoves)
           .comments("comment2")
           .eventDate(eventDate)
           .build(),
@@ -1277,6 +1303,7 @@ class AttendanceServiceTest {
           .prisonId(prison)
           .period(TimePeriod.PM)
           .absentReason(AbsentReason.Refused)
+          .absentSubReason(AbsentSubReason.ExternalMoves)
           .comments("comment3")
           .eventDate(eventDate)
           .build(),
@@ -1290,6 +1317,7 @@ class AttendanceServiceTest {
           .prisonId(prison)
           .period(TimePeriod.PM)
           .absentReason(AbsentReason.Refused)
+          .absentSubReason(AbsentSubReason.ExternalMoves)
           .comments("comment4")
           .eventDate(eventDate)
           .build()
@@ -1307,6 +1335,7 @@ class AttendanceServiceTest {
       "eventDate",
       "period",
       "reason",
+      "subReason",
       "eventDescription",
       "comments",
       "cellLocation",
@@ -1324,6 +1353,7 @@ class AttendanceServiceTest {
           eventDate,
           TimePeriod.AM,
           AbsentReason.Refused,
+          AbsentSubReason.ExternalMoves,
           "Gym",
           "comment1",
           "cell1",
@@ -1340,6 +1370,7 @@ class AttendanceServiceTest {
           eventDate,
           TimePeriod.AM,
           AbsentReason.Refused,
+          AbsentSubReason.ExternalMoves,
           "Workshop 1",
           "comment2",
           "cell2",
@@ -1357,6 +1388,7 @@ class AttendanceServiceTest {
           eventDate,
           TimePeriod.PM,
           AbsentReason.Refused,
+          AbsentSubReason.ExternalMoves,
           null,
           "comment3",
           null,
@@ -1373,6 +1405,7 @@ class AttendanceServiceTest {
           eventDate,
           TimePeriod.PM,
           AbsentReason.Refused,
+          AbsentSubReason.ExternalMoves,
           null,
           "comment4",
           "cell4",
@@ -1470,6 +1503,7 @@ class AttendanceServiceTest {
     val attendance = Attendance.builder()
       .id(1)
       .absentReason(AbsentReason.Refused)
+      .absentSubReason(AbsentSubReason.ExternalMoves)
       .attended(false)
       .paid(false)
       .eventId(2)

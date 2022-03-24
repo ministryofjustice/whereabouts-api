@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
@@ -47,7 +48,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       .headers(setHeaders())
       .exchange()
       .expectStatus()
-      .isCreated()
+      .isCreated
 
     prisonApiMockServer.verify(
       putRequestedFor(urlEqualTo(updateAttendanceUrl))
@@ -86,6 +87,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       attended = false,
       paid = false,
       absentReason = AbsentReason.RefusedIncentiveLevelWarning,
+      absentSubReason = AbsentSubReason.ExternalMoves,
       comments = comments
     )
 
@@ -95,7 +97,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       .headers(setHeaders())
       .exchange()
       .expectStatus()
-      .isCreated()
+      .isCreated
 
     prisonApiMockServer.verify(
       putRequestedFor(urlEqualTo(updateAttendanceUrl)).withRequestBody(
@@ -128,6 +130,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
     val persistedAttendance = attendanceRepository.save(
       Attendance.builder()
         .absentReason(AbsentReason.Refused)
+        .absentSubReason(AbsentSubReason.ExternalMoves)
         .bookingId(bookingId)
         .comments("Refused to turn up")
         .attended(false)
@@ -147,7 +150,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       .headers(setHeaders())
       .exchange()
       .expectStatus()
-      .isNoContent()
+      .isNoContent
   }
 
   @Test
@@ -167,6 +170,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .paid(false)
         .attended(false)
         .absentReason(AbsentReason.Refused)
+        .absentSubReason(AbsentSubReason.ExternalMoves)
         .comments("Refused")
         .caseNoteId(caseNoteId)
         .eventDate(LocalDate.now())
@@ -196,7 +200,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       .headers(setHeaders())
       .exchange()
       .expectStatus()
-      .isNoContent()
+      .isNoContent
 
     caseNotesMockServer.verify(
       putRequestedFor(urlEqualTo("/case-notes/$offenderNo/$caseNoteId"))
@@ -240,6 +244,6 @@ class AttendanceIntegrationTest : IntegrationTest() {
       .bodyValue(attendanceDto)
       .exchange()
       .expectStatus()
-      .isCreated()
+      .isCreated
   }
 }

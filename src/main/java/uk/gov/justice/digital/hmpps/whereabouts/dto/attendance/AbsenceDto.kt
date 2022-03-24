@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto.attendance
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.time.LocalDate
 
@@ -18,6 +19,7 @@ data class AbsenceDto(
 
   val period: TimePeriod? = null,
   val reason: AbsentReason? = null,
+  val subReason: AbsentSubReason? = null,
 
   val eventDescription: String? = null,
   val comments: String? = null,

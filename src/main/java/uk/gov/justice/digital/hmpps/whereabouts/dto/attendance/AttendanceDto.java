@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto.attendance;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason;
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
 import java.time.LocalDate;
@@ -18,6 +19,7 @@ public class AttendanceDto {
     private String prisonId;
     private Boolean attended;
     private AbsentReason absentReason;
+    private AbsentSubReason absentSubReason;
     private Boolean paid;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate eventDate;
@@ -30,7 +32,7 @@ public class AttendanceDto {
     private Boolean locked;
     private String cellLocation;
 
-    public AttendanceDto(Long id, Long bookingId, Long eventId, Long eventLocationId, TimePeriod period, String prisonId, Boolean attended, AbsentReason absentReason, Boolean paid, LocalDate eventDate, String comments, LocalDateTime createDateTime, String createUserId, LocalDateTime modifyDateTime, String modifyUserId, Long caseNoteId, Boolean locked, String cellLocation) {
+    public AttendanceDto(Long id, Long bookingId, Long eventId, Long eventLocationId, TimePeriod period, String prisonId, Boolean attended, AbsentReason absentReason, AbsentSubReason absentSubReason, Boolean paid, LocalDate eventDate, String comments, LocalDateTime createDateTime, String createUserId, LocalDateTime modifyDateTime, String modifyUserId, Long caseNoteId, Boolean locked, String cellLocation) {
         this.id = id;
         this.bookingId = bookingId;
         this.eventId = eventId;
@@ -39,6 +41,7 @@ public class AttendanceDto {
         this.prisonId = prisonId;
         this.attended = attended;
         this.absentReason = absentReason;
+        this.absentSubReason = absentSubReason;
         this.paid = paid;
         this.eventDate = eventDate;
         this.comments = comments;
@@ -88,6 +91,10 @@ public class AttendanceDto {
 
     public AbsentReason getAbsentReason() {
         return this.absentReason;
+    }
+
+    public AbsentSubReason getAbsentSubReason() {
+        return this.absentSubReason;
     }
 
     public Boolean getPaid() {
@@ -162,6 +169,10 @@ public class AttendanceDto {
         this.absentReason = absentReason;
     }
 
+    public void setAbsentSubReason(AbsentSubReason absentSubReason) {
+        this.absentSubReason = absentSubReason;
+    }
+
     public void setPaid(Boolean paid) {
         this.paid = paid;
     }
@@ -233,6 +244,10 @@ public class AttendanceDto {
         final Object other$absentReason = other.getAbsentReason();
         if (this$absentReason == null ? other$absentReason != null : !this$absentReason.equals(other$absentReason))
             return false;
+        final Object this$absentSubReason = this.getAbsentSubReason();
+        final Object other$absentSubReason = other.getAbsentSubReason();
+        if (this$absentSubReason == null ? other$absentSubReason != null : !this$absentSubReason.equals(other$absentSubReason))
+            return false;
         final Object this$paid = this.getPaid();
         final Object other$paid = other.getPaid();
         if (this$paid == null ? other$paid != null : !this$paid.equals(other$paid)) return false;
@@ -295,6 +310,8 @@ public class AttendanceDto {
         result = result * PRIME + ($attended == null ? 43 : $attended.hashCode());
         final Object $absentReason = this.getAbsentReason();
         result = result * PRIME + ($absentReason == null ? 43 : $absentReason.hashCode());
+        final Object $absentSubReason = this.getAbsentSubReason();
+        result = result * PRIME + ($absentSubReason == null ? 43 : $absentSubReason.hashCode());
         final Object $paid = this.getPaid();
         result = result * PRIME + ($paid == null ? 43 : $paid.hashCode());
         final Object $eventDate = this.getEventDate();
@@ -319,11 +336,11 @@ public class AttendanceDto {
     }
 
     public String toString() {
-        return "AttendanceDto(id=" + this.getId() + ", bookingId=" + this.getBookingId() + ", eventId=" + this.getEventId() + ", eventLocationId=" + this.getEventLocationId() + ", period=" + this.getPeriod() + ", prisonId=" + this.getPrisonId() + ", attended=" + this.getAttended() + ", absentReason=" + this.getAbsentReason() + ", paid=" + this.getPaid() + ", eventDate=" + this.getEventDate() + ", comments=" + this.getComments() + ", createDateTime=" + this.getCreateDateTime() + ", createUserId=" + this.getCreateUserId() + ", modifyDateTime=" + this.getModifyDateTime() + ", modifyUserId=" + this.getModifyUserId() + ", caseNoteId=" + this.getCaseNoteId() + ", locked=" + this.getLocked() + ", cellLocation=" + this.getCellLocation() + ")";
+        return "AttendanceDto(id=" + this.getId() + ", bookingId=" + this.getBookingId() + ", eventId=" + this.getEventId() + ", eventLocationId=" + this.getEventLocationId() + ", period=" + this.getPeriod() + ", prisonId=" + this.getPrisonId() + ", attended=" + this.getAttended() + ", absentReason=" + this.getAbsentReason() +", absentSubReason=" + this.getAbsentSubReason() + ", paid=" + this.getPaid() + ", eventDate=" + this.getEventDate() + ", comments=" + this.getComments() + ", createDateTime=" + this.getCreateDateTime() + ", createUserId=" + this.getCreateUserId() + ", modifyDateTime=" + this.getModifyDateTime() + ", modifyUserId=" + this.getModifyUserId() + ", caseNoteId=" + this.getCaseNoteId() + ", locked=" + this.getLocked() + ", cellLocation=" + this.getCellLocation() + ")";
     }
 
     public AttendanceDtoBuilder toBuilder() {
-        return new AttendanceDtoBuilder().id(this.id).bookingId(this.bookingId).eventId(this.eventId).eventLocationId(this.eventLocationId).period(this.period).prisonId(this.prisonId).attended(this.attended).absentReason(this.absentReason).paid(this.paid).eventDate(this.eventDate).comments(this.comments).createDateTime(this.createDateTime).createUserId(this.createUserId).modifyDateTime(this.modifyDateTime).modifyUserId(this.modifyUserId).caseNoteId(this.caseNoteId).locked(this.locked).cellLocation(this.cellLocation);
+        return new AttendanceDtoBuilder().id(this.id).bookingId(this.bookingId).eventId(this.eventId).eventLocationId(this.eventLocationId).period(this.period).prisonId(this.prisonId).attended(this.attended).absentReason(this.absentReason).absentSubReason(this.absentSubReason).paid(this.paid).eventDate(this.eventDate).comments(this.comments).createDateTime(this.createDateTime).createUserId(this.createUserId).modifyDateTime(this.modifyDateTime).modifyUserId(this.modifyUserId).caseNoteId(this.caseNoteId).locked(this.locked).cellLocation(this.cellLocation);
     }
 
     public static class AttendanceDtoBuilder {
@@ -335,6 +352,7 @@ public class AttendanceDto {
         private String prisonId;
         private Boolean attended;
         private AbsentReason absentReason;
+        private AbsentSubReason absentSubReason;
         private Boolean paid;
         private LocalDate eventDate;
         private String comments;
@@ -389,6 +407,11 @@ public class AttendanceDto {
             return this;
         }
 
+        public AttendanceDto.AttendanceDtoBuilder absentSubReason(AbsentSubReason absentSubReason) {
+            this.absentSubReason = absentSubReason;
+            return this;
+        }
+
         public AttendanceDto.AttendanceDtoBuilder paid(Boolean paid) {
             this.paid = paid;
             return this;
@@ -440,11 +463,11 @@ public class AttendanceDto {
         }
 
         public AttendanceDto build() {
-            return new AttendanceDto(id, bookingId, eventId, eventLocationId, period, prisonId, attended, absentReason, paid, eventDate, comments, createDateTime, createUserId, modifyDateTime, modifyUserId, caseNoteId, locked, cellLocation);
+            return new AttendanceDto(id, bookingId, eventId, eventLocationId, period, prisonId, attended, absentReason, absentSubReason, paid, eventDate, comments, createDateTime, createUserId, modifyDateTime, modifyUserId, caseNoteId, locked, cellLocation);
         }
 
         public String toString() {
-            return "AttendanceDto.AttendanceDtoBuilder(id=" + this.id + ", bookingId=" + this.bookingId + ", eventId=" + this.eventId + ", eventLocationId=" + this.eventLocationId + ", period=" + this.period + ", prisonId=" + this.prisonId + ", attended=" + this.attended + ", absentReason=" + this.absentReason + ", paid=" + this.paid + ", eventDate=" + this.eventDate + ", comments=" + this.comments + ", createDateTime=" + this.createDateTime + ", createUserId=" + this.createUserId + ", modifyDateTime=" + this.modifyDateTime + ", modifyUserId=" + this.modifyUserId + ", caseNoteId=" + this.caseNoteId + ", locked=" + this.locked + ", cellLocation=" + this.cellLocation + ")";
+            return "AttendanceDto.AttendanceDtoBuilder(id=" + this.id + ", bookingId=" + this.bookingId + ", eventId=" + this.eventId + ", eventLocationId=" + this.eventLocationId + ", period=" + this.period + ", prisonId=" + this.prisonId + ", attended=" + this.attended + ", absentReason=" + this.absentReason + ", absentSubReason=" + this.absentSubReason + ", paid=" + this.paid + ", eventDate=" + this.eventDate + ", comments=" + this.comments + ", createDateTime=" + this.createDateTime + ", createUserId=" + this.createUserId + ", modifyDateTime=" + this.modifyDateTime + ", modifyUserId=" + this.modifyUserId + ", caseNoteId=" + this.caseNoteId + ", locked=" + this.locked + ", cellLocation=" + this.cellLocation + ")";
         }
     }
 }

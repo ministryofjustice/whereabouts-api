@@ -353,11 +353,11 @@ public class Attendance {
     }
 
     public String toString() {
-        return "Attendance(id=" + this.getId() + ", bookingId=" + this.getBookingId() + ", eventId=" + this.getEventId() + ", eventLocationId=" + this.getEventLocationId() + ", eventDate=" + this.getEventDate() + ", period=" + this.getPeriod() + ", prisonId=" + this.getPrisonId() + ", paid=" + this.getPaid() + ", attended=" + this.getAttended() + ", absentReason=" + this.getAbsentReason() + ", comments=" + this.getComments() + ", caseNoteId=" + this.getCaseNoteId() + ", createDateTime=" + this.getCreateDateTime() + ", createUserId=" + this.getCreateUserId() + ", modifyDateTime=" + this.getModifyDateTime() + ", modifyUserId=" + this.getModifyUserId() + ")";
+        return "Attendance(id=" + this.getId() + ", bookingId=" + this.getBookingId() + ", eventId=" + this.getEventId() + ", eventLocationId=" + this.getEventLocationId() + ", eventDate=" + this.getEventDate() + ", period=" + this.getPeriod() + ", prisonId=" + this.getPrisonId() + ", paid=" + this.getPaid() + ", attended=" + this.getAttended() + ", absentReason=" + this.getAbsentReason() +", absentSubReason=" + this.getAbsentSubReason() + ", comments=" + this.getComments() + ", caseNoteId=" + this.getCaseNoteId() + ", createDateTime=" + this.getCreateDateTime() + ", createUserId=" + this.getCreateUserId() + ", modifyDateTime=" + this.getModifyDateTime() + ", modifyUserId=" + this.getModifyUserId() + ")";
     }
 
     public AttendanceBuilder toBuilder() {
-        return new AttendanceBuilder().id(this.id).bookingId(this.bookingId).eventId(this.eventId).eventLocationId(this.eventLocationId).eventDate(this.eventDate).period(this.period).prisonId(this.prisonId).paid(this.paid).attended(this.attended).absentReason(this.absentReason).comments(this.comments).caseNoteId(this.caseNoteId).createDateTime(this.createDateTime).createUserId(this.createUserId).modifyDateTime(this.modifyDateTime).modifyUserId(this.modifyUserId);
+        return new AttendanceBuilder().id(this.id).bookingId(this.bookingId).eventId(this.eventId).eventLocationId(this.eventLocationId).eventDate(this.eventDate).period(this.period).prisonId(this.prisonId).paid(this.paid).attended(this.attended).absentReason(this.absentReason).absentSubReason(this.absentSubReason).comments(this.comments).caseNoteId(this.caseNoteId).createDateTime(this.createDateTime).createUserId(this.createUserId).modifyDateTime(this.modifyDateTime).modifyUserId(this.modifyUserId);
     }
 
     public static class AttendanceBuilder {

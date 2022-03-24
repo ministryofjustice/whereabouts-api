@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.time.LocalDate
 import javax.validation.constraints.NotNull
@@ -41,6 +42,9 @@ data class CreateAttendanceDto(
 
   @ApiModelProperty(value = "Reason the offender did not attendance the event", example = "Refused")
   val absentReason: AbsentReason? = null,
+
+  @ApiModelProperty(value = "Absence reason the offender did not attendance the event", example = "Courses")
+  val absentSubReason: AbsentSubReason? = null,
 
   @JsonFormat(pattern = "yyyy-MM-dd")
   @ApiModelProperty(required = true, value = "Date the event is scheduled", example = "2019-10-01")
