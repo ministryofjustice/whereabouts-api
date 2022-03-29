@@ -11,6 +11,12 @@ enum class AbsentReason(val label: String) {
   Refused("Refused to attend"),
   RefusedIncentiveLevelWarning("Refused to attend");
 
+  val labelWithWarning: String
+    get() = if (iepTriggers.contains(this)) "$label - incentive level warning added" else label
+
+  val labelWithShortWarning: String
+    get() = if (iepTriggers.contains(this)) "$label with warning" else label
+
   companion object {
     val paidReasons = setOf(ApprovedCourse, AcceptableAbsence, NotRequired)
 
