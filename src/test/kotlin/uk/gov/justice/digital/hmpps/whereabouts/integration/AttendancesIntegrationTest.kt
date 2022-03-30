@@ -244,7 +244,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .jsonPath(".attendances[1].id").isEqualTo(2)
       .jsonPath(".attendances[1].bookingId").isEqualTo(2)
       .jsonPath(".attendances[0].absentReasonDescription").isEqualTo("Refused to attend")
-      .jsonPath(".attendances[1].absentReasonDescription").isEqualTo("Unacceptable absence - incentive level warning added")
+      .jsonPath(".attendances[1].absentReasonDescription").isEqualTo("Unacceptable absence - incentive level warning")
       .jsonPath(".attendances[0].absentSubReasonDescription").isEqualTo("External moves")
       .jsonPath(".attendances[1].absentSubReasonDescription").isEmpty
   }

@@ -12,7 +12,7 @@ enum class AbsentReason(val label: String) {
   RefusedIncentiveLevelWarning("Refused to attend");
 
   val labelWithWarning: String
-    get() = if (iepTriggers.contains(this)) "$label - incentive level warning added" else label
+    get() = if (iepTriggers.contains(this)) "$label - incentive level warning" else label
 
   val labelWithShortWarning: String
     get() = if (iepTriggers.contains(this)) "$label with warning" else label
