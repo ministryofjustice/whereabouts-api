@@ -51,12 +51,9 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     @RequestBody
     @Valid
     attendances: AttendancesDto
-  ): AttendancesResponse {
-
-    return AttendancesResponse(
-      attendances = attendanceService.createAttendances(attendances)
-    )
-  }
+  ): AttendancesResponse = AttendancesResponse(
+    attendances = attendanceService.createAttendances(attendances)
+  )
 
   @GetMapping("/{prison}/{event-location}")
   @ApiOperation(
@@ -72,12 +69,9 @@ class AttendancesController(private val attendanceService: AttendanceService) {
       required = true
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
     @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
-  ): AttendancesResponse {
-
-    return AttendancesResponse(
-      attendances = attendanceService.getAttendanceForEventLocation(prisonId, eventLocationId, date, period)
-    )
-  }
+  ): AttendancesResponse = AttendancesResponse(
+    attendances = attendanceService.getAttendanceForEventLocation(prisonId, eventLocationId, date, period)
+  )
 
   @GetMapping("/{prison}/absences")
   @ApiOperation(
@@ -92,12 +86,9 @@ class AttendancesController(private val attendanceService: AttendanceService) {
       required = true
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
     @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
-  ): AttendancesResponse {
-
-    return AttendancesResponse(
-      attendances = attendanceService.getAbsencesForReason(prisonId, date, period)
-    )
-  }
+  ): AttendancesResponse = AttendancesResponse(
+    attendances = attendanceService.getAbsencesForReason(prisonId, date, period)
+  )
 
   @GetMapping("/{prison}")
   @ApiOperation(
@@ -116,12 +107,9 @@ class AttendancesController(private val attendanceService: AttendanceService) {
       value = "Booking ids (bookings=1&bookings=2)",
       required = true
     ) @RequestParam(name = "bookings") bookings: Set<Long>
-  ): AttendancesResponse {
-
-    return AttendancesResponse(
-      attendances = attendanceService.getAttendanceForBookings(prisonId, bookings, date, period)
-    )
-  }
+  ): AttendancesResponse = AttendancesResponse(
+    attendances = attendanceService.getAttendanceForBookings(prisonId, bookings, date, period)
+  )
 
   @GetMapping("/offender/{offenderNo}/unacceptable-absences")
   @ApiOperation(
@@ -153,12 +141,9 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
     @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod,
     @ApiParam(value = "Set of booking ids, for example [1,2]", required = true) @RequestBody bookings: Set<Long>
-  ): AttendancesResponse {
-
-    return AttendancesResponse(
-      attendances = attendanceService.getAttendanceForBookings(prisonId, bookings, date, period)
-    )
-  }
+  ): AttendancesResponse = AttendancesResponse(
+    attendances = attendanceService.getAttendanceForBookings(prisonId, bookings, date, period)
+  )
 
   @PostMapping("/{prison}/attendance-over-date-range")
   @ApiOperation(
@@ -177,18 +162,15 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     ) toDate: LocalDate?,
     @ApiParam(value = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
     @ApiParam(value = "Set of booking ids, for example [1,2]", required = true) @RequestBody bookings: Set<Long>
-  ): AttendancesResponse {
-
-    return AttendancesResponse(
-      attendances = attendanceService.getAttendanceForBookingsOverDateRange(
-        prisonId,
-        bookings,
-        fromDate,
-        toDate,
-        period
-      )
+  ): AttendancesResponse = AttendancesResponse(
+    attendances = attendanceService.getAttendanceForBookingsOverDateRange(
+      prisonId,
+      bookings,
+      fromDate,
+      toDate,
+      period
     )
-  }
+  )
 
   @GetMapping("/{prison}/attendance-for-scheduled-activities")
   @ApiOperation(
@@ -203,12 +185,9 @@ class AttendancesController(private val attendanceService: AttendanceService) {
       required = true
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
     @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
-  ): AttendancesResponse {
-
-    return AttendancesResponse(
-      attendances = attendanceService.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
-    )
-  }
+  ): AttendancesResponse = AttendancesResponse(
+    attendances = attendanceService.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
+  )
 
   @GetMapping("/{prison}/absences-for-scheduled-activities/{absentReason}")
   @ApiOperation(
@@ -241,11 +220,9 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     @ApiParam(value = "Date and Time of the change in format YYYY-MM-DDT:09:45") @RequestParam(name = "toDateTime") @DateTimeFormat(
       iso = DATE_TIME
     ) toDateTime: LocalDateTime?
-  ): AttendanceChangesResponse {
-    return AttendanceChangesResponse(
-      changes = attendanceService.getAttendanceChanges(fromDateTime, toDateTime)
-    )
-  }
+  ): AttendanceChangesResponse = AttendanceChangesResponse(
+    changes = attendanceService.getAttendanceChanges(fromDateTime, toDateTime)
+  )
 
   @GetMapping("/offender/{offenderNo}/unacceptable-absence-count")
   @ApiOperation(value = "Return counts of unacceptable absences and totals over time for an offender")

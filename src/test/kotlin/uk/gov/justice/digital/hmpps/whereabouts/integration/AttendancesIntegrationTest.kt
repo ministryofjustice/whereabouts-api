@@ -61,11 +61,13 @@ class AttendancesIntegrationTest : IntegrationTest() {
       }
       .headers(setHeaders())
       .exchange()
-      .expectStatus().isOk()
+      .expectStatus().isOk
       .expectBody()
       .jsonPath(".attendances[0].id").isEqualTo(1)
       .jsonPath(".attendances[0].absentReason").isEqualTo("Refused")
+      .jsonPath(".attendances[0].absentReasonDescription").isEqualTo("Refused to attend")
       .jsonPath(".attendances[0].absentSubReason").isEqualTo("ExternalMoves")
+      .jsonPath(".attendances[0].absentSubReasonDescription").isEqualTo("External moves")
       .jsonPath(".attendances[0].period").isEqualTo("PM")
       .jsonPath(".attendances[0].prisonId").isEqualTo("LEI")
       .jsonPath(".attendances[0].eventLocationId").isEqualTo(2)
@@ -118,10 +120,10 @@ class AttendancesIntegrationTest : IntegrationTest() {
       }
       .headers(setHeaders())
       .exchange()
-      .expectStatus().isOk()
+      .expectStatus().isOk
       .expectBody()
       .jsonPath(".attendances[0].id").isEqualTo(1)
-      .jsonPath(".attendances[0].modifyDateTime").isNotEmpty()
+      .jsonPath(".attendances[0].modifyDateTime").isNotEmpty
       .jsonPath(".attendances[0].modifyUserId").isEqualTo("user")
   }
 
@@ -167,16 +169,16 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     webTestClient
       .get()
-      .uri({
+      .uri {
         it.path("/attendances/LEI")
           .queryParam("date", LocalDate.of(2019, 10, 10))
           .queryParam("period", TimePeriod.PM)
           .queryParam("bookings", setOf(1, 2))
           .build()
-      })
+      }
       .headers(setHeaders())
       .exchange()
-      .expectStatus().isOk()
+      .expectStatus().isOk
       .expectBody()
       .jsonPath(".attendances[0].id").isEqualTo(1)
       .jsonPath(".attendances[1].id").isEqualTo(2)
@@ -209,8 +211,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
           Attendance
             .builder()
             .id(2)
-            .absentReason(AbsentReason.Refused)
-            .absentSubReason(AbsentSubReason.ExternalMoves)
+            .absentReason(AbsentReason.UnacceptableAbsence)
             .period(TimePeriod.PM)
             .prisonId("LEI")
             .eventLocationId(2)
@@ -228,20 +229,24 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     webTestClient
       .post()
-      .uri({
+      .uri {
         it.path("/attendances/LEI")
           .queryParam("date", LocalDate.of(2019, 10, 10))
           .queryParam("period", TimePeriod.PM)
           .build()
-      })
+      }
       .headers(setHeaders())
       .bodyValue(bookings)
       .exchange()
       .expectBody()
       .jsonPath(".attendances[0].id").isEqualTo(1)
-      .jsonPath(".attendances[1].id").isEqualTo(2)
       .jsonPath(".attendances[0].bookingId").isEqualTo(1)
+      .jsonPath(".attendances[1].id").isEqualTo(2)
       .jsonPath(".attendances[1].bookingId").isEqualTo(2)
+      .jsonPath(".attendances[0].absentReasonDescription").isEqualTo("Refused to attend")
+      .jsonPath(".attendances[1].absentReasonDescription").isEqualTo("Unacceptable absence - incentive level warning added")
+      .jsonPath(".attendances[0].absentSubReasonDescription").isEqualTo("External moves")
+      .jsonPath(".attendances[1].absentSubReasonDescription").isEmpty
   }
 
   @Test
@@ -296,13 +301,13 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     webTestClient
       .post()
-      .uri({
+      .uri {
         it.path("/attendances/LEI/attendance-over-date-range")
           .queryParam("fromDate", LocalDate.of(2019, 10, 10))
           .queryParam("toDate", LocalDate.of(2019, 10, 11))
           .queryParam("period", TimePeriod.PM)
           .build()
-      })
+      }
       .headers(setHeaders())
       .bodyValue(bookings)
       .exchange()
@@ -340,7 +345,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .headers(setHeaders())
       .bodyValue(attendAll)
       .exchange()
-      .expectStatus().isCreated()
+      .expectStatus().isCreated
 
     prisonApiMockServer.verify(
       WireMock.putRequestedFor(WireMock.urlEqualTo("/api/bookings/activities/attendance"))
@@ -390,15 +395,15 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     webTestClient
       .get()
-      .uri({
+      .uri {
         it.path("/attendances/$prisonId/attendance-for-scheduled-activities")
           .queryParam("date", date)
           .queryParam("period", period)
           .build()
-      })
+      }
       .headers(setHeaders())
       .exchange()
-      .expectStatus().isOk()
+      .expectStatus().isOk
       .expectBody()
       .jsonPath(".attendances[0].id").isEqualTo(1)
 
@@ -444,15 +449,15 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     webTestClient
       .get()
-      .uri({
+      .uri {
         it.path("/attendances/$prisonId/absences-for-scheduled-activities/$reason")
           .queryParam("fromDate", date)
           .queryParam("period", period)
           .build()
-      })
+      }
       .headers(setHeaders())
       .exchange()
-      .expectStatus().isOk()
+      .expectStatus().isOk
       .expectBody()
       .jsonPath(".absences[0].attendanceId").isEqualTo(1)
   }
@@ -467,15 +472,15 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     webTestClient
       .get()
-      .uri({
+      .uri {
         it.path("/attendances/offender/$offenderNo/unacceptable-absence-count")
           .queryParam("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .queryParam("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .build()
-      })
+      }
       .headers(setHeaders())
       .exchange()
-      .expectStatus().isOk()
+      .expectStatus().isOk
       .expectBody()
       .jsonPath("$.total").isEqualTo(5)
       .jsonPath("$.acceptableAbsence").isEqualTo(1)
@@ -492,15 +497,15 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     webTestClient
       .get()
-      .uri({
+      .uri {
         it.path("/attendances/offender/$offenderNo/unacceptable-absence-count")
           .queryParam("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .queryParam("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .build()
-      })
+      }
       .headers(setHeaders())
       .exchange()
-      .expectStatus().isOk()
+      .expectStatus().isOk
       .expectBody()
       .jsonPath("$.total").isEqualTo(0)
       .jsonPath("$.acceptableAbsence").isEqualTo(0)
@@ -517,20 +522,20 @@ class AttendancesIntegrationTest : IntegrationTest() {
 
     webTestClient
       .get()
-      .uri({
+      .uri {
         it.path("/attendances/offender/$offenderNo/unacceptable-absences")
           .queryParam("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .queryParam("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .build()
-      })
+      }
       .headers(setHeaders())
       .exchange()
-      .expectStatus().isOk()
+      .expectStatus().isOk
       .expectBody()
       .jsonPath("$.totalPages").isEqualTo(1)
       .jsonPath("$.content[0].activity").isEqualTo("act 1")
       .jsonPath("$.content[2].comments").isEqualTo("comment 3")
-      .jsonPath("$.content[3].comments").isEmpty()
+      .jsonPath("$.content[3].comments").isEmpty
       .jsonPath("$.content[5].activity").isEqualTo("act 6")
   }
 }
