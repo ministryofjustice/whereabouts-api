@@ -93,8 +93,16 @@ public class AttendanceDto {
         return this.absentReason;
     }
 
+    public String getAbsentReasonDescription() {
+        return absentReason != null ? absentReason.getLabelWithWarning() : null;
+    }
+
     public AbsentSubReason getAbsentSubReason() {
         return this.absentSubReason;
+    }
+
+    public String getAbsentSubReasonDescription() {
+        return absentSubReason != null ? absentSubReason.getLabel() : null;
     }
 
     public Boolean getPaid() {
