@@ -21,12 +21,12 @@ enum class AbsentReason(val label: String) {
     val paidReasons = setOf(ApprovedCourse, AcceptableAbsence, NotRequired)
 
     val unpaidReasons = setOf(
-      SessionCancelled,
-      RestInCellOrSick,
-      RestDay,
-      UnacceptableAbsence,
       Refused,
-      RefusedIncentiveLevelWarning
+      RefusedIncentiveLevelWarning,
+      RestDay,
+      RestInCellOrSick,
+      SessionCancelled,
+      UnacceptableAbsence,
     )
 
     val iepTriggers = setOf(RefusedIncentiveLevelWarning, UnacceptableAbsence)
