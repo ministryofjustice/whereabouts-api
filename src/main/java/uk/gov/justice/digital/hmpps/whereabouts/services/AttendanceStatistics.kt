@@ -61,7 +61,7 @@ open class AttendanceStatistics(
         refused = attendances.count { it.absentReason == AbsentReason.Refused },
         refusedIncentiveLevelWarning = attendances.count { it.absentReason == AbsentReason.RefusedIncentiveLevelWarning },
         sessionCancelled = attendances.count { it.absentReason == AbsentReason.SessionCancelled },
-        unacceptableAbsence = attendances.count { it.absentReason == AbsentReason.UnacceptableAbsence },
+        unacceptableAbsence = attendances.count { it.absentReason == AbsentReason.UnacceptableAbsenceIncentiveLevelWarning },
         restDay = attendances.count { it.absentReason == AbsentReason.RestDay },
         restInCellOrSick = attendances.count { it.absentReason == AbsentReason.RestInCellOrSick }
       ),

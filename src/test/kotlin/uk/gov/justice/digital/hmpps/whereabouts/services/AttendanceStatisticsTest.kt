@@ -75,7 +75,7 @@ class AttendanceStatisticsTest {
       .id(9)
       .bookingId(9)
       .attended(false)
-      .absentReason(AbsentReason.UnacceptableAbsence)
+      .absentReason(AbsentReason.UnacceptableAbsenceIncentiveLevelWarning)
       .paid(false)
       .period(TimePeriod.AM)
       .build(),

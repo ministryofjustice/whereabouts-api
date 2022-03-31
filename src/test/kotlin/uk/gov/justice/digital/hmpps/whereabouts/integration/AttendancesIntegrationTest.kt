@@ -211,7 +211,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
           Attendance
             .builder()
             .id(2)
-            .absentReason(AbsentReason.UnacceptableAbsence)
+            .absentReason(AbsentReason.UnacceptableAbsenceIncentiveLevelWarning)
             .period(TimePeriod.PM)
             .prisonId("LEI")
             .eventLocationId(2)

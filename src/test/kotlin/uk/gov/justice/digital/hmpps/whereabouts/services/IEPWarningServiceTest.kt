@@ -101,7 +101,7 @@ class IEPWarningServiceTest {
     val updateAttendance = UpdateAttendanceDto(
       attended = false,
       paid = false,
-      absentReason = AbsentReason.UnacceptableAbsence,
+      absentReason = AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
       comments = "Unacceptable absence - No show."
     )
 
