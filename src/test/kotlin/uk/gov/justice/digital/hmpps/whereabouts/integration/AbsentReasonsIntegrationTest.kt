@@ -19,6 +19,7 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
     val unpaidReasons = setOf(
       AbsentReason.SessionCancelled,
       AbsentReason.RestDay,
+      AbsentReason.UnacceptableAbsence,
       AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
       AbsentReason.Refused,
       AbsentReason.RestInCellOrSick,
@@ -55,6 +56,7 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
     val unpaidReasons = listOf(
       AbsentReason.SessionCancelled,
       AbsentReason.RestDay,
+      AbsentReason.UnacceptableAbsence,
       AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
       AbsentReason.Refused,
       AbsentReason.RestInCellOrSick,
@@ -70,6 +72,7 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
       AbsentReason.Refused,
       AbsentReason.RefusedIncentiveLevelWarning,
       AbsentReason.SessionCancelled,
+      AbsentReason.UnacceptableAbsence,
       AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
     )
     val paidSubReasons = AbsentSubReason.values().toList()
