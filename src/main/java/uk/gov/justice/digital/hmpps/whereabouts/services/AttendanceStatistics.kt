@@ -19,7 +19,7 @@ data class UnpaidReasons(
   val refused: Int? = 0,
   val refusedIncentiveLevelWarning: Int?,
   val sessionCancelled: Int? = 0,
-  val unacceptableAbsence: Int? = 0,
+  val unacceptableAbsenceIncentiveLevelWarning: Int? = 0,
   val restDay: Int? = 0,
   val restInCellOrSick: Int? = 0
 )
@@ -61,7 +61,7 @@ open class AttendanceStatistics(
         refused = attendances.count { it.absentReason == AbsentReason.Refused },
         refusedIncentiveLevelWarning = attendances.count { it.absentReason == AbsentReason.RefusedIncentiveLevelWarning },
         sessionCancelled = attendances.count { it.absentReason == AbsentReason.SessionCancelled },
-        unacceptableAbsence = attendances.count { it.absentReason == AbsentReason.UnacceptableAbsenceIncentiveLevelWarning },
+        unacceptableAbsenceIncentiveLevelWarning = attendances.count { it.absentReason == AbsentReason.UnacceptableAbsenceIncentiveLevelWarning },
         restDay = attendances.count { it.absentReason == AbsentReason.RestDay },
         restInCellOrSick = attendances.count { it.absentReason == AbsentReason.RestInCellOrSick }
       ),
