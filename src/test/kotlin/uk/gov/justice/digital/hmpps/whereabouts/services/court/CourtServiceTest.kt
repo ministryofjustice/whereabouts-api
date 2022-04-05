@@ -19,9 +19,10 @@ class CourtServiceTest {
 
   val DERBY_JC_ID = "DRBYJC"
   val DERBY_JC_NAME = "Derby Justice Centre"
+  val DERBY_JC_EMAIL = "derby@derby.org"
 
   val courts = listOf(
-    Court(DERBY_JC_ID, DERBY_JC_NAME),
+    Court(DERBY_JC_ID, DERBY_JC_NAME, DERBY_JC_EMAIL),
     Court("DUDLMC", "Dudley"),
     Court("HERFCC", "Hereford Crown"),
 
@@ -65,6 +66,19 @@ class CourtServiceTest {
   }
 
   @Nested
+  inner class FindEmail {
+    @Test
+    fun `found`() {
+      assertThat(CourtService(repository).getCourtEmailForCourtId(DERBY_JC_ID)).isEqualTo(DERBY_JC_EMAIL)
+    }
+
+    @Test
+    fun `Not Found`() {
+      assertThat(CourtService(repository).getCourtEmailForCourtId("XXXX")).isNull()
+    }
+  }
+
+  @Nested
   inner class FindId {
     @Test
     fun `perfect match`() {
@@ -73,7 +87,9 @@ class CourtServiceTest {
 
     @Test
     fun `case insensitive match with whitespace`() {
-      assertThat(CourtService(repository).getCourtIdForCourtName(" ${DERBY_JC_NAME.uppercase()}  ")).isEqualTo(DERBY_JC_ID)
+      assertThat(CourtService(repository).getCourtIdForCourtName(" ${DERBY_JC_NAME.uppercase()}  ")).isEqualTo(
+        DERBY_JC_ID
+      )
     }
   }
 }

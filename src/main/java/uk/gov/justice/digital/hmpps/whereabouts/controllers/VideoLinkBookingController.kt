@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtEmailDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtLocationsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
@@ -29,6 +30,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.IVideo
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptions
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingSearchSpecification
 import java.time.LocalDate
+import javax.persistence.EntityNotFoundException
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
 
@@ -56,6 +58,19 @@ class VideoLinkBookingController(
     notes = "Return information about all courts."
   )
   fun getCourts(): List<Court> = courtService.courts
+
+  @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/courts/{courtId}/email"])
+  @ResponseStatus(HttpStatus.OK)
+  @ApiOperation(
+    value = "Court email address",
+    notes = "Return information about email address."
+  )
+  fun getEmailByCourtId(
+    @ApiParam(value = "Court id", required = true)
+    @PathVariable("courtId")
+    courtId: String
+  ): CourtEmailDto =
+    CourtEmailDto(courtService.getCourtEmailForCourtId(courtId) ?: throw EntityNotFoundException("Email not exist"))
 
   @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-appointments"])
   @ResponseStatus(HttpStatus.OK)
