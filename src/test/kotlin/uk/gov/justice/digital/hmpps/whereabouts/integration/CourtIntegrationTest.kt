@@ -57,6 +57,26 @@ class CourtIntegrationTest(
       .jsonPath("$.[49].id").hasJsonPath()
   }
 
+  @Test
+  fun `get court email`() {
+    webTestClient.get()
+      .uri("/court/courts/AMERCC/email")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.email").hasJsonPath()
+      .jsonPath("$.email").isEqualTo("test@test.gov.uk")
+  }
+  @Test
+  fun `return 404 court email when email not exist`() {
+    webTestClient.get()
+      .uri("/court/courts/AMERCCX/email")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isNotFound
+  }
+
   @Nested
   inner class GetBooking {
 
