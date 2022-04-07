@@ -37,7 +37,7 @@ dependencies {
   implementation("javax.validation:validation-api")
 
   implementation("io.springfox:springfox-boot-starter:3.0.0")
-  
+
   implementation("org.apache.commons:commons-lang3")
   implementation("org.apache.commons:commons-text:1.9")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
