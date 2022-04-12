@@ -14,26 +14,26 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
     val paidReasons = setOf(
       AbsentReason.AcceptableAbsence,
       AbsentReason.ApprovedCourse,
-      AbsentReason.NotRequired
+      AbsentReason.NotRequired,
     )
     val unpaidReasons = setOf(
       AbsentReason.SessionCancelled,
       AbsentReason.RestDay,
-      AbsentReason.UnacceptableAbsence,
+      AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
       AbsentReason.Refused,
       AbsentReason.RestInCellOrSick,
-      AbsentReason.RefusedIncentiveLevelWarning
+      AbsentReason.RefusedIncentiveLevelWarning,
     )
 
     val triggersIEPWarnings = setOf(
       AbsentReason.RefusedIncentiveLevelWarning,
-      AbsentReason.UnacceptableAbsence
+      AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
     )
 
     val expected = AbsentReasonsDto(
       paidReasons,
       unpaidReasons,
-      triggersIEPWarnings
+      triggersIEPWarnings,
     )
 
     webTestClient.get()
@@ -55,7 +55,7 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
     val unpaidReasons = listOf(
       AbsentReason.SessionCancelled,
       AbsentReason.RestDay,
-      AbsentReason.UnacceptableAbsence,
+      AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
       AbsentReason.Refused,
       AbsentReason.RestInCellOrSick,
       AbsentReason.RefusedIncentiveLevelWarning,
@@ -63,14 +63,14 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
 
     val triggersIEPWarnings = listOf(
       AbsentReason.RefusedIncentiveLevelWarning,
-      AbsentReason.UnacceptableAbsence,
+      AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
     )
     val triggersAbsentSubReason = listOf(
       AbsentReason.AcceptableAbsence,
       AbsentReason.Refused,
       AbsentReason.RefusedIncentiveLevelWarning,
       AbsentReason.SessionCancelled,
-      AbsentReason.UnacceptableAbsence,
+      AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
     )
     val paidSubReasons = AbsentSubReason.values().toList()
       .filter { it != AbsentSubReason.Behaviour }

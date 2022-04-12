@@ -50,7 +50,7 @@ class IEPWarningServiceTest {
         eq("AB1234C"),
         eq("NEG"),
         eq("IEP_WARN"),
-        eq("Refused - Incentive Level warning - test comment"),
+        eq("Refused to attend - incentive level warning - test comment"),
         eq(date.atStartOfDay())
       )
   }
@@ -79,7 +79,7 @@ class IEPWarningServiceTest {
         eq("AB1234C"),
         eq("NEG"),
         eq("IEP_WARN"),
-        eq("Refused - Incentive Level warning - External moves. test comment"),
+        eq("Refused to attend - incentive level warning - External moves. test comment"),
         eq(date.atStartOfDay())
       )
   }
@@ -101,14 +101,14 @@ class IEPWarningServiceTest {
     val updateAttendance = UpdateAttendanceDto(
       attended = false,
       paid = false,
-      absentReason = AbsentReason.UnacceptableAbsence,
+      absentReason = AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
       comments = "Unacceptable absence - No show."
     )
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
     verify(caseNotesService)
-      .putCaseNoteAmendment("AB1234C", 1, "Incentive Level warning reinstated: Unacceptable absence")
+      .putCaseNoteAmendment("AB1234C", 1, "Incentive level warning reinstated: Unacceptable absence - incentive level warning")
   }
 
   @Test
@@ -178,7 +178,7 @@ class IEPWarningServiceTest {
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
-    verify(caseNotesService).putCaseNoteAmendment("AB1234C", 1, "Incentive Level warning rescinded: Not required")
+    verify(caseNotesService).putCaseNoteAmendment("AB1234C", 1, "Incentive level warning rescinded: Not required to attend")
   }
 
   @Test
@@ -300,6 +300,6 @@ class IEPWarningServiceTest {
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
     verify(caseNotesService)
-      .putCaseNoteAmendment("AB1234C", 1, "Incentive Level warning rescinded: attended")
+      .putCaseNoteAmendment("AB1234C", 1, "Incentive level warning rescinded: attended")
   }
 }

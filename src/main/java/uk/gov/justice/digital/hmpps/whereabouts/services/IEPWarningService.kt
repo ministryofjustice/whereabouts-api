@@ -7,7 +7,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceD
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
-import uk.gov.justice.digital.hmpps.whereabouts.utils.AbsentReasonFormatter
 import java.time.LocalDate
 import java.util.Optional
 
@@ -30,12 +29,11 @@ class IEPWarningService(
 
     val shouldRevokePreviousIEPWarning = attendance.caseNoteId != null && !shouldTriggerIEPWarning
     val shouldReinstatePreviousIEPWarning = attendance.caseNoteId != null && shouldTriggerIEPWarning
-    val formattedAbsentReason =
-      if (newAttendanceDetails.absentReason != null) AbsentReasonFormatter.titlecase(newAttendanceDetails.absentReason.toString()) else null
+    val formattedAbsentReason = newAttendanceDetails.absentReason?.labelWithWarning
 
     if (shouldRevokePreviousIEPWarning) {
       val rescindedReason =
-        "Incentive Level warning rescinded: " + if (newAttendanceDetails.attended) "attended" else formattedAbsentReason
+        "Incentive level warning rescinded: " + if (newAttendanceDetails.attended) "attended" else formattedAbsentReason
       log.info("{} raised for {}", rescindedReason, attendance.toBuilder().comments(null))
       val offenderNo = prisonApiService.getOffenderNoFromBookingId(attendance.bookingId)
       caseNotesService.putCaseNoteAmendment(offenderNo, attendance.caseNoteId, rescindedReason)
@@ -43,7 +41,7 @@ class IEPWarningService(
     }
 
     if (shouldReinstatePreviousIEPWarning) {
-      val reinstatedReason = "Incentive Level warning reinstated: $formattedAbsentReason"
+      val reinstatedReason = "Incentive level warning reinstated: $formattedAbsentReason"
       log.info("{} raised for {}", reinstatedReason, attendance.toBuilder().comments(null))
       val offenderNo = prisonApiService.getOffenderNoFromBookingId(attendance.bookingId)
       caseNotesService.putCaseNoteAmendment(offenderNo, attendance.caseNoteId, reinstatedReason)
@@ -87,9 +85,6 @@ class IEPWarningService(
 
   private fun formatReasonAndComment(reason: AbsentReason, subReason: AbsentSubReason?, comment: String?): String {
     val caseNoteComment = subReason?.let { "${subReason.label}. $comment" } ?: comment
-    return when (reason) {
-      AbsentReason.RefusedIncentiveLevelWarning -> "Refused - Incentive Level warning - $caseNoteComment"
-      else -> "${AbsentReasonFormatter.titlecase(reason.toString())} - $caseNoteComment"
-    }
+    return "${reason.labelWithWarning} - $caseNoteComment"
   }
 }

@@ -1,15 +1,15 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
-enum class AbsentReason(val label: String) {
-  ApprovedCourse("Approved course"),
-  AcceptableAbsence("Acceptable absence"),
-  SessionCancelled("Session cancelled"),
-  RestInCellOrSick("Rest in cell or sick"),
-  RestDay("Rest day"),
-  UnacceptableAbsence("Unacceptable absence"),
-  NotRequired("Not required to attend"),
-  Refused("Refused to attend"),
-  RefusedIncentiveLevelWarning("Refused to attend");
+enum class AbsentReason(val label: String, val eventOutcome: String) {
+  ApprovedCourse("Approved course", "ACCAB"),
+  AcceptableAbsence("Acceptable absence", "ACCAB"),
+  SessionCancelled("Session cancelled", "CANC"),
+  RestInCellOrSick("Rest in cell or sick", "REST"),
+  RestDay("Rest day", "REST"),
+  UnacceptableAbsenceIncentiveLevelWarning("Unacceptable absence", "UNACAB"),
+  NotRequired("Not required to attend", "NREQ"),
+  Refused("Refused to attend", "UNACAB"),
+  RefusedIncentiveLevelWarning("Refused to attend", "UNACAB");
 
   val labelWithWarning: String
     get() = if (iepTriggers.contains(this)) "$label - incentive level warning" else label
@@ -26,11 +26,11 @@ enum class AbsentReason(val label: String) {
       RestDay,
       RestInCellOrSick,
       SessionCancelled,
-      UnacceptableAbsence,
+      UnacceptableAbsenceIncentiveLevelWarning,
     )
 
-    val iepTriggers = setOf(RefusedIncentiveLevelWarning, UnacceptableAbsence)
-    val absentSubReasonTriggers = listOf(AcceptableAbsence, Refused, RefusedIncentiveLevelWarning, SessionCancelled, UnacceptableAbsence)
+    val iepTriggers = setOf(RefusedIncentiveLevelWarning, UnacceptableAbsenceIncentiveLevelWarning)
+    val absentSubReasonTriggers = listOf(AcceptableAbsence, Refused, RefusedIncentiveLevelWarning, SessionCancelled, UnacceptableAbsenceIncentiveLevelWarning)
   }
 }
 

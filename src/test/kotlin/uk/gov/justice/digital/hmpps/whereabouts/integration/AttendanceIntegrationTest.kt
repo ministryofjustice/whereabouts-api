@@ -116,7 +116,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       postRequestedFor(urlEqualTo("/case-notes/$offenderNo"))
         .withRequestBody(matchingJsonPath("$[?(@.type == 'NEG')]"))
         .withRequestBody(matchingJsonPath("$[?(@.subType == 'IEP_WARN')]"))
-        .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused - Incentive Level warning - External moves. Test comment')]"))
+        .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused to attend - incentive level warning - External moves. Test comment')]"))
         .withRequestBody(matchingJsonPath("$.occurrenceDateTime"))
     )
   }
@@ -204,7 +204,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
     caseNotesMockServer.verify(
       putRequestedFor(urlEqualTo("/case-notes/$offenderNo/$caseNoteId"))
-        .withRequestBody(matchingJsonPath("$[?(@.text == 'Incentive Level warning rescinded: attended')]"))
+        .withRequestBody(matchingJsonPath("$[?(@.text == 'Incentive level warning rescinded: attended')]"))
 
     )
   }
