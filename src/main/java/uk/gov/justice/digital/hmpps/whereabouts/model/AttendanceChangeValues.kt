@@ -6,7 +6,7 @@ enum class AttendanceChangeValues {
   SessionCancelled,
   RestInCellOrSick,
   RestDay,
-  UnacceptableAbsence,
+  UnacceptableAbsenceIncentiveLevelWarning,
   NotRequired,
   Refused,
   RefusedIncentiveLevelWarning,
