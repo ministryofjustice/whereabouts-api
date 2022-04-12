@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.2-beta-3"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.3-beta"
   kotlin("plugin.spring") version "1.6.10"
   kotlin("plugin.jpa") version "1.6.10"
 }
@@ -38,7 +38,6 @@ dependencies {
 
   implementation("io.springfox:springfox-boot-starter:3.0.0")
 
-  implementation("net.sf.ehcache:ehcache")
   implementation("org.apache.commons:commons-lang3")
   implementation("org.apache.commons:commons-text:1.9")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
