@@ -50,17 +50,17 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
   fun `should return the correct absent reasons v2`() {
     val paidReasons = listOf(
       AbsentReason.AcceptableAbsence,
-      AbsentReason.ApprovedCourse,
       AbsentReason.NotRequired,
+      AbsentReason.ApprovedCourse,
     ).map { AbsentReasonDto(it, it.label) }
     val unpaidReasons = listOf(
-      AbsentReason.SessionCancelled,
       AbsentReason.RestDay,
+      AbsentReason.RestInCellOrSick,
+      AbsentReason.Refused,
+      AbsentReason.RefusedIncentiveLevelWarning,
+      AbsentReason.SessionCancelled,
       AbsentReason.UnacceptableAbsence,
       AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
-      AbsentReason.Refused,
-      AbsentReason.RestInCellOrSick,
-      AbsentReason.RefusedIncentiveLevelWarning,
     ).map { AbsentReasonDto(it, it.label) }
 
     val triggersIEPWarnings = listOf(
