@@ -6,6 +6,7 @@ enum class AbsentReason(val label: String, val eventOutcome: String) {
   SessionCancelled("Session cancelled", "CANC"),
   RestInCellOrSick("Rest in cell or sick", "REST"),
   RestDay("Rest day", "REST"),
+  UnacceptableAbsence("Unacceptable absence", "UNACAB"),
   UnacceptableAbsenceIncentiveLevelWarning("Unacceptable absence", "UNACAB"),
   NotRequired("Not required to attend", "NREQ"),
   Refused("Refused to attend", "UNACAB"),
@@ -26,11 +27,19 @@ enum class AbsentReason(val label: String, val eventOutcome: String) {
       RestDay,
       RestInCellOrSick,
       SessionCancelled,
+      UnacceptableAbsence,
       UnacceptableAbsenceIncentiveLevelWarning,
     )
 
     val iepTriggers = setOf(RefusedIncentiveLevelWarning, UnacceptableAbsenceIncentiveLevelWarning)
-    val absentSubReasonTriggers = listOf(AcceptableAbsence, Refused, RefusedIncentiveLevelWarning, SessionCancelled, UnacceptableAbsenceIncentiveLevelWarning)
+    val absentSubReasonTriggers = listOf(
+      AcceptableAbsence,
+      Refused,
+      RefusedIncentiveLevelWarning,
+      SessionCancelled,
+      UnacceptableAbsence,
+      UnacceptableAbsenceIncentiveLevelWarning,
+    )
   }
 }
 

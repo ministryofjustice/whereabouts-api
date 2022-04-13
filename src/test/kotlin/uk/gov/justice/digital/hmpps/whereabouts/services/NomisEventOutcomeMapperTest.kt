@@ -101,6 +101,13 @@ class NomisEventOutcomeMapperTest {
 
   @Test
   fun `should return 'UNACAB' for 'UnacceptableAbsence'`() {
+    val nomisOutcome = eventOutcomeMapper.getEventOutcome(AbsentReason.UnacceptableAbsence, subReason = null, false, false, "hello")
+
+    assertThat(nomisOutcome).isEqualTo(EventOutcome("UNACAB", null, "hello"))
+  }
+
+  @Test
+  fun `should return 'UNACAB' for 'UnacceptableAbsenceIncentiveLevelWarning'`() {
     val nomisOutcome = eventOutcomeMapper.getEventOutcome(AbsentReason.UnacceptableAbsenceIncentiveLevelWarning, subReason = null, false, false, "hello")
 
     assertThat(nomisOutcome).isEqualTo(EventOutcome("UNACAB", null, "hello"))
