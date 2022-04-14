@@ -33,7 +33,7 @@ class IEPWarningService(
 
     if (shouldRevokePreviousIEPWarning) {
       val rescindedReason =
-        "Incentive level warning rescinded: " + if (newAttendanceDetails.attended) "attended" else formattedAbsentReason
+        "Incentive level warning removed: " + if (newAttendanceDetails.attended) "attended" else formattedAbsentReason
       log.info("{} raised for {}", rescindedReason, attendance.toBuilder().comments(null))
       val offenderNo = prisonApiService.getOffenderNoFromBookingId(attendance.bookingId)
       caseNotesService.putCaseNoteAmendment(offenderNo, attendance.caseNoteId, rescindedReason)

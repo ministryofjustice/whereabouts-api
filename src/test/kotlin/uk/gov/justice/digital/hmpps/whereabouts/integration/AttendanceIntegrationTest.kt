@@ -204,7 +204,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
     caseNotesMockServer.verify(
       putRequestedFor(urlEqualTo("/case-notes/$offenderNo/$caseNoteId"))
-        .withRequestBody(matchingJsonPath("$[?(@.text == 'Incentive level warning rescinded: attended')]"))
+        .withRequestBody(matchingJsonPath("$[?(@.text == 'Incentive level warning removed: attended')]"))
 
     )
   }
