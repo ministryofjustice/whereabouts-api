@@ -3,37 +3,62 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.AcceptableAbsence
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.ApprovedCourse
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.NotRequired
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.Refused
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.RefusedIncentiveLevelWarning
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.RestDay
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.RestInCellOrSick
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.SessionCancelled
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.UnacceptableAbsence
+import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.UnacceptableAbsenceIncentiveLevelWarning
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 
+@Suppress("unused")
 data class PaidReasons(
-  val attended: Int? = 0,
-  val acceptableAbsence: Int? = 0,
-  val approvedCourse: Int? = 0,
-  val notRequired: Int? = 0
-)
+  val attended: Int,
+  val acceptableAbsence: Int?,
+  val approvedCourse: Int?,
+  val notRequired: Int?,
+) {
+  val acceptableAbsenceDescription = AcceptableAbsence.labelWithShortWarning
+  val approvedCourseDescription = ApprovedCourse.labelWithShortWarning
+  val notRequiredDescription = NotRequired.labelWithShortWarning
+}
 
+@Suppress("unused")
 data class UnpaidReasons(
-  val refused: Int? = 0,
+  val refused: Int?,
   val refusedIncentiveLevelWarning: Int?,
-  val sessionCancelled: Int? = 0,
-  val unacceptableAbsenceIncentiveLevelWarning: Int? = 0,
-  val restDay: Int? = 0,
-  val restInCellOrSick: Int? = 0
-)
+  val sessionCancelled: Int?,
+  val unacceptableAbsence: Int?,
+  val unacceptableAbsenceIncentiveLevelWarning: Int?,
+  val restDay: Int?,
+  val restInCellOrSick: Int?,
+) {
+  val refusedDescription = Refused.labelWithShortWarning
+  val refusedIncentiveLevelWarningDescription = RefusedIncentiveLevelWarning.labelWithShortWarning
+  val sessionCancelledDescription = SessionCancelled.labelWithShortWarning
+  val unacceptableAbsenceDescription = UnacceptableAbsence.labelWithShortWarning
+  val unacceptableAbsenceIncentiveLevelWarningDescription = UnacceptableAbsenceIncentiveLevelWarning.labelWithShortWarning
+  val restDayDescription = RestDay.labelWithShortWarning
+  val restInCellOrSickDescription = RestInCellOrSick.labelWithShortWarning
+}
 
 data class Stats(
-  val scheduleActivities: Int? = 0,
-  val notRecorded: Int? = 0,
+  val scheduleActivities: Int,
+  val notRecorded: Int,
   val paidReasons: PaidReasons?,
   val unpaidReasons: UnpaidReasons?,
-  val suspended: Int? = 0
+  val suspended: Int,
 )
 
 @Service
-open class AttendanceStatistics(
+class AttendanceStatistics(
   private val attendanceRepository: AttendanceRepository,
   private val prisonApiService: PrisonApiService
 ) {
@@ -48,24 +73,29 @@ open class AttendanceStatistics(
       else -> attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(prisonId, period, from, to)
     }
 
+    val (paid, unpaid) = attendances.partition { AbsentReason.paidReasons.contains(it.absentReason) }
+    val paidCounts = paid.groupBy { it.absentReason }.mapValues { it.value.count() }
+    val unpaidCounts = unpaid.groupBy { it.absentReason }.mapValues { it.value.count() }
+
     return Stats(
       scheduleActivities = offendersScheduledForActivity.count(),
       notRecorded = calculateNotRecorded(offendersScheduledForActivity, attendances),
       paidReasons = PaidReasons(
         attended = attendances.count { it.attended },
-        acceptableAbsence = attendances.count { it.absentReason == AbsentReason.AcceptableAbsence },
-        approvedCourse = attendances.count { it.absentReason == AbsentReason.ApprovedCourse },
-        notRequired = attendances.count { it.absentReason == AbsentReason.NotRequired }
+        acceptableAbsence = paidCounts[AcceptableAbsence],
+        approvedCourse = paidCounts[ApprovedCourse],
+        notRequired = paidCounts[NotRequired],
       ),
       unpaidReasons = UnpaidReasons(
-        refused = attendances.count { it.absentReason == AbsentReason.Refused },
-        refusedIncentiveLevelWarning = attendances.count { it.absentReason == AbsentReason.RefusedIncentiveLevelWarning },
-        sessionCancelled = attendances.count { it.absentReason == AbsentReason.SessionCancelled },
-        unacceptableAbsenceIncentiveLevelWarning = attendances.count { it.absentReason == AbsentReason.UnacceptableAbsenceIncentiveLevelWarning },
-        restDay = attendances.count { it.absentReason == AbsentReason.RestDay },
-        restInCellOrSick = attendances.count { it.absentReason == AbsentReason.RestInCellOrSick }
+        refused = unpaidCounts[Refused],
+        refusedIncentiveLevelWarning = unpaidCounts[RefusedIncentiveLevelWarning],
+        sessionCancelled = unpaidCounts[SessionCancelled],
+        unacceptableAbsence = unpaidCounts[UnacceptableAbsence],
+        unacceptableAbsenceIncentiveLevelWarning = unpaidCounts[UnacceptableAbsenceIncentiveLevelWarning],
+        restDay = unpaidCounts[RestDay],
+        restInCellOrSick = unpaidCounts[RestInCellOrSick],
       ),
-      suspended = scheduledActivity.count { it.suspended?.equals(true) ?: false }
+      suspended = scheduledActivity.count { it.suspended == true }
     )
   }
 

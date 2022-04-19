@@ -64,6 +64,9 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
+      .consumeWith(System.out::println)
       .jsonPath("$.paidReasons.attended").isEqualTo(1)
+      .jsonPath("$.paidReasons.acceptableAbsenceDescription").isEqualTo("Acceptable absence")
+      .jsonPath("$.unpaidReasons.refusedIncentiveLevelWarningDescription").isEqualTo("Refused to attend with warning")
   }
 }

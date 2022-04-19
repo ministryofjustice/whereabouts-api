@@ -2,6 +2,8 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mockito.any
 import org.mockito.Mockito.anyString
 import org.mockito.kotlin.mock
@@ -15,9 +17,16 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 
 class AttendanceStatisticsTest {
+  companion object {
+    @JvmStatic
+    private fun getPaidReasons() = AbsentReason.paidReasons
+    @JvmStatic
+    private fun getUnpaidReasons() = AbsentReason.unpaidReasons
+  }
+
   private val attendanceRepository: AttendanceRepository = mock()
   private val prisonApiService: PrisonApiService = mock()
-
+  private val service = AttendanceStatistics(attendanceRepository, prisonApiService)
   private val prisonId = "LEI"
   private val period = TimePeriod.AM
   private val from = LocalDate.now()
@@ -80,6 +89,14 @@ class AttendanceStatisticsTest {
       .period(TimePeriod.AM)
       .build(),
     Attendance.builder()
+      .id(10)
+      .bookingId(10)
+      .attended(false)
+      .absentReason(AbsentReason.UnacceptableAbsence)
+      .paid(false)
+      .period(TimePeriod.AM)
+      .build(),
+    Attendance.builder()
       .id(11)
       .bookingId(9)
       .attended(false)
@@ -110,83 +127,31 @@ class AttendanceStatisticsTest {
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
       .thenReturn(attendances)
 
-    val service = buildAttendanceStatistics()
-
     val stats = service.getStats(prisonId, period, from, to)
 
     assertThat(stats).extracting("paidReasons").extracting("attended").isEqualTo(1)
   }
 
-  @Test
-  fun `count acceptable absences`() {
+  @ParameterizedTest
+  @MethodSource("getPaidReasons")
+  fun `count paid reasons`(reason: AbsentReason) {
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
       .thenReturn(attendances)
 
-    val service = buildAttendanceStatistics()
-
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("paidReasons").extracting("acceptableAbsence").isEqualTo(1)
+    assertThat(stats).extracting("paidReasons").extracting(reason.name.replaceFirstChar { it.uppercaseChar() }).isEqualTo(1)
   }
 
-  @Test
-  fun `count approved course`() {
+  @ParameterizedTest
+  @MethodSource("getUnpaidReasons")
+  fun `count unpaid reasons`(reason: AbsentReason) {
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
       .thenReturn(attendances)
 
-    val service = buildAttendanceStatistics()
-
     val stats = service.getStats(prisonId, period, from, to)
 
-    assertThat(stats).extracting("paidReasons").extracting("approvedCourse").isEqualTo(1)
-  }
-
-  @Test
-  fun `count not required`() {
-    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-      .thenReturn(attendances)
-
-    val service = buildAttendanceStatistics()
-
-    val stats = service.getStats(prisonId, period, from, to)
-
-    assertThat(stats).extracting("paidReasons").extracting("notRequired").isEqualTo(1)
-  }
-
-  @Test
-  fun `count refused`() {
-    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-      .thenReturn(attendances)
-
-    val service = buildAttendanceStatistics()
-
-    val stats = service.getStats(prisonId, period, from, to)
-
-    assertThat(stats).extracting("unpaidReasons").extracting("refused").isEqualTo(1)
-  }
-
-  @Test
-  fun `count session cancelled`() {
-    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-      .thenReturn(attendances)
-
-    val service = buildAttendanceStatistics()
-
-    val stats = service.getStats(prisonId, period, from, to)
-
-    assertThat(stats).extracting("unpaidReasons").extracting("sessionCancelled").isEqualTo(1)
-  }
-
-  @Test
-  fun `count unacceptable absence`() {
-    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-      .thenReturn(attendances)
-
-    val service = buildAttendanceStatistics()
-
-    val stats = service.getStats(prisonId, period, from, to)
-
-    assertThat(stats).extracting("unpaidReasons").extracting("unacceptableAbsenceIncentiveLevelWarning").isEqualTo(1)
+    assertThat(stats).extracting("unpaidReasons").extracting(reason.name.replaceFirstChar { it.uppercaseChar() }).isEqualTo(1)
   }
 
   @Test
@@ -258,8 +223,6 @@ class AttendanceStatisticsTest {
 
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
       .thenReturn(attendances)
-
-    val service = buildAttendanceStatistics()
 
     val stats = service.getStats(prisonId, period, from, to)
 
@@ -369,8 +332,6 @@ class AttendanceStatisticsTest {
       )
     )
 
-    val service = buildAttendanceStatistics()
-
     val stats = service.getStats(prisonId, TimePeriod.AM, from, to)
 
     assertThat(stats).extracting("scheduleActivities").isEqualTo(8)
@@ -380,8 +341,6 @@ class AttendanceStatisticsTest {
   fun `count rest in cell or sick`() {
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
       .thenReturn(attendances)
-
-    val service = buildAttendanceStatistics()
 
     val stats = service.getStats(prisonId, period, from, to)
 
@@ -393,8 +352,6 @@ class AttendanceStatisticsTest {
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
       .thenReturn(attendances)
 
-    val service = buildAttendanceStatistics()
-
     val stats = service.getStats(prisonId, period, from, to)
 
     assertThat(stats).extracting("unpaidReasons").extracting("restDay").isEqualTo(1)
@@ -405,8 +362,6 @@ class AttendanceStatisticsTest {
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
       .thenReturn(attendances)
 
-    val service = buildAttendanceStatistics()
-
     val stats = service.getStats(prisonId, period, from, to)
 
     assertThat(stats).extracting("unpaidReasons").extracting("refusedIncentiveLevelWarning").isEqualTo(1)
@@ -414,8 +369,6 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `should call the correct repository method when period all is supplied`() {
-    val service = buildAttendanceStatistics()
-
     service.getStats(prisonId, null, from, to)
 
     verify(attendanceRepository)
@@ -424,8 +377,6 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `should call the elite2 schedule api twice, once for AM and then for PM`() {
-    val service = buildAttendanceStatistics()
-
     whenever(prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)).thenReturn(
       listOf(
         OffenderDetails(
@@ -494,8 +445,6 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `should return correct number of not recorded when AM and PM selected`() {
-    val service = buildAttendanceStatistics()
-
     whenever(
       attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(
         prisonId,
@@ -571,8 +520,6 @@ class AttendanceStatisticsTest {
 
   @Test
   fun `should return the correct number of suspended`() {
-    val service = buildAttendanceStatistics()
-
     whenever(
       attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(
         prisonId,
@@ -642,6 +589,4 @@ class AttendanceStatisticsTest {
 
     assertThat(stats).extracting("suspended").isEqualTo(2)
   }
-
-  private fun buildAttendanceStatistics() = AttendanceStatistics(attendanceRepository, prisonApiService)
 }
