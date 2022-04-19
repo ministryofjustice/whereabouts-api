@@ -178,7 +178,7 @@ class IEPWarningServiceTest {
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
-    verify(caseNotesService).putCaseNoteAmendment("AB1234C", 1, "Incentive level warning rescinded: Not required to attend")
+    verify(caseNotesService).putCaseNoteAmendment("AB1234C", 1, "Incentive level warning removed: Not required to attend")
   }
 
   @Test
@@ -300,6 +300,6 @@ class IEPWarningServiceTest {
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
     verify(caseNotesService)
-      .putCaseNoteAmendment("AB1234C", 1, "Incentive level warning rescinded: attended")
+      .putCaseNoteAmendment("AB1234C", 1, "Incentive level warning removed: attended")
   }
 }
