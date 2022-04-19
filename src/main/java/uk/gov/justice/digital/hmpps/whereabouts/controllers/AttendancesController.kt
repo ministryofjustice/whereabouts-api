@@ -207,7 +207,8 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     ) toDate: LocalDate?,
     @ApiParam(value = "Time period") @RequestParam(name = "period") period: TimePeriod?
   ): AbsencesResponse = AbsencesResponse(
-    absences = attendanceService.getAbsencesForReason(prisonId, absentReason, fromDate, toDate, period)
+    description = absentReason.labelWithShortWarning,
+    absences = attendanceService.getAbsencesForReason(prisonId, absentReason, fromDate, toDate, period),
   )
 
   @GetMapping("/changes")
