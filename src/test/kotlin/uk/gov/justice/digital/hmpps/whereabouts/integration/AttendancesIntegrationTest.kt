@@ -415,7 +415,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
     val prisonId = "MDI"
     val date = LocalDate.now()
     val period = TimePeriod.AM
-    val reason = AbsentReason.Refused
+    val reason = AbsentReason.RefusedIncentiveLevelWarning
 
     prisonApiMockServer.stubGetScheduledActivitiesForDateRange(prisonId, date, date, period, true)
 
@@ -460,6 +460,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .expectStatus().isOk
       .expectBody()
       .jsonPath(".absences[0].attendanceId").isEqualTo(1)
+      .jsonPath(".description").isEqualTo("Refused to attend with warning")
   }
 
   @Test
