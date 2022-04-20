@@ -108,7 +108,7 @@ class IEPWarningServiceTest {
     service.handleIEPWarningScenarios(attendance, updateAttendance)
 
     verify(caseNotesService)
-      .putCaseNoteAmendment("AB1234C", 1, "Incentive level warning reinstated: Unacceptable absence - incentive level warning")
+      .putCaseNoteAmendment("AB1234C", 1, "Incentive level warning added: Unacceptable absence - incentive level warning")
   }
 
   @Test
