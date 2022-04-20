@@ -20,6 +20,7 @@ import java.time.LocalDate
 
 @Suppress("unused")
 data class PaidReasons(
+  @Deprecated("Moved up a level out of paid reasons")
   val attended: Int,
   val acceptableAbsence: Int?,
   val approvedCourse: Int?,
@@ -55,6 +56,7 @@ data class Stats(
   val paidReasons: PaidReasons?,
   val unpaidReasons: UnpaidReasons?,
   val suspended: Int,
+  val attended: Int,
 )
 
 @Service
@@ -95,7 +97,8 @@ class AttendanceStatistics(
         restDay = unpaidCounts[RestDay],
         restInCellOrSick = unpaidCounts[RestInCellOrSick],
       ),
-      suspended = scheduledActivity.count { it.suspended == true }
+      suspended = scheduledActivity.count { it.suspended == true },
+      attended = attendances.count { it.attended },
     )
   }
 
