@@ -460,7 +460,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath(".description").isEqualTo("Refused to attend with warning")
+      .jsonPath(".description").isEqualTo("Refused to attend - incentive level warning added")
       .jsonPath(".absences[0].attendanceId").isEqualTo(1)
       .jsonPath(".absences[0].subReasonDescription").isEqualTo("Courses, programmes and interventions")
   }
