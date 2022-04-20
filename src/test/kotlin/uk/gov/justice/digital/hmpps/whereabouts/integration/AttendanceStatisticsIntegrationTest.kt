@@ -68,6 +68,6 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
       .jsonPath("$.paidReasons.attended").isEqualTo(1)
       .jsonPath("$.attended").isEqualTo(1)
       .jsonPath("$.paidReasons.acceptableAbsenceDescription").isEqualTo("Acceptable absence")
-      .jsonPath("$.unpaidReasons.refusedIncentiveLevelWarningDescription").isEqualTo("Refused to attend with warning")
+      .jsonPath("$.unpaidReasons.refusedIncentiveLevelWarningDescription").isEqualTo("Refused to attend - incentive level warning added")
   }
 }

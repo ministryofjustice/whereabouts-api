@@ -22,32 +22,32 @@ import java.time.LocalDate
 data class PaidReasons(
   @Deprecated("Moved up a level out of paid reasons")
   val attended: Int,
-  val acceptableAbsence: Int?,
   val approvedCourse: Int?,
   val notRequired: Int?,
+  val acceptableAbsence: Int?,
 ) {
-  val acceptableAbsenceDescription = AcceptableAbsence.labelWithShortWarning
-  val approvedCourseDescription = ApprovedCourse.labelWithShortWarning
-  val notRequiredDescription = NotRequired.labelWithShortWarning
+  val acceptableAbsenceDescription = AcceptableAbsence.labelWithAddedWarning
+  val approvedCourseDescription = ApprovedCourse.labelWithAddedWarning
+  val notRequiredDescription = NotRequired.labelWithAddedWarning
 }
 
 @Suppress("unused")
 data class UnpaidReasons(
+  val restDay: Int?,
+  val restInCellOrSick: Int?,
   val refused: Int?,
   val refusedIncentiveLevelWarning: Int?,
   val sessionCancelled: Int?,
   val unacceptableAbsence: Int?,
   val unacceptableAbsenceIncentiveLevelWarning: Int?,
-  val restDay: Int?,
-  val restInCellOrSick: Int?,
 ) {
-  val refusedDescription = Refused.labelWithShortWarning
-  val refusedIncentiveLevelWarningDescription = RefusedIncentiveLevelWarning.labelWithShortWarning
-  val sessionCancelledDescription = SessionCancelled.labelWithShortWarning
-  val unacceptableAbsenceDescription = UnacceptableAbsence.labelWithShortWarning
-  val unacceptableAbsenceIncentiveLevelWarningDescription = UnacceptableAbsenceIncentiveLevelWarning.labelWithShortWarning
-  val restDayDescription = RestDay.labelWithShortWarning
-  val restInCellOrSickDescription = RestInCellOrSick.labelWithShortWarning
+  val refusedDescription = Refused.labelWithAddedWarning
+  val refusedIncentiveLevelWarningDescription = RefusedIncentiveLevelWarning.labelWithAddedWarning
+  val sessionCancelledDescription = SessionCancelled.labelWithAddedWarning
+  val unacceptableAbsenceDescription = UnacceptableAbsence.labelWithAddedWarning
+  val unacceptableAbsenceIncentiveLevelWarningDescription = UnacceptableAbsenceIncentiveLevelWarning.labelWithAddedWarning
+  val restDayDescription = RestDay.labelWithAddedWarning
+  val restInCellOrSickDescription = RestInCellOrSick.labelWithAddedWarning
 }
 
 data class Stats(
