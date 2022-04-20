@@ -7,24 +7,25 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.time.LocalDate
 
 data class AbsenceDto(
-  val attendanceId: Long? = null,
-  val bookingId: Long? = null,
-  val offenderNo: String? = null,
+  val attendanceId: Long?,
+  val bookingId: Long?,
+  val offenderNo: String?,
 
-  val eventId: Long? = null,
-  val eventLocationId: Long? = null,
+  val eventId: Long?,
+  val eventLocationId: Long?,
 
   @JsonFormat(pattern = "yyyy-MM-dd")
-  val eventDate: LocalDate? = null,
+  val eventDate: LocalDate?,
 
-  val period: TimePeriod? = null,
-  val reason: AbsentReason? = null,
-  val subReason: AbsentSubReason? = null,
+  val period: TimePeriod?,
+  val reason: AbsentReason?,
+  val subReason: AbsentSubReason?,
+  val subReasonDescription: String?,
 
-  val eventDescription: String? = null,
-  val comments: String? = null,
-  val cellLocation: String? = null,
-  val firstName: String? = null,
-  val lastName: String? = null,
-  val suspended: Boolean? = null
+  val eventDescription: String?,
+  val comments: String?,
+  val cellLocation: String?,
+  val firstName: String?,
+  val lastName: String?,
+  val suspended: Boolean?,
 )

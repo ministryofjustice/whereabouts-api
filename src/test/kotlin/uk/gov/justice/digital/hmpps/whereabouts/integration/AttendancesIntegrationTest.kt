@@ -434,6 +434,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .builder()
             .id(1)
             .absentReason(reason)
+            .absentSubReason(AbsentSubReason.Courses)
             .attended(false)
             .paid(false)
             .eventId(1)
@@ -459,8 +460,9 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath(".absences[0].attendanceId").isEqualTo(1)
       .jsonPath(".description").isEqualTo("Refused to attend with warning")
+      .jsonPath(".absences[0].attendanceId").isEqualTo(1)
+      .jsonPath(".absences[0].subReasonDescription").isEqualTo("Courses, programmes and interventions")
   }
 
   @Test

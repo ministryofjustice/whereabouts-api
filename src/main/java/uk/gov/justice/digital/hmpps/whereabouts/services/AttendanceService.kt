@@ -405,6 +405,7 @@ class AttendanceService(
       period = TimePeriod.valueOf(details.timeSlot!!),
       reason = attendance.absentReason,
       subReason = attendance.absentSubReason,
+      subReasonDescription = attendance.absentSubReason?.label,
       eventDescription = details.comment,
       comments = attendance.comments,
       cellLocation = details.cellLocation,
