@@ -41,7 +41,7 @@ class IEPWarningService(
     }
 
     if (shouldReinstatePreviousIEPWarning) {
-      val reinstatedReason = "Incentive level warning reinstated: $formattedAbsentReason"
+      val reinstatedReason = "Incentive level warning added: $formattedAbsentReason"
       log.info("{} raised for {}", reinstatedReason, attendance.toBuilder().comments(null))
       val offenderNo = prisonApiService.getOffenderNoFromBookingId(attendance.bookingId)
       caseNotesService.putCaseNoteAmendment(offenderNo, attendance.caseNoteId, reinstatedReason)
