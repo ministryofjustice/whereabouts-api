@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsentReasonDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsentReasonsDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsentReasonsV2Dto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsentSubReasonDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason.Companion.absentSubReasonTriggers
@@ -24,23 +23,17 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason.Companion.
 class AbsentReasonsController {
 
   @GetMapping
-  fun reasons(): AbsentReasonsDto =
-    AbsentReasonsDto(
-      paidReasons,
-      unpaidReasons,
-      iepTriggers,
-    )
+  fun reasons() = AbsentReasonsDto(
+    paidReasons.toReasonDto(),
+    unpaidReasons.toReasonDto(),
+    iepTriggers.toList(),
+    absentSubReasonTriggers,
+    paidSubReasons.toSubReasonDto(),
+    unpaidSubReasons.toSubReasonDto(),
+  )
 
   @GetMapping(value = ["/v2"])
-  fun reasonsV2(): AbsentReasonsV2Dto =
-    AbsentReasonsV2Dto(
-      paidReasons.toReasonDto(),
-      unpaidReasons.toReasonDto(),
-      iepTriggers.toList(),
-      absentSubReasonTriggers,
-      paidSubReasons.toSubReasonDto(),
-      unpaidSubReasons.toSubReasonDto(),
-    )
+  fun reasonsV2() = reasons()
 }
 
 private fun List<AbsentSubReason>.toSubReasonDto() = map { AbsentSubReasonDto(it, it.label) }

@@ -20,8 +20,6 @@ import java.time.LocalDate
 
 @Suppress("unused")
 data class PaidReasons(
-  @Deprecated("Moved up a level out of paid reasons")
-  val attended: Int,
   val approvedCourse: Int?,
   val notRequired: Int?,
   val acceptableAbsence: Int?,
@@ -83,7 +81,6 @@ class AttendanceStatistics(
       scheduleActivities = offendersScheduledForActivity.count(),
       notRecorded = calculateNotRecorded(offendersScheduledForActivity, attendances),
       paidReasons = PaidReasons(
-        attended = attendances.count { it.attended },
         acceptableAbsence = paidCounts[AcceptableAbsence],
         approvedCourse = paidCounts[ApprovedCourse],
         notRequired = paidCounts[NotRequired],
