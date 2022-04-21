@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.4-beta"
-  kotlin("plugin.spring") version "1.6.20"
-  kotlin("plugin.jpa") version "1.6.20"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.5-beta"
+  kotlin("plugin.spring") version "1.6.21"
+  kotlin("plugin.jpa") version "1.6.21"
 }
 
 configurations {
@@ -13,13 +13,13 @@ configurations {
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.22")
+  annotationProcessor("org.projectlombok:lombok:1.18.24")
 
-  compileOnly("org.projectlombok:lombok:1.18.22")
+  compileOnly("org.projectlombok:lombok:1.18.24")
 
   runtimeOnly("com.h2database:h2:2.1.210")
-  runtimeOnly("org.flywaydb:flyway-core:8.5.5")
-  runtimeOnly("org.postgresql:postgresql:42.3.3")
+  runtimeOnly("org.flywaydb:flyway-core:8.5.8")
+  runtimeOnly("org.postgresql:postgresql:42.3.4")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-cache")
@@ -54,10 +54,10 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
 
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.32.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.34.0")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("io.mockk:mockk:1.12.3")
-  testCompileOnly("org.projectlombok:lombok:1.18.22")
+  testCompileOnly("org.projectlombok:lombok:1.18.24")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
 }
 
