@@ -59,13 +59,5 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
       .expectStatus().isOk
       .expectBody()
       .json(objectMapper.writeValueAsString(expected))
-
-    webTestClient.get()
-      .uri("/absence-reasons/v2")
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .json(objectMapper.writeValueAsString(expected))
   }
 }

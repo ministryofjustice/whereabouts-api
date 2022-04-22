@@ -31,9 +31,6 @@ class AbsentReasonsController {
     paidSubReasons.toSubReasonDto(),
     unpaidSubReasons.toSubReasonDto(),
   )
-
-  @GetMapping(value = ["/v2"])
-  fun reasonsV2() = reasons()
 }
 
 private fun List<AbsentSubReason>.toSubReasonDto() = map { AbsentSubReasonDto(it, it.label) }
