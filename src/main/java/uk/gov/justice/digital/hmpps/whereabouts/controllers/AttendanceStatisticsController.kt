@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import lombok.extern.slf4j.Slf4j
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.format.annotation.DateTimeFormat.ISO.DATE
@@ -17,27 +17,26 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceStatistics
 import uk.gov.justice.digital.hmpps.whereabouts.services.Stats
 import java.time.LocalDate
 
-@Api(tags = ["attendance-statistics"])
+@Tag(name = "attendance-statistics")
 @RestController
 @RequestMapping(value = ["attendance-statistics"], produces = [MediaType.APPLICATION_JSON_VALUE])
 @Slf4j
 class AttendanceStatisticsController(private val attendanceStatistics: AttendanceStatistics) {
 
   @GetMapping("{prison}/over-date-range")
-  @ApiOperation(
-    value = "Request attendance statistics",
-    response = Stats::class,
-    notes = "Request attendance statistics"
+  @Operation(
+    description = "Request attendance statistics",
+    summary = "Request attendance statistics"
   )
   fun getAttendanceForEventLocation(
-    @ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @ApiParam(value = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
-    @ApiParam(
-      value = "From date of event in format YYYY-MM-DD",
+    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(name = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
+    @Parameter(
+      name = "From date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
-    @ApiParam(
-      value = "To date of event in format YYYY-MM-DD",
+    @Parameter(
+      name = "To date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate
   ): Stats {

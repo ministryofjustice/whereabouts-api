@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.WhereaboutsConfig
 import uk.gov.justice.digital.hmpps.whereabouts.services.LocationGroupService
 import uk.gov.justice.digital.hmpps.whereabouts.services.WhereaboutsEnabledService
 
-@Api(tags = ["agencies"])
+@Tag(name = "agencies")
 @RestController
 @RequestMapping(value = ["agencies"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class AgencyController(
@@ -26,10 +26,9 @@ class AgencyController(
 ) {
 
   @GetMapping("/{agencyId}/locations/groups")
-  @ApiOperation(
-    value = "List of all available Location Groups at agency.",
-    notes = "List of all available Location Groups at agency.",
-    nickname = "getAvailableLocationGroups"
+  @Operation(
+    description = "List of all available Location Groups at agency.",
+    summary = "getAvailableLocationGroups"
   )
   @ApiResponses(
     value = [
@@ -55,18 +54,17 @@ class AgencyController(
     ]
   )
   fun getAvailableLocationGroups(
-    @ApiParam(
-      value = "The prison",
+    @Parameter(
+      name = "The prison",
       required = true
     ) @PathVariable("agencyId") agencyId: String
   ): List<LocationGroup> =
     locationGroupService.getLocationGroupsForAgency(agencyId)
 
   @GetMapping("/{agencyId}/locations/whereabouts")
-  @ApiOperation(
-    value = "Whereabouts details (e.g. whether enabled) for prison.",
-    notes = "Whereabouts details (e.g. whether enabled) for prison.",
-    nickname = "getWhereabouts"
+  @Operation(
+    description = "Whereabouts details (e.g. whether enabled) for prison.",
+    summary = "getWhereabouts"
   )
   @ApiResponses(
     value = [
@@ -89,8 +87,8 @@ class AgencyController(
     ]
   )
   fun getWhereabouts(
-    @ApiParam(
-      value = "The prison",
+    @Parameter(
+      name = "The prison",
       required = true
     ) @PathVariable("agencyId") agencyId: String
   ): WhereaboutsConfig =

@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -17,16 +17,15 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.services.LocationService
 
-@Api(tags = ["locations"])
+@Tag(name = "locations")
 @RestController
 @RequestMapping(value = ["locations"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class LocationController(private val locationService: LocationService) {
 
   @GetMapping("/groups/{agencyId}/{name}")
-  @ApiOperation(
-    value = "List of cell locations by group at agency location.",
-    notes = "List of cell locations by group at agency location.",
-    nickname = "getLocationGroup"
+  @Operation(
+    description = "List of cell locations by group at agency location.",
+    summary = "getLocationGroup"
   )
   @ApiResponses(
     value = [
@@ -41,16 +40,15 @@ class LocationController(private val locationService: LocationService) {
     ]
   )
   fun getLocationGroup(
-    @ApiParam(value = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
-    @ApiParam(value = "The group name", required = true) @PathVariable("name") name: String
+    @Parameter(name = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
+    @Parameter(name = "The group name", required = true) @PathVariable("name") name: String
   ): List<Location> =
     locationService.getCellLocationsForGroup(agencyId, name)
 
   @GetMapping("/cellsWithCapacity/{agencyId}/{group}")
-  @ApiOperation(
-    value = "List of cells by group at agency location which have capacity.",
-    notes = "List of cells  by group at agency location which have capacity.",
-    nickname = "getCellsWithCapacityForGroup"
+  @Operation(
+    description = "List of cells by group at agency location which have capacity.",
+    summary = "getCellsWithCapacityForGroup"
   )
   @ApiResponses(
     value = [
@@ -65,14 +63,14 @@ class LocationController(private val locationService: LocationService) {
     ]
   )
   fun getCellsWithCapacityForGroup(
-    @ApiParam(value = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
-    @ApiParam(value = "The group name", required = true) @PathVariable("group") group: String,
-    @ApiParam(value = "Cell attribute") @RequestParam(name = "attribute") attribute: String?
+    @Parameter(name = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
+    @Parameter(name = "The group name", required = true) @PathVariable("group") group: String,
+    @Parameter(name = "Cell attribute") @RequestParam(name = "attribute") attribute: String?
   ): List<CellWithAttributes> =
     locationService.getCellsWithCapacityForGroup(agencyId, group, attribute)
 
   @GetMapping("/{agencyId}/{group}/location-prefix")
-  @ApiOperation(value = "Get location prefix by group", nickname = "getLocationPrefixFromGroup")
+  @Operation(description = "Get location prefix by group", summary = "getLocationPrefixFromGroup")
   @ApiResponses(
     value = [
       ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class),
@@ -85,8 +83,8 @@ class LocationController(private val locationService: LocationService) {
     ]
   )
   fun getLocationPrefixFromGroup(
-    @ApiParam(value = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
-    @ApiParam(value = "The group name", required = true, example = "Houseblock 1") @PathVariable("group") group: String
+    @Parameter(name = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
+    @Parameter(name = "The group name", required = true, example = "Houseblock 1") @PathVariable("group") group: String
   ): LocationPrefixDto =
     locationService.getLocationPrefixFromGroup(agencyId, group)
 }

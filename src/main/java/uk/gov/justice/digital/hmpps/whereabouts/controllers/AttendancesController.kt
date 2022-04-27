@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import lombok.extern.slf4j.Slf4j
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -33,7 +33,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.validation.Valid
 
-@Api(tags = ["attendances"])
+@Tag(name = "attendances")
 @RestController
 @RequestMapping(value = ["attendances"], produces = [MediaType.APPLICATION_JSON_VALUE])
 @Slf4j
@@ -41,13 +41,12 @@ class AttendancesController(private val attendanceService: AttendanceService) {
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
   @ResponseStatus(HttpStatus.CREATED)
-  @ApiOperation(
-    value = "Create new attendance records for multiple offenders (This endpoint does not trigger IEP warnings)",
-    response = AttendancesResponse::class,
-    notes = "Stores new attendance record for multiple offenders, posts attendance details back up to PNOMIS"
+  @Operation(
+    summary = "Create new attendance records for multiple offenders (This endpoint does not trigger IEP warnings)",
+    description = "Stores new attendance record for multiple offenders, posts attendance details back up to PNOMIS"
   )
   fun postAttendances(
-    @ApiParam(value = "Attendance parameters", required = true)
+    @Parameter(name = "Attendance parameters", required = true)
     @RequestBody
     @Valid
     attendances: AttendancesDto
@@ -56,55 +55,52 @@ class AttendancesController(private val attendanceService: AttendanceService) {
   )
 
   @GetMapping("/{prison}/{event-location}")
-  @ApiOperation(
-    value = "Returns set of attendance details",
-    response = AttendancesResponse::class,
-    notes = "Request attendance details"
+  @Operation(
+    description = "Returns set of attendance details",
+    summary = "Request attendance details"
   )
   fun getAttendanceForEventLocation(
-    @ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @ApiParam(value = "Location id of event") @PathVariable("event-location") eventLocationId: Long?,
-    @ApiParam(
-      value = "Date of event in format YYYY-MM-DD",
+    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(name = "Location id of event") @PathVariable("event-location") eventLocationId: Long?,
+    @Parameter(
+      name = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
-    @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
+    @Parameter(name = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
   ): AttendancesResponse = AttendancesResponse(
     attendances = attendanceService.getAttendanceForEventLocation(prisonId, eventLocationId, date, period)
   )
 
   @GetMapping("/{prison}/absences")
-  @ApiOperation(
-    value = "Returns set of attendance details for attendances with an absent reason",
-    response = AttendancesResponse::class,
-    notes = "Request absences details"
+  @Operation(
+    description = "Returns set of attendance details for attendances with an absent reason",
+    summary = "Request absences details"
   )
   fun getAbsences(
-    @ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @ApiParam(
-      value = "Date of event in format YYYY-MM-DD",
+    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(
+      name = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
-    @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
+    @Parameter(name = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
   ): AttendancesResponse = AttendancesResponse(
     attendances = attendanceService.getAbsencesForReason(prisonId, date, period)
   )
 
   @GetMapping("/{prison}")
-  @ApiOperation(
-    value = "Returns set of attendance details for set of booking ids",
-    response = AttendancesResponse::class,
-    notes = "Request attendance details"
+  @Operation(
+    description = "Returns set of attendance details for set of booking ids",
+    summary = "Request attendance details"
   )
   fun getAttendanceForBookings(
-    @ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @ApiParam(
-      value = "Date of event in format YYYY-MM-DD",
+    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(
+      name = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
-    @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod,
-    @ApiParam(
-      value = "Booking ids (bookings=1&bookings=2)",
+    @Parameter(name = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod,
+    @Parameter(
+      name = "Booking ids (bookings=1&bookings=2)",
       required = true
     ) @RequestParam(name = "bookings") bookings: Set<Long>
   ): AttendancesResponse = AttendancesResponse(
@@ -112,56 +108,53 @@ class AttendancesController(private val attendanceService: AttendanceService) {
   )
 
   @GetMapping("/offender/{offenderNo}/unacceptable-absences")
-  @ApiOperation(
-    value = "Returns unacceptable absence attendance details for an offender",
-    response = AttendanceHistoryDto::class,
-    notes = "Request unacceptable absence details"
+  @Operation(
+    description = "Returns unacceptable absence attendance details for an offender",
+    summary = "Request unacceptable absence details"
   )
   fun getAttendanceDetailsForOffender(
-    @ApiParam(value = "offender or Prison number or Noms id") @PathVariable(name = "offenderNo") offenderNo: String,
-    @ApiParam(value = "Start date of range to summarise in format YYYY-MM-DD", required = true)
+    @Parameter(name = "offender or Prison number or Noms id") @PathVariable(name = "offenderNo") offenderNo: String,
+    @Parameter(name = "Start date of range to summarise in format YYYY-MM-DD", required = true)
     @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
-    @ApiParam(value = "End date of range to summarise in format YYYY-MM-DD", required = true)
+    @Parameter(name = "End date of range to summarise in format YYYY-MM-DD", required = true)
     @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate,
     @PageableDefault(page = 0, size = 20) pageable: Pageable
   ): Page<AttendanceHistoryDto> =
     attendanceService.getAttendanceDetailsForOffender(offenderNo, fromDate, toDate, pageable)
 
   @PostMapping("/{prison}")
-  @ApiOperation(
-    value = "Returns set of attendance details for set of booking ids",
-    response = AttendancesResponse::class,
-    notes = "Request attendance details"
+  @Operation(
+    description = "Returns set of attendance details for set of booking ids",
+    summary = "Request attendance details"
   )
   fun getAttendanceForBookingsByPost(
-    @ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @ApiParam(
-      value = "Date of event in format YYYY-MM-DD",
+    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(
+      name = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
-    @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod,
-    @ApiParam(value = "Set of booking ids, for example [1,2]", required = true) @RequestBody bookings: Set<Long>
+    @Parameter(name = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod,
+    @Parameter(name = "Set of booking ids, for example [1,2]", required = true) @RequestBody bookings: Set<Long>
   ): AttendancesResponse = AttendancesResponse(
     attendances = attendanceService.getAttendanceForBookings(prisonId, bookings, date, period)
   )
 
   @PostMapping("/{prison}/attendance-over-date-range")
-  @ApiOperation(
-    value = "Returns set of attendance details for set of booking ids",
-    response = AttendancesResponse::class,
-    notes = "Request attendance details"
+  @Operation(
+    description = "Returns set of attendance details for set of booking ids",
+    summary = "Request attendance details"
   )
   fun getAttendanceForBookingsOverDateRangeByPost(
-    @ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @ApiParam(
-      value = "Date of event in format YYYY-MM-DD",
+    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(
+      name = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
-    @ApiParam(value = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(
+    @Parameter(name = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(
       iso = DATE
     ) toDate: LocalDate?,
-    @ApiParam(value = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
-    @ApiParam(value = "Set of booking ids, for example [1,2]", required = true) @RequestBody bookings: Set<Long>
+    @Parameter(name = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
+    @Parameter(name = "Set of booking ids, for example [1,2]", required = true) @RequestBody bookings: Set<Long>
   ): AttendancesResponse = AttendancesResponse(
     attendances = attendanceService.getAttendanceForBookingsOverDateRange(
       prisonId,
@@ -173,52 +166,50 @@ class AttendancesController(private val attendanceService: AttendanceService) {
   )
 
   @GetMapping("/{prison}/attendance-for-scheduled-activities")
-  @ApiOperation(
-    value = "Return a set of attendance details for all offenders that have scheduled activity",
-    response = AttendancesResponse::class,
-    notes = "Request attendance details"
+  @Operation(
+    description = "Return a set of attendance details for all offenders that have scheduled activity",
+    summary = "Request attendance details"
   )
   fun getAttendanceForOffendersThatHaveScheduleActivity(
-    @ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @ApiParam(
-      value = "Date of event in format YYYY-MM-DD",
+    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(
+      name = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
-    @ApiParam(value = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
+    @Parameter(name = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
   ): AttendancesResponse = AttendancesResponse(
     attendances = attendanceService.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
   )
 
   @GetMapping("/{prison}/absences-for-scheduled-activities/{absentReason}")
-  @ApiOperation(
-    value = "Return a set of absences for all offenders that have scheduled activity",
-    response = AbsencesResponse::class,
-    notes = "Request absences"
+  @Operation(
+    description = "Return a set of absences for all offenders that have scheduled activity",
+    summary = "Request absences"
   )
   fun getAbsencesForReason(
-    @ApiParam(value = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @ApiParam(value = "Absent reason (e.g Refused, AcceptableAbsence)") @PathVariable(name = "absentReason") absentReason: AbsentReason,
-    @ApiParam(
-      value = "Date of event in format YYYY-MM-DD",
+    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(name = "Absent reason (e.g Refused, AcceptableAbsence)") @PathVariable(name = "absentReason") absentReason: AbsentReason,
+    @Parameter(
+      name = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
-    @ApiParam(value = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(
+    @Parameter(name = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(
       iso = DATE
     ) toDate: LocalDate?,
-    @ApiParam(value = "Time period") @RequestParam(name = "period") period: TimePeriod?
+    @Parameter(name = "Time period") @RequestParam(name = "period") period: TimePeriod?
   ): AbsencesResponse = AbsencesResponse(
     description = absentReason.labelWithAddedWarning,
     absences = attendanceService.getAbsencesForReason(prisonId, absentReason, fromDate, toDate, period),
   )
 
   @GetMapping("/changes")
-  @ApiOperation(value = "Return all changes relating to an attendance")
+  @Operation(description = "Return all changes relating to an attendance")
   fun getAttendanceChanges(
-    @ApiParam(
-      value = "Date and Time of change in format YYYY-MM-DDT09:10",
+    @Parameter(
+      name = "Date and Time of change in format YYYY-MM-DDT09:10",
       required = true
     ) @RequestParam(name = "fromDateTime") @DateTimeFormat(iso = DATE_TIME) fromDateTime: LocalDateTime,
-    @ApiParam(value = "Date and Time of the change in format YYYY-MM-DDT:09:45") @RequestParam(name = "toDateTime") @DateTimeFormat(
+    @Parameter(name = "Date and Time of the change in format YYYY-MM-DDT:09:45") @RequestParam(name = "toDateTime") @DateTimeFormat(
       iso = DATE_TIME
     ) toDateTime: LocalDateTime?
   ): AttendanceChangesResponse = AttendanceChangesResponse(
@@ -226,13 +217,13 @@ class AttendancesController(private val attendanceService: AttendanceService) {
   )
 
   @GetMapping("/offender/{offenderNo}/unacceptable-absence-count")
-  @ApiOperation(value = "Return counts of unacceptable absences and totals over time for an offender")
+  @Operation(description = "Return counts of unacceptable absences and totals over time for an offender")
   fun getAttendanceSummary(
-    @ApiParam(value = "offender or Prison number or Noms id")
+    @Parameter(name = "offender or Prison number or Noms id")
     @PathVariable(name = "offenderNo") offenderNo: String,
-    @ApiParam(value = "Start date of range to summarise in format YYYY-MM-DD", required = true)
+    @Parameter(name = "Start date of range to summarise in format YYYY-MM-DD", required = true)
     @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
-    @ApiParam(value = "End date of range to summarise in format YYYY-MM-DD", required = true)
+    @Parameter(name = "End date of range to summarise in format YYYY-MM-DD", required = true)
     @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate
   ): AttendanceSummary = attendanceService.getAttendanceAbsenceSummaryForOffender(offenderNo, fromDate, toDate)
 }

@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
@@ -19,7 +19,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentService
 import java.time.LocalDate
 
-@Api(tags = ["appointments"])
+@Tag(name = "appointments")
 @RestController
 @RequestMapping(value = ["appointments"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class AppointmentsController(
@@ -27,9 +27,9 @@ class AppointmentsController(
 ) {
 
   @GetMapping("/{agencyId}")
-  @ApiOperation(
-    value = "List of appointments for the given agency that match the search criteria.",
-    nickname = "getAppointments"
+  @Operation(
+    description = "List of appointments for the given agency that match the search criteria.",
+    summary = "getAppointments"
   )
   @ApiResponses(
     value = [
@@ -49,20 +49,20 @@ class AppointmentsController(
     ]
   )
   fun getAppointments(
-    @ApiParam(value = "The agency Id") @PathVariable("agencyId") agencyId: String,
-    @ApiParam(
-      value = "Date the appointments are scheduled",
+    @Parameter(name = "The agency Id") @PathVariable("agencyId") agencyId: String,
+    @Parameter(
+      name = "Date the appointments are scheduled",
       required = true
     ) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("date") date: LocalDate,
-    @ApiParam(value = "AM, PM or ED", allowableValues = "AM,PM,ED") @RequestParam(
+    @Parameter(name = "AM, PM or ED") @RequestParam(
       value = "timeSlot",
       required = false
     ) timeSlot: TimePeriod?,
-    @ApiParam(
-      "The location prefix of any offenders' residence associated with a returned appointment",
+    @Parameter(
+      name = "The location prefix of any offenders' residence associated with a returned appointment",
       example = "Block A"
     ) @RequestParam(value = "offenderLocationPrefix", required = false) offenderLocationPrefix: String?,
-    @ApiParam("Location id") @RequestParam(value = "locationId", required = false) locationId: Long?
+    @Parameter(name = "Location id") @RequestParam(value = "locationId", required = false) locationId: Long?
   ): List<AppointmentSearchDto> =
     appointmentService.getAppointments(agencyId, date, timeSlot, offenderLocationPrefix, locationId)
 }
