@@ -24,23 +24,23 @@ data class CreateBookingAppointment(
 
 @ApiModel(description = "The data required to create an appointment")
 data class CreateAppointmentSpecification(
-  @ApiModelProperty(name = "The offender booking id")
+  @ApiModelProperty(required = true, value = "The offender booking id")
   val bookingId: Long,
-  @ApiModelProperty(name = "The location id of where the appointment will take place")
+  @ApiModelProperty(required = true, value = "The location id of where the appointment will take place")
   val locationId: Long,
-  @ApiModelProperty(name = "Appointment type")
+  @ApiModelProperty(required = true, value = "Appointment type")
   val appointmentType: String,
-  @ApiModelProperty(name = "Additional information")
+  @ApiModelProperty(value = "Additional information")
   val comment: String? = null,
   @ApiModelProperty(
-    name = "The date and time the appointment is scheduled for",
+    value = "The date and time the appointment is scheduled for",
   )
   val startTime: LocalDateTime,
   @ApiModelProperty(
-    name = "The estimated date time the appointment will end",
+    value = "The estimated date time the appointment will end",
   )
   val endTime: LocalDateTime? = null,
-  @ApiModelProperty(name = "Describes how many times this appointment is to be repeated")
+  @ApiModelProperty(value = "Describes how many times this appointment is to be repeated")
   val repeat: Repeat? = null
 )
 

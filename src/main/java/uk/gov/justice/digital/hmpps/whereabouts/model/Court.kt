@@ -12,13 +12,13 @@ import javax.persistence.Table
 @ApiModel(description = "Video Link Booking related information for a court")
 class Court(
   @Id
-  @ApiModelProperty(name = "The court identifier. Unique. Defined by courts registry.")
+  @ApiModelProperty(required = true, value = "The court identifier. Unique. Defined by courts registry.")
   val id: String,
 
-  @ApiModelProperty(name = "A name for the court.")
+  @ApiModelProperty(value = "A name for the court.")
   val name: String,
 
-  @ApiModelProperty(name = "Court email address.")
+  @ApiModelProperty(value = "Court email address.")
   val email: String? = null
 ) {
   override fun equals(other: Any?): Boolean {
