@@ -26,7 +26,6 @@ public class ResourceServerConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests(auth ->
                         auth.antMatchers("/webjars/**", "/favicon.ico", "/csrf",
                                 "/health/**", "/info", "/ping", "/h2-console/**",
-                                "/v2/api-docs",
                                 "/v3/api-docs/**", "/swagger-ui.html",
                                 "/swagger-ui/**", "/swagger-resources", "/swagger-resources/configuration/ui",
                                 "/swagger-resources/configuration/security")

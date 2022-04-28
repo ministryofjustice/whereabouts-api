@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import io.swagger.annotations.Api
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason.Companion.paidSubReasons
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason.Companion.unpaidSubReasons
 
-@Api(tags = ["absence-reasons"])
+@Tag(name = "absence-reasons")
 @RestController
 @RequestMapping(value = ["absence-reasons"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class AbsentReasonsController {

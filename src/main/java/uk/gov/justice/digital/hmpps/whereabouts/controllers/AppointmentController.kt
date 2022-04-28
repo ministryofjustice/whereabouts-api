@@ -1,10 +1,12 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -21,28 +23,42 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatedAppointmentDetailsDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentService
 
-@Api(tags = ["appointment"])
+@Tag(name = "appointment")
 @RestController
 @RequestMapping(value = ["appointment"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class AppointmentController(private val appointmentService: AppointmentService) {
 
   @GetMapping(path = ["/{id}"])
-  @ApiOperation(
-    value = "Return appointment details",
-    nickname = "getAppointment"
+  @Operation(
+    description = "Return appointment details",
+    summary = "getAppointment"
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 200, message = "OK", response = AppointmentDetailsDto::class),
+      ApiResponse(responseCode = "200", description = "OK"),
       ApiResponse(
-        code = 404,
-        message = "Appointment not found.",
-        response = ErrorResponse::class,
+        responseCode = "404",
+        description = "Appointment not found.",
+        content =
+        [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ],
+
       ),
       ApiResponse(
-        code = 500,
-        message = "Unrecoverable error occurred whilst processing request.",
-        response = ErrorResponse::class,
+        responseCode = "500",
+        description = "Unrecoverable error occurred whilst processing request.",
+        content =
+        [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ],
+
       )
     ]
   )
@@ -50,21 +66,26 @@ class AppointmentController(private val appointmentService: AppointmentService) 
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  @ApiOperation(
-    value = "Create an appointment",
-    nickname = "createAppointment"
+  @Operation(
+    description = "Create an appointment",
+    summary = "createAppointment"
   )
   @ApiResponses(
     value = [
       ApiResponse(
-        code = 400,
-        message = "Bad request",
-        response = ErrorResponse::class
+        responseCode = "400",
+        description = "Bad request",
       ),
       ApiResponse(
-        code = 500,
-        message = "Unrecoverable error occurred whilst processing request.",
-        response = ErrorResponse::class
+        responseCode = "500",
+        description = "Unrecoverable error occurred whilst processing request.",
+        content =
+        [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ],
       )
     ]
   )
@@ -72,21 +93,35 @@ class AppointmentController(private val appointmentService: AppointmentService) 
     appointmentService.createAppointment(createAppointmentSpecification)
 
   @DeleteMapping(path = ["/{id}"])
-  @ApiOperation(
-    value = "Delete an appointment",
-    nickname = "deleteAppointment"
+  @Operation(
+    description = "Delete an appointment",
+    summary = "deleteAppointment"
   )
   @ApiResponses(
     value = [
       ApiResponse(
-        code = 404,
-        message = "Appointment not found.",
-        response = ErrorResponse::class,
+        responseCode = "404",
+        description = "Appointment not found.",
+        content =
+        [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ],
+
       ),
       ApiResponse(
-        code = 500,
-        message = "Unrecoverable error occurred whilst processing request.",
-        response = ErrorResponse::class,
+        responseCode = "500",
+        description = "Unrecoverable error occurred whilst processing request.",
+        content =
+        [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ],
+
       )
     ]
   )
@@ -95,25 +130,39 @@ class AppointmentController(private val appointmentService: AppointmentService) 
   ) = appointmentService.deleteAppointment(id)
 
   @DeleteMapping(path = ["/recurring/{id}"])
-  @ApiOperation(
-    value = "Delete the whole sequence of a recurring appointment",
-    nickname = "deleteRecurringAppointmentSequence"
+  @Operation(
+    description = "Delete the whole sequence of a recurring appointment",
+    summary = "deleteRecurringAppointmentSequence"
   )
   @ApiResponses(
     value = [
       ApiResponse(
-        code = 404,
-        message = "Recurring appointment sequence not found.",
-        response = ErrorResponse::class,
+        responseCode = "404",
+        description = "Recurring appointment sequence not found.",
+        content =
+        [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ],
+
       ),
       ApiResponse(
-        code = 500,
-        message = "Unrecoverable error occurred whilst processing request.",
-        response = ErrorResponse::class,
+        responseCode = "500",
+        description = "Unrecoverable error occurred whilst processing request.",
+        content =
+        [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ],
+
       )
     ]
   )
   fun deleteRecurringAppointmentSequence(
-    @ApiParam(value = "The id of the recurring appointment sequence.") @PathVariable(value = "id") id: Long
+    @Parameter(name = "The id of the recurring appointment sequence.") @PathVariable(value = "id") id: Long
   ) = appointmentService.deleteRecurringAppointmentSequence(id)
 }
