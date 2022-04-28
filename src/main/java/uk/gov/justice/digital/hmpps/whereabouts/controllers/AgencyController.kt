@@ -1,9 +1,11 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
@@ -31,27 +33,40 @@ class AgencyController(
     summary = "getAvailableLocationGroups"
   )
   @ApiResponses(
-    value = [
-      ApiResponse(code = 200, message = "OK", response = LocationGroup::class, responseContainer = "List"),
-      ApiResponse(
-        code = 400,
-        message = "Invalid request.",
-        response = ErrorResponse::class,
-        responseContainer = "List"
-      ),
-      ApiResponse(
-        code = 404,
-        message = "Requested resource not found.",
-        response = ErrorResponse::class,
-        responseContainer = "List"
-      ),
-      ApiResponse(
-        code = 500,
-        message = "Unrecoverable error occurred whilst processing request.",
-        response = ErrorResponse::class,
-        responseContainer = "List"
-      )
-    ]
+    ApiResponse(responseCode = "200", description = "OK"),
+    ApiResponse(
+      responseCode = "400",
+      description = "Invalid request.",
+      content =
+      [
+        Content(
+          mediaType = "application/json",
+          schema = Schema(implementation = ErrorResponse::class)
+        )
+      ],
+    ),
+    ApiResponse(
+      responseCode = "404",
+      description = "Requested resource not found.",
+      content =
+      [
+        Content(
+          mediaType = "application/json",
+          schema = Schema(implementation = ErrorResponse::class)
+        )
+      ],
+    ),
+    ApiResponse(
+      responseCode = "500",
+      description = "Unrecoverable error occurred whilst processing request.",
+      content =
+      [
+        Content(
+          mediaType = "application/json",
+          schema = Schema(implementation = ErrorResponse::class)
+        )
+      ],
+    )
   )
   fun getAvailableLocationGroups(
     @Parameter(
@@ -69,20 +84,17 @@ class AgencyController(
   @ApiResponses(
     value = [
       ApiResponse(
-        code = 200,
-        message = "OK",
-        response = WhereaboutsConfig::class
+        responseCode = "200",
+        description = "OK",
       ),
-      ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class),
+      ApiResponse(responseCode = "400", description = "Invalid request."),
       ApiResponse(
-        code = 404,
-        message = "Requested resource not found.",
-        response = ErrorResponse::class
+        responseCode = "404",
+        description = "Requested resource not found.",
       ),
       ApiResponse(
-        code = 500,
-        message = "Unrecoverable error occurred whilst processing request.",
-        response = ErrorResponse::class
+        responseCode = "500",
+        description = "Unrecoverable error occurred whilst processing request.",
       )
     ]
   )

@@ -1,9 +1,11 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -35,13 +37,47 @@ class AttendanceController(private val attendanceService: AttendanceService) {
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class),
-      ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse::class),
-      ApiResponse(code = 406, message = "Conflict creating an attendance.", response = ErrorResponse::class),
       ApiResponse(
-        code = 500,
-        message = "Unrecoverable error occurred whilst processing request.",
-        response = ErrorResponse::class
+        responseCode = "400", description = "Invalid request.",
+        content =
+        [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ],
+      ),
+      ApiResponse(
+        responseCode = "404", description = "Requested resource not found.",
+        content =
+        [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ],
+      ),
+      ApiResponse(
+        responseCode = "406", description = "Conflict creating an attendance.",
+        content =
+        [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ],
+      ),
+      ApiResponse(
+        responseCode = "500",
+        description = "Unrecoverable error occurred whilst processing request.",
+        content =
+        [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ],
+
       )
     ]
   )
@@ -59,12 +95,29 @@ class AttendanceController(private val attendanceService: AttendanceService) {
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class),
-      ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse::class),
       ApiResponse(
-        code = 500,
-        message = "Unrecoverable error occurred whilst processing request.",
-        response = ErrorResponse::class
+        responseCode = "400", description = "Invalid request.",
+        content =
+        [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ],
+
+      ),
+      ApiResponse(responseCode = "404", description = "Requested resource not found."),
+      ApiResponse(
+        responseCode = "500",
+        description = "Unrecoverable error occurred whilst processing request.",
+        content =
+        [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ],
+
       )
     ]
   )
