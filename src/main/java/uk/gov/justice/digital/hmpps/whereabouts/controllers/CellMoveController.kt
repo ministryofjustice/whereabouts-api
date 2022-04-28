@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -33,14 +33,12 @@ class CellMoveController {
   @ResponseStatus(HttpStatus.CREATED)
   @ApiResponses(
     value = [
-      ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class), ApiResponse(
-        code = 404,
-        message = "Requested resource not found.",
-        response = ErrorResponse::class
+      ApiResponse(responseCode = "400", description = "Invalid request."), ApiResponse(
+        responseCode = "404",
+        description = "Requested resource not found.",
       ), ApiResponse(
-        code = 500,
-        message = "Unrecoverable error occurred whilst processing request.",
-        response = ErrorResponse::class
+        responseCode = "500",
+        description = "Unrecoverable error occurred whilst processing request.",
       )
     ]
   )
@@ -53,15 +51,13 @@ class CellMoveController {
   @Operation(description = "Return cell move reason")
   @ApiResponses(
     value = [
-      ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse::class),
+      ApiResponse(responseCode = "400", description = "Invalid request."),
       ApiResponse(
-        code = 404,
-        message = "Requested resource not found.",
-        response = ErrorResponse::class
+        responseCode = "404",
+        description = "Requested resource not found.",
       ), ApiResponse(
-        code = 500,
-        message = "Unrecoverable error occurred whilst processing request.",
-        response = ErrorResponse::class
+        responseCode = "500",
+        description = "Unrecoverable error occurred whilst processing request.",
       )
     ]
   )
