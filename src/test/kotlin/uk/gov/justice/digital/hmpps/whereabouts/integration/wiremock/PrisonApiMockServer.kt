@@ -220,6 +220,24 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
+  fun stubScheduleActivityCount(
+    prisonId: String = "MDI",
+  ) {
+    stubFor(
+      get(urlPathEqualTo("/api/schedules/$prisonId/count-activities"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(
+              gson.toJson(
+                mapOf("total" to 13L, "suspended" to 2L),
+              )
+            )
+            .withStatus(200)
+        )
+    )
+  }
+
   fun stubGetAttendanceForOffender(
     offenderNo: String,
     fromDate: LocalDate = LocalDate.now().minusYears(1),

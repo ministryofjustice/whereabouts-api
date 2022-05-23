@@ -99,6 +99,41 @@ class AttendanceStatistics(
     )
   }
 
+  fun getStats2(prisonId: String, period: TimePeriod?, from: LocalDate, to: LocalDate): Stats {
+    val periods = period?.let { setOf(it) } ?: setOf(TimePeriod.PM, TimePeriod.AM)
+    val counts = prisonApiService.getScheduleActivityCount(prisonId, from, to, periods)
+
+    val attendances = when (periods.size) {
+      1 -> attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(prisonId, period, from, to)
+      else -> attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(prisonId, from, to, periods)
+    }
+
+    val (paid, unpaid) = attendances.partition { AbsentReason.paidReasons.contains(it.absentReason) }
+    val paidCounts = paid.groupBy { it.absentReason }.mapValues { it.value.count() }
+    val unpaidCounts = unpaid.groupBy { it.absentReason }.mapValues { it.value.count() }
+
+    return Stats(
+      scheduleActivities = counts.total,
+      notRecorded = counts.total - attendances.size,
+      paidReasons = PaidReasons(
+        acceptableAbsence = paidCounts[AcceptableAbsence],
+        approvedCourse = paidCounts[ApprovedCourse],
+        notRequired = paidCounts[NotRequired],
+      ),
+      unpaidReasons = UnpaidReasons(
+        refused = unpaidCounts[Refused],
+        refusedIncentiveLevelWarning = unpaidCounts[RefusedIncentiveLevelWarning],
+        sessionCancelled = unpaidCounts[SessionCancelled],
+        unacceptableAbsence = unpaidCounts[UnacceptableAbsence],
+        unacceptableAbsenceIncentiveLevelWarning = unpaidCounts[UnacceptableAbsenceIncentiveLevelWarning],
+        restDay = unpaidCounts[RestDay],
+        restInCellOrSick = unpaidCounts[RestInCellOrSick],
+      ),
+      suspended = counts.suspended,
+      attended = attendances.count { it.attended },
+    )
+  }
+
   private fun getScheduleActivityForPeriods(
     prisonId: String,
     from: LocalDate,
@@ -127,3 +162,5 @@ class AttendanceStatistics(
     }.fold(0) { acc, current -> acc + current }
   }
 }
+
+data class PrisonerActivitiesCount(val total: Int, val suspended: Int)

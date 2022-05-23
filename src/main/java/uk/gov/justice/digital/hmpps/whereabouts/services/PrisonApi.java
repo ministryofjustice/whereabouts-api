@@ -156,6 +156,18 @@ public abstract class PrisonApi {
                 .block();
     }
 
+    public PrisonerActivitiesCount getScheduleActivityCount(final String prisonId, final LocalDate fromDate, final LocalDate toDate, final Set<TimePeriod> periods) {
+        return webClient.get()
+                .uri("/schedules/{prisonId}/count-activities",
+                        b -> b.queryParam("fromDate", fromDate)
+                                .queryParam("toDate", toDate)
+                                .queryParam("periods", periods)
+                                .build(prisonId))
+                .retrieve()
+                .bodyToMono(PrisonerActivitiesCount.class)
+                .block();
+    }
+
     public List<LocationGroup> getLocationGroups(final String agencyId) {
         final var responseType = new ParameterizedTypeReference<List<LocationGroup>>() {
         };
