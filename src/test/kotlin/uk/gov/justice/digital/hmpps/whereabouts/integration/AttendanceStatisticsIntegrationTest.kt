@@ -85,7 +85,7 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
     prisonApiMockServer.verify(
       getRequestedFor(
         urlEqualTo(
-          "/api/schedules/$prisonId/count-activities?fromDate=$fromDate&toDate=$toDate&periods=$period"
+          "/api/schedules/$prisonId/count-activities?fromDate=$fromDate&toDate=$toDate&timeSlots=$period"
         )
       )
     )
@@ -109,8 +109,8 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
       )
         .withQueryParam("fromDate", EqualToPattern(fromDate.toString()))
         .withQueryParam("toDate", EqualToPattern(toDate.toString()))
-        .withQueryParam("periods", EqualToPattern("AM"))
-        .withQueryParam("periods", EqualToPattern("PM"))
+        .withQueryParam("timeSlots", EqualToPattern("AM"))
+        .withQueryParam("timeSlots", EqualToPattern("PM"))
     )
   }
 
