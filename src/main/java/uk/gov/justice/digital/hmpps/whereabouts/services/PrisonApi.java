@@ -161,7 +161,7 @@ public abstract class PrisonApi {
                 .uri("/schedules/{prisonId}/count-activities",
                         b -> b.queryParam("fromDate", fromDate)
                                 .queryParam("toDate", toDate)
-                                .queryParam("periods", periods)
+                                .queryParam("timeSlots", periods)
                                 .build(prisonId))
                 .retrieve()
                 .bodyToMono(PrisonerActivitiesCount.class)
