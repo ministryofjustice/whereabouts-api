@@ -101,12 +101,13 @@ class AttendanceStatistics(
 
   fun getStats2(prisonId: String, period: TimePeriod?, from: LocalDate, to: LocalDate): Stats {
     val periods = period?.let { setOf(it) } ?: setOf(TimePeriod.PM, TimePeriod.AM)
-    val counts = prisonApiService.getScheduleActivityCount(prisonId, from, to, periods)
-
     val attendances = when (periods.size) {
       1 -> attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(prisonId, period, from, to)
       else -> attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(prisonId, from, to, periods)
     }
+
+    val attendancesBookingIdsCount = attendances.groupingBy { it.bookingId }.eachCount()
+    val counts = prisonApiService.getScheduleActivityCounts(prisonId, from, to, periods, attendancesBookingIdsCount)
 
     val (paid, unpaid) = attendances.partition { AbsentReason.paidReasons.contains(it.absentReason) }
     val paidCounts = paid.groupBy { it.absentReason }.mapValues { it.value.count() }
@@ -114,7 +115,7 @@ class AttendanceStatistics(
 
     return Stats(
       scheduleActivities = counts.total,
-      notRecorded = counts.total - attendances.size,
+      notRecorded = counts.notRecorded,
       paidReasons = PaidReasons(
         acceptableAbsence = paidCounts[AcceptableAbsence],
         approvedCourse = paidCounts[ApprovedCourse],
@@ -163,4 +164,4 @@ class AttendanceStatistics(
   }
 }
 
-data class PrisonerActivitiesCount(val total: Int, val suspended: Int)
+data class PrisonerActivitiesCount(val total: Int, val suspended: Int, val notRecorded: Int)

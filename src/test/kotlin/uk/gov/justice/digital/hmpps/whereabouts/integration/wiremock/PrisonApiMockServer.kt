@@ -224,13 +224,13 @@ class PrisonApiMockServer : WireMockServer(8999) {
     prisonId: String = "MDI",
   ) {
     stubFor(
-      get(urlPathEqualTo("/api/schedules/$prisonId/count-activities"))
+      post(urlPathEqualTo("/api/schedules/$prisonId/count-activities"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(
               gson.toJson(
-                mapOf("total" to 13L, "suspended" to 2L),
+                mapOf("total" to 13L, "suspended" to 2L, "notRecorded" to 5L),
               )
             )
             .withStatus(200)

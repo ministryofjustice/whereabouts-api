@@ -603,8 +603,8 @@ class AttendanceStatisticsTest {
   inner class getStats2 {
     @BeforeEach
     fun setup() {
-      whenever(prisonApiService.getScheduleActivityCount(anyString(), any(), any(), any())).thenReturn(
-        PrisonerActivitiesCount(0, 0)
+      whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
+        PrisonerActivitiesCount(0, 0, 0)
       )
     }
 
@@ -644,8 +644,8 @@ class AttendanceStatisticsTest {
 
     @Test
     fun `count not recorded`() {
-      whenever(prisonApiService.getScheduleActivityCount(anyString(), any(), any(), any())).thenReturn(
-        PrisonerActivitiesCount(13, 1)
+      whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
+        PrisonerActivitiesCount(13, 1, 2)
       )
 
       whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
@@ -658,8 +658,8 @@ class AttendanceStatisticsTest {
 
     @Test
     fun `count offender schedules`() {
-      whenever(prisonApiService.getScheduleActivityCount(anyString(), any(), any(), any())).thenReturn(
-        PrisonerActivitiesCount(8, 1)
+      whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
+        PrisonerActivitiesCount(8, 1, 0)
       )
       val stats = service.getStats2(prisonId, TimePeriod.AM, from, to)
 
@@ -716,13 +716,35 @@ class AttendanceStatisticsTest {
       )
         .thenReturn(attendances)
 
-      whenever(prisonApiService.getScheduleActivityCount(prisonId, from, to, setOf(TimePeriod.AM, TimePeriod.PM))).thenReturn(
-        PrisonerActivitiesCount(4, 2)
+      whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
+        PrisonerActivitiesCount(5, 2, 3)
       )
 
       val stats = service.getStats2(prisonId, null, from, to)
 
       assertThat(stats).extracting("suspended").isEqualTo(2)
+    }
+
+    @Test
+    fun `should call Prison API passing through the attendances`() {
+      whenever(
+        attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(
+          prisonId,
+          from,
+          to,
+          setOf(TimePeriod.AM, TimePeriod.PM)
+        )
+      )
+        .thenReturn(attendances.filter { setOf(1L, 2L, 3L).contains(it.bookingId) }.toSet())
+
+      val stats = service.getStats2(prisonId, null, from, to)
+
+      verify(prisonApiService).getScheduleActivityCounts(
+        prisonId, from, to, setOf(TimePeriod.AM, TimePeriod.PM),
+        mapOf(
+          1L to 1, 2L to 1, 3L to 1
+        )
+      )
     }
   }
 }
