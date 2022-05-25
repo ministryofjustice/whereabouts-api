@@ -156,13 +156,19 @@ public abstract class PrisonApi {
                 .block();
     }
 
-    public PrisonerActivitiesCount getScheduleActivityCount(final String prisonId, final LocalDate fromDate, final LocalDate toDate, final Set<TimePeriod> periods) {
-        return webClient.get()
+    public PrisonerActivitiesCount getScheduleActivityCounts(final String prisonId,
+                                                             final LocalDate fromDate,
+                                                             final LocalDate toDate,
+                                                             final Set<TimePeriod> periods,
+                                                             final Map<Long, Integer> attendancesBookingIdsCount
+                                                             ) {
+        return webClient.post()
                 .uri("/schedules/{prisonId}/count-activities",
                         b -> b.queryParam("fromDate", fromDate)
                                 .queryParam("toDate", toDate)
                                 .queryParam("timeSlots", periods)
                                 .build(prisonId))
+                .bodyValue(attendancesBookingIdsCount)
                 .retrieve()
                 .bodyToMono(PrisonerActivitiesCount.class)
                 .block();

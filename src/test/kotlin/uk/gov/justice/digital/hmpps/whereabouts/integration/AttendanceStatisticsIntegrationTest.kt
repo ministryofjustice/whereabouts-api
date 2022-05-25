@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
+import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
@@ -76,6 +78,21 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
   fun `should request schedules by date range2`() {
     prisonApiMockServer.stubScheduleActivityCount(prisonId)
 
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(any(), any(), any(), any())).thenReturn(
+      setOf(
+        Attendance
+          .builder()
+          .bookingId(1)
+          .attended(true)
+          .prisonId(prisonId)
+          .period(period)
+          .eventDate(fromDate)
+          .eventId(1)
+          .eventLocationId(1)
+          .build()
+      )
+    )
+
     webTestClient.get()
       .uri("/attendance-statistics/$prisonId/over-date-range-2?fromDate=$fromDate&toDate=$toDate&period=$period")
       .headers(setHeaders())
@@ -83,11 +100,12 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
       .expectStatus().isOk
 
     prisonApiMockServer.verify(
-      getRequestedFor(
+      postRequestedFor(
         urlEqualTo(
           "/api/schedules/$prisonId/count-activities?fromDate=$fromDate&toDate=$toDate&timeSlots=$period"
         )
       )
+        .withRequestBody(equalToJson("""{"1":1}"""))
     )
   }
 
@@ -102,7 +120,7 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
       .expectStatus().isOk
 
     prisonApiMockServer.verify(
-      getRequestedFor(
+      postRequestedFor(
         urlPathEqualTo(
           "/api/schedules/$prisonId/count-activities"
         )
@@ -142,7 +160,7 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
       .consumeWith(System.out::println)
       .jsonPath("$.attended").isEqualTo(1)
       .jsonPath("$.suspended").isEqualTo(2)
-      .jsonPath("$.notRecorded").isEqualTo(12)
+      .jsonPath("$.notRecorded").isEqualTo(5)
       .jsonPath("$.scheduleActivities").isEqualTo(13)
       .jsonPath("$.paidReasons.acceptableAbsenceDescription").isEqualTo("Acceptable absence")
       .jsonPath("$.unpaidReasons.refusedIncentiveLevelWarningDescription").isEqualTo("Refused to attend - incentive level warning added")
