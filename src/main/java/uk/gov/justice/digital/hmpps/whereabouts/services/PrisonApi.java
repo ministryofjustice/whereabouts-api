@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.PrisonerScheduleDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ScheduledEventDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance;
@@ -120,7 +121,17 @@ public abstract class PrisonApi {
                 .stream()
                 .map(entry -> Long.parseLong(entry.get("bookingId").toString()))
                 .collect(Collectors.toSet());
+    }
 
+    public List<PrisonerScheduleDto> getScheduledActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
+        final var responseType = new ParameterizedTypeReference<List<PrisonerScheduleDto>>() {
+        };
+
+        return Objects.requireNonNull(webClient.get()
+                        .uri("/schedules/{prisonId}/activities?date={date}&timeSlot={period}", prisonId, date, period)
+                        .retrieve()
+                        .bodyToMono(responseType)
+                        .block());
     }
 
     public String getOffenderNoFromBookingId(final Long bookingId) {
