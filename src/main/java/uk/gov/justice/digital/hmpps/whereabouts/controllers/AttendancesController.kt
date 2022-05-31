@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.whereabouts.dto.ScheduledResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsencesResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceChangesResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceHistoryDto
@@ -180,6 +181,17 @@ class AttendancesController(private val attendanceService: AttendanceService) {
   ): AttendancesResponse = AttendancesResponse(
     attendances = attendanceService.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
   )
+
+  @GetMapping("/{prison}/unaccounted-for")
+  @Operation(
+    description = "Return a set of prisoners that haven't attended a scheduled activity",
+    summary = "Request unaccounted for prisoners"
+  )
+  fun getPrisonersUnaccountedFor(
+    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(name = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
+    @Parameter(name = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod,
+  ) = ScheduledResponse(attendanceService.getPrisonersUnaccountedFor(prisonId, date, period))
 
   @GetMapping("/{prison}/absences-for-scheduled-activities/{absentReason}")
   @Operation(

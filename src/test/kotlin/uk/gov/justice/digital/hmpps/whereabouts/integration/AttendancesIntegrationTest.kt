@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anySet
 import org.mockito.kotlin.any
@@ -348,7 +350,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .expectStatus().isCreated
 
     prisonApiMockServer.verify(
-      WireMock.putRequestedFor(WireMock.urlEqualTo("/api/bookings/activities/attendance"))
+      WireMock.putRequestedFor(urlEqualTo("/api/bookings/activities/attendance"))
         .withRequestBody(
           WireMock.equalToJson(
             objectMapper.writeValueAsString(
@@ -407,7 +409,40 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .expectBody()
       .jsonPath(".attendances[0].id").isEqualTo(1)
 
-    prisonApiMockServer.verify(WireMock.getRequestedFor(WireMock.urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period")))
+    prisonApiMockServer.verify(getRequestedFor(urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period")))
+  }
+
+  @Test
+  fun `should return prisoners that haven't attended a scheduled activity`() {
+    prisonApiMockServer.stubGetScheduledActivities()
+
+    val prisonId = "MDI"
+    val date = LocalDate.now()
+    val period = TimePeriod.AM
+
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(any(), any(), any(), any()))
+      .thenReturn(
+        setOf(
+          attendance.toBuilder().bookingId(1).eventId(2).build(),
+        )
+      )
+
+    webTestClient
+      .get()
+      .uri {
+        it.path("/attendances/$prisonId/unaccounted-for")
+          .queryParam("date", date)
+          .queryParam("period", period)
+          .build()
+      }
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .consumeWith(System.out::println)
+      .jsonPath("\$.scheduled[*].offenderNo").isEqualTo("B123C")
+
+    prisonApiMockServer.verify(getRequestedFor(urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period")))
   }
 
   @Test
@@ -541,4 +576,18 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .jsonPath("$.content[3].comments").isEmpty
       .jsonPath("$.content[5].activity").isEqualTo("act 6")
   }
+
+  private val attendance = Attendance.builder()
+    .id(1)
+    .absentReason(AbsentReason.Refused)
+    .attended(false)
+    .paid(false)
+    .eventId(2)
+    .eventLocationId(3)
+    .period(TimePeriod.AM)
+    .prisonId("LEI")
+    .bookingId(100)
+    .createUserId("user")
+    .caseNoteId(1)
+    .build()
 }

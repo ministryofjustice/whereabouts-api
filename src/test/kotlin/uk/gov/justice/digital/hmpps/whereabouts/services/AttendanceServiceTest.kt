@@ -1,3 +1,5 @@
+@file:Suppress("ClassName")
+
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.microsoft.applicationinsights.TelemetryClient
@@ -5,6 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.anySet
@@ -23,6 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
+import uk.gov.justice.digital.hmpps.whereabouts.dto.PrisonerScheduleDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendAllDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceHistoryDto
@@ -365,7 +369,13 @@ class AttendanceServiceTest {
 
     service.createAttendance(attendance)
 
-    verify(nomisEventOutcomeMapper).getEventOutcome(AbsentReason.AcceptableAbsence, AbsentSubReason.ExternalMoves, false, true, "hello")
+    verify(nomisEventOutcomeMapper).getEventOutcome(
+      AbsentReason.AcceptableAbsence,
+      AbsentSubReason.ExternalMoves,
+      false,
+      true,
+      "hello"
+    )
   }
 
   @Test
@@ -895,32 +905,69 @@ class AttendanceServiceTest {
     )
   }
 
-  @Test
-  fun `should request all scheduled activity for date and period`() {
-    val agencyId = "LEI"
-    val date = LocalDate.now()
+  @Nested
+  inner class getAttendanceForOffendersThatHaveScheduledActivity {
+    val prisonId = "LEI"
+    val date: LocalDate = LocalDate.now()
     val period = TimePeriod.AM
 
-    service.getAttendanceForOffendersThatHaveScheduledActivity(agencyId, date, period)
+    @Test
+    fun `should request all scheduled activity for date and period`() {
+      service.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
 
-    verify(prisonApiService).getBookingIdsForScheduleActivities(agencyId, date, period)
+      verify(prisonApiService).getBookingIdsForScheduleActivities(prisonId, date, period)
+    }
+
+    @Test
+    fun `should fetch attendance records for selected booking ids`() {
+      whenever(prisonApiService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
+
+      service.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
+      verify(attendanceRepository).findByPrisonIdAndBookingIdInAndEventDateAndPeriod(
+        prisonId,
+        setOf(1L, 2L),
+        date,
+        period
+      )
+    }
   }
 
-  @Test
-  fun `should fetch attendance records for selected booking ids`() {
+  @Nested
+  inner class getPrisonersUnaccountedFor {
     val prisonId = "LEI"
-    val date = LocalDate.now()
+    val date: LocalDate = LocalDate.now()
     val period = TimePeriod.AM
 
-    whenever(prisonApiService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
+    @Test
+    fun `should fetch scheduled activities and attendances`() {
+      service.getPrisonersUnaccountedFor(prisonId, date, period)
 
-    service.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
-    verify(attendanceRepository).findByPrisonIdAndBookingIdInAndEventDateAndPeriod(
-      prisonId,
-      setOf(1L, 2L),
-      date,
-      period
-    )
+      verify(prisonApiService).getScheduledActivities(prisonId, date, period)
+      verify(attendanceRepository).findByPrisonIdAndPeriodAndEventDateBetween(prisonId, period, date, date)
+    }
+
+    @Test
+    fun `should remove attendances from scheduled activities`() {
+      whenever(prisonApiService.getScheduledActivities(any(), any(), any())).thenReturn(
+        listOf(
+          scheduleDto.copy(bookingId = 1, eventId = 2, offenderNo = "MATCH1"),
+          scheduleDto.copy(bookingId = 2, eventId = 2, offenderNo = "MATCH2"),
+          scheduleDto.copy(bookingId = 3, eventId = 1, offenderNo = "MATCH3"),
+          scheduleDto.copy(bookingId = 3, eventId = 2, offenderNo = "NO_MATCH"),
+        )
+      )
+      whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(any(), any(), any(), any()))
+        .thenReturn(
+          setOf(
+            attendance.toBuilder().bookingId(1).eventId(2).build(),
+            attendance.toBuilder().bookingId(3).eventId(1).build(),
+            attendance.toBuilder().bookingId(2).eventId(2).build(),
+          )
+        )
+
+      val scheduled = service.getPrisonersUnaccountedFor(prisonId, date, period)
+      assertThat(scheduled.map { it.offenderNo }).containsExactly("NO_MATCH")
+    }
   }
 
   @Test
@@ -1765,4 +1812,46 @@ class AttendanceServiceTest {
     assertThat(result.content.get(0).eventDate).isEqualTo(attendance.eventDate)
     assertThat(result.content.get(0).comments).isEqualTo(attendance.comments)
   }
+
+  private val scheduleDto = PrisonerScheduleDto(
+    offenderNo = "A123BC",
+    eventId = 2L,
+    bookingId = 1L,
+    locationId = 3L,
+    firstName = "Bob",
+    lastName = "Smith",
+    cellLocation = "loc 1",
+    event = "some event",
+    eventType = "some type",
+    eventDescription = "some event desc",
+    eventLocation = "some loc",
+    eventLocationId = 4L,
+    eventStatus = "stat",
+    comment = "some comment",
+    LocalDateTime.now(),
+    endTime = LocalDateTime.now().plusHours(1),
+    eventOutcome = "some outcome",
+    performance = "perf",
+    outcomeComment = "out comment",
+    paid = false,
+    payRate = null,
+    excluded = false,
+    timeSlot = TimePeriod.AM,
+    locationCode = "some loc code",
+    suspended = false,
+  )
+
+  private val attendance = Attendance.builder()
+    .id(1)
+    .absentReason(AbsentReason.Refused)
+    .attended(false)
+    .paid(false)
+    .eventId(2)
+    .eventLocationId(3)
+    .period(TimePeriod.AM)
+    .prisonId("LEI")
+    .bookingId(100)
+    .createUserId("user")
+    .caseNoteId(1)
+    .build()
 }

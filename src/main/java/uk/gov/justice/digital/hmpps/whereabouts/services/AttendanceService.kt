@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
+import uk.gov.justice.digital.hmpps.whereabouts.dto.PrisonerScheduleDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsenceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendAllDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceChangeDto
@@ -223,6 +224,20 @@ class AttendanceService(
     val attendances =
       attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookingIds, date, period)
     return attendances.stream().map(this::toAttendanceDto).collect(Collectors.toSet())
+  }
+
+  fun getPrisonersUnaccountedFor(
+    prisonId: String,
+    date: LocalDate,
+    period: TimePeriod,
+  ): List<PrisonerScheduleDto> {
+    // grab all scheduled activities
+    val scheduledActivities = prisonApiService.getScheduledActivities(prisonId, date, period)
+    // grab all the attendances that have taken place
+    val attendances = attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(prisonId, period, date, date)
+      .map { Pair(it.bookingId, it.eventId) }.toSet()
+    // filter to leave the scheduled activities
+    return scheduledActivities.filter { !attendances.contains(Pair(it.bookingId, it.eventId)) }
   }
 
   @Transactional
