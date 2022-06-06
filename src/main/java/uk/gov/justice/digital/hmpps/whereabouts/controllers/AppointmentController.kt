@@ -163,6 +163,6 @@ class AppointmentController(private val appointmentService: AppointmentService) 
     ]
   )
   fun deleteRecurringAppointmentSequence(
-    @Parameter(name = "The id of the recurring appointment sequence.") @PathVariable(value = "id") id: Long
+    @Parameter(description = "The id of the recurring appointment sequence.") @PathVariable(value = "id") id: Long
   ) = appointmentService.deleteRecurringAppointmentSequence(id)
 }

@@ -40,13 +40,12 @@ class EventsController(
   @GetMapping("/{offenderNo}")
   fun getEvents(
     @Parameter(
-      name = "offenderNo",
       example = "A1234AA",
       required = true,
     ) @PathVariable(value = "offenderNo", required = true) @NotNull offenderNo: String,
-    @Parameter(name = "Returned events must be scheduled on or after this date (in YYYY-MM-DD format).")
+    @Parameter(description = "Returned events must be scheduled on or after this date (in YYYY-MM-DD format).")
     @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DATE) fromDate: LocalDate?,
-    @Parameter(name = "Returned events must be scheduled on or before this date (in YYYY-MM-DD format).")
+    @Parameter(description = "Returned events must be scheduled on or before this date (in YYYY-MM-DD format).")
     @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DATE) toDate: LocalDate?
   ): List<ScheduledEventDto> = prisonApiServiceAuditable.getEvents(offenderNo, fromDate, toDate)
 }

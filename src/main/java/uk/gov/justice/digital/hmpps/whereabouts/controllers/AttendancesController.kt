@@ -47,7 +47,7 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     description = "Stores new attendance record for multiple offenders, posts attendance details back up to PNOMIS"
   )
   fun postAttendances(
-    @Parameter(name = "Attendance parameters", required = true)
+    @Parameter(description = "Attendance parameters", required = true)
     @RequestBody
     @Valid
     attendances: AttendancesDto
@@ -61,13 +61,13 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     summary = "Request attendance details"
   )
   fun getAttendanceForEventLocation(
-    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @Parameter(name = "Location id of event") @PathVariable("event-location") eventLocationId: Long?,
+    @Parameter(description = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(description = "Location id of event") @PathVariable("event-location") eventLocationId: Long?,
     @Parameter(
-      name = "Date of event in format YYYY-MM-DD",
+      description = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
-    @Parameter(name = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
+    @Parameter(description = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
   ): AttendancesResponse = AttendancesResponse(
     attendances = attendanceService.getAttendanceForEventLocation(prisonId, eventLocationId, date, period)
   )
@@ -78,12 +78,12 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     summary = "Request absences details"
   )
   fun getAbsences(
-    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(description = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
     @Parameter(
-      name = "Date of event in format YYYY-MM-DD",
+      description = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
-    @Parameter(name = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
+    @Parameter(description = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
   ): AttendancesResponse = AttendancesResponse(
     attendances = attendanceService.getAbsencesForReason(prisonId, date, period)
   )
@@ -94,14 +94,14 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     summary = "Request attendance details"
   )
   fun getAttendanceForBookings(
-    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(description = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
     @Parameter(
-      name = "Date of event in format YYYY-MM-DD",
+      description = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
-    @Parameter(name = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod,
+    @Parameter(description = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod,
     @Parameter(
-      name = "Booking ids (bookings=1&bookings=2)",
+      description = "Booking ids (bookings=1&bookings=2)",
       required = true
     ) @RequestParam(name = "bookings") bookings: Set<Long>
   ): AttendancesResponse = AttendancesResponse(
@@ -114,10 +114,10 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     summary = "Request unacceptable absence details"
   )
   fun getAttendanceDetailsForOffender(
-    @Parameter(name = "offender or Prison number or Noms id") @PathVariable(name = "offenderNo") offenderNo: String,
-    @Parameter(name = "Start date of range to summarise in format YYYY-MM-DD", required = true)
+    @Parameter(description = "offender or Prison number or Noms id") @PathVariable(name = "offenderNo") offenderNo: String,
+    @Parameter(description = "Start date of range to summarise in format YYYY-MM-DD", required = true)
     @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
-    @Parameter(name = "End date of range to summarise in format YYYY-MM-DD", required = true)
+    @Parameter(description = "End date of range to summarise in format YYYY-MM-DD", required = true)
     @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate,
     @PageableDefault(page = 0, size = 20) pageable: Pageable
   ): Page<AttendanceHistoryDto> =
@@ -129,13 +129,13 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     summary = "Request attendance details"
   )
   fun getAttendanceForBookingsByPost(
-    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(description = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
     @Parameter(
-      name = "Date of event in format YYYY-MM-DD",
+      description = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
-    @Parameter(name = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod,
-    @Parameter(name = "Set of booking ids, for example [1,2]", required = true) @RequestBody bookings: Set<Long>
+    @Parameter(description = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod,
+    @Parameter(description = "Set of booking ids, for example [1,2]", required = true) @RequestBody bookings: Set<Long>
   ): AttendancesResponse = AttendancesResponse(
     attendances = attendanceService.getAttendanceForBookings(prisonId, bookings, date, period)
   )
@@ -146,16 +146,16 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     summary = "Request attendance details"
   )
   fun getAttendanceForBookingsOverDateRangeByPost(
-    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(description = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
     @Parameter(
-      name = "Date of event in format YYYY-MM-DD",
+      description = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
-    @Parameter(name = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(
+    @Parameter(description = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(
       iso = DATE
     ) toDate: LocalDate?,
-    @Parameter(name = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
-    @Parameter(name = "Set of booking ids, for example [1,2]", required = true) @RequestBody bookings: Set<Long>
+    @Parameter(description = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
+    @Parameter(description = "Set of booking ids, for example [1,2]", required = true) @RequestBody bookings: Set<Long>
   ): AttendancesResponse = AttendancesResponse(
     attendances = attendanceService.getAttendanceForBookingsOverDateRange(
       prisonId,
@@ -172,12 +172,12 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     summary = "Request attendance details"
   )
   fun getAttendanceForOffendersThatHaveScheduleActivity(
-    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(description = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
     @Parameter(
-      name = "Date of event in format YYYY-MM-DD",
+      description = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
-    @Parameter(name = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
+    @Parameter(description = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
   ): AttendancesResponse = AttendancesResponse(
     attendances = attendanceService.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
   )
@@ -188,9 +188,9 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     summary = "Request unaccounted for prisoners"
   )
   fun getPrisonersUnaccountedFor(
-    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @Parameter(name = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
-    @Parameter(name = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod,
+    @Parameter(description = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(description = "Date of event in format YYYY-MM-DD", required = true) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
+    @Parameter(description = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod,
   ) = ScheduledResponse(attendanceService.getPrisonersUnaccountedFor(prisonId, date, period))
 
   @GetMapping("/{prison}/absences-for-scheduled-activities/{absentReason}")
@@ -199,16 +199,16 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     summary = "Request absences"
   )
   fun getAbsencesForReason(
-    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @Parameter(name = "Absent reason (e.g Refused, AcceptableAbsence)") @PathVariable(name = "absentReason") absentReason: AbsentReason,
+    @Parameter(description = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(description = "Absent reason (e.g Refused, AcceptableAbsence)") @PathVariable(name = "absentReason") absentReason: AbsentReason,
     @Parameter(
-      name = "Date of event in format YYYY-MM-DD",
+      description = "Date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
-    @Parameter(name = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(
+    @Parameter(description = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(
       iso = DATE
     ) toDate: LocalDate?,
-    @Parameter(name = "Time period") @RequestParam(name = "period") period: TimePeriod?
+    @Parameter(description = "Time period") @RequestParam(name = "period") period: TimePeriod?
   ): AbsencesResponse = AbsencesResponse(
     description = absentReason.labelWithAddedWarning,
     absences = attendanceService.getAbsencesForReason(prisonId, absentReason, fromDate, toDate, period),
@@ -218,10 +218,10 @@ class AttendancesController(private val attendanceService: AttendanceService) {
   @Operation(description = "Return all changes relating to an attendance")
   fun getAttendanceChanges(
     @Parameter(
-      name = "Date and Time of change in format YYYY-MM-DDT09:10",
+      description = "Date and Time of change in format YYYY-MM-DDT09:10",
       required = true
     ) @RequestParam(name = "fromDateTime") @DateTimeFormat(iso = DATE_TIME) fromDateTime: LocalDateTime,
-    @Parameter(name = "Date and Time of the change in format YYYY-MM-DDT:09:45") @RequestParam(name = "toDateTime") @DateTimeFormat(
+    @Parameter(description = "Date and Time of the change in format YYYY-MM-DDT:09:45") @RequestParam(name = "toDateTime") @DateTimeFormat(
       iso = DATE_TIME
     ) toDateTime: LocalDateTime?
   ): AttendanceChangesResponse = AttendanceChangesResponse(
@@ -231,11 +231,11 @@ class AttendancesController(private val attendanceService: AttendanceService) {
   @GetMapping("/offender/{offenderNo}/unacceptable-absence-count")
   @Operation(description = "Return counts of unacceptable absences and totals over time for an offender")
   fun getAttendanceSummary(
-    @Parameter(name = "offender or Prison number or Noms id")
+    @Parameter(description = "offender or Prison number or Noms id")
     @PathVariable(name = "offenderNo") offenderNo: String,
-    @Parameter(name = "Start date of range to summarise in format YYYY-MM-DD", required = true)
+    @Parameter(description = "Start date of range to summarise in format YYYY-MM-DD", required = true)
     @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
-    @Parameter(name = "End date of range to summarise in format YYYY-MM-DD", required = true)
+    @Parameter(description = "End date of range to summarise in format YYYY-MM-DD", required = true)
     @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate
   ): AttendanceSummary = attendanceService.getAttendanceAbsenceSummaryForOffender(offenderNo, fromDate, toDate)
 }
