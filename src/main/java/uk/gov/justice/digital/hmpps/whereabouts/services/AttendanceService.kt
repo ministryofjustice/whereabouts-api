@@ -325,7 +325,7 @@ class AttendanceService(
       prisonApiService.getScheduleActivityOffenderData(prisonId, attendanceMap.keys)
     } else emptyList()
 
-    return offenderDetails.map { toAbsenceDto(it, attendanceMap[it.eventId]!!) }
+    return offenderDetails.map { toAbsenceDto2(it, attendanceMap[it.eventId]!!) }
   }
 
   @Transactional
@@ -440,6 +440,26 @@ class AttendanceService(
       eventLocationId = attendance.eventLocationId,
       eventDate = attendance.eventDate,
       period = TimePeriod.valueOf(details.timeSlot!!),
+      reason = attendance.absentReason,
+      subReason = attendance.absentSubReason,
+      subReasonDescription = attendance.absentSubReason?.label,
+      eventDescription = details.comment,
+      comments = attendance.comments,
+      cellLocation = details.cellLocation,
+      firstName = details.firstName,
+      lastName = details.lastName,
+      suspended = details.suspended
+    )
+
+  private fun toAbsenceDto2(details: OffenderDetails, attendance: Attendance): AbsenceDto =
+    AbsenceDto(
+      attendanceId = attendance.id,
+      bookingId = attendance.bookingId,
+      offenderNo = details.offenderNo,
+      eventId = attendance.eventId,
+      eventLocationId = attendance.eventLocationId,
+      eventDate = attendance.eventDate,
+      period = attendance.period,
       reason = attendance.absentReason,
       subReason = attendance.absentSubReason,
       subReasonDescription = attendance.absentSubReason?.label,
