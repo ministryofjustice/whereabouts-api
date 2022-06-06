@@ -7,6 +7,6 @@ import io.swagger.annotations.ApiModelProperty
 data class AbsencesResponse(
   @ApiModelProperty(value = "Description of absence reason", example = "Refused to attend - incentive level warning added")
   val description: String,
-  @ApiModelProperty(value = "Set of absences")
-  val absences: Set<AbsenceDto>,
+  @ApiModelProperty(value = "List of absences")
+  val absences: List<AbsenceDto>,
 )
