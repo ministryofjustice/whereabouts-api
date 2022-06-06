@@ -70,7 +70,7 @@ class AgencyController(
   )
   fun getAvailableLocationGroups(
     @Parameter(
-      name = "The prison",
+      description = "The prison",
       required = true
     ) @PathVariable("agencyId") agencyId: String
   ): List<LocationGroup> =
@@ -100,7 +100,7 @@ class AgencyController(
   )
   fun getWhereabouts(
     @Parameter(
-      name = "The prison",
+      description = "The prison",
       required = true
     ) @PathVariable("agencyId") agencyId: String
   ): WhereaboutsConfig =

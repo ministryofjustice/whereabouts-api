@@ -82,7 +82,7 @@ class AttendanceController(private val attendanceService: AttendanceService) {
     ]
   )
   fun postAttendance(
-    @Parameter(name = "Attendance details", required = true)
+    @Parameter(description = "Attendance details", required = true)
     @RequestBody
     @Valid
     attendance: CreateAttendanceDto

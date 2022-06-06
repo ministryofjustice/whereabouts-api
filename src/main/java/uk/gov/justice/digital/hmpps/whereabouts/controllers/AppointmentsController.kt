@@ -62,20 +62,20 @@ class AppointmentsController(
     ]
   )
   fun getAppointments(
-    @Parameter(name = "The agency Id") @PathVariable("agencyId") agencyId: String,
+    @Parameter(description = "The agency Id") @PathVariable("agencyId") agencyId: String,
     @Parameter(
-      name = "Date the appointments are scheduled",
+      description = "Date the appointments are scheduled",
       required = true
     ) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("date") date: LocalDate,
-    @Parameter(name = "AM, PM or ED") @RequestParam(
+    @Parameter(description = "AM, PM or ED") @RequestParam(
       value = "timeSlot",
       required = false
     ) timeSlot: TimePeriod?,
     @Parameter(
-      name = "The location prefix of any offenders' residence associated with a returned appointment",
+      description = "The location prefix of any offenders' residence associated with a returned appointment",
       example = "Block A"
     ) @RequestParam(value = "offenderLocationPrefix", required = false) offenderLocationPrefix: String?,
-    @Parameter(name = "Location id") @RequestParam(value = "locationId", required = false) locationId: Long?
+    @Parameter(description = "Location id") @RequestParam(value = "locationId", required = false) locationId: Long?
   ): List<AppointmentSearchDto> =
     appointmentService.getAppointments(agencyId, date, timeSlot, offenderLocationPrefix, locationId)
 }

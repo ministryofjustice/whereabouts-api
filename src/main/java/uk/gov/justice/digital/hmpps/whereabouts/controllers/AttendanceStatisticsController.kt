@@ -29,14 +29,14 @@ class AttendanceStatisticsController(private val attendanceStatistics: Attendanc
     summary = "Request attendance statistics"
   )
   fun getAttendanceForEventLocation(
-    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @Parameter(name = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
+    @Parameter(description = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(description = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
     @Parameter(
-      name = "From date of event in format YYYY-MM-DD",
+      description = "From date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
     @Parameter(
-      name = "To date of event in format YYYY-MM-DD",
+      description = "To date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate
   ): Stats = attendanceStatistics.getStats(prisonId, period, fromDate, toDate)
@@ -47,14 +47,14 @@ class AttendanceStatisticsController(private val attendanceStatistics: Attendanc
     summary = "Request attendance statistics"
   )
   fun getAttendanceForEventLocation2(
-    @Parameter(name = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @Parameter(name = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
+    @Parameter(description = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(description = "Time period. Leave blank for AM + PM") @RequestParam(name = "period") period: TimePeriod?,
     @Parameter(
-      name = "From date of event in format YYYY-MM-DD",
+      description = "From date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
     @Parameter(
-      name = "To date of event in format YYYY-MM-DD",
+      description = "To date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate
   ): Stats = attendanceStatistics.getStats2(prisonId, period, fromDate, toDate)

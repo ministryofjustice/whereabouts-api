@@ -41,8 +41,8 @@ class LocationController(private val locationService: LocationService) {
     ]
   )
   fun getLocationGroup(
-    @Parameter(name = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
-    @Parameter(name = "The group name", required = true) @PathVariable("name") name: String
+    @Parameter(description = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
+    @Parameter(description = "The group name", required = true) @PathVariable("name") name: String
   ): List<Location> =
     locationService.getCellLocationsForGroup(agencyId, name)
 
@@ -89,9 +89,9 @@ class LocationController(private val locationService: LocationService) {
     ]
   )
   fun getCellsWithCapacityForGroup(
-    @Parameter(name = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
-    @Parameter(name = "The group name", required = true) @PathVariable("group") group: String,
-    @Parameter(name = "Cell attribute") @RequestParam(name = "attribute") attribute: String?
+    @Parameter(description = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
+    @Parameter(description = "The group name", required = true) @PathVariable("group") group: String,
+    @Parameter(description = "Cell attribute") @RequestParam(name = "attribute") attribute: String?
   ): List<CellWithAttributes> =
     locationService.getCellsWithCapacityForGroup(agencyId, group, attribute)
 
@@ -134,8 +134,8 @@ class LocationController(private val locationService: LocationService) {
     ]
   )
   fun getLocationPrefixFromGroup(
-    @Parameter(name = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
-    @Parameter(name = "The group name", required = true, example = "Houseblock 1") @PathVariable("group") group: String
+    @Parameter(description = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
+    @Parameter(description = "The group name", required = true, example = "Houseblock 1") @PathVariable("group") group: String
   ): LocationPrefixDto =
     locationService.getLocationPrefixFromGroup(agencyId, group)
 }

@@ -65,7 +65,7 @@ class VideoLinkBookingController(
     description = "Return information about email address."
   )
   fun getEmailByCourtId(
-    @Parameter(name = "Court id", required = true)
+    @Parameter(description = "Court id", required = true)
     @PathVariable("courtId")
     courtId: String
   ): CourtEmailDto =
@@ -92,7 +92,7 @@ class VideoLinkBookingController(
     description = "Return a video Link Booking"
   )
   fun getVideoLinkBooking(
-    @Parameter(name = "Video link booking id", required = true)
+    @Parameter(description = "Video link booking id", required = true)
     @PathVariable("videoBookingId")
     videoBookingId: Long
   ) = videoLinkBookingService.getVideoLinkBooking(videoBookingId)
@@ -104,17 +104,17 @@ class VideoLinkBookingController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(description = "Get all video link bookings for the specified date and prison, optionally filtering by court.")
   fun getVideoLinkBookingsByPrisonDateAndCourt(
-    @Parameter(name = "Return video link bookings for this prison only")
+    @Parameter(description = "Return video link bookings for this prison only")
     @PathVariable(name = "agencyId")
     agencyId: String,
 
-    @Parameter(name = "Return video link bookings for this date only. ISO-8601 date format")
+    @Parameter(description = "Return video link bookings for this date only. ISO-8601 date format")
     @PathVariable(name = "date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     date: LocalDate,
 
     @Parameter(
-      name = "The name a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned.",
+      description = "The name a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned.",
       required = false,
       example = "Wimbledon",
     )
@@ -122,7 +122,7 @@ class VideoLinkBookingController(
     court: String?,
 
     @Parameter(
-      name = "The identifier of a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned. Takes precedence over court.",
+      description = "The identifier of a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned. Takes precedence over court.",
       required = false,
       example = "CMBGMC"
     )
@@ -146,7 +146,7 @@ class VideoLinkBookingController(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(description = "Update a Video Link Booking")
   fun updateVideoLinkBooking(
-    @Parameter(name = "Video link booking id", required = true)
+    @Parameter(description = "Video link booking id", required = true)
     @PathVariable("videoBookingId")
     @NotNull
     videoBookingId: Long?,
@@ -169,7 +169,7 @@ class VideoLinkBookingController(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(description = "Delete a Video Link Booking")
   fun deleteVideoLinkBooking(
-    @Parameter(name = "Video link booking id", required = true)
+    @Parameter(description = "Video link booking id", required = true)
     @PathVariable("videoBookingId")
     videoBookingId: Long
   ): ResponseEntity<Void> {
@@ -184,7 +184,7 @@ class VideoLinkBookingController(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(description = "Update the comment for a Video Link Booking")
   fun updateVideoLinkBookingComment(
-    @Parameter(name = "Video link booking id", required = true)
+    @Parameter(description = "Video link booking id", required = true)
     @PathVariable("videoLinkBookingId")
     videoLinkBookingId: Long,
 

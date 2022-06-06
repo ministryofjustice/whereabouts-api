@@ -32,7 +32,7 @@ class VideoLinkBookingRoomsController(
   )
 
   fun getVideoLinkBookingRooms(
-    @Parameter(name = "The prison", required = true)
+    @Parameter(description = "The prison", required = true)
     @PathVariable("agencyId") agencyId: String
   ): List<LocationIdAndDescription> = locationService.getVideoLinkRoomsForPrison(agencyId)
 }

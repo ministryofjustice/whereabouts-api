@@ -27,11 +27,11 @@ class VideoLinkBookingEventController(val service: VideoLinkBookingEventService)
   fun getVideoLinkBookingEvents(
     @RequestParam(name = "start-date", required = true)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @Parameter(name = "The earliest date for which to return event details.", required = true)
+    @Parameter(description = "The earliest date for which to return event details.", required = true)
     startDate: LocalDate,
 
     @RequestParam(name = "days")
-    @Parameter(name = "Return details of events occurring within this number of days of start-date")
+    @Parameter(description = "Return details of events occurring within this number of days of start-date")
     days: Long?
   ) =
     service.getEventsAsCSV(startDate, days ?: 7L)
