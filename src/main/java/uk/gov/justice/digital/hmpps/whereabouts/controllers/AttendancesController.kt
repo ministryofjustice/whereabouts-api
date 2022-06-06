@@ -214,6 +214,27 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     absences = attendanceService.getAbsencesForReason(prisonId, absentReason, fromDate, toDate, period),
   )
 
+  @GetMapping("/{prison}/absences-for-scheduled-activities2/{absentReason}")
+  @Operation(
+    description = "Return a set of absences for all offenders that have scheduled activity",
+    summary = "Request absences"
+  )
+  fun getAbsencesForReason2(
+    @Parameter(description = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
+    @Parameter(description = "Absent reason (e.g Refused, AcceptableAbsence)") @PathVariable(name = "absentReason") absentReason: AbsentReason,
+    @Parameter(
+      description = "Date of event in format YYYY-MM-DD",
+      required = true
+    ) @RequestParam(name = "fromDate") @DateTimeFormat(iso = DATE) fromDate: LocalDate,
+    @Parameter(description = "Date of event in format YYYY-MM-DD defaults to fromDate") @RequestParam(name = "toDate") @DateTimeFormat(
+      iso = DATE
+    ) toDate: LocalDate?,
+    @Parameter(description = "Time period") @RequestParam(name = "period") period: TimePeriod?
+  ): AbsencesResponse = AbsencesResponse(
+    description = absentReason.labelWithAddedWarning,
+    absences = attendanceService.getAbsencesForReason2(prisonId, absentReason, fromDate, toDate, period).toSet(),
+  )
+
   @GetMapping("/changes")
   @Operation(description = "Return all changes relating to an attendance")
   fun getAttendanceChanges(

@@ -166,6 +166,18 @@ public abstract class PrisonApi {
                 .bodyToMono(responseType)
                 .block();
     }
+    public List<OffenderDetails> getScheduleActivityOffenderData(final String prisonId,
+                                                                 final Set<Long> eventIds) {
+        final var responseType = new ParameterizedTypeReference<List<OffenderDetails>>() {
+        };
+
+        return webClient.post()
+                .uri("/schedules/{prisonId}/activities-by-event-ids", prisonId)
+                .bodyValue(eventIds)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
+    }
 
     public PrisonerActivitiesCount getScheduleActivityCounts(final String prisonId,
                                                              final LocalDate fromDate,

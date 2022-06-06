@@ -501,6 +501,61 @@ class AttendancesIntegrationTest : IntegrationTest() {
   }
 
   @Test
+  fun `should return absences for scheduled activity2`() {
+    val prisonId = "MDI"
+    val date = LocalDate.now()
+    val period = TimePeriod.AM
+    val reason = AbsentReason.RefusedIncentiveLevelWarning
+
+    prisonApiMockServer.stubGetScheduledActivitiesForEventIds()
+
+    whenever(
+      attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(
+        any(),
+        any(),
+        any(),
+        anySet(),
+        any()
+      )
+    )
+      .thenReturn(
+        setOf(
+          Attendance
+            .builder()
+            .id(1)
+            .absentReason(reason)
+            .absentSubReason(AbsentSubReason.Courses)
+            .attended(false)
+            .paid(false)
+            .eventId(1)
+            .eventDate(date)
+            .eventLocationId(3)
+            .period(period)
+            .prisonId(prisonId)
+            .bookingId(1L)
+            .caseNoteId(1)
+            .build()
+        )
+      )
+
+    webTestClient
+      .get()
+      .uri {
+        it.path("/attendances/$prisonId/absences-for-scheduled-activities2/$reason")
+          .queryParam("fromDate", date)
+          .queryParam("period", period)
+          .build()
+      }
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("\$.description").isEqualTo("Refused to attend - incentive level warning added")
+      .jsonPath("\$.absences[0].attendanceId").isEqualTo(1)
+      .jsonPath("\$.absences[0].subReasonDescription").isEqualTo("Courses, programmes and interventions")
+  }
+
+  @Test
   fun `should return attendance summary for offender`() {
     val offenderNo = "A1234AX"
     val START = LocalDate.of(2021, 3, 14)
