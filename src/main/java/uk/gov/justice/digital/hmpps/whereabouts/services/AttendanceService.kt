@@ -280,38 +280,6 @@ class AttendanceService(
     fromDate: LocalDate,
     toDate: LocalDate?,
     period: TimePeriod?
-  ): Set<AbsenceDto> {
-
-    val periods = if (period == null) setOf(TimePeriod.AM, TimePeriod.PM) else setOf(period)
-    val endDate = toDate ?: fromDate
-
-    val offenderDetails = periods.flatMap { timePeriod ->
-      prisonApiService.getScheduleActivityOffenderData(prisonId, fromDate, endDate, timePeriod)
-        .map { offenderDetailsWithPeriod(it, timePeriod) }.toSet()
-    }
-
-    val attendances = attendanceRepository
-      .findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prisonId, fromDate, endDate, periods, absentReason)
-
-    return attendances.stream()
-      .filter { attendance: Attendance ->
-        offenderDetails.stream().anyMatch(findAttendance(attendance.bookingId, attendance.eventId, attendance.period))
-      }
-      .map { attendance: Attendance ->
-        val details = offenderDetails.stream()
-          .filter(findAttendance(attendance.bookingId, attendance.eventId, attendance.period)).findFirst()
-          .orElseThrow()
-        toAbsenceDto(details, attendance)
-      }
-      .collect(Collectors.toSet())
-  }
-
-  fun getAbsencesForReason2(
-    prisonId: String?,
-    absentReason: AbsentReason?,
-    fromDate: LocalDate,
-    toDate: LocalDate?,
-    period: TimePeriod?
   ): List<AbsenceDto> {
 
     val periods = period?.let { setOf(it) } ?: setOf(TimePeriod.PM, TimePeriod.AM)

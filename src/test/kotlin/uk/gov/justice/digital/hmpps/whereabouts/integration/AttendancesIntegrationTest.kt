@@ -452,7 +452,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
     val period = TimePeriod.AM
     val reason = AbsentReason.RefusedIncentiveLevelWarning
 
-    prisonApiMockServer.stubGetScheduledActivitiesForDateRange(prisonId, date, date, period, true)
+    prisonApiMockServer.stubGetScheduledActivitiesForEventIds()
 
     whenever(
       attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(
@@ -479,6 +479,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .prisonId(prisonId)
             .bookingId(1L)
             .caseNoteId(1)
+            .period(TimePeriod.AM)
             .build()
         )
       )
@@ -495,9 +496,10 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath(".description").isEqualTo("Refused to attend - incentive level warning added")
-      .jsonPath(".absences[0].attendanceId").isEqualTo(1)
-      .jsonPath(".absences[0].subReasonDescription").isEqualTo("Courses, programmes and interventions")
+      .jsonPath("\$.description").isEqualTo("Refused to attend - incentive level warning added")
+      .jsonPath("\$.absences[0].attendanceId").isEqualTo(1)
+      .jsonPath("\$.absences[0].subReasonDescription").isEqualTo("Courses, programmes and interventions")
+      .jsonPath("\$.absences[0].period").isEqualTo("AM")
   }
 
   @Test
