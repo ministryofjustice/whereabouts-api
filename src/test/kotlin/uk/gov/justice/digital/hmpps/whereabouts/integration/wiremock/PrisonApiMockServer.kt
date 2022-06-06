@@ -229,7 +229,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withBody(
               gson.toJson(
                 listOf(
-                  mapOf("bookingId" to 1L, "eventId" to 1L, "timeSlot" to "AM"),
+                  mapOf("bookingId" to 1L, "eventId" to 1L),
                 )
               )
             )

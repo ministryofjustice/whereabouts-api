@@ -534,6 +534,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .prisonId(prisonId)
             .bookingId(1L)
             .caseNoteId(1)
+            .period(TimePeriod.AM)
             .build()
         )
       )
@@ -553,6 +554,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .jsonPath("\$.description").isEqualTo("Refused to attend - incentive level warning added")
       .jsonPath("\$.absences[0].attendanceId").isEqualTo(1)
       .jsonPath("\$.absences[0].subReasonDescription").isEqualTo("Courses, programmes and interventions")
+      .jsonPath("\$.absences[0].period").isEqualTo("AM")
   }
 
   @Test
