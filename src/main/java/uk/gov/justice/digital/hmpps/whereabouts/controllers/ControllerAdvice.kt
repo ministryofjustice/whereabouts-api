@@ -161,7 +161,7 @@ class ControllerAdvice {
 
   @ExceptionHandler(Exception::class)
   fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
-    log.error("Unexpected exception {}", e.message)
+    log.error("Unexpected exception", e)
     return ResponseEntity
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .body(
@@ -175,7 +175,7 @@ class ControllerAdvice {
 
   @ExceptionHandler(ValidationException::class)
   fun handleValidationException(e: Exception): ResponseEntity<ErrorResponse> {
-    log.error("Validation exception {}", e)
+    log.error("Validation exception {}", e.message)
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .body(
@@ -218,7 +218,7 @@ class ControllerAdvice {
   }
 
   fun handleServerError(e: Exception): ResponseEntity<ErrorResponse> {
-    log.error("Unexpected exception {}", e.message)
+    log.error("Unexpected exception", e)
     return ResponseEntity
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .body(

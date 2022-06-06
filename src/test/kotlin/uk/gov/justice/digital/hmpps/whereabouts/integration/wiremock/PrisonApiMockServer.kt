@@ -220,6 +220,24 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
+  fun stubGetScheduledActivitiesForEventIds(prisonId: String = "MDI") {
+    stubFor(
+      post(urlEqualTo("/api/schedules/$prisonId/activities-by-event-ids"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(
+              gson.toJson(
+                listOf(
+                  mapOf("bookingId" to 1L, "eventId" to 1L, "timeSlot" to "AM"),
+                )
+              )
+            )
+            .withStatus(200)
+        )
+    )
+  }
+
   fun stubScheduleActivityCount(
     prisonId: String = "MDI",
   ) {

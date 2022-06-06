@@ -306,6 +306,28 @@ class AttendanceService(
       .collect(Collectors.toSet())
   }
 
+  fun getAbsencesForReason2(
+    prisonId: String?,
+    absentReason: AbsentReason?,
+    fromDate: LocalDate,
+    toDate: LocalDate?,
+    period: TimePeriod?
+  ): List<AbsenceDto> {
+
+    val periods = period?.let { setOf(it) } ?: setOf(TimePeriod.PM, TimePeriod.AM)
+    val endDate = toDate ?: fromDate
+
+    val attendances = attendanceRepository
+      .findByPrisonIdAndEventDateBetweenAndPeriodInAndAbsentReason(prisonId, fromDate, endDate, periods, absentReason)
+    val attendanceMap = attendances.associateBy({ it.eventId }, { it })
+
+    val offenderDetails = if (attendanceMap.isNotEmpty()) {
+      prisonApiService.getScheduleActivityOffenderData(prisonId, attendanceMap.keys)
+    } else emptyList()
+
+    return offenderDetails.map { toAbsenceDto(it, attendanceMap[it.eventId]!!) }
+  }
+
   @Transactional
   fun deleteAttendancesForOffenderDeleteEvent(offenderNo: String, bookingIds: List<Long>) {
     var totalAttendances = 0
