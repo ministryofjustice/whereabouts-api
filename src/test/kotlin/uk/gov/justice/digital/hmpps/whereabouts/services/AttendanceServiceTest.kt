@@ -837,33 +837,6 @@ class AttendanceServiceTest {
   }
 
   @Nested
-  inner class getAttendanceForOffendersThatHaveScheduledActivity {
-    val prisonId = "LEI"
-    val date: LocalDate = LocalDate.now()
-    val period = TimePeriod.AM
-
-    @Test
-    fun `should request all scheduled activity for date and period`() {
-      service.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
-
-      verify(prisonApiService).getBookingIdsForScheduleActivities(prisonId, date, period)
-    }
-
-    @Test
-    fun `should fetch attendance records for selected booking ids`() {
-      whenever(prisonApiService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
-
-      service.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
-      verify(attendanceRepository).findByPrisonIdAndBookingIdInAndEventDateAndPeriod(
-        prisonId,
-        setOf(1L, 2L),
-        date,
-        period
-      )
-    }
-  }
-
-  @Nested
   inner class getPrisonersUnaccountedFor {
     val prisonId = "LEI"
     val date: LocalDate = LocalDate.now()
@@ -899,90 +872,6 @@ class AttendanceServiceTest {
       val scheduled = service.getPrisonersUnaccountedFor(prisonId, date, period)
       assertThat(scheduled.map { it.offenderNo }).containsExactly("NO_MATCH")
     }
-  }
-
-  @Test
-  fun `should return all attendance records for offenders that have scheduled activities`() {
-    val prisonId = "LEI"
-    val date = LocalDate.now()
-    val period = TimePeriod.AM
-
-    whenever(prisonApiService.getBookingIdsForScheduleActivities(prisonId, date, period)).thenReturn(setOf(1L, 2L))
-
-    whenever(
-      attendanceRepository
-        .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, setOf(1L, 2L), date, period)
-    )
-      .thenReturn(
-        setOf(
-          Attendance.builder()
-            .id(1)
-            .absentReason(AbsentReason.Refused)
-            .absentSubReason(AbsentSubReason.ExternalMoves)
-            .attended(false)
-            .paid(false)
-            .eventId(2)
-            .eventLocationId(3)
-            .period(TimePeriod.AM)
-            .prisonId("MDI")
-            .bookingId(1L)
-            .eventDate(today)
-            .createUserId("user")
-            .caseNoteId(1)
-            .build(),
-          Attendance.builder()
-            .id(2)
-            .attended(true)
-            .paid(true)
-            .eventId(2)
-            .eventLocationId(3)
-            .period(TimePeriod.AM)
-            .prisonId("MDI")
-            .bookingId(2L)
-            .eventDate(today)
-            .createUserId("user")
-            .build()
-        )
-      )
-
-    val attendances =
-      service.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
-
-    assertThat(attendances).containsExactlyInAnyOrderElementsOf(
-      setOf(
-        AttendanceDto
-          .builder()
-          .id(2)
-          .attended(true)
-          .paid(true)
-          .eventId(2)
-          .eventLocationId(3)
-          .period(TimePeriod.AM)
-          .prisonId("MDI")
-          .bookingId(2L)
-          .eventDate(date)
-          .createUserId("user")
-          .locked(false)
-          .build(),
-        AttendanceDto
-          .builder()
-          .id(1)
-          .absentReason(AbsentReason.Refused)
-          .absentSubReason(AbsentSubReason.ExternalMoves)
-          .attended(false)
-          .paid(false)
-          .eventId(2)
-          .eventLocationId(3)
-          .period(TimePeriod.AM)
-          .prisonId("MDI")
-          .bookingId(1L)
-          .eventDate(date)
-          .createUserId("user")
-          .locked(false)
-          .caseNoteId(1)
-          .build()
-      )
-    )
   }
 
   @Test

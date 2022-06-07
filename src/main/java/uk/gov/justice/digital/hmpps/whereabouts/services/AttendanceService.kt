@@ -215,17 +215,6 @@ class AttendanceService(
     return if (attendance.paid) dateDifference >= 1 else dateDifference >= 7
   }
 
-  fun getAttendanceForOffendersThatHaveScheduledActivity(
-    prisonId: String?,
-    date: LocalDate?,
-    period: TimePeriod?
-  ): Set<AttendanceDto> {
-    val bookingIds = prisonApiService.getBookingIdsForScheduleActivities(prisonId, date, period)
-    val attendances =
-      attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookingIds, date, period)
-    return attendances.stream().map(this::toAttendanceDto).collect(Collectors.toSet())
-  }
-
   fun getPrisonersUnaccountedFor(
     prisonId: String,
     date: LocalDate,

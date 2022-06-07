@@ -109,20 +109,6 @@ public abstract class PrisonApi {
         return new PageImpl<>(data.content, pageable, data.totalPages);
     }
 
-    public Set<Long> getBookingIdsForScheduleActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
-        final var responseType = new ParameterizedTypeReference<List<Map>>() {
-        };
-
-        return Objects.requireNonNull(webClient.get()
-                        .uri("/schedules/{prisonId}/activities?date={date}&timeSlot={period}", prisonId, date, period)
-                        .retrieve()
-                        .bodyToMono(responseType)
-                        .block())
-                .stream()
-                .map(entry -> Long.parseLong(entry.get("bookingId").toString()))
-                .collect(Collectors.toSet());
-    }
-
     public List<PrisonerScheduleDto> getScheduledActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
         final var responseType = new ParameterizedTypeReference<List<PrisonerScheduleDto>>() {
         };

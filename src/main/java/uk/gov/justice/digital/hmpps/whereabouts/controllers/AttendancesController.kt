@@ -166,22 +166,6 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     )
   )
 
-  @GetMapping("/{prison}/attendance-for-scheduled-activities")
-  @Operation(
-    description = "Return a set of attendance details for all offenders that have scheduled activity",
-    summary = "Request attendance details"
-  )
-  fun getAttendanceForOffendersThatHaveScheduleActivity(
-    @Parameter(description = "Prison id (LEI)") @PathVariable(name = "prison") prisonId: String,
-    @Parameter(
-      description = "Date of event in format YYYY-MM-DD",
-      required = true
-    ) @RequestParam(name = "date") @DateTimeFormat(iso = DATE) date: LocalDate,
-    @Parameter(description = "Time period", required = true) @RequestParam(name = "period") period: TimePeriod
-  ): AttendancesResponse = AttendancesResponse(
-    attendances = attendanceService.getAttendanceForOffendersThatHaveScheduledActivity(prisonId, date, period)
-  )
-
   @GetMapping("/{prison}/unaccounted-for")
   @Operation(
     description = "Return a set of prisoners that haven't attended a scheduled activity",
