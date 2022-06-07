@@ -368,51 +368,6 @@ class AttendancesIntegrationTest : IntegrationTest() {
   }
 
   @Test
-  fun `should return attendance information for offenders that have scheduled activity`() {
-    prisonApiMockServer.stubGetScheduledActivities()
-
-    val prisonId = "MDI"
-    val date = LocalDate.now()
-    val period = TimePeriod.AM
-
-    whenever(attendanceRepository.findByPrisonIdAndBookingIdInAndEventDateAndPeriod(any(), anySet(), any(), any()))
-      .thenReturn(
-        setOf(
-          Attendance
-            .builder()
-            .id(1)
-            .absentReason(AbsentReason.Refused)
-            .attended(false)
-            .paid(false)
-            .eventId(2)
-            .eventLocationId(3)
-            .period(period)
-            .prisonId(prisonId)
-            .bookingId(1L)
-            .eventDate(date)
-            .caseNoteId(1)
-            .build()
-        )
-      )
-
-    webTestClient
-      .get()
-      .uri {
-        it.path("/attendances/$prisonId/attendance-for-scheduled-activities")
-          .queryParam("date", date)
-          .queryParam("period", period)
-          .build()
-      }
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .jsonPath(".attendances[0].id").isEqualTo(1)
-
-    prisonApiMockServer.verify(getRequestedFor(urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period")))
-  }
-
-  @Test
   fun `should return prisoners that haven't attended a scheduled activity`() {
     prisonApiMockServer.stubGetScheduledActivities()
 
