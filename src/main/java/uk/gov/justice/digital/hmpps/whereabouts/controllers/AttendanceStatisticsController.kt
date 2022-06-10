@@ -57,5 +57,5 @@ class AttendanceStatisticsController(private val attendanceStatistics: Attendanc
       description = "To date of event in format YYYY-MM-DD",
       required = true
     ) @RequestParam(name = "toDate") @DateTimeFormat(iso = DATE) toDate: LocalDate
-  ): Stats = attendanceStatistics.getStats2(prisonId, period, fromDate, toDate)
+  ): Stats = attendanceStatistics.getStats(prisonId, period, fromDate, toDate)
 }
