@@ -142,16 +142,6 @@ public abstract class PrisonApi {
                 .block();
     }
 
-    public List<OffenderDetails> getScheduleActivityOffenderData(final String prisonId, final LocalDate fromDate, final LocalDate toDate, final TimePeriod period) {
-        final var responseType = new ParameterizedTypeReference<List<OffenderDetails>>() {
-        };
-
-        return webClient.get()
-                .uri("/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}&includeSuspended=true", prisonId, fromDate, toDate, period)
-                .retrieve()
-                .bodyToMono(responseType)
-                .block();
-    }
     public List<OffenderDetails> getScheduleActivityOffenderData(final String prisonId,
                                                                  final Set<Long> eventIds) {
         final var responseType = new ParameterizedTypeReference<List<OffenderDetails>>() {

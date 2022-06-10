@@ -13,7 +13,6 @@ import org.mockito.Mockito.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -128,6 +127,13 @@ class AttendanceStatisticsTest {
 
   @Nested
   inner class getStats {
+    @BeforeEach
+    fun setup() {
+      whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
+        PrisonerActivitiesCount(0, 0, 0)
+      )
+    }
+
     @Test
     fun `count attendances`() {
       whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
@@ -164,69 +170,8 @@ class AttendanceStatisticsTest {
 
     @Test
     fun `count not recorded`() {
-      whenever(prisonApiService.getScheduleActivityOffenderData(anyString(), any(), any(), any())).thenReturn(
-        listOf(
-          OffenderDetails(
-            bookingId = 1,
-            offenderNo = "A12345",
-            eventId = 2,
-            cellLocation = "cell1",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Gym",
-            firstName = "john",
-            lastName = "doe",
-            suspended = true
-          ),
-          OffenderDetails(
-            bookingId = 2,
-            offenderNo = "A12346",
-            eventId = 3,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          ),
-          OffenderDetails(
-            bookingId = 3,
-            offenderNo = "A12347",
-            eventId = 4,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          ),
-          OffenderDetails(
-            bookingId = 100,
-            offenderNo = "A12348",
-            eventId = 5,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          ),
-          OffenderDetails(
-            bookingId = 102,
-            offenderNo = "A12349",
-            eventId = 6,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          )
-        )
+      whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
+        PrisonerActivitiesCount(13, 1, 2)
       )
 
       whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
@@ -239,107 +184,9 @@ class AttendanceStatisticsTest {
 
     @Test
     fun `count offender schedules`() {
-      whenever(prisonApiService.getScheduleActivityOffenderData(anyString(), any(), any(), any())).thenReturn(
-        listOf(
-          OffenderDetails(
-            bookingId = 1,
-            offenderNo = "A12345",
-            eventId = 2,
-            cellLocation = "cell1",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Gym",
-            firstName = "john",
-            lastName = "doe",
-            suspended = true
-          ),
-          OffenderDetails(
-            bookingId = 2,
-            offenderNo = "A12346",
-            eventId = 3,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          ),
-          OffenderDetails(
-            bookingId = 3,
-            offenderNo = "A12347",
-            eventId = 4,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          ),
-          OffenderDetails(
-            bookingId = 4,
-            offenderNo = "A12348",
-            eventId = 5,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          ),
-          OffenderDetails(
-            bookingId = 5,
-            offenderNo = "A12349",
-            eventId = 6,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          ),
-          OffenderDetails(
-            bookingId = 6,
-            offenderNo = "A12340",
-            eventId = 7,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          ),
-          OffenderDetails(
-            bookingId = 7,
-            offenderNo = "A12341",
-            eventId = 8,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          ),
-          OffenderDetails(
-            bookingId = 8,
-            offenderNo = "A12342",
-            eventId = 9,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          )
-        )
+      whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
+        PrisonerActivitiesCount(8, 1, 0)
       )
-
       val stats = service.getStats(prisonId, TimePeriod.AM, from, to)
 
       assertThat(stats).extracting("scheduleActivities").isEqualTo(8)
@@ -384,327 +231,6 @@ class AttendanceStatisticsTest {
     }
 
     @Test
-    fun `should call the elite2 schedule api twice, once for AM and then for PM`() {
-      whenever(prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)).thenReturn(
-        listOf(
-          OffenderDetails(
-            bookingId = 1,
-            offenderNo = "A12345",
-            eventId = 2,
-            cellLocation = "cell1",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Gym",
-            firstName = "john",
-            lastName = "doe",
-            suspended = true
-          ),
-          OffenderDetails(
-            bookingId = 2,
-            offenderNo = "A12346",
-            eventId = 3,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          )
-        )
-      )
-
-      whenever(prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)).thenReturn(
-        listOf(
-          OffenderDetails(
-            bookingId = 1,
-            offenderNo = "A12345",
-            eventId = 4,
-            eventDate = from,
-            timeSlot = "PM",
-            firstName = "dave",
-            lastName = "doe1",
-            suspended = true
-          ),
-          OffenderDetails(
-            bookingId = 2,
-            offenderNo = "A12346",
-            eventId = 5,
-            cellLocation = "cell4",
-            eventDate = from,
-            timeSlot = "PM",
-            firstName = "dave",
-            lastName = "doe1",
-            suspended = false
-          )
-        )
-      )
-
-      val stats = service.getStats(prisonId, null, from, to)
-
-      verify(prisonApiService)
-        .getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)
-
-      verify(prisonApiService)
-        .getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)
-
-      assertThat(stats).extracting("notRecorded").isEqualTo(4)
-    }
-
-    @Test
-    fun `should return correct number of not recorded when AM and PM selected`() {
-      whenever(
-        attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(
-          prisonId,
-          from,
-          to,
-          setOf(TimePeriod.AM, TimePeriod.PM)
-        )
-      )
-        .thenReturn(attendances)
-
-      // Return the same booking ids for AM and PM. These booking ids have attendances in the AM
-      // but not in the PM. We expect the not recorded count to take into account the missing PM data
-      // as it is meant to be cumulative
-      whenever(prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)).thenReturn(
-        listOf(
-          OffenderDetails(
-            bookingId = 1,
-            offenderNo = "A12345",
-            eventId = 2,
-            cellLocation = "cell1",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Gym",
-            firstName = "john",
-            lastName = "doe",
-            suspended = true
-          ),
-          OffenderDetails(
-            bookingId = 2,
-            offenderNo = "A12346",
-            eventId = 3,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          )
-        )
-      )
-
-      whenever(prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)).thenReturn(
-        listOf(
-          OffenderDetails(
-            bookingId = 1,
-            offenderNo = "A12345",
-            eventId = 4,
-            eventDate = from,
-            timeSlot = "PM",
-            firstName = "dave",
-            lastName = "doe1",
-            suspended = true
-          ),
-          OffenderDetails(
-            bookingId = 2,
-            offenderNo = "A12346",
-            eventId = 5,
-            cellLocation = "cell4",
-            eventDate = from,
-            timeSlot = "PM",
-            firstName = "dave",
-            lastName = "doe1",
-            suspended = false
-          )
-        )
-      )
-
-      val stats = service.getStats(prisonId, null, from, to)
-
-      assertThat(stats).extracting("notRecorded").isEqualTo(2)
-    }
-
-    @Test
-    fun `should return the correct number of suspended`() {
-      whenever(
-        attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(
-          prisonId,
-          from,
-          to,
-          setOf(TimePeriod.AM, TimePeriod.PM)
-        )
-      )
-        .thenReturn(attendances)
-
-      whenever(prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.AM)).thenReturn(
-        listOf(
-          OffenderDetails(
-            bookingId = 1,
-            offenderNo = "A12345",
-            eventId = 2,
-            cellLocation = "cell1",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Gym",
-            firstName = "john",
-            lastName = "doe",
-            suspended = true
-          ),
-          OffenderDetails(
-            bookingId = 2,
-            offenderNo = "A12346",
-            eventId = 3,
-            cellLocation = "cell2",
-            eventDate = from,
-            timeSlot = "AM",
-            comment = "Workshop 1",
-            firstName = "john",
-            lastName = "doe",
-            suspended = false
-          )
-        )
-      )
-
-      whenever(prisonApiService.getScheduleActivityOffenderData(prisonId, from, to, TimePeriod.PM)).thenReturn(
-        listOf(
-          OffenderDetails(
-            bookingId = 1,
-            offenderNo = "A12345",
-            eventId = 4,
-            eventDate = from,
-            timeSlot = "PM",
-            firstName = "dave",
-            lastName = "doe1",
-            suspended = true
-          ),
-          OffenderDetails(
-            bookingId = 2,
-            offenderNo = "A12346",
-            eventId = 5,
-            cellLocation = "cell4",
-            eventDate = from,
-            timeSlot = "PM",
-            firstName = "dave",
-            lastName = "doe1",
-            suspended = false
-          )
-        )
-      )
-
-      val stats = service.getStats(prisonId, null, from, to)
-
-      assertThat(stats).extracting("suspended").isEqualTo(2)
-    }
-  }
-
-  @Nested
-  inner class getStats2 {
-    @BeforeEach
-    fun setup() {
-      whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
-        PrisonerActivitiesCount(0, 0, 0)
-      )
-    }
-
-    @Test
-    fun `count attendances`() {
-      whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-        .thenReturn(attendances)
-
-      val stats = service.getStats2(prisonId, period, from, to)
-
-      assertThat(stats).extracting("attended").isEqualTo(1)
-    }
-
-    @ParameterizedTest
-    @MethodSource("uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceStatisticsTest#getPaidReasons")
-    fun `count paid reasons`(reason: AbsentReason) {
-      whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-        .thenReturn(attendances)
-
-      val stats = service.getStats2(prisonId, period, from, to)
-
-      assertThat(stats).extracting("paidReasons").extracting(reason.name.replaceFirstChar { it.uppercaseChar() })
-        .isEqualTo(1)
-    }
-
-    @ParameterizedTest
-    @MethodSource("uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceStatisticsTest#getUnpaidReasons")
-    fun `count unpaid reasons`(reason: AbsentReason) {
-      whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-        .thenReturn(attendances)
-
-      val stats = service.getStats2(prisonId, period, from, to)
-
-      assertThat(stats).extracting("unpaidReasons").extracting(reason.name.replaceFirstChar { it.uppercaseChar() })
-        .isEqualTo(1)
-    }
-
-    @Test
-    fun `count not recorded`() {
-      whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
-        PrisonerActivitiesCount(13, 1, 2)
-      )
-
-      whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-        .thenReturn(attendances)
-
-      val stats = service.getStats2(prisonId, period, from, to)
-
-      assertThat(stats).extracting("notRecorded").isEqualTo(2)
-    }
-
-    @Test
-    fun `count offender schedules`() {
-      whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
-        PrisonerActivitiesCount(8, 1, 0)
-      )
-      val stats = service.getStats2(prisonId, TimePeriod.AM, from, to)
-
-      assertThat(stats).extracting("scheduleActivities").isEqualTo(8)
-    }
-
-    @Test
-    fun `count rest in cell or sick`() {
-      whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-        .thenReturn(attendances)
-
-      val stats = service.getStats2(prisonId, period, from, to)
-
-      assertThat(stats).extracting("unpaidReasons").extracting("restInCellOrSick").isEqualTo(1)
-    }
-
-    @Test
-    fun `count rest day`() {
-      whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-        .thenReturn(attendances)
-
-      val stats = service.getStats2(prisonId, period, from, to)
-
-      assertThat(stats).extracting("unpaidReasons").extracting("restDay").isEqualTo(1)
-    }
-
-    @Test
-    fun `count refusedIncentiveLevelWarning`() {
-      whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
-        .thenReturn(attendances)
-
-      val stats = service.getStats2(prisonId, period, from, to)
-
-      assertThat(stats).extracting("unpaidReasons").extracting("refusedIncentiveLevelWarning").isEqualTo(1)
-    }
-
-    @Test
-    fun `should call the correct repository method when period all is supplied`() {
-      service.getStats2(prisonId, null, from, to)
-
-      verify(attendanceRepository)
-        .findByPrisonIdAndEventDateBetweenAndPeriodIn(prisonId, from, to, setOf(TimePeriod.AM, TimePeriod.PM))
-    }
-
-    @Test
     fun `should return the correct number of suspended`() {
       whenever(
         attendanceRepository.findByPrisonIdAndEventDateBetweenAndPeriodIn(
@@ -720,7 +246,7 @@ class AttendanceStatisticsTest {
         PrisonerActivitiesCount(5, 2, 3)
       )
 
-      val stats = service.getStats2(prisonId, null, from, to)
+      val stats = service.getStats(prisonId, null, from, to)
 
       assertThat(stats).extracting("suspended").isEqualTo(2)
     }
@@ -737,7 +263,7 @@ class AttendanceStatisticsTest {
       )
         .thenReturn(attendances.filter { setOf(1L, 2L, 3L).contains(it.bookingId) }.toSet())
 
-      val stats = service.getStats2(prisonId, null, from, to)
+      val stats = service.getStats(prisonId, null, from, to)
 
       verify(prisonApiService).getScheduleActivityCounts(
         prisonId, from, to, setOf(TimePeriod.AM, TimePeriod.PM),

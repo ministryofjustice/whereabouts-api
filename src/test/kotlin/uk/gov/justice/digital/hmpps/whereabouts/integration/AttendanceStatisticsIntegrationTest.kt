@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
-import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
@@ -26,7 +25,22 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should request schedules by date range`() {
-    prisonApiMockServer.stubGetScheduledActivitiesForDateRange(prisonId, fromDate, toDate, period, true)
+    prisonApiMockServer.stubScheduleActivityCount(prisonId)
+
+    whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(any(), any(), any(), any())).thenReturn(
+      setOf(
+        Attendance
+          .builder()
+          .bookingId(1)
+          .attended(true)
+          .prisonId(prisonId)
+          .period(period)
+          .eventDate(fromDate)
+          .eventId(1)
+          .eventLocationId(1)
+          .build()
+      )
+    )
 
     webTestClient.get()
       .uri("/attendance-statistics/$prisonId/over-date-range?fromDate=$fromDate&toDate=$toDate&period=$period")
@@ -35,17 +49,41 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
       .expectStatus().isOk
 
     prisonApiMockServer.verify(
-      getRequestedFor(
+      postRequestedFor(
         urlEqualTo(
-          "/api/schedules/$prisonId/activities-by-date-range?fromDate=$fromDate&toDate=$toDate&timeSlot=$period&includeSuspended=true"
+          "/api/schedules/$prisonId/count-activities?fromDate=$fromDate&toDate=$toDate&timeSlots=$period"
         )
       )
+        .withRequestBody(equalToJson("""{"1":1}"""))
+    )
+  }
+
+  @Test
+  fun `should request schedules by date range no period specified`() {
+    prisonApiMockServer.stubScheduleActivityCount(prisonId)
+
+    webTestClient.get()
+      .uri("/attendance-statistics/$prisonId/over-date-range?fromDate=$fromDate&toDate=$toDate")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+
+    prisonApiMockServer.verify(
+      postRequestedFor(
+        urlPathEqualTo(
+          "/api/schedules/$prisonId/count-activities"
+        )
+      )
+        .withQueryParam("fromDate", EqualToPattern(fromDate.toString()))
+        .withQueryParam("toDate", EqualToPattern(toDate.toString()))
+        .withQueryParam("timeSlots", EqualToPattern("AM"))
+        .withQueryParam("timeSlots", EqualToPattern("PM"))
     )
   }
 
   @Test
   fun `should populate stats with data`() {
-    prisonApiMockServer.stubGetScheduledActivitiesForDateRange(prisonId, fromDate, toDate, period, true)
+    prisonApiMockServer.stubScheduleActivityCount(prisonId)
 
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(any(), any(), any(), any())).thenReturn(
       setOf(
@@ -70,6 +108,9 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
       .expectBody()
       .consumeWith(System.out::println)
       .jsonPath("$.attended").isEqualTo(1)
+      .jsonPath("$.suspended").isEqualTo(2)
+      .jsonPath("$.notRecorded").isEqualTo(5)
+      .jsonPath("$.scheduleActivities").isEqualTo(13)
       .jsonPath("$.paidReasons.acceptableAbsenceDescription").isEqualTo("Acceptable absence")
       .jsonPath("$.unpaidReasons.refusedIncentiveLevelWarningDescription").isEqualTo("Refused to attend - incentive level warning added")
   }
