@@ -54,6 +54,9 @@ public class Attendance {
     @Enumerated(EnumType.STRING)
     private AbsentReason absentReason;
 
+    @Enumerated(EnumType.STRING)
+    private AbsentSubReason absentSubReason;
+
     @Size(max = 240)
     private String comments;
 
@@ -75,7 +78,7 @@ public class Attendance {
     @Column(name = "MODIFY_USER_ID")
     private String modifyUserId;
 
-    public Attendance(Long id, @NotNull Long bookingId, @NotNull Long eventId, @NotNull Long eventLocationId, @NotNull LocalDate eventDate, @NotNull TimePeriod period, @NotNull @Size(max = 6) String prisonId, Boolean paid, Boolean attended, AbsentReason absentReason, @Size(max = 240) String comments, Long caseNoteId, LocalDateTime createDateTime, String createUserId, LocalDateTime modifyDateTime, String modifyUserId) {
+    public Attendance(Long id, @NotNull Long bookingId, @NotNull Long eventId, @NotNull Long eventLocationId, @NotNull LocalDate eventDate, @NotNull TimePeriod period, @NotNull @Size(max = 6) String prisonId, Boolean paid, Boolean attended, AbsentReason absentReason, AbsentSubReason absentSubReason, @Size(max = 240) String comments, Long caseNoteId, LocalDateTime createDateTime, String createUserId, LocalDateTime modifyDateTime, String modifyUserId) {
         this.id = id;
         this.bookingId = bookingId;
         this.eventId = eventId;
@@ -86,6 +89,7 @@ public class Attendance {
         this.paid = paid;
         this.attended = attended;
         this.absentReason = absentReason;
+        this.absentSubReason = absentSubReason;
         this.comments = comments;
         this.caseNoteId = caseNoteId;
         this.createDateTime = createDateTime;
@@ -181,6 +185,14 @@ public class Attendance {
         this.absentReason = absentReason;
     }
 
+    public AbsentSubReason getAbsentSubReason() {
+        return this.absentSubReason;
+    }
+
+    public void setAbsentSubReason(AbsentSubReason absentSubReason) {
+        this.absentSubReason = absentSubReason;
+    }
+
     public @Size(max = 240) String getComments() {
         return this.comments;
     }
@@ -266,6 +278,10 @@ public class Attendance {
         final Object other$absentReason = other.getAbsentReason();
         if (this$absentReason == null ? other$absentReason != null : !this$absentReason.equals(other$absentReason))
             return false;
+        final Object this$absentSubReason = this.getAbsentSubReason();
+        final Object other$absentSubReason = other.getAbsentSubReason();
+        if (this$absentSubReason == null ? other$absentSubReason != null : !this$absentSubReason.equals(other$absentSubReason))
+            return false;
         final Object this$comments = this.getComments();
         final Object other$comments = other.getComments();
         if (this$comments == null ? other$comments != null : !this$comments.equals(other$comments)) return false;
@@ -319,6 +335,8 @@ public class Attendance {
         result = result * PRIME + ($attended == null ? 43 : $attended.hashCode());
         final Object $absentReason = this.getAbsentReason();
         result = result * PRIME + ($absentReason == null ? 43 : $absentReason.hashCode());
+        final Object $absentSubReason = this.getAbsentSubReason();
+        result = result * PRIME + ($absentSubReason == null ? 43 : $absentSubReason.hashCode());
         final Object $comments = this.getComments();
         result = result * PRIME + ($comments == null ? 43 : $comments.hashCode());
         final Object $caseNoteId = this.getCaseNoteId();
@@ -335,11 +353,11 @@ public class Attendance {
     }
 
     public String toString() {
-        return "Attendance(id=" + this.getId() + ", bookingId=" + this.getBookingId() + ", eventId=" + this.getEventId() + ", eventLocationId=" + this.getEventLocationId() + ", eventDate=" + this.getEventDate() + ", period=" + this.getPeriod() + ", prisonId=" + this.getPrisonId() + ", paid=" + this.getPaid() + ", attended=" + this.getAttended() + ", absentReason=" + this.getAbsentReason() + ", comments=" + this.getComments() + ", caseNoteId=" + this.getCaseNoteId() + ", createDateTime=" + this.getCreateDateTime() + ", createUserId=" + this.getCreateUserId() + ", modifyDateTime=" + this.getModifyDateTime() + ", modifyUserId=" + this.getModifyUserId() + ")";
+        return "Attendance(id=" + this.getId() + ", bookingId=" + this.getBookingId() + ", eventId=" + this.getEventId() + ", eventLocationId=" + this.getEventLocationId() + ", eventDate=" + this.getEventDate() + ", period=" + this.getPeriod() + ", prisonId=" + this.getPrisonId() + ", paid=" + this.getPaid() + ", attended=" + this.getAttended() + ", absentReason=" + this.getAbsentReason() +", absentSubReason=" + this.getAbsentSubReason() + ", comments=" + this.getComments() + ", caseNoteId=" + this.getCaseNoteId() + ", createDateTime=" + this.getCreateDateTime() + ", createUserId=" + this.getCreateUserId() + ", modifyDateTime=" + this.getModifyDateTime() + ", modifyUserId=" + this.getModifyUserId() + ")";
     }
 
     public AttendanceBuilder toBuilder() {
-        return new AttendanceBuilder().id(this.id).bookingId(this.bookingId).eventId(this.eventId).eventLocationId(this.eventLocationId).eventDate(this.eventDate).period(this.period).prisonId(this.prisonId).paid(this.paid).attended(this.attended).absentReason(this.absentReason).comments(this.comments).caseNoteId(this.caseNoteId).createDateTime(this.createDateTime).createUserId(this.createUserId).modifyDateTime(this.modifyDateTime).modifyUserId(this.modifyUserId);
+        return new AttendanceBuilder().id(this.id).bookingId(this.bookingId).eventId(this.eventId).eventLocationId(this.eventLocationId).eventDate(this.eventDate).period(this.period).prisonId(this.prisonId).paid(this.paid).attended(this.attended).absentReason(this.absentReason).absentSubReason(this.absentSubReason).comments(this.comments).caseNoteId(this.caseNoteId).createDateTime(this.createDateTime).createUserId(this.createUserId).modifyDateTime(this.modifyDateTime).modifyUserId(this.modifyUserId);
     }
 
     public static class AttendanceBuilder {
@@ -353,6 +371,7 @@ public class Attendance {
         private Boolean paid;
         private Boolean attended;
         private AbsentReason absentReason;
+        private AbsentSubReason absentSubReason;
         private @Size(max = 240) String comments;
         private Long caseNoteId;
         private LocalDateTime createDateTime;
@@ -413,6 +432,11 @@ public class Attendance {
             return this;
         }
 
+        public Attendance.AttendanceBuilder absentSubReason(AbsentSubReason absentSubReason) {
+            this.absentSubReason = absentSubReason;
+            return this;
+        }
+
         public Attendance.AttendanceBuilder comments(@Size(max = 240) String comments) {
             this.comments = comments;
             return this;
@@ -444,11 +468,11 @@ public class Attendance {
         }
 
         public Attendance build() {
-            return new Attendance(id, bookingId, eventId, eventLocationId, eventDate, period, prisonId, paid, attended, absentReason, comments, caseNoteId, createDateTime, createUserId, modifyDateTime, modifyUserId);
+            return new Attendance(id, bookingId, eventId, eventLocationId, eventDate, period, prisonId, paid, attended, absentReason, absentSubReason, comments, caseNoteId, createDateTime, createUserId, modifyDateTime, modifyUserId);
         }
 
         public String toString() {
-            return "Attendance.AttendanceBuilder(id=" + this.id + ", bookingId=" + this.bookingId + ", eventId=" + this.eventId + ", eventLocationId=" + this.eventLocationId + ", eventDate=" + this.eventDate + ", period=" + this.period + ", prisonId=" + this.prisonId + ", paid=" + this.paid + ", attended=" + this.attended + ", absentReason=" + this.absentReason + ", comments=" + this.comments + ", caseNoteId=" + this.caseNoteId + ", createDateTime=" + this.createDateTime + ", createUserId=" + this.createUserId + ", modifyDateTime=" + this.modifyDateTime + ", modifyUserId=" + this.modifyUserId + ")";
+            return "Attendance.AttendanceBuilder(id=" + this.id + ", bookingId=" + this.bookingId + ", eventId=" + this.eventId + ", eventLocationId=" + this.eventLocationId + ", eventDate=" + this.eventDate + ", period=" + this.period + ", prisonId=" + this.prisonId + ", paid=" + this.paid + ", attended=" + this.attended + ", absentReason=" + this.absentReason +", absentSubReason=" + this.absentSubReason + ", comments=" + this.comments + ", caseNoteId=" + this.caseNoteId + ", createDateTime=" + this.createDateTime + ", createUserId=" + this.createUserId + ", modifyDateTime=" + this.modifyDateTime + ", modifyUserId=" + this.modifyUserId + ")";
         }
     }
 }

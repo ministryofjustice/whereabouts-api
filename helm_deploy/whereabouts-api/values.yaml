@@ -11,3 +11,8 @@ ingress:
     external-dns.alpha.kubernetes.io/aws-weight: "100"
     nginx.ingress.kubernetes.io/custom-http-errors: "418"
 
+resources:
+  limits:
+    memory: 2Gi
+  requests:
+    memory: 512Mi

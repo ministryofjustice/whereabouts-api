@@ -17,9 +17,11 @@ class CourtService(private val courtRepository: CourtRepository) {
   val courts: List<Court> by lazy { courtRepository.findAll(Sort.by("name")) }
 
   private val idToNameMap: Map<String, String> by lazy { courts.associate { it.id to it.name } }
+  private val idToEmailMap: Map<String, String?> by lazy { courts.associate { it.id to it.email } }
   private val nameToIdMap: Map<String, String> by lazy { courts.associate { it.name.lowercase() to it.id } }
 
   fun getCourtNameForCourtId(courtId: String): String? = idToNameMap[courtId]
+  fun getCourtEmailForCourtId(courtId: String): String? = idToEmailMap[courtId]
   fun getCourtIdForCourtName(courtName: String): String? = nameToIdMap[courtName.trim().lowercase()]
 
   fun chooseCourtName(booking: VideoLinkBooking): String {

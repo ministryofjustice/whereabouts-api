@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.3"
-  kotlin("plugin.spring") version "1.6.10"
-  kotlin("plugin.jpa") version "1.6.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.2.1"
+  kotlin("plugin.spring") version "1.6.21"
+  kotlin("plugin.jpa") version "1.6.21"
 }
 
 configurations {
@@ -13,13 +13,13 @@ configurations {
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.22")
+  annotationProcessor("org.projectlombok:lombok:1.18.24")
 
-  compileOnly("org.projectlombok:lombok:1.18.22")
+  compileOnly("org.projectlombok:lombok:1.18.24")
 
   runtimeOnly("com.h2database:h2:2.1.210")
-  runtimeOnly("org.flywaydb:flyway-core:8.4.4")
-  runtimeOnly("org.postgresql:postgresql:42.3.2")
+  runtimeOnly("org.flywaydb:flyway-core:8.5.8")
+  runtimeOnly("org.postgresql:postgresql:42.3.4")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-cache")
@@ -36,9 +36,11 @@ dependencies {
   implementation("javax.transaction:javax.transaction-api:1.3")
   implementation("javax.validation:validation-api")
 
-  implementation("io.springfox:springfox-boot-starter:3.0.0")
+  implementation("io.swagger:swagger-annotations:1.6.6")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.8")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.8")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.8")
 
-  implementation("net.sf.ehcache:ehcache")
   implementation("org.apache.commons:commons-lang3")
   implementation("org.apache.commons:commons-text:1.9")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
@@ -55,10 +57,10 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
 
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.31.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.34.0")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("io.mockk:mockk:1.12.2")
-  testCompileOnly("org.projectlombok:lombok:1.18.22")
+  testImplementation("io.mockk:mockk:1.12.3")
+  testCompileOnly("org.projectlombok:lombok:1.18.24")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
 }
 

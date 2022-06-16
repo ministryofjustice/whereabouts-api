@@ -84,8 +84,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withBody(
               gson.toJson(
                 listOf(
-                  mapOf("bookingId" to 1L),
-                  mapOf("bookingId" to 2L)
+                  mapOf("bookingId" to 1L, "eventId" to 2L, "offenderNo" to "A123B"),
+                  mapOf("bookingId" to 2L, "eventId" to 3L, "offenderNo" to "B123C")
                 )
               )
             )
@@ -188,22 +188,9 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
-  fun stubGetScheduledActivitiesForDateRange(
-    prisonId: String = "MDI",
-    fromDate: LocalDate = LocalDate.now(),
-    toDate: LocalDate = LocalDate.now(),
-    period: TimePeriod? = TimePeriod.AM,
-    suspended: Boolean = false
-  ) {
-    val periodText = period?.toString().orEmpty()
-    var testUrl =
-      "/api/schedules/$prisonId/activities-by-date-range?fromDate=$fromDate&toDate=$toDate&timeSlot=$periodText"
-    if (suspended) {
-      testUrl += "&includeSuspended=true"
-    }
-
+  fun stubGetScheduledActivitiesForEventIds(prisonId: String = "MDI") {
     stubFor(
-      get(urlEqualTo(testUrl))
+      post(urlEqualTo("/api/schedules/$prisonId/activities-by-event-ids"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
@@ -211,8 +198,25 @@ class PrisonApiMockServer : WireMockServer(8999) {
               gson.toJson(
                 listOf(
                   mapOf("bookingId" to 1L, "eventId" to 1L),
-                  mapOf("bookingId" to 2L, "eventId" to 12L)
                 )
+              )
+            )
+            .withStatus(200)
+        )
+    )
+  }
+
+  fun stubScheduleActivityCount(
+    prisonId: String = "MDI",
+  ) {
+    stubFor(
+      post(urlPathEqualTo("/api/schedules/$prisonId/count-activities"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(
+              gson.toJson(
+                mapOf("total" to 13L, "suspended" to 2L, "notRecorded" to 5L),
               )
             )
             .withStatus(200)

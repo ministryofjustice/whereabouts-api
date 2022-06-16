@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.Event;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.EventOutcomesDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails;
+import uk.gov.justice.digital.hmpps.whereabouts.dto.PrisonerScheduleDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ScheduledEventDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance;
@@ -109,19 +110,15 @@ public abstract class PrisonApi {
         return new PageImpl<>(data.content, pageable, data.totalPages);
     }
 
-    public Set<Long> getBookingIdsForScheduleActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
-        final var responseType = new ParameterizedTypeReference<List<Map>>() {
+    public List<PrisonerScheduleDto> getScheduledActivities(final String prisonId, final LocalDate date, final TimePeriod period) {
+        final var responseType = new ParameterizedTypeReference<List<PrisonerScheduleDto>>() {
         };
 
         return Objects.requireNonNull(webClient.get()
                         .uri("/schedules/{prisonId}/activities?date={date}&timeSlot={period}", prisonId, date, period)
                         .retrieve()
                         .bodyToMono(responseType)
-                        .block())
-                .stream()
-                .map(entry -> Long.parseLong(entry.get("bookingId").toString()))
-                .collect(Collectors.toSet());
-
+                        .block());
     }
 
     public String getOffenderNoFromBookingId(final Long bookingId) {
@@ -146,14 +143,34 @@ public abstract class PrisonApi {
                 .block();
     }
 
-    public List<OffenderDetails> getScheduleActivityOffenderData(final String prisonId, final LocalDate fromDate, final LocalDate toDate, final TimePeriod period) {
+    public List<OffenderDetails> getScheduleActivityOffenderData(final String prisonId,
+                                                                 final Set<Long> eventIds) {
         final var responseType = new ParameterizedTypeReference<List<OffenderDetails>>() {
         };
 
-        return webClient.get()
-                .uri("/schedules/{prisonId}/activities-by-date-range?fromDate={fromDate}&toDate={toDate}&timeSlot={period}&includeSuspended=true", prisonId, fromDate, toDate, period)
+        return webClient.post()
+                .uri("/schedules/{prisonId}/activities-by-event-ids", prisonId)
+                .bodyValue(eventIds)
                 .retrieve()
                 .bodyToMono(responseType)
+                .block();
+    }
+
+    public PrisonerActivitiesCount getScheduleActivityCounts(final String prisonId,
+                                                             final LocalDate fromDate,
+                                                             final LocalDate toDate,
+                                                             final Set<TimePeriod> periods,
+                                                             final Map<Long, Integer> attendancesBookingIdsCount
+                                                             ) {
+        return webClient.post()
+                .uri("/schedules/{prisonId}/count-activities",
+                        b -> b.queryParam("fromDate", fromDate)
+                                .queryParam("toDate", toDate)
+                                .queryParam("timeSlots", periods)
+                                .build(prisonId))
+                .bodyValue(attendancesBookingIdsCount)
+                .retrieve()
+                .bodyToMono(PrisonerActivitiesCount.class)
                 .block();
     }
 

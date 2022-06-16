@@ -1,5 +1,5 @@
 ---
-    apiVersion: batch/v1beta1
+    apiVersion: batch/v1
     kind: CronJob
     metadata:
       name: db-refresh-job
@@ -11,7 +11,7 @@
       jobTemplate:
         spec:
           backoffLimit: 0
-          activeDeadlineSeconds: 1200
+          activeDeadlineSeconds: 3000
           template:
             spec:
               securityContext:

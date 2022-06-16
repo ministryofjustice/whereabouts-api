@@ -15,8 +15,11 @@ class Court(
   @ApiModelProperty(required = true, value = "The court identifier. Unique. Defined by courts registry.")
   val id: String,
 
-  @ApiModelProperty(required = true, value = "A name for the court.")
-  val name: String
+  @ApiModelProperty(value = "A name for the court.")
+  val name: String,
+
+  @ApiModelProperty(value = "Court email address.")
+  val email: String? = null
 ) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtEmailDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtLocationsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
@@ -29,10 +30,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.IVideo
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptions
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingSearchSpecification
 import java.time.LocalDate
+import javax.persistence.EntityNotFoundException
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
 
-@Api(tags = ["court"])
+@Tag(name = "court")
 @RestController
 @RequestMapping(value = ["court"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class VideoLinkBookingController(
@@ -42,27 +44,38 @@ class VideoLinkBookingController(
 ) {
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/all-courts"])
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation(
-    value = "All court locations",
-    response = CourtLocationsResponse::class,
-    notes = "Return all court locations"
+  @Operation(
+    description = "All court locations",
+    summary = "Return all court locations"
   )
   fun getCourtNames() = CourtLocationsResponse(courtLocations = courtService.courtNames)
 
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/courts"])
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation(
-    value = "All courts",
-    notes = "Return information about all courts."
+  @Operation(
+    summary = "All courts",
+    description = "Return information about all courts."
   )
   fun getCourts(): List<Court> = courtService.courts
 
+  @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/courts/{courtId}/email"])
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "Court email address",
+    description = "Return information about email address."
+  )
+  fun getEmailByCourtId(
+    @Parameter(description = "Court id", required = true)
+    @PathVariable("courtId")
+    courtId: String
+  ): CourtEmailDto =
+    CourtEmailDto(courtService.getCourtEmailForCourtId(courtId) ?: throw EntityNotFoundException("Email not exist"))
+
   @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-appointments"])
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation(
-    value = "Video link appointments",
-    response = VideoLinkAppointmentsResponse::class,
-    notes = "Return video link appointments"
+  @Operation(
+    summary = "Video link appointments",
+    description = "Return video link appointments"
   )
   fun getVideoLinkAppointments(@RequestBody appointmentIds: Set<Long>): VideoLinkAppointmentsResponse {
     val courtAppointments = videoLinkBookingService.getVideoLinkAppointments(appointmentIds)
@@ -74,13 +87,12 @@ class VideoLinkBookingController(
 
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings/{videoBookingId}"])
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation(
-    value = "A video Link Booking",
-    response = VideoLinkBookingResponse::class,
-    notes = "Return a video Link Booking"
+  @Operation(
+    summary = "A video Link Booking",
+    description = "Return a video Link Booking"
   )
   fun getVideoLinkBooking(
-    @ApiParam(value = "Video link booking id", required = true)
+    @Parameter(description = "Video link booking id", required = true)
     @PathVariable("videoBookingId")
     videoBookingId: Long
   ) = videoLinkBookingService.getVideoLinkBooking(videoBookingId)
@@ -90,27 +102,27 @@ class VideoLinkBookingController(
     produces = [MediaType.APPLICATION_JSON_VALUE]
   )
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("Get all video link bookings for the specified date and prison, optionally filtering by court.")
+  @Operation(description = "Get all video link bookings for the specified date and prison, optionally filtering by court.")
   fun getVideoLinkBookingsByPrisonDateAndCourt(
-    @ApiParam(value = "Return video link bookings for this prison only")
+    @Parameter(description = "Return video link bookings for this prison only")
     @PathVariable(name = "agencyId")
     agencyId: String,
 
-    @ApiParam(value = "Return video link bookings for this date only. ISO-8601 date format")
+    @Parameter(description = "Return video link bookings for this date only. ISO-8601 date format")
     @PathVariable(name = "date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     date: LocalDate,
 
-    @ApiParam(
-      value = "The name a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned.",
+    @Parameter(
+      description = "The name a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned.",
       required = false,
       example = "Wimbledon",
     )
     @RequestParam(name = "court", required = false)
     court: String?,
 
-    @ApiParam(
-      value = "The identifier of a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned. Takes precedence over court.",
+    @Parameter(
+      description = "The identifier of a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned. Takes precedence over court.",
       required = false,
       example = "CMBGMC"
     )
@@ -122,7 +134,7 @@ class VideoLinkBookingController(
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings"])
   @ResponseStatus(HttpStatus.CREATED)
-  @ApiOperation(value = "Create a Video Link Booking")
+  @Operation(description = "Create a Video Link Booking")
   fun createVideoLinkBooking(
     @RequestBody
     @Valid
@@ -132,9 +144,9 @@ class VideoLinkBookingController(
 
   @PutMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings/{videoBookingId}"])
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @ApiOperation(value = "Update a Video Link Booking")
+  @Operation(description = "Update a Video Link Booking")
   fun updateVideoLinkBooking(
-    @ApiParam(value = "Video link booking id", required = true)
+    @Parameter(description = "Video link booking id", required = true)
     @PathVariable("videoBookingId")
     @NotNull
     videoBookingId: Long?,
@@ -155,9 +167,9 @@ class VideoLinkBookingController(
 
   @DeleteMapping(path = ["/video-link-bookings/{videoBookingId}"])
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @ApiOperation(value = "Delete a Video Link Booking")
+  @Operation(description = "Delete a Video Link Booking")
   fun deleteVideoLinkBooking(
-    @ApiParam(value = "Video link booking id", required = true)
+    @Parameter(description = "Video link booking id", required = true)
     @PathVariable("videoBookingId")
     videoBookingId: Long
   ): ResponseEntity<Void> {
@@ -170,9 +182,9 @@ class VideoLinkBookingController(
     consumes = [MediaType.TEXT_PLAIN_VALUE]
   )
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @ApiOperation(value = "Update the comment for a Video Link Booking")
+  @Operation(description = "Update the comment for a Video Link Booking")
   fun updateVideoLinkBookingComment(
-    @ApiParam(value = "Video link booking id", required = true)
+    @Parameter(description = "Video link booking id", required = true)
     @PathVariable("videoLinkBookingId")
     videoLinkBookingId: Long,
 
@@ -194,9 +206,8 @@ class VideoLinkBookingController(
     consumes = [MediaType.APPLICATION_JSON_VALUE],
     produces = [MediaType.APPLICATION_JSON_VALUE]
   )
-  @ApiOperation(
-    value = "Check that a potential video link booking, described by the supplied specification, can be made.  If not then return information about some alternatives.",
-    response = VideoLinkBookingOptions::class
+  @Operation(
+    description = "Check that a potential video link booking, described by the supplied specification, can be made.  If not then return information about some alternatives.",
   )
   fun findAvailableVideoLinkBookingOptions(
     @Valid

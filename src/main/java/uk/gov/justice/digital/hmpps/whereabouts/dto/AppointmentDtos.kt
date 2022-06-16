@@ -28,23 +28,19 @@ data class CreateAppointmentSpecification(
   val bookingId: Long,
   @ApiModelProperty(required = true, value = "The location id of where the appointment will take place")
   val locationId: Long,
-  @ApiModelProperty(required = true, value = "Appointment type", example = "INST")
+  @ApiModelProperty(required = true, value = "Appointment type")
   val appointmentType: String,
-  @ApiModelProperty(required = false, value = "Additional information")
+  @ApiModelProperty(value = "Additional information")
   val comment: String? = null,
   @ApiModelProperty(
-    required = true,
     value = "The date and time the appointment is scheduled for",
-    example = "2021-05-23T17:00:00"
   )
   val startTime: LocalDateTime,
   @ApiModelProperty(
-    required = false,
     value = "The estimated date time the appointment will end",
-    example = "2021-05-23T17:00:00"
   )
   val endTime: LocalDateTime? = null,
-  @ApiModelProperty(required = false, value = "Describes how many times this appointment is to be repeated")
+  @ApiModelProperty(value = "Describes how many times this appointment is to be repeated")
   val repeat: Repeat? = null
 )
 

@@ -21,14 +21,6 @@ class DocumentationIntegrationTest {
   lateinit var mapper: ObjectMapper
 
   @Test
-  fun `swagger 2 generates valid json`() {
-    val response = testRestTemplate.getForEntity("/v2/api-docs", String::class.java)
-
-    assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-    mapper.readTree(response.body)
-  }
-
-  @Test
   fun `openApi generates valid json`() {
     val response = testRestTemplate.getForEntity("/v3/api-docs", String::class.java)
 
