@@ -33,7 +33,7 @@ class EventsIntegrationTest : IntegrationTest() {
 
       prisonApiMockServer.verify(
         getRequestedFor(anyUrl())
-          .withUrl("/api/offenders/ABC123/events?fromDate=&toDate=")
+          .withUrl("/api/offenders/ABC123/scheduled-events?fromDate=&toDate=")
       )
     }
 
@@ -55,7 +55,7 @@ class EventsIntegrationTest : IntegrationTest() {
 
       prisonApiMockServer.verify(
         getRequestedFor(anyUrl())
-          .withUrl("/api/offenders/ABC123/events?fromDate=2022-02-20&toDate=2022-03-20")
+          .withUrl("/api/offenders/ABC123/scheduled-events?fromDate=2022-02-20&toDate=2022-03-20")
       )
     }
 

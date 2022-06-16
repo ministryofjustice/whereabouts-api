@@ -44,7 +44,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -374,10 +373,10 @@ public abstract class PrisonApi {
                 .block();
     }
 
-    public List<ScheduledEventDto> getEvents(final String offenderNo, final LocalDate fromDate, final LocalDate toDate) {
+    public List<ScheduledEventDto> getScheduledEvents(final String offenderNo, final LocalDate fromDate, final LocalDate toDate) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/offenders/{offenderNo}/events")
+                        .path("/offenders/{offenderNo}/scheduled-events")
                         .queryParam("fromDate", "{fromDate}")
                         .queryParam("toDate", "{toDate}")
                         .build(offenderNo, fromDate, toDate))
