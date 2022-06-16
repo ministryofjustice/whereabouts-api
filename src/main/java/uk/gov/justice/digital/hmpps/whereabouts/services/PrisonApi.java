@@ -46,6 +46,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 public abstract class PrisonApi {
@@ -383,6 +384,9 @@ public abstract class PrisonApi {
                 .retrieve()
                 .onStatus(s -> s == NOT_FOUND, response ->
                         response.bodyToMono(ErrorResponse.class).map(r -> new EntityNotFoundException(r.getDeveloperMessage()))
+                )
+                .onStatus(s -> s == BAD_REQUEST, response ->
+                        response.bodyToMono(ErrorResponse.class).map(r -> new ValidationException(r.getDeveloperMessage()))
                 )
                 .bodyToMono(new ParameterizedTypeReference<List<ScheduledEventDto>>() {
                 })
