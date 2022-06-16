@@ -611,7 +611,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
 
   fun stubGetEvents(json: String, httpStatus: Int = 200) {
     stubFor(
-      get(urlPathMatching("/api/offenders/.*/events"))
+      get(urlPathMatching("/api/offenders/.*/scheduled-events"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
