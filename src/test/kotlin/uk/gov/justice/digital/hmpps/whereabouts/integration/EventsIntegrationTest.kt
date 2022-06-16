@@ -83,6 +83,30 @@ class EventsIntegrationTest : IntegrationTest() {
           """.trimIndent()
         )
     }
+    @Test
+    fun `should pass through bad request`() {
+      prisonApiMockServer.stubGetEvents(
+        """
+        {
+          "status": 400,
+          "userMessage": "Invalid date range: toDate is before fromDate.",
+          "developerMessage": "400 Invalid date range: toDate is before fromDate."
+        }
+        """.trimIndent(),
+        400
+      )
+
+      webTestClient.get()
+        .uri("/events/ABC123")
+        .headers(setHeaders())
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().json(
+          """
+            {"status":400,"developerMessage":"400 Invalid date range: toDate is before fromDate."}
+          """.trimIndent()
+        )
+    }
 
     @Test
     fun `should pass through forbidden`() {
