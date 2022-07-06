@@ -60,10 +60,10 @@ class DelegatingVideoLinkBookingEventListenerTest {
   @Test
   fun `Should call eventStore with correct args for Updates`() {
     whenever(courtService.chooseCourtName(booking)).thenReturn("Elmley")
-    listener.bookingUpdated(booking, specification)
+    listener.bookingUpdated(booking, specification, "WWI")
 
     argumentCaptor<VideoLinkBooking>().apply {
-      verify(eventStoreListener).bookingUpdated(capture(), eq(specification))
+      verify(eventStoreListener).bookingUpdated(capture(), eq(specification), eq("WWI"))
       assertThat(firstValue.courtName).isEqualTo("Elmley")
       assertThat(firstValue.createdByUsername).isEqualTo(booking.createdByUsername)
       assertThat(firstValue.appointments).isEqualTo(booking.appointments)
