@@ -57,7 +57,7 @@ class ApplicationInsightsEventListenerTest {
 
   @Test
   fun `update event`() {
-    listener.bookingUpdated(booking, updateSpecification)
+    listener.bookingUpdated(booking, updateSpecification, "WWI")
 
     verify(telemetryClient).trackEvent(
       "VideoLinkBookingUpdated",
@@ -65,6 +65,7 @@ class ApplicationInsightsEventListenerTest {
         "id" to "11",
         "user" to "A_USER",
         "bookingId" to "-1",
+        "agencyId" to "WWI",
         "courtId" to "TSTCRT2",
         "preAppointmentId" to "12",
         "preId" to "120",

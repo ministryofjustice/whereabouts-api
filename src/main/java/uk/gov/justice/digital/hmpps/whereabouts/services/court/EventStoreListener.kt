@@ -20,7 +20,11 @@ class EventStoreListener(
   val clock: Clock,
   private val authenticationFacade: AuthenticationFacade,
 ) : VideoLinkBookingEventListener {
-  override fun bookingCreated(booking: VideoLinkBooking, specification: VideoLinkBookingSpecification, agencyId: String) {
+  override fun bookingCreated(
+    booking: VideoLinkBooking,
+    specification: VideoLinkBookingSpecification,
+    agencyId: String
+  ) {
     repository.save(
       VideoLinkBookingEvent(
         eventType = VideoLinkBookingEventType.CREATE,
@@ -49,16 +53,22 @@ class EventStoreListener(
     )
   }
 
-  override fun bookingUpdated(booking: VideoLinkBooking, specification: VideoLinkBookingUpdateSpecification) {
+  override fun bookingUpdated(
+    booking: VideoLinkBooking,
+    specification: VideoLinkBookingUpdateSpecification,
+    agencyId: String
+  ) {
     repository.save(
       VideoLinkBookingEvent(
         eventType = VideoLinkBookingEventType.UPDATE,
         timestamp = LocalDateTime.now(clock),
         userId = authenticationFacade.currentUsername,
+        agencyId = agencyId,
         videoLinkBookingId = booking.id!!,
         courtId = specification.courtId,
         court = booking.courtName,
         comment = specification.comment,
+        madeByTheCourt = booking.madeByTheCourt,
         mainNomisAppointmentId = booking.appointments[MAIN]?.appointmentId,
         mainLocationId = specification.main.locationId,
         mainStartTime = specification.main.startTime,
@@ -81,6 +91,7 @@ class EventStoreListener(
         eventType = VideoLinkBookingEventType.DELETE,
         timestamp = LocalDateTime.now(clock),
         userId = authenticationFacade.currentUsername,
+        madeByTheCourt = booking.madeByTheCourt,
         videoLinkBookingId = booking.id!!,
         court = booking.courtName,
         courtId = booking.courtId

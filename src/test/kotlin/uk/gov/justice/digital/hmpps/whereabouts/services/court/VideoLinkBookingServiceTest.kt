@@ -574,7 +574,7 @@ class VideoLinkBookingServiceTest {
         .usingRecursiveComparison()
         .isEqualTo(expectedAfterUpdate)
 
-      verify(videoLinkBookingEventListener).bookingUpdated(expectedAfterUpdate, updateSpecification)
+      verify(videoLinkBookingEventListener).bookingUpdated(expectedAfterUpdate, updateSpecification, "WRI")
     }
 
     /**
