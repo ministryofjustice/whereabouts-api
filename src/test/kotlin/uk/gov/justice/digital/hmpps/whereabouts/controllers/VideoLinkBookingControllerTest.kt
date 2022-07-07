@@ -26,6 +26,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingEventService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptionsService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
@@ -41,6 +42,9 @@ class VideoLinkBookingControllerTest : TestController() {
 
   @MockBean
   lateinit var videoLinkBookingService: VideoLinkBookingService
+
+  @MockBean
+  lateinit var videoLinkBookingEventService: VideoLinkBookingEventService
 
   @MockBean
   lateinit var videoLinkBookingOptionsService: VideoLinkBookingOptionsService
@@ -654,6 +658,86 @@ class VideoLinkBookingControllerTest : TestController() {
 
       verify(videoLinkBookingService)
         .getVideoLinkBookingsForPrisonAndDateAndCourt("LEI", LocalDate.of(2020, 12, 25), null, "TSTCRT")
+    }
+  }
+
+  @Nested
+  inner class `Get videolink bookings by start date` {
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `happy flow`() {
+      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any())).thenReturn(",,,,,,,,\n")
+
+      mockMvc
+        .perform(
+          get("/court/video-link-bookings")
+            .param("start-date", "2021-03-01")
+            .accept("text/csv")
+        )
+        .andExpect(status().isOk)
+        .andExpect(content().contentType("text/csv;charset=UTF-8"))
+        .andExpect(content().string(",,,,,,,,\n"))
+
+      verify(videoLinkBookingEventService).getBookingsByStartDateAsCSV(LocalDate.of(2021, 3, 1), 7L)
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `bad start-date`() {
+      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any())).thenReturn(",,,,,,,,\n")
+
+      mockMvc
+        .perform(
+          get("/court/video-link-bookings")
+            .param("start-date", "xxxxx")
+            .accept("text/csv")
+        )
+        .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `missing start-date`() {
+      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any())).thenReturn(",,,,,,,,\n")
+
+      mockMvc
+        .perform(
+          get("/court/video-link-bookings")
+            .accept("text/csv")
+        )
+        .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `with days`() {
+      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any())).thenReturn(",,,,,,,,\n")
+
+      mockMvc
+        .perform(
+          get("/court/video-link-bookings")
+            .param("start-date", "2021-03-01")
+            .param("days", "3")
+            .accept("text/csv")
+        )
+        .andExpect(status().isOk)
+
+      verify(videoLinkBookingEventService).getBookingsByStartDateAsCSV(LocalDate.of(2021, 3, 1), 3L)
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `bad days`() {
+      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any())).thenReturn(",,,,,,,,\n")
+
+      mockMvc
+        .perform(
+          get("/court/video-link-bookings")
+            .param("start-date", "2021-03-01")
+            .param("days", "xxxx")
+            .accept("text/csv")
+        )
+        .andExpect(status().isBadRequest)
     }
   }
 }
