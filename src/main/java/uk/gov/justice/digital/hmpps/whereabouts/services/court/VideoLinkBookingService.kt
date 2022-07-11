@@ -105,7 +105,7 @@ class VideoLinkBookingService(
      * and so have ids before the ApplicationInsightsEventListener is called.
      */
     videoLinkBookingRepository.flush()
-    videoLinkBookingEventListener.bookingUpdated(booking, specification)
+    videoLinkBookingEventListener.bookingUpdated(booking, specification, mainEvent.agencyId)
     return booking
   }
 

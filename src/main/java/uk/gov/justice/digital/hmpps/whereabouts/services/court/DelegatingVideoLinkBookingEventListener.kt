@@ -22,10 +22,14 @@ class DelegatingVideoLinkBookingEventListener(
     applicationInsightsEventListener.bookingCreated(booking, specification, agencyId)
   }
 
-  override fun bookingUpdated(booking: VideoLinkBooking, specification: VideoLinkBookingUpdateSpecification) {
+  override fun bookingUpdated(
+    booking: VideoLinkBooking,
+    specification: VideoLinkBookingUpdateSpecification,
+    agencyId: String
+  ) {
     val copy = copyWithCourtName(booking)
-    eventStoreListener.bookingUpdated(copy, specification)
-    applicationInsightsEventListener.bookingUpdated(copy, specification)
+    eventStoreListener.bookingUpdated(copy, specification, agencyId)
+    applicationInsightsEventListener.bookingUpdated(copy, specification, agencyId)
   }
 
   override fun bookingDeleted(booking: VideoLinkBooking) {

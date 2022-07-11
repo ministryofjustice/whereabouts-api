@@ -6,6 +6,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 
 interface VideoLinkBookingEventListener {
   fun bookingCreated(booking: VideoLinkBooking, specification: VideoLinkBookingSpecification, agencyId: String)
-  fun bookingUpdated(booking: VideoLinkBooking, specification: VideoLinkBookingUpdateSpecification)
+  fun bookingUpdated(booking: VideoLinkBooking, specification: VideoLinkBookingUpdateSpecification, agencyId: String)
   fun bookingDeleted(booking: VideoLinkBooking)
 }
