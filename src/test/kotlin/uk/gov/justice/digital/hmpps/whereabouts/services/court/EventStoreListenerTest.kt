@@ -66,17 +66,19 @@ class EventStoreListenerTest {
 
   @Test
   fun `booking updated`() {
-    listener.bookingUpdated(booking, updateSpecification)
+    listener.bookingUpdated(booking, updateSpecification, "WWI")
 
     verify(repository).save(
       VideoLinkBookingEvent(
         eventType = VideoLinkBookingEventType.UPDATE,
         timestamp = LocalDateTime.now(clock),
         userId = "A_USER",
+        agencyId = "WWI",
         videoLinkBookingId = booking.id!!,
         courtId = updateSpecification.courtId,
         court = booking.courtName,
         comment = updateSpecification.comment,
+        madeByTheCourt = booking.madeByTheCourt,
         mainNomisAppointmentId = booking.appointments[MAIN]!!.appointmentId,
         mainLocationId = updateSpecification.main.locationId,
         mainStartTime = updateSpecification.main.startTime,
@@ -102,6 +104,7 @@ class EventStoreListenerTest {
         eventType = VideoLinkBookingEventType.DELETE,
         timestamp = LocalDateTime.now(clock),
         userId = "A_USER",
+        madeByTheCourt = booking.madeByTheCourt,
         videoLinkBookingId = booking.id!!,
         court = booking.courtName,
         courtId = booking.courtId,
