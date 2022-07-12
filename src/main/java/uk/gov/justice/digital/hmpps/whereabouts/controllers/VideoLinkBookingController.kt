@@ -25,6 +25,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecificatio
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.model.Court
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingEventService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.IVideoLinkBookingOptionsService
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptions
@@ -40,6 +41,8 @@ import javax.validation.constraints.NotNull
 class VideoLinkBookingController(
   private val courtService: CourtService,
   private val videoLinkBookingService: VideoLinkBookingService,
+  private val videoLinkBookingEventService: VideoLinkBookingEventService,
+
   private val videoLinkBookingOptionsService: IVideoLinkBookingOptionsService,
 ) {
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/all-courts"])
@@ -215,4 +218,24 @@ class VideoLinkBookingController(
     specification: VideoLinkBookingSearchSpecification
   ): VideoLinkBookingOptions =
     videoLinkBookingOptionsService.findVideoLinkBookingOptions(specification)
+
+  @GetMapping(
+    path = ["/video-link-bookings"],
+    produces = ["text/csv"]
+  )
+  @Operation(
+    summary = "Video Link Bookings",
+    description = "Return details of Video Link Bookings in CSV format. Restrict the response to bookings with a main start time within 'days' of start-date."
+  )
+  fun getVideoLinkBookingsByStartDate(
+    @RequestParam(name = "start-date", required = true)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @Parameter(description = "The earliest booking start time for which to return bookings for.", required = true)
+    startDate: LocalDate,
+
+    @RequestParam(name = "days")
+    @Parameter(description = "Return details of bookings occurring within this number of days of start-date")
+    days: Long?
+  ) =
+    videoLinkBookingEventService.getBookingsByStartDateAsCSV(startDate, days ?: 7L)
 }
