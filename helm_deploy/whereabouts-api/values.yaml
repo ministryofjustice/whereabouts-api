@@ -7,12 +7,6 @@ generic-service:
     tag: latest
     port: 8080
 
-  ingress:
-    enabled: true
-    host: app-hostname.local
-    tlsSecretName: whereabouts-api-cert
-    contextColour: green
-
   env:
     JAVA_OPTS: "-Xmx512m"
     SPRING_PROFILES_ACTIVE: "postgres,logstash"
