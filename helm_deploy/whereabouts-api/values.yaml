@@ -11,6 +11,8 @@ generic-service:
     enabled: true
     host: app-hostname.local
     tlsSecretName: whereabouts-api-cert
+    v1_2_enabled: true
+    v0_47_enabled: false
 
   env:
     JAVA_OPTS: "-Xmx512m"
