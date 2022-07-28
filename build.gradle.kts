@@ -51,7 +51,8 @@ dependencies {
   implementation("org.jetbrains.kotlin:kotlin-reflect")
 
   implementation("org.springframework:spring-jms")
-  implementation("com.amazonaws:amazon-sqs-java-messaging-lib:1.0.8")
+  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.267"))
+  implementation("com.amazonaws:amazon-sqs-java-messaging-lib:1.1.0")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
