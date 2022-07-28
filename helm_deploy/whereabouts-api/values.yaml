@@ -54,10 +54,4 @@ generic-service:
 generic-prometheus-alerts:
   targetApplication: whereabouts-api
 
-ingress:
-  annotations:
-    external-dns.alpha.kubernetes.io/aws-weight: "0"
-    nginx.ingress.kubernetes.io/custom-http-errors: "418"
-  # live-1 is blue, live is green
-  contextColour: green
 
