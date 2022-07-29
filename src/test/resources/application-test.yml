@@ -22,6 +22,8 @@ management.endpoint:
   info.cache.time-to-live: 0
 
 spring:
+  datasource:
+      url: "jdbc:hsqldb:mem:keyworker-db;sql.syntax_pgs=true;shutdown=false"
   security:
     oauth2:
       resourceserver:
