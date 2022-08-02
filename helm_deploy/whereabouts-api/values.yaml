@@ -14,6 +14,12 @@ generic-service:
     v1_2_enabled: true
     v0_47_enabled: false
 
+  resources:
+    limits:
+      memory: 2Gi
+    requests:
+      memory: 512Mi
+
   env:
     JAVA_OPTS: "-Xmx512m"
     SPRING_PROFILES_ACTIVE: "postgres,logstash"
