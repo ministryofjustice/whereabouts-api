@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
 import org.hibernate.Hibernate
+import java.time.LocalDateTime
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
@@ -24,11 +25,13 @@ class VideoLinkAppointment(
   val videoLinkBooking: VideoLinkBooking,
 
   val appointmentId: Long,
+  val startDateTime: LocalDateTime,
+  val endDateTime: LocalDateTime,
 
   @Enumerated(EnumType.STRING)
   val hearingType: HearingType
 ) : BaseEntity(id) {
-  override fun toString(): String = "VideoLinkAppointment(id = $id, appointmentId = $appointmentId, hearingType = $hearingType)"
+  override fun toString(): String = "VideoLinkAppointment(id = $id, appointmentId = $appointmentId, startDateTime = $startDateTime, endDateTime = $endDateTime, = $hearingType)"
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

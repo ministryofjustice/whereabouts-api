@@ -61,7 +61,9 @@ class VideoLinkBookingService(
       offenderBookingId = specification.bookingId,
       courtName = specification.court,
       courtId = getCourtId(specification),
-      madeByTheCourt = specification.madeByTheCourt
+      madeByTheCourt = specification.madeByTheCourt,
+      agencyId = mainEvent.agencyId,
+      comment = specification.comment,
     )
     videoLinkBooking.addAppointments(mainEvent, preEvent, postEvent)
 
@@ -110,9 +112,9 @@ class VideoLinkBookingService(
   }
 
   private fun VideoLinkBooking.addAppointments(mainEvent: Event, preEvent: Event?, postEvent: Event?) {
-    preEvent?.let { addPreAppointment(it.eventId) }
-    addMainAppointment(mainEvent.eventId)
-    postEvent?.let { addPostAppointment(it.eventId) }
+    preEvent?.let { addPreAppointment(it.eventId, it.startTime, it.endTime) }
+    addMainAppointment(mainEvent.eventId, mainEvent.startTime, mainEvent.endTime)
+    postEvent?.let { addPostAppointment(it.eventId, it.startTime, it.endTime) }
   }
 
   private fun toVideoLinkAppointmentDto(appointment: VideoLinkAppointment) =

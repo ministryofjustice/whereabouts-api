@@ -80,11 +80,11 @@ class CourtIntegrationTest(
   @Nested
   inner class GetBooking {
 
-    val preAppointmentId: Long = 2
-    val mainAppointmentId: Long = 3
-    val postAppointmentId: Long = 4
+    private val preAppointmentId: Long = 2
+    private val mainAppointmentId: Long = 3
+    private val postAppointmentId: Long = 4
 
-    val prePrisonAppointment = PrisonAppointment(
+    private val prePrisonAppointment = PrisonAppointment(
       bookingId = 100,
       eventId = preAppointmentId,
       startTime = referenceTime,
@@ -95,7 +95,7 @@ class CourtIntegrationTest(
       comment = "any comment"
     )
 
-    val mainPrisonAppointment = PrisonAppointment(
+    private val mainPrisonAppointment = PrisonAppointment(
       bookingId = 100,
       eventId = mainAppointmentId,
       startTime = referenceTime.plusMinutes(30),
@@ -106,7 +106,7 @@ class CourtIntegrationTest(
       comment = "any comment",
     )
 
-    val postPrisonAppointment = PrisonAppointment(
+    private val postPrisonAppointment = PrisonAppointment(
       bookingId = 100,
       eventId = postAppointmentId,
       startTime = referenceTime.plusMinutes(60),
@@ -117,14 +117,16 @@ class CourtIntegrationTest(
       comment = "any comment"
     )
 
-    fun makeVideoLinkBooking() = VideoLinkBooking(
+    private fun makeVideoLinkBooking() = VideoLinkBooking(
       offenderBookingId = 100,
       courtName = "Test Court 1",
-      courtId = "TSTCRT1"
+      courtId = "TSTCRT1",
+      agencyId = "WWI",
+      comment = "any comment"
     ).apply {
-      addPreAppointment(appointmentId = preAppointmentId)
-      addMainAppointment(appointmentId = mainAppointmentId)
-      addPostAppointment(appointmentId = postAppointmentId)
+      addPreAppointment(appointmentId = preAppointmentId, startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0), endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0))
+      addMainAppointment(appointmentId = mainAppointmentId, startDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0), endDateTime = LocalDateTime.of(2022, 1, 1, 12, 0, 0))
+      addPostAppointment(appointmentId = postAppointmentId, startDateTime = LocalDateTime.of(2022, 1, 1, 12, 0, 0), endDateTime = LocalDateTime.of(2022, 1, 1, 13, 0, 0))
     }
 
     @BeforeEach
@@ -255,8 +257,10 @@ class CourtIntegrationTest(
         VideoLinkBooking(
           offenderBookingId = 1L,
           courtName = "York",
-          courtId = "TSTCRT"
-        ).apply { addMainAppointment(appointmentId = 1L) }
+          courtId = "TSTCRT",
+          agencyId = "WWI",
+          comment = "any comment"
+        ).apply { addMainAppointment(appointmentId = 1L, startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0), endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)) }
       )
 
       val mainAppointmentId = persistentBooking.appointments[MAIN]?.id
@@ -299,6 +303,8 @@ class CourtIntegrationTest(
     fun `Successful POST video-link-bookings, main appointment only`() {
       val bookingId = 1L
       val mainAppointmentId = 1L
+      val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
+      val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
 
       prisonApiMockServer.stubGetLocation(1L)
       prisonApiMockServer.stubAddAppointmentForBooking(bookingId, eventId = mainAppointmentId)
@@ -335,8 +341,10 @@ class CourtIntegrationTest(
             courtName = "Test Court 1",
             courtId = "TSTCRT",
             madeByTheCourt = false,
+            agencyId = "WWI",
+            comment = "any comment"
           ).apply {
-            addMainAppointment(mainAppointmentId)
+            addMainAppointment(mainAppointmentId, startDateTime, endDateTime)
             createdByUsername = "ITAG_USER"
           }
         )
@@ -391,15 +399,19 @@ class CourtIntegrationTest(
 
       val preAppointmentId: Long = 2
       val mainAppointmentId: Long = 3
+      val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
+      val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
 
       val persistentBooking = videoLinkBookingRepository.save(
         VideoLinkBooking(
           offenderBookingId = 4,
           courtName = "Test Court 1",
-          courtId = null
+          courtId = null,
+          agencyId = "WWI",
+          comment = "any comment"
         ).apply {
-          addPreAppointment(appointmentId = preAppointmentId)
-          addMainAppointment(appointmentId = mainAppointmentId)
+          addPreAppointment(preAppointmentId, startDateTime, endDateTime)
+          addMainAppointment(mainAppointmentId, startDateTime, endDateTime)
         }
       )
 
@@ -440,6 +452,8 @@ class CourtIntegrationTest(
       val offenderBookingId = 1L
       val oldAppointmentId = 1L
       val newAppointmentId = 2L
+      val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
+      val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
 
       prisonApiMockServer.stubGetLocation(2)
       prisonApiMockServer.stubDeleteAppointment(oldAppointmentId, status = 204)
@@ -450,9 +464,11 @@ class CourtIntegrationTest(
           offenderBookingId = offenderBookingId,
           courtName = "Test Court 1",
           courtId = "TSTCRT",
-          madeByTheCourt = false
+          madeByTheCourt = false,
+          agencyId = "WWI",
+          comment = "any comment"
         ).apply {
-          addMainAppointment(appointmentId = oldAppointmentId)
+          addMainAppointment(oldAppointmentId, startDateTime, endDateTime)
         }
       )
 
@@ -513,14 +529,19 @@ class CourtIntegrationTest(
 
   @Nested
   inner class UpdateBookingComment {
+    private val appointmentId = 10L
+    private val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
+    private val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
 
-    val theVideoLinkBooking = VideoLinkBooking(
+    private val theVideoLinkBooking = VideoLinkBooking(
       offenderBookingId = 1L,
       courtName = "Test Court 1",
       courtId = null,
-      madeByTheCourt = true
+      madeByTheCourt = true,
+      agencyId = "WWI",
+      comment = "any comment"
     ).apply {
-      addMainAppointment(10L)
+      addMainAppointment(appointmentId, startDateTime, endDateTime)
     }
 
     @BeforeEach
