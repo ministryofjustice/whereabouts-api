@@ -1,15 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock.aResponse
-import com.github.tomakehurst.wiremock.client.WireMock.delete
-import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
-import com.github.tomakehurst.wiremock.client.WireMock.get
-import com.github.tomakehurst.wiremock.client.WireMock.post
-import com.github.tomakehurst.wiremock.client.WireMock.put
-import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
-import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
-import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
@@ -517,8 +509,9 @@ class PrisonApiMockServer : WireMockServer(8999) {
                 Event(
                   eventId = eventId,
                   agencyId = "WWI",
-                  startTime = LocalDateTime.of(2022, 1, 1, 10,0,0 ),
-                  endTime = LocalDateTime.of(2022, 1, 1, 11,0,0 ))
+                  startTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+                  endTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+                )
               )
             )
             .withStatus(201)
