@@ -14,7 +14,9 @@ import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.test.jdbc.JdbcTestUtils
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.*
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 import java.time.LocalDateTime
