@@ -196,7 +196,6 @@ class VideoLinkBookingOptionsServiceTest {
 
   companion object {
     const val DONT_CARE = "Don't care"
-
     const val excludedVideoLinkBookingId = 100L
     const val excludedMainAppointmentId = 1L
     const val excludedPreAppointmentId = 2L
@@ -212,6 +211,8 @@ class VideoLinkBookingOptionsServiceTest {
     val dontCareDateTime: LocalDateTime = SEARCH_DATE.atTime(dontCareTime)
 
     const val AGENCY_ID = "WWI"
+    val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
+    val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
     const val dontCareOffenderNo = "C3456CC"
     val dontCareInterval = Interval(dontCareTime, dontCareTime)
 
@@ -251,8 +252,9 @@ class VideoLinkBookingOptionsServiceTest {
       offenderBookingId = 999L,
       courtName = DONT_CARE,
       courtId = DONT_CARE,
+      agencyId = AGENCY_ID
     ).apply {
-      addMainAppointment(excludedMainAppointmentId, 9999L)
+      addMainAppointment(excludedMainAppointmentId, startDateTime, endDateTime, 9999L)
     }
 
     val excludedVideoLinkBooking = VideoLinkBooking(
@@ -260,10 +262,11 @@ class VideoLinkBookingOptionsServiceTest {
       offenderBookingId = 999L,
       courtName = DONT_CARE,
       courtId = DONT_CARE,
+      agencyId = AGENCY_ID
     ).apply {
-      addMainAppointment(excludedMainAppointmentId, 9999L)
-      addPreAppointment(excludedPreAppointmentId, 9998L)
-      addPostAppointment(excludedPostAppointmentId, 9997L)
+      addMainAppointment(excludedMainAppointmentId, startDateTime, endDateTime, 9999L)
+      addPreAppointment(excludedPreAppointmentId, startDateTime, endDateTime, 9998L)
+      addPostAppointment(excludedPostAppointmentId, startDateTime, endDateTime, 9997L)
     }
 
     fun appointmentDto(locationId: Long, id: Long, appointmentTypeCode: String = "VLB"): ScheduledAppointmentSearchDto =

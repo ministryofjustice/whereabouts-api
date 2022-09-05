@@ -16,11 +16,27 @@ class EventListenerTestData private constructor() {
       offenderBookingId = -1L,
       courtName = "York Crown Court",
       courtId = "TSTCRT",
-      madeByTheCourt = true
+      madeByTheCourt = true,
+      agencyId = "WWI"
     ).apply {
-      addPreAppointment(appointmentId = 12L, id = 120L)
-      addMainAppointment(appointmentId = 13L, id = 130L)
-      addPostAppointment(appointmentId = 14L, id = 140L)
+      addPreAppointment(
+        appointmentId = 12L,
+        id = 120L,
+        startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+        endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+      )
+      addMainAppointment(
+        appointmentId = 13L,
+        id = 130L,
+        startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+        endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+      )
+      addPostAppointment(
+        appointmentId = 14L,
+        id = 140L,
+        startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+        endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+      )
     }
 
     val createSpecification = VideoLinkBookingSpecification(

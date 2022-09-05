@@ -14,11 +14,10 @@ import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.test.jdbc.JdbcTestUtils
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.*
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import java.time.LocalDateTime
 import java.util.function.Consumer
 
 const val USERNAME = "username1"
@@ -33,6 +32,10 @@ class VideoLinkBookingRepositoryTest(
 ) {
   @MockBean
   lateinit var authenticationFacade: AuthenticationFacade
+
+  val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
+  val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+  val agencyId = "WWI"
 
   @BeforeEach
   fun deleteAll() {
@@ -54,9 +57,10 @@ class VideoLinkBookingRepositoryTest(
       offenderBookingId = 1,
       courtName = "A Court",
       courtId = "TSTCRT",
-      madeByTheCourt = true
+      madeByTheCourt = true,
+      agencyId = agencyId
     ).apply {
-      addMainAppointment(appointmentId = 2)
+      addMainAppointment(2, startDateTime, endDateTime)
     }
 
     val id = repository.save(theBooking).id!!
@@ -85,10 +89,11 @@ class VideoLinkBookingRepositoryTest(
       offenderBookingId = 1,
       courtName = "A Court",
       madeByTheCourt = true,
+      agencyId = agencyId
     ).apply {
-      addMainAppointment(appointmentId = 4)
-      addPreAppointment(appointmentId = 12)
-      addPostAppointment(appointmentId = 22)
+      addMainAppointment(4, startDateTime, endDateTime)
+      addPreAppointment(12, startDateTime, endDateTime)
+      addPostAppointment(22, startDateTime, endDateTime)
     }
 
     val id = repository.save(theBooking).id!!
@@ -120,10 +125,10 @@ class VideoLinkBookingRepositoryTest(
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
 
     val id = repository.save(
-      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true).apply {
-        addMainAppointment(appointmentId = 4)
-        addPreAppointment(appointmentId = 12)
-        addPostAppointment(appointmentId = 22)
+      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, agencyId = agencyId).apply {
+        addMainAppointment(4, startDateTime, endDateTime)
+        addPreAppointment(12, startDateTime, endDateTime)
+        addPostAppointment(22, startDateTime, endDateTime)
       }
     ).id!!
     TestTransaction.flagForCommit()
@@ -148,10 +153,10 @@ class VideoLinkBookingRepositoryTest(
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
 
     val id = repository.save(
-      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true).apply {
-        addMainAppointment(appointmentId = 4)
-        addPreAppointment(appointmentId = 12)
-        addPostAppointment(appointmentId = 22)
+      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, agencyId = agencyId).apply {
+        addMainAppointment(4, startDateTime, endDateTime)
+        addPreAppointment(12, startDateTime, endDateTime)
+        addPostAppointment(22, startDateTime, endDateTime)
       }
     ).id!!
     TestTransaction.flagForCommit()
@@ -199,10 +204,30 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `findByAppointmentIdsAndHearingType filter by courtName`() {
-    repository.save(VideoLinkBooking(offenderBookingId = 1L, courtName = "C1").apply { addMainAppointment(100L) })
-    repository.save(VideoLinkBooking(offenderBookingId = 2L, courtName = "C2").apply { addMainAppointment(101L) })
-    repository.save(VideoLinkBooking(offenderBookingId = 3L, courtName = "C1").apply { addMainAppointment(102L) })
-    repository.save(VideoLinkBooking(offenderBookingId = 4L, courtName = "C2").apply { addMainAppointment(103L) })
+    repository.save(
+      VideoLinkBooking(
+        offenderBookingId = 1L,
+        courtName = "C1",
+        agencyId = agencyId
+      ).apply { addMainAppointment(100L, startDateTime, endDateTime) })
+    repository.save(
+      VideoLinkBooking(
+        offenderBookingId = 2L,
+        courtName = "C2",
+        agencyId = agencyId
+      ).apply { addMainAppointment(101L, startDateTime, endDateTime) })
+    repository.save(
+      VideoLinkBooking(
+        offenderBookingId = 3L,
+        courtName = "C1",
+        agencyId = agencyId
+      ).apply { addMainAppointment(102L, startDateTime, endDateTime) })
+    repository.save(
+      VideoLinkBooking(
+        offenderBookingId = 4L,
+        courtName = "C2",
+        agencyId = agencyId
+      ).apply { addMainAppointment(103L, startDateTime, endDateTime) })
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
@@ -223,10 +248,30 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `findByAppointmentIdsAndHearingType filter by courtId`() {
-    repository.save(VideoLinkBooking(offenderBookingId = 1L, courtId = "C1").apply { addMainAppointment(100L) })
-    repository.save(VideoLinkBooking(offenderBookingId = 2L, courtId = "C2").apply { addMainAppointment(101L) })
-    repository.save(VideoLinkBooking(offenderBookingId = 3L, courtId = "C1").apply { addMainAppointment(102L) })
-    repository.save(VideoLinkBooking(offenderBookingId = 4L, courtId = "C2").apply { addMainAppointment(103L) })
+    repository.save(
+      VideoLinkBooking(
+        offenderBookingId = 1L,
+        courtId = "C1",
+        agencyId = agencyId
+      ).apply { addMainAppointment(100L, startDateTime, endDateTime) })
+    repository.save(
+      VideoLinkBooking(
+        offenderBookingId = 2L,
+        courtId = "C2",
+        agencyId = agencyId
+      ).apply { addMainAppointment(101L, startDateTime, endDateTime) })
+    repository.save(
+      VideoLinkBooking(
+        offenderBookingId = 3L,
+        courtId = "C1",
+        agencyId = agencyId
+      ).apply { addMainAppointment(102L, startDateTime, endDateTime) })
+    repository.save(
+      VideoLinkBooking(
+        offenderBookingId = 4L,
+        courtId = "C2",
+        agencyId = agencyId
+      ).apply { addMainAppointment(103L, startDateTime, endDateTime) })
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
@@ -249,10 +294,10 @@ class VideoLinkBookingRepositoryTest(
   fun `Removing appointments from a booking should delete the appointments`() {
 
     val id = repository.save(
-      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true).apply {
-        addMainAppointment(appointmentId = 4)
-        addPreAppointment(appointmentId = 12)
-        addPostAppointment(appointmentId = 22)
+      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, agencyId = agencyId).apply {
+        addMainAppointment(4, startDateTime, endDateTime)
+        addPreAppointment(12, startDateTime, endDateTime)
+        addPostAppointment(22, startDateTime, endDateTime)
       }
     ).id!!
 
@@ -278,11 +323,12 @@ class VideoLinkBookingRepositoryTest(
       VideoLinkBooking(
         offenderBookingId = 1,
         courtName = "A Court",
-        madeByTheCourt = true
+        madeByTheCourt = true,
+        agencyId = agencyId
       ).apply {
-        addMainAppointment(appointmentId = 4)
-        addPreAppointment(appointmentId = 12)
-        addPostAppointment(appointmentId = 22)
+        addMainAppointment(4, startDateTime, endDateTime)
+        addPreAppointment(12, startDateTime, endDateTime)
+        addPostAppointment(22, startDateTime, endDateTime)
       }
     ).id!!
 
@@ -299,9 +345,9 @@ class VideoLinkBookingRepositoryTest(
     booking.appointments.clear()
     repository.flush()
 
-    booking.addMainAppointment(appointmentId = 100)
-    booking.addPreAppointment(appointmentId = 101)
-    booking.addPostAppointment(appointmentId = 102)
+    booking.addMainAppointment(100, startDateTime, endDateTime)
+    booking.addPreAppointment(101, startDateTime, endDateTime)
+    booking.addPostAppointment(102, startDateTime, endDateTime)
 
     /**
      * Confirm that calling flush()  populates ids in the new VideoLinkAppointment objects.
@@ -330,11 +376,12 @@ class VideoLinkBookingRepositoryTest(
         offenderBookingId = it * 100L,
         courtName = "Court",
         courtId = "TSTCRT",
-        madeByTheCourt = true
+        madeByTheCourt = true,
+        agencyId = agencyId
       ).apply {
-        addPreAppointment(appointmentId = it * 3 - 1)
-        addMainAppointment(appointmentId = it * 3)
-        addPostAppointment(appointmentId = it * 3 + 1)
+        addPreAppointment(it * 3 - 1, startDateTime, endDateTime)
+        addMainAppointment(it * 3, startDateTime, endDateTime)
+        addPostAppointment(it * 3 + 1, startDateTime, endDateTime)
       }
     }
 }
