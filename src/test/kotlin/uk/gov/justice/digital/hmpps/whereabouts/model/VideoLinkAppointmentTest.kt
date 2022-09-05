@@ -17,7 +17,7 @@ class VideoLinkAppointmentTest {
         endDateTime = endDateTime,
         videoLinkBooking = VideoLinkBooking(offenderBookingId = 2L, agencyId = "WWI", comment = "some comment")
       ).toString()
-    ).isEqualTo("VideoLinkAppointment(id = null, appointmentId = 1, hearingType = MAIN)")
+    ).isEqualTo("VideoLinkAppointment(id = null, appointmentId = 1, startDateTime = 2022-01-01T10:00, endDateTime = 2022-01-01T11:00, hearingType = MAIN)")
   }
 
   @Test

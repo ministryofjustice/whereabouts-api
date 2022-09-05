@@ -1,8 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.assertj.core.api.Assertions.tuple
+import org.assertj.core.api.Assertions.*
 import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -44,7 +42,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.Optional
+import java.util.*
 import javax.persistence.EntityNotFoundException
 
 class VideoLinkBookingServiceTest {
@@ -558,7 +556,7 @@ class VideoLinkBookingServiceTest {
         offenderBookingId = 30L,
         courtName = "The court",
         madeByTheCourt = true,
-        agencyId = "WWI"
+        agencyId = "WRI"
       )
       theBooking.addMainAppointment(appointmentId = 40L, id = 2L, startDateTime = startDateTime, endDateTime = endDateTime)
 
