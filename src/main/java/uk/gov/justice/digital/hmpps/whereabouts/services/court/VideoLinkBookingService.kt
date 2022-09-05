@@ -69,7 +69,7 @@ class VideoLinkBookingService(
 
     val persistentBooking = videoLinkBookingRepository.save(videoLinkBooking)
 
-    videoLinkBookingEventListener.bookingCreated(persistentBooking, specification, mainEvent.agencyId)
+    videoLinkBookingEventListener.bookingCreated(persistentBooking, specification)
 
     return persistentBooking.id!!
   }
@@ -107,7 +107,7 @@ class VideoLinkBookingService(
      * and so have ids before the ApplicationInsightsEventListener is called.
      */
     videoLinkBookingRepository.flush()
-    videoLinkBookingEventListener.bookingUpdated(booking, specification, mainEvent.agencyId)
+    videoLinkBookingEventListener.bookingUpdated(booking, specification)
     return booking
   }
 

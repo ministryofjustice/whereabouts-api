@@ -3,9 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.*
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventType
@@ -22,8 +20,7 @@ class EventStoreListener(
 ) : VideoLinkBookingEventListener {
   override fun bookingCreated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingSpecification,
-    agencyId: String
+    specification: VideoLinkBookingSpecification
   ) {
     repository.save(
       VideoLinkBookingEvent(
@@ -31,7 +28,7 @@ class EventStoreListener(
         timestamp = LocalDateTime.now(clock),
         userId = authenticationFacade.currentUsername,
         videoLinkBookingId = booking.id!!,
-        agencyId = agencyId,
+        agencyId = booking.agencyId,
         court = specification.court,
         courtId = specification.courtId,
         comment = specification.comment,
@@ -55,15 +52,14 @@ class EventStoreListener(
 
   override fun bookingUpdated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingUpdateSpecification,
-    agencyId: String
+    specification: VideoLinkBookingUpdateSpecification
   ) {
     repository.save(
       VideoLinkBookingEvent(
         eventType = VideoLinkBookingEventType.UPDATE,
         timestamp = LocalDateTime.now(clock),
         userId = authenticationFacade.currentUsername,
-        agencyId = agencyId,
+        agencyId = booking.agencyId,
         videoLinkBookingId = booking.id!!,
         courtId = specification.courtId,
         court = booking.courtName,

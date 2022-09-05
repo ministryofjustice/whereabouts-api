@@ -5,9 +5,7 @@ import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.*
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
@@ -19,8 +17,8 @@ class ApplicationInsightsEventListener(
 ) : VideoLinkBookingEventListener {
   override fun bookingCreated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingSpecification,
-    agencyId: String
+    specification: VideoLinkBookingSpecification
+
   ) {
     val properties = mutableMapOf(
       "id" to (booking.id?.toString()),
@@ -28,7 +26,7 @@ class ApplicationInsightsEventListener(
       "court" to specification.court,
       "courtId" to specification.courtId,
       "user" to authenticationFacade.currentUsername,
-      "agencyId" to agencyId,
+      "agencyId" to booking.agencyId,
       "madeByTheCourt" to specification.madeByTheCourt.toString(),
     )
 
@@ -41,14 +39,14 @@ class ApplicationInsightsEventListener(
 
   override fun bookingUpdated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingUpdateSpecification,
-    agencyId: String
+    specification: VideoLinkBookingUpdateSpecification
+
   ) {
     val properties = mutableMapOf(
       "id" to (booking.id?.toString()),
       "bookingId" to booking.offenderBookingId.toString(),
       "courtId" to specification.courtId,
-      "agencyId" to agencyId,
+      "agencyId" to booking.agencyId,
       "user" to authenticationFacade.currentUsername,
     )
 
