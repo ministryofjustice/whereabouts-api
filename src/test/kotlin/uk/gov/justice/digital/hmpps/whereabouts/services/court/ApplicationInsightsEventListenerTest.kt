@@ -26,7 +26,7 @@ class ApplicationInsightsEventListenerTest {
 
   @Test
   fun `create event`() {
-    listener.bookingCreated(booking, createSpecification, "WWI")
+    listener.bookingCreated(booking, createSpecification)
 
     verify(telemetryClient).trackEvent(
       "VideoLinkBookingCreated",
@@ -57,7 +57,7 @@ class ApplicationInsightsEventListenerTest {
 
   @Test
   fun `update event`() {
-    listener.bookingUpdated(booking, updateSpecification, "WWI")
+    listener.bookingUpdated(booking, updateSpecification)
 
     verify(telemetryClient).trackEvent(
       "VideoLinkBookingUpdated",
