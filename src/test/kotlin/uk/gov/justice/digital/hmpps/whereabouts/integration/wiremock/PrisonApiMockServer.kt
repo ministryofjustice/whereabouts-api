@@ -517,6 +517,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
                 Event(
                   eventId = eventId,
                   agencyId = "WWI",
+                  eventLocationId = 10L,
                   startTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
                   endTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
                 )

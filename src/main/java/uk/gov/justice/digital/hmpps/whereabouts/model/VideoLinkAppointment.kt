@@ -25,13 +25,14 @@ class VideoLinkAppointment(
   val videoLinkBooking: VideoLinkBooking,
 
   val appointmentId: Long,
+  val locationId: Long,
   val startDateTime: LocalDateTime,
   val endDateTime: LocalDateTime,
 
   @Enumerated(EnumType.STRING)
   val hearingType: HearingType
 ) : BaseEntity(id) {
-  override fun toString(): String = "VideoLinkAppointment(id = $id, appointmentId = $appointmentId, startDateTime = $startDateTime, endDateTime = $endDateTime, hearingType = $hearingType)"
+  override fun toString(): String = "VideoLinkAppointment(id = $id, appointmentId = $appointmentId, locationId = $locationId, startDateTime = $startDateTime, endDateTime = $endDateTime, hearingType = $hearingType)"
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

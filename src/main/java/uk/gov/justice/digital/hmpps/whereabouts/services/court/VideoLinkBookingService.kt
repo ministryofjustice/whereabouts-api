@@ -112,9 +112,9 @@ class VideoLinkBookingService(
   }
 
   private fun VideoLinkBooking.addAppointments(mainEvent: Event, preEvent: Event?, postEvent: Event?) {
-    preEvent?.let { addPreAppointment(it.eventId, it.startTime, it.endTime) }
-    addMainAppointment(mainEvent.eventId, mainEvent.startTime, mainEvent.endTime)
-    postEvent?.let { addPostAppointment(it.eventId, it.startTime, it.endTime) }
+    preEvent?.let { addPreAppointment(it.eventId, it.eventLocationId, it.startTime, it.endTime) }
+    addMainAppointment(mainEvent.eventId, mainEvent.eventLocationId, mainEvent.startTime, mainEvent.endTime)
+    postEvent?.let { addPostAppointment(it.eventId, it.eventLocationId, it.startTime, it.endTime) }
   }
 
   private fun toVideoLinkAppointmentDto(appointment: VideoLinkAppointment) =

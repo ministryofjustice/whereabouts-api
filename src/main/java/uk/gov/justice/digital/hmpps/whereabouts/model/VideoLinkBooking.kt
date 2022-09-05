@@ -40,36 +40,39 @@ class VideoLinkBooking(
   @CreatedBy
   var createdByUsername: String? = null
 
-  fun addPreAppointment(appointmentId: Long, startDateTime: LocalDateTime, endDateTime: LocalDateTime, id: Long? = null) = appointments.put(
+  fun addPreAppointment(appointmentId: Long, locationId: Long, startDateTime: LocalDateTime, endDateTime: LocalDateTime, id: Long? = null) = appointments.put(
     PRE,
     VideoLinkAppointment(
       id = id,
       videoLinkBooking = this,
       appointmentId = appointmentId,
+      locationId = locationId,
       hearingType = PRE,
       startDateTime = startDateTime,
       endDateTime = endDateTime,
     )
   )
 
-  fun addMainAppointment(appointmentId: Long, startDateTime: LocalDateTime, endDateTime: LocalDateTime, id: Long? = null) = appointments.put(
+  fun addMainAppointment(appointmentId: Long, locationId: Long, startDateTime: LocalDateTime, endDateTime: LocalDateTime, id: Long? = null) = appointments.put(
     MAIN,
     VideoLinkAppointment(
       id = id,
       videoLinkBooking = this,
       appointmentId = appointmentId,
+      locationId = locationId,
       hearingType = MAIN,
       startDateTime = startDateTime,
       endDateTime = endDateTime,
     )
   )
 
-  fun addPostAppointment(appointmentId: Long, startDateTime: LocalDateTime, endDateTime: LocalDateTime, id: Long? = null) = appointments.put(
+  fun addPostAppointment(appointmentId: Long, locationId: Long, startDateTime: LocalDateTime, endDateTime: LocalDateTime, id: Long? = null) = appointments.put(
     POST,
     VideoLinkAppointment(
       id = id,
       videoLinkBooking = this,
       appointmentId = appointmentId,
+      locationId = locationId,
       hearingType = POST,
       startDateTime = startDateTime,
       endDateTime = endDateTime,
