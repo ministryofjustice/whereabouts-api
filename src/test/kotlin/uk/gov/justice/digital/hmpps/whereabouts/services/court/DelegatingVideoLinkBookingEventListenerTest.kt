@@ -44,6 +44,7 @@ class DelegatingVideoLinkBookingEventListenerTest {
     id = 1,
     appointmentId = 2,
     hearingType = HearingType.MAIN,
+    locationId = 20L,
     videoLinkBooking = VideoLinkBooking(offenderBookingId = 1, agencyId = "WWI"),
     startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
     endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)

@@ -39,7 +39,7 @@ class VideoLinkAppointmentRepositoryTest {
     val agencyId = "WWI"
     videoLinkBookingRepository.save(
       VideoLinkBooking(offenderBookingId = 2, courtName = "York", agencyId = agencyId).apply {
-        addMainAppointment(1, startDateTime, endDateTime)
+        addMainAppointment(1, 20L, startDateTime, endDateTime)
       }
     )
 
@@ -51,7 +51,7 @@ class VideoLinkAppointmentRepositoryTest {
         madeByTheCourt = false,
         agencyId = agencyId
       ).apply {
-        addMainAppointment(3, startDateTime, endDateTime)
+        addMainAppointment(3, 20L, startDateTime, endDateTime)
         createdByUsername = "username2"
       }
     )

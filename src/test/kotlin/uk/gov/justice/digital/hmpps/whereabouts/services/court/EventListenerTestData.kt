@@ -22,18 +22,21 @@ class EventListenerTestData private constructor() {
       addPreAppointment(
         appointmentId = 12L,
         id = 120L,
+        locationId = 20L,
         startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
         endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
       )
       addMainAppointment(
         appointmentId = 13L,
         id = 130L,
+        locationId = 20L,
         startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
         endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
       )
       addPostAppointment(
         appointmentId = 14L,
         id = 140L,
+        locationId = 20L,
         startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
         endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
       )

@@ -18,18 +18,21 @@ class DataHelpers {
         addMainAppointment(
           id = 1L,
           appointmentId = 1L,
+          locationId = 10L,
           startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
           endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
         )
         addPreAppointment(
           id = 2L,
           appointmentId = 2L,
+          locationId = 20L,
           startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
           endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
         )
         addPostAppointment(
           id = 3L,
           appointmentId = 3L,
+          locationId = 30L,
           startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
           endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
         )

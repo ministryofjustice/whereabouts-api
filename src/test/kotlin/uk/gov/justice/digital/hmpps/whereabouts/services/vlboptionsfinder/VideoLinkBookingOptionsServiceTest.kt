@@ -254,7 +254,7 @@ class VideoLinkBookingOptionsServiceTest {
       courtId = DONT_CARE,
       agencyId = AGENCY_ID
     ).apply {
-      addMainAppointment(excludedMainAppointmentId, startDateTime, endDateTime, 9999L)
+      addMainAppointment(excludedMainAppointmentId, 20L, startDateTime, endDateTime, 9999L)
     }
 
     val excludedVideoLinkBooking = VideoLinkBooking(
@@ -264,9 +264,9 @@ class VideoLinkBookingOptionsServiceTest {
       courtId = DONT_CARE,
       agencyId = AGENCY_ID
     ).apply {
-      addMainAppointment(excludedMainAppointmentId, startDateTime, endDateTime, 9999L)
-      addPreAppointment(excludedPreAppointmentId, startDateTime, endDateTime, 9998L)
-      addPostAppointment(excludedPostAppointmentId, startDateTime, endDateTime, 9997L)
+      addMainAppointment(excludedMainAppointmentId, 20L, startDateTime, endDateTime, 9999L)
+      addPreAppointment(excludedPreAppointmentId, 20L, startDateTime, endDateTime, 9998L)
+      addPostAppointment(excludedPostAppointmentId, 20L, startDateTime, endDateTime, 9997L)
     }
 
     fun appointmentDto(locationId: Long, id: Long, appointmentTypeCode: String = "VLB"): ScheduledAppointmentSearchDto =

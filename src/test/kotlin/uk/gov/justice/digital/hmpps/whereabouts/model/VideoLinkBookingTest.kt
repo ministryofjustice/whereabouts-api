@@ -16,9 +16,9 @@ class VideoLinkBookingTest {
 
   var videoLinkBooking =
     VideoLinkBooking(courtName = COURT_NAME, courtId = COURT_ID, offenderBookingId = 1L, agencyId = AGENCY_ID).apply {
-      addPreAppointment(1L, START_DATE_TIME, END_DATE_TIME)
-      addMainAppointment(2L, START_DATE_TIME, END_DATE_TIME)
-      addPostAppointment(3L, START_DATE_TIME, END_DATE_TIME)
+      addPreAppointment(1L, 10L, START_DATE_TIME, END_DATE_TIME)
+      addMainAppointment(2L, 20L, START_DATE_TIME, END_DATE_TIME)
+      addPostAppointment(3L, 30L, START_DATE_TIME, END_DATE_TIME)
     }
 
   @Test
