@@ -209,25 +209,29 @@ class VideoLinkBookingRepositoryTest(
         offenderBookingId = 1L,
         courtName = "C1",
         agencyId = agencyId
-      ).apply { addMainAppointment(100L, startDateTime, endDateTime) })
+      ).apply { addMainAppointment(100L, startDateTime, endDateTime) }
+    )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 2L,
         courtName = "C2",
         agencyId = agencyId
-      ).apply { addMainAppointment(101L, startDateTime, endDateTime) })
+      ).apply { addMainAppointment(101L, startDateTime, endDateTime) }
+    )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 3L,
         courtName = "C1",
         agencyId = agencyId
-      ).apply { addMainAppointment(102L, startDateTime, endDateTime) })
+      ).apply { addMainAppointment(102L, startDateTime, endDateTime) }
+    )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 4L,
         courtName = "C2",
         agencyId = agencyId
-      ).apply { addMainAppointment(103L, startDateTime, endDateTime) })
+      ).apply { addMainAppointment(103L, startDateTime, endDateTime) }
+    )
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
@@ -253,25 +257,29 @@ class VideoLinkBookingRepositoryTest(
         offenderBookingId = 1L,
         courtId = "C1",
         agencyId = agencyId
-      ).apply { addMainAppointment(100L, startDateTime, endDateTime) })
+      ).apply { addMainAppointment(100L, startDateTime, endDateTime) }
+    )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 2L,
         courtId = "C2",
         agencyId = agencyId
-      ).apply { addMainAppointment(101L, startDateTime, endDateTime) })
+      ).apply { addMainAppointment(101L, startDateTime, endDateTime) }
+    )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 3L,
         courtId = "C1",
         agencyId = agencyId
-      ).apply { addMainAppointment(102L, startDateTime, endDateTime) })
+      ).apply { addMainAppointment(102L, startDateTime, endDateTime) }
+    )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 4L,
         courtId = "C2",
         agencyId = agencyId
-      ).apply { addMainAppointment(103L, startDateTime, endDateTime) })
+      ).apply { addMainAppointment(103L, startDateTime, endDateTime) }
+    )
 
     TestTransaction.flagForCommit()
     TestTransaction.end()
