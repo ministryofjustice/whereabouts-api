@@ -1,3 +1,3 @@
 ALTER TABLE VIDEO_LINK_BOOKING
-    ADD COMMENT TEXT,
-    ADD agency_id VARCHAR(4),
+    ADD comment TEXT,
+    ADD agency_id VARCHAR(4);
