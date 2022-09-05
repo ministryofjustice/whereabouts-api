@@ -35,7 +35,7 @@ class CourtIntegrationTest(
   private val mainAppointmentId: Long = 3
   private val postAppointmentId: Long = 4
 
-  private val mainLocationId: Long = 15L
+  private val mainLocationId: Long = 10L
   private val preLocationId: Long = 16L
   private val postLocationId: Long = 17L
 
