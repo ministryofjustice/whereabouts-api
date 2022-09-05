@@ -1,1 +1,0 @@
-ALTER TABLE VIDEO_LINK_BOOKING ADD (comment TEXT, agency_id VARCHAR(4));
