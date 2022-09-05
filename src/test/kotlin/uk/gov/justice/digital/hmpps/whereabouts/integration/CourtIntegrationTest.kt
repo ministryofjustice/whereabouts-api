@@ -341,8 +341,7 @@ class CourtIntegrationTest(
             courtName = "Test Court 1",
             courtId = "TSTCRT",
             madeByTheCourt = false,
-            agencyId = "WWI",
-            comment = "any comment"
+            agencyId = "WWI"
           ).apply {
             addMainAppointment(mainAppointmentId, startDateTime, endDateTime)
             createdByUsername = "ITAG_USER"
