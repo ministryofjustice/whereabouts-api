@@ -27,7 +27,7 @@ class VideoLinkBooking(
   val prisonId: String,
   val comment: String? = null,
 
-  ) : BaseEntity(id) {
+) : BaseEntity(id) {
   @OneToMany(
     mappedBy = "videoLinkBooking",
     fetch = FetchType.EAGER,
