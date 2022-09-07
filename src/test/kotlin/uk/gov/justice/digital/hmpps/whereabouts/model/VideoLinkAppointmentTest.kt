@@ -17,14 +17,14 @@ class VideoLinkAppointmentTest {
         locationId = locationId,
         startDateTime = startDateTime,
         endDateTime = endDateTime,
-        videoLinkBooking = VideoLinkBooking(offenderBookingId = 2L, agencyId = "WWI", comment = "some comment")
+        videoLinkBooking = VideoLinkBooking(offenderBookingId = 2L, prisonId = "WWI", comment = "some comment")
       ).toString()
     ).isEqualTo("VideoLinkAppointment(id = null, appointmentId = 1, locationId = 10, startDateTime = 2022-01-01T10:00, endDateTime = 2022-01-01T11:00, hearingType = MAIN)")
   }
 
   @Test
   fun `equality by appointmentId same id`() {
-    val dontCareBooking = VideoLinkBooking(offenderBookingId = 1, agencyId = "WWI")
+    val dontCareBooking = VideoLinkBooking(offenderBookingId = 1, prisonId = "WWI")
     val vla1 = VideoLinkAppointment(id = 1, appointmentId = 2, locationId = locationId, hearingType = HearingType.MAIN, videoLinkBooking = dontCareBooking, startDateTime = startDateTime, endDateTime = endDateTime)
     val vla2 = VideoLinkAppointment(id = 1, appointmentId = 2, locationId = locationId, hearingType = HearingType.MAIN, videoLinkBooking = dontCareBooking, startDateTime = startDateTime, endDateTime = endDateTime)
     assertThat(vla1.equals(vla2)).isTrue
@@ -32,14 +32,14 @@ class VideoLinkAppointmentTest {
 
   @Test
   fun `equality other null`() {
-    val dontCareBooking = VideoLinkBooking(offenderBookingId = 1, agencyId = "WWI")
+    val dontCareBooking = VideoLinkBooking(offenderBookingId = 1, prisonId = "WWI")
     val vla1 = VideoLinkAppointment(id = 1, appointmentId = 2, locationId = locationId, hearingType = HearingType.MAIN, videoLinkBooking = dontCareBooking, startDateTime = startDateTime, endDateTime = endDateTime)
     assertThat(vla1.equals(null)).isFalse
   }
 
   @Test
   fun `equality other not a VideoLinkAppointment`() {
-    val dontCareBooking = VideoLinkBooking(offenderBookingId = 1, agencyId = "WWI")
+    val dontCareBooking = VideoLinkBooking(offenderBookingId = 1, prisonId = "WWI")
     val vla1 = VideoLinkAppointment(id = 1, appointmentId = 2, locationId = locationId, hearingType = HearingType.MAIN, videoLinkBooking = dontCareBooking, startDateTime = startDateTime, endDateTime = endDateTime)
     assertThat(vla1.equals(object {})).isFalse
   }

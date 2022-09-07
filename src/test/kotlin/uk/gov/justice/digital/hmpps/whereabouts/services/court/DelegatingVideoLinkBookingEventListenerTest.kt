@@ -45,7 +45,7 @@ class DelegatingVideoLinkBookingEventListenerTest {
     appointmentId = 2,
     hearingType = HearingType.MAIN,
     locationId = 20L,
-    videoLinkBooking = VideoLinkBooking(offenderBookingId = 1, agencyId = "WWI"),
+    videoLinkBooking = VideoLinkBooking(offenderBookingId = 1, prisonId = "WWI"),
     startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
     endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
   )
@@ -55,7 +55,7 @@ class DelegatingVideoLinkBookingEventListenerTest {
     offenderBookingId = 12345,
     courtId = "EYI",
     madeByTheCourt = true,
-    agencyId = "WWI"
+    prisonId = "WWI"
   ).also {
     it.createdByUsername = "Smith"
     it.appointments.put(HearingType.MAIN, appointment)

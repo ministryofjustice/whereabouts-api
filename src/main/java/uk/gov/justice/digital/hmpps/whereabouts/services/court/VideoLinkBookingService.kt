@@ -62,7 +62,7 @@ class VideoLinkBookingService(
       courtName = specification.court,
       courtId = getCourtId(specification),
       madeByTheCourt = specification.madeByTheCourt,
-      agencyId = mainEvent.agencyId,
+      prisonId = mainEvent.agencyId,
       comment = specification.comment,
     )
     videoLinkBooking.addAppointments(mainEvent, preEvent, postEvent)

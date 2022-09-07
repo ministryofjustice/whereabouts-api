@@ -36,9 +36,9 @@ class VideoLinkAppointmentRepositoryTest {
     val preAppointments = videoLinkAppointmentRepository.findAll()
     val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
     val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
-    val agencyId = "WWI"
+    val prisonId = "WWI"
     videoLinkBookingRepository.save(
-      VideoLinkBooking(offenderBookingId = 2, courtName = "York", agencyId = agencyId).apply {
+      VideoLinkBooking(offenderBookingId = 2, courtName = "York", prisonId = prisonId).apply {
         addMainAppointment(1, 20L, startDateTime, endDateTime)
       }
     )
@@ -49,7 +49,7 @@ class VideoLinkAppointmentRepositoryTest {
         courtName = null,
         courtId = "TSTCRT",
         madeByTheCourt = false,
-        agencyId = agencyId
+        prisonId = prisonId
       ).apply {
         addMainAppointment(3, 20L, startDateTime, endDateTime)
         createdByUsername = "username2"

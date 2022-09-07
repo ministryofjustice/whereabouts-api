@@ -37,7 +37,7 @@ class VideoLinkBookingRepositoryTest(
 
   val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
   val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
-  val agencyId = "WWI"
+  val prisonId = "WWI"
 
   @BeforeEach
   fun deleteAll() {
@@ -60,7 +60,7 @@ class VideoLinkBookingRepositoryTest(
       courtName = "A Court",
       courtId = "TSTCRT",
       madeByTheCourt = true,
-      agencyId = agencyId
+      prisonId = prisonId
     ).apply {
       addMainAppointment(2, 20L, startDateTime, endDateTime)
     }
@@ -91,7 +91,7 @@ class VideoLinkBookingRepositoryTest(
       offenderBookingId = 1,
       courtName = "A Court",
       madeByTheCourt = true,
-      agencyId = agencyId
+      prisonId = prisonId
     ).apply {
       addMainAppointment(4, 20L, startDateTime, endDateTime)
       addPreAppointment(12, 20L, startDateTime, endDateTime)
@@ -127,7 +127,7 @@ class VideoLinkBookingRepositoryTest(
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
 
     val id = repository.save(
-      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, agencyId = agencyId).apply {
+      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, prisonId = prisonId).apply {
         addMainAppointment(4, 20L, startDateTime, endDateTime)
         addPreAppointment(12, 20L, startDateTime, endDateTime)
         addPostAppointment(22, 20L, startDateTime, endDateTime)
@@ -155,7 +155,7 @@ class VideoLinkBookingRepositoryTest(
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
 
     val id = repository.save(
-      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, agencyId = agencyId).apply {
+      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, prisonId = prisonId).apply {
         addMainAppointment(4, 20L, startDateTime, endDateTime)
         addPreAppointment(12, 20L, startDateTime, endDateTime)
         addPostAppointment(22, 20L, startDateTime, endDateTime)
@@ -210,28 +210,28 @@ class VideoLinkBookingRepositoryTest(
       VideoLinkBooking(
         offenderBookingId = 1L,
         courtName = "C1",
-        agencyId = agencyId
+        prisonId = prisonId
       ).apply { addMainAppointment(100L, 20L, startDateTime, endDateTime) }
     )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 2L,
         courtName = "C2",
-        agencyId = agencyId
+        prisonId = prisonId
       ).apply { addMainAppointment(101L, 20L, startDateTime, endDateTime) }
     )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 3L,
         courtName = "C1",
-        agencyId = agencyId
+        prisonId = prisonId
       ).apply { addMainAppointment(102L, 20L, startDateTime, endDateTime) }
     )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 4L,
         courtName = "C2",
-        agencyId = agencyId
+        prisonId = prisonId
       ).apply { addMainAppointment(103L, 20L, startDateTime, endDateTime) }
     )
 
@@ -258,28 +258,28 @@ class VideoLinkBookingRepositoryTest(
       VideoLinkBooking(
         offenderBookingId = 1L,
         courtId = "C1",
-        agencyId = agencyId
+        prisonId = prisonId
       ).apply { addMainAppointment(100L, 20L, startDateTime, endDateTime) }
     )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 2L,
         courtId = "C2",
-        agencyId = agencyId
+        prisonId = prisonId
       ).apply { addMainAppointment(101L, 20L, startDateTime, endDateTime) }
     )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 3L,
         courtId = "C1",
-        agencyId = agencyId
+        prisonId = prisonId
       ).apply { addMainAppointment(102L, 20L, startDateTime, endDateTime) }
     )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 4L,
         courtId = "C2",
-        agencyId = agencyId
+        prisonId = prisonId
       ).apply { addMainAppointment(103L, 20L, startDateTime, endDateTime) }
     )
 
@@ -304,7 +304,7 @@ class VideoLinkBookingRepositoryTest(
   fun `Removing appointments from a booking should delete the appointments`() {
 
     val id = repository.save(
-      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, agencyId = agencyId).apply {
+      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, prisonId = prisonId).apply {
         addMainAppointment(4, 20L, startDateTime, endDateTime)
         addPreAppointment(12, 20L, startDateTime, endDateTime)
         addPostAppointment(22, 20L, startDateTime, endDateTime)
@@ -334,7 +334,7 @@ class VideoLinkBookingRepositoryTest(
         offenderBookingId = 1,
         courtName = "A Court",
         madeByTheCourt = true,
-        agencyId = agencyId
+        prisonId = prisonId
       ).apply {
         addMainAppointment(4, 20L, startDateTime, endDateTime)
         addPreAppointment(12, 20L, startDateTime, endDateTime)
@@ -387,7 +387,7 @@ class VideoLinkBookingRepositoryTest(
         courtName = "Court",
         courtId = "TSTCRT",
         madeByTheCourt = true,
-        agencyId = agencyId
+        prisonId = prisonId
       ).apply {
         addPreAppointment(it * 3 - 1, 20L, startDateTime, endDateTime)
         addMainAppointment(it * 3, 20L, startDateTime, endDateTime)

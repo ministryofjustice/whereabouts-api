@@ -125,7 +125,7 @@ class CourtIntegrationTest(
       offenderBookingId = 100,
       courtName = "Test Court 1",
       courtId = "TSTCRT1",
-      agencyId = "WWI",
+      prisonId = "WWI",
       comment = "any comment"
     ).apply {
       addPreAppointment(appointmentId = preAppointmentId, locationId = preLocationId, startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0), endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0))
@@ -262,7 +262,7 @@ class CourtIntegrationTest(
           offenderBookingId = 1L,
           courtName = "York",
           courtId = "TSTCRT",
-          agencyId = "WWI",
+          prisonId = "WWI",
           comment = "any comment"
         ).apply { addMainAppointment(appointmentId = 1L, locationId = mainLocationId, startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0), endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)) }
       )
@@ -345,7 +345,7 @@ class CourtIntegrationTest(
             courtName = "Test Court 1",
             courtId = "TSTCRT",
             madeByTheCourt = false,
-            agencyId = "WWI"
+            prisonId = "WWI"
           ).apply {
             addMainAppointment(mainAppointmentId, mainLocationId, startDateTime, endDateTime)
             createdByUsername = "ITAG_USER"
@@ -410,7 +410,7 @@ class CourtIntegrationTest(
           offenderBookingId = 4,
           courtName = "Test Court 1",
           courtId = null,
-          agencyId = "WWI",
+          prisonId = "WWI",
           comment = "any comment"
         ).apply {
           addPreAppointment(preAppointmentId, preLocationId, startDateTime, endDateTime)
@@ -468,7 +468,7 @@ class CourtIntegrationTest(
           courtName = "Test Court 1",
           courtId = "TSTCRT",
           madeByTheCourt = false,
-          agencyId = "WWI",
+          prisonId = "WWI",
           comment = "any comment"
         ).apply {
           addMainAppointment(oldAppointmentId, mainLocationId, startDateTime, endDateTime)
@@ -541,7 +541,7 @@ class CourtIntegrationTest(
       courtName = "Test Court 1",
       courtId = null,
       madeByTheCourt = true,
-      agencyId = "WWI",
+      prisonId = "WWI",
       comment = "any comment"
     ).apply {
       addMainAppointment(appointmentId, mainLocationId, startDateTime, endDateTime)

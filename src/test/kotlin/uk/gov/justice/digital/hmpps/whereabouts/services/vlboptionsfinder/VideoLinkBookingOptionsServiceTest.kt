@@ -252,7 +252,7 @@ class VideoLinkBookingOptionsServiceTest {
       offenderBookingId = 999L,
       courtName = DONT_CARE,
       courtId = DONT_CARE,
-      agencyId = AGENCY_ID
+      prisonId = AGENCY_ID
     ).apply {
       addMainAppointment(excludedMainAppointmentId, 20L, startDateTime, endDateTime, 9999L)
     }
@@ -262,7 +262,7 @@ class VideoLinkBookingOptionsServiceTest {
       offenderBookingId = 999L,
       courtName = DONT_CARE,
       courtId = DONT_CARE,
-      agencyId = AGENCY_ID
+      prisonId = AGENCY_ID
     ).apply {
       addMainAppointment(excludedMainAppointmentId, 20L, startDateTime, endDateTime, 9999L)
       addPreAppointment(excludedPreAppointmentId, 20L, startDateTime, endDateTime, 9998L)

@@ -81,7 +81,7 @@ class VideoLinkBookingServiceTest {
       courtName = COURT_NAME,
       courtId = null,
       madeByTheCourt = true,
-      agencyId = "WWI"
+      prisonId = "WWI"
     )
     val mainAppointment = VideoLinkAppointment(
       id = 1,
@@ -141,7 +141,7 @@ class VideoLinkBookingServiceTest {
       courtName = COURT_NAME,
       courtId = COURT_ID,
       madeByTheCourt = false,
-      agencyId = "WWI"
+      prisonId = "WWI"
     )
     val preAppointment = VideoLinkAppointment(
       id = 2,
@@ -200,7 +200,7 @@ class VideoLinkBookingServiceTest {
         offenderBookingId = 1L,
         courtName = COURT_NAME,
         courtId = COURT_ID,
-        agencyId = "WWI"
+        prisonId = "WWI"
       ).apply { addMainAppointment(mainAppointmentId, 10L, startDateTime, endDateTime) }
 
       val specification = VideoLinkBookingSpecification(
@@ -445,7 +445,7 @@ class VideoLinkBookingServiceTest {
           courtName = COURT_NAME,
           courtId = COURT_ID,
           madeByTheCourt = false,
-          agencyId = "WWI"
+          prisonId = "WWI"
         ).apply {
           addPreAppointment(appointmentId = preAppointmentId, locationId = 10L, id = 20L, startDateTime = startDateTime, endDateTime = endDateTime)
           addMainAppointment(appointmentId = mainAppointmentId, locationId = 10L, id = 21L, startDateTime = startDateTime, endDateTime = endDateTime)
@@ -565,7 +565,7 @@ class VideoLinkBookingServiceTest {
         offenderBookingId = 30L,
         courtName = "The court",
         madeByTheCourt = true,
-        agencyId = "WRI"
+        prisonId = "WRI"
       )
       theBooking.addMainAppointment(appointmentId = 40L, id = 2L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
 
@@ -597,7 +597,7 @@ class VideoLinkBookingServiceTest {
       )
 
       val expectedAfterUpdate =
-        VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = null, courtId = "TSTCRT", madeByTheCourt = true, agencyId = "WRI")
+        VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = null, courtId = "TSTCRT", madeByTheCourt = true, prisonId = "WRI")
       expectedAfterUpdate.addMainAppointment(3L, 10L, startDateTime, endDateTime)
 
       assertThat(theBooking)
@@ -636,7 +636,7 @@ class VideoLinkBookingServiceTest {
       val service = service()
 
       val theBooking =
-        VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = "The court", madeByTheCourt = true, agencyId = "WRI")
+        VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = "The court", madeByTheCourt = true, prisonId = "WRI")
       theBooking.addPreAppointment(appointmentId = 40L, id = 2L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
       theBooking.addMainAppointment(appointmentId = 41L, id = 3L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
       theBooking.addPostAppointment(appointmentId = 42L, id = 4L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
@@ -707,7 +707,7 @@ class VideoLinkBookingServiceTest {
       assertThat(theBooking)
         .usingRecursiveComparison()
         .isEqualTo(
-          VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = null, courtId = "TSTCRT", madeByTheCourt = true, agencyId = "WRI").apply {
+          VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = null, courtId = "TSTCRT", madeByTheCourt = true, prisonId = "WRI").apply {
             addPreAppointment(appointmentId = 9999L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
             addMainAppointment(appointmentId = 9999L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
             addPostAppointment(appointmentId = 9999L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
@@ -724,7 +724,7 @@ class VideoLinkBookingServiceTest {
     private val preAppointmentId = 13L
     private val postAppointmentId = 14L
 
-    private val videoLinkBooking = VideoLinkBooking(offenderBookingId = 1, courtName = COURT_NAME, id = 100, agencyId = "WRI").apply {
+    private val videoLinkBooking = VideoLinkBooking(offenderBookingId = 1, courtName = COURT_NAME, id = 100, prisonId = "WRI").apply {
       addPreAppointment(appointmentId = preAppointmentId, id = 111, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
       addMainAppointment(appointmentId = mainAppointmentId, id = 222, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
       addPostAppointment(appointmentId = postAppointmentId, id = 333, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
@@ -764,7 +764,7 @@ class VideoLinkBookingServiceTest {
     private val postAppointmentId = 14L
 
     private val videoLinkBooking =
-      VideoLinkBooking(offenderBookingId = 1, courtName = COURT_NAME, courtId = COURT_ID, id = 100, agencyId = "WRI").apply {
+      VideoLinkBooking(offenderBookingId = 1, courtName = COURT_NAME, courtId = COURT_ID, id = 100, prisonId = "WRI").apply {
         addPreAppointment(appointmentId = preAppointmentId, id = 111, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
         addMainAppointment(appointmentId = mainAppointmentId, id = 222, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
         addPostAppointment(appointmentId = postAppointmentId, id = 333, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
@@ -1011,7 +1011,7 @@ class VideoLinkBookingServiceTest {
               id = 1000L,
               offenderBookingId = 1000,
               courtName = "Wimbledon",
-              agencyId = "WEI"
+              prisonId = "WEI"
             ).apply {
               addPreAppointment(id = 10001, appointmentId = 1001, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
               addMainAppointment(id = 20000, appointmentId = 1002, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
@@ -1083,7 +1083,7 @@ class VideoLinkBookingServiceTest {
       whenever(videoLinkBookingRepository.findById(1L))
         .thenReturn(
           Optional.of(
-            VideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", agencyId = "WWI").apply {
+            VideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", prisonId = "WWI").apply {
               addPreAppointment(id = 100L, appointmentId = 10L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
               addMainAppointment(id = 101L, appointmentId = 11L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
               addPostAppointment(id = 102L, appointmentId = 12L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
@@ -1107,7 +1107,7 @@ class VideoLinkBookingServiceTest {
       whenever(videoLinkBookingRepository.findById(1L))
         .thenReturn(
           Optional.of(
-            VideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", agencyId = "WWI").apply {
+            VideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", prisonId = "WWI").apply {
               addMainAppointment(id = 101L, appointmentId = 11L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
             }
           )
@@ -1178,7 +1178,7 @@ class VideoLinkBookingServiceTest {
       endDateTime: LocalDateTime
     ): List<VideoLinkBooking> =
       (firstAppointmentId..lastAppointmentId).map {
-        VideoLinkBooking(id = it + 1000L, offenderBookingId = it + 1000, courtName = court, courtId = courtId, agencyId = "WWI").apply {
+        VideoLinkBooking(id = it + 1000L, offenderBookingId = it + 1000, courtName = court, courtId = courtId, prisonId = "WWI").apply {
           addPreAppointment(id = it + 10000, appointmentId = it + 1000, locationId = locationId, startDateTime = startDateTime, endDateTime = endDateTime)
           addMainAppointment(id = it + 20000, appointmentId = it, locationId = locationId, startDateTime = startDateTime, endDateTime = endDateTime)
           addPostAppointment(id = it + 30000, appointmentId = it + 2000, locationId = locationId, startDateTime = startDateTime, endDateTime = endDateTime)

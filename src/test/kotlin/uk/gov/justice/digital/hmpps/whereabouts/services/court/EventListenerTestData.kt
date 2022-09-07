@@ -17,7 +17,7 @@ class EventListenerTestData private constructor() {
       courtName = "York Crown Court",
       courtId = "TSTCRT",
       madeByTheCourt = true,
-      agencyId = "WWI"
+      prisonId = "WWI"
     ).apply {
       addPreAppointment(
         appointmentId = 12L,

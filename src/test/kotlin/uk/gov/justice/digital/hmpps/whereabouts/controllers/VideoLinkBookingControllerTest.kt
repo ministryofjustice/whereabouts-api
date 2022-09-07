@@ -514,7 +514,7 @@ class VideoLinkBookingControllerTest : TestController() {
             offenderBookingId = 2L,
             madeByTheCourt = true,
             courtId = "CRT",
-            agencyId = "WWI",
+            prisonId = "WWI",
             comment = "some comment"
           ).apply {
             addMainAppointment(3L, 10L, LocalDateTime.of(2022, 1, 1, 10, 0, 0), LocalDateTime.of(2022, 1, 1, 11, 0, 0))

@@ -10,12 +10,12 @@ import java.time.LocalDateTime
 class VideoLinkBookingTest {
   val COURT_NAME = "The Court"
   val COURT_ID = "TC"
-  val AGENCY_ID = "WWI"
+  val PRISON_ID = "WWI"
   val START_DATE_TIME = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
   val END_DATE_TIME = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
 
   var videoLinkBooking =
-    VideoLinkBooking(courtName = COURT_NAME, courtId = COURT_ID, offenderBookingId = 1L, agencyId = AGENCY_ID).apply {
+    VideoLinkBooking(courtName = COURT_NAME, courtId = COURT_ID, offenderBookingId = 1L, prisonId = PRISON_ID).apply {
       addPreAppointment(1L, 10L, START_DATE_TIME, END_DATE_TIME)
       addMainAppointment(2L, 20L, START_DATE_TIME, END_DATE_TIME)
       addPostAppointment(3L, 30L, START_DATE_TIME, END_DATE_TIME)
@@ -47,7 +47,7 @@ class VideoLinkBookingTest {
 
   @Test
   fun `no appointments`() {
-    val vlb = VideoLinkBooking(offenderBookingId = 1L, agencyId = AGENCY_ID)
+    val vlb = VideoLinkBooking(offenderBookingId = 1L, prisonId = PRISON_ID)
     assertThat(vlb.appointments[PRE]).isNull()
     assertThat(vlb.appointments[MAIN]).isNull()
     assertThat(vlb.appointments[POST]).isNull()

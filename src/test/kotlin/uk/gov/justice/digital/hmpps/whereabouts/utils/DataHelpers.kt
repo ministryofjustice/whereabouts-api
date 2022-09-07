@@ -14,7 +14,7 @@ class DataHelpers {
   companion object {
 
     fun makeVideoLinkBooking(id: Long): VideoLinkBooking =
-      VideoLinkBooking(id = id, offenderBookingId = -1L, courtName = "Court 1", agencyId = "WWI").apply {
+      VideoLinkBooking(id = id, offenderBookingId = -1L, courtName = "Court 1", prisonId = "WWI").apply {
         addMainAppointment(
           id = 1L,
           appointmentId = 1L,

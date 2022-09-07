@@ -24,10 +24,10 @@ class VideoLinkBooking(
   var courtName: String? = null,
   var courtId: String? = null,
   val madeByTheCourt: Boolean? = true,
-  val agencyId: String,
+  val prisonId: String,
   val comment: String? = null,
 
-) : BaseEntity(id) {
+  ) : BaseEntity(id) {
   @OneToMany(
     mappedBy = "videoLinkBooking",
     fetch = FetchType.EAGER,
@@ -80,7 +80,7 @@ class VideoLinkBooking(
   )
 
   override fun toString(): String =
-    "VideoLinkBooking(id = $id, offenderBookingId = $offenderBookingId, courtName = $courtName, courtId = $courtId, madeByTheCourt = $madeByTheCourt, agencyId = $agencyId, comment = $comment)"
+    "VideoLinkBooking(id = $id, offenderBookingId = $offenderBookingId, courtName = $courtName, courtId = $courtId, madeByTheCourt = $madeByTheCourt, prisonId = $prisonId, comment = $comment)"
 
   fun copy(): VideoLinkBooking = VideoLinkBooking(
     id,
@@ -88,7 +88,7 @@ class VideoLinkBooking(
     courtName,
     courtId,
     madeByTheCourt,
-    agencyId,
+    prisonId,
     comment
   ).also {
     it.appointments.putAll(appointments)
