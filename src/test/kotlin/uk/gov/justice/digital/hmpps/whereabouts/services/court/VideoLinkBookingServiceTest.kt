@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.assertj.core.api.Assertions.tuple
 import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -42,7 +44,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.*
+import java.util.Optional
 import javax.persistence.EntityNotFoundException
 
 class VideoLinkBookingServiceTest {
