@@ -24,7 +24,7 @@ class VideoLinkBooking(
   var courtName: String? = null,
   var courtId: String? = null,
   val madeByTheCourt: Boolean? = true,
-  val prisonId: String,
+  val prisonId: String? = null,
   val comment: String? = null,
 
 ) : BaseEntity(id) {

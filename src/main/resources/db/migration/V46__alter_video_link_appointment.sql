@@ -1,1 +1,1 @@
-ALTER TABLE VIDEO_LINK_APPOINTMENT ADD (location_id BIGINT NOT NULL, start_date_time TIMESTAMP, end_date_time TIMESTAMP);
+ALTER TABLE VIDEO_LINK_APPOINTMENT ADD (location_id BIGINT, start_date_time TIMESTAMP, end_date_time TIMESTAMP);
