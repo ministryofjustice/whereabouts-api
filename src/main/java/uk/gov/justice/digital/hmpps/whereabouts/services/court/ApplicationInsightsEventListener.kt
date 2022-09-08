@@ -28,7 +28,7 @@ class ApplicationInsightsEventListener(
       "court" to specification.court,
       "courtId" to specification.courtId,
       "user" to authenticationFacade.currentUsername,
-      "agencyId" to booking.prisonId,
+      "prisonId" to booking.prisonId,
       "madeByTheCourt" to specification.madeByTheCourt.toString(),
     )
 
