@@ -48,7 +48,7 @@ class ApplicationInsightsEventListener(
       "id" to (booking.id?.toString()),
       "bookingId" to booking.offenderBookingId.toString(),
       "courtId" to specification.courtId,
-      "agencyId" to booking.prisonId,
+      "prisonId" to booking.prisonId,
       "user" to authenticationFacade.currentUsername,
     )
 
