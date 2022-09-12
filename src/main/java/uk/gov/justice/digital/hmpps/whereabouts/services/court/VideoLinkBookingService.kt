@@ -61,13 +61,15 @@ class VideoLinkBookingService(
       offenderBookingId = specification.bookingId,
       courtName = specification.court,
       courtId = getCourtId(specification),
-      madeByTheCourt = specification.madeByTheCourt
+      madeByTheCourt = specification.madeByTheCourt,
+      prisonId = mainEvent.agencyId,
+      comment = specification.comment,
     )
     videoLinkBooking.addAppointments(mainEvent, preEvent, postEvent)
 
     val persistentBooking = videoLinkBookingRepository.save(videoLinkBooking)
 
-    videoLinkBookingEventListener.bookingCreated(persistentBooking, specification, mainEvent.agencyId)
+    videoLinkBookingEventListener.bookingCreated(persistentBooking, specification)
 
     return persistentBooking.id!!
   }
@@ -105,14 +107,14 @@ class VideoLinkBookingService(
      * and so have ids before the ApplicationInsightsEventListener is called.
      */
     videoLinkBookingRepository.flush()
-    videoLinkBookingEventListener.bookingUpdated(booking, specification, mainEvent.agencyId)
+    videoLinkBookingEventListener.bookingUpdated(booking, specification)
     return booking
   }
 
   private fun VideoLinkBooking.addAppointments(mainEvent: Event, preEvent: Event?, postEvent: Event?) {
-    preEvent?.let { addPreAppointment(it.eventId) }
-    addMainAppointment(mainEvent.eventId)
-    postEvent?.let { addPostAppointment(it.eventId) }
+    preEvent?.let { addPreAppointment(it.eventId, it.eventLocationId, it.startTime, it.endTime) }
+    addMainAppointment(mainEvent.eventId, mainEvent.eventLocationId, mainEvent.startTime, mainEvent.endTime)
+    postEvent?.let { addPostAppointment(it.eventId, it.eventLocationId, it.startTime, it.endTime) }
   }
 
   private fun toVideoLinkAppointmentDto(appointment: VideoLinkAppointment) =
