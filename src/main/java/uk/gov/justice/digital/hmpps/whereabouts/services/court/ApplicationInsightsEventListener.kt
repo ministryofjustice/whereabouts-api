@@ -19,8 +19,8 @@ class ApplicationInsightsEventListener(
 ) : VideoLinkBookingEventListener {
   override fun bookingCreated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingSpecification
-
+    specification: VideoLinkBookingSpecification,
+    agencyId: String
   ) {
     val properties = mutableMapOf(
       "id" to (booking.id?.toString()),
@@ -28,7 +28,7 @@ class ApplicationInsightsEventListener(
       "court" to specification.court,
       "courtId" to specification.courtId,
       "user" to authenticationFacade.currentUsername,
-      "agencyId" to booking.prisonId,
+      "agencyId" to agencyId,
       "madeByTheCourt" to specification.madeByTheCourt.toString(),
     )
 
@@ -41,14 +41,14 @@ class ApplicationInsightsEventListener(
 
   override fun bookingUpdated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingUpdateSpecification
-
+    specification: VideoLinkBookingUpdateSpecification,
+    agencyId: String
   ) {
     val properties = mutableMapOf(
       "id" to (booking.id?.toString()),
       "bookingId" to booking.offenderBookingId.toString(),
       "courtId" to specification.courtId,
-      "agencyId" to booking.prisonId,
+      "agencyId" to agencyId,
       "user" to authenticationFacade.currentUsername,
     )
 
