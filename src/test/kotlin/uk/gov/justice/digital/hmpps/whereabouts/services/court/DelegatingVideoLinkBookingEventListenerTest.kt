@@ -44,7 +44,10 @@ class DelegatingVideoLinkBookingEventListenerTest {
     id = 1,
     appointmentId = 2,
     hearingType = HearingType.MAIN,
-    videoLinkBooking = VideoLinkBooking(offenderBookingId = 1)
+    locationId = 20L,
+    videoLinkBooking = VideoLinkBooking(offenderBookingId = 1, prisonId = "WWI"),
+    startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+    endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
   )
 
   val booking = VideoLinkBooking(
@@ -52,6 +55,7 @@ class DelegatingVideoLinkBookingEventListenerTest {
     offenderBookingId = 12345,
     courtId = "EYI",
     madeByTheCourt = true,
+    prisonId = "WWI"
   ).also {
     it.createdByUsername = "Smith"
     it.appointments.put(HearingType.MAIN, appointment)
@@ -60,10 +64,10 @@ class DelegatingVideoLinkBookingEventListenerTest {
   @Test
   fun `Should call eventStore with correct args for Updates`() {
     whenever(courtService.chooseCourtName(booking)).thenReturn("Elmley")
-    listener.bookingUpdated(booking, specification, "WWI")
+    listener.bookingUpdated(booking, specification)
 
     argumentCaptor<VideoLinkBooking>().apply {
-      verify(eventStoreListener).bookingUpdated(capture(), eq(specification), eq("WWI"))
+      verify(eventStoreListener).bookingUpdated(capture(), eq(specification))
       assertThat(firstValue.courtName).isEqualTo("Elmley")
       assertThat(firstValue.createdByUsername).isEqualTo(booking.createdByUsername)
       assertThat(firstValue.appointments).isEqualTo(booking.appointments)

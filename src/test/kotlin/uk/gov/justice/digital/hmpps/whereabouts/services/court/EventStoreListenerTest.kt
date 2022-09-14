@@ -34,7 +34,7 @@ class EventStoreListenerTest {
 
   @Test
   fun `booking created`() {
-    listener.bookingCreated(booking, createSpecification, "WWI")
+    listener.bookingCreated(booking, createSpecification)
 
     verify(repository).save(
       VideoLinkBookingEvent(
@@ -66,7 +66,7 @@ class EventStoreListenerTest {
 
   @Test
   fun `booking updated`() {
-    listener.bookingUpdated(booking, updateSpecification, "WWI")
+    listener.bookingUpdated(booking, updateSpecification)
 
     verify(repository).save(
       VideoLinkBookingEvent(

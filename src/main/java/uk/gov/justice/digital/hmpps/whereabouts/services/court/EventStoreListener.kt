@@ -22,8 +22,7 @@ class EventStoreListener(
 ) : VideoLinkBookingEventListener {
   override fun bookingCreated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingSpecification,
-    agencyId: String
+    specification: VideoLinkBookingSpecification
   ) {
     repository.save(
       VideoLinkBookingEvent(
@@ -31,7 +30,7 @@ class EventStoreListener(
         timestamp = LocalDateTime.now(clock),
         userId = authenticationFacade.currentUsername,
         videoLinkBookingId = booking.id!!,
-        agencyId = agencyId,
+        agencyId = booking.prisonId,
         court = specification.court,
         courtId = specification.courtId,
         comment = specification.comment,
@@ -55,15 +54,14 @@ class EventStoreListener(
 
   override fun bookingUpdated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingUpdateSpecification,
-    agencyId: String
+    specification: VideoLinkBookingUpdateSpecification
   ) {
     repository.save(
       VideoLinkBookingEvent(
         eventType = VideoLinkBookingEventType.UPDATE,
         timestamp = LocalDateTime.now(clock),
         userId = authenticationFacade.currentUsername,
-        agencyId = agencyId,
+        agencyId = booking.prisonId,
         videoLinkBookingId = booking.id!!,
         courtId = specification.courtId,
         court = booking.courtName,

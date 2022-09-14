@@ -20,6 +20,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import wiremock.org.eclipse.jetty.http.HttpStatus
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class PrisonApiMockServer : WireMockServer(8999) {
   private val gson = getGson()
@@ -513,7 +514,13 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withHeader("Content-type", "application/json")
             .withBody(
               gson.toJson(
-                Event(eventId = eventId, agencyId = "WWI")
+                Event(
+                  eventId = eventId,
+                  agencyId = "WWI",
+                  eventLocationId = 10L,
+                  startTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+                  endTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+                )
               )
             )
             .withStatus(201)

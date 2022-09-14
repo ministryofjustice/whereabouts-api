@@ -209,7 +209,10 @@ data class AppointmentDetailsDto(
 
 data class Event(
   val eventId: Long,
-  val agencyId: String
+  val agencyId: String,
+  val eventLocationId: Long,
+  val startTime: LocalDateTime,
+  val endTime: LocalDateTime,
 )
 
 @ApiModel(description = "The details of an appointment that has just been created")
