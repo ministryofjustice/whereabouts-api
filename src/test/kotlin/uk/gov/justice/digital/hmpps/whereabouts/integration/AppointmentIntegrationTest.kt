@@ -24,7 +24,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepos
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.Duration
 import java.time.LocalDateTime
-import java.util.Optional
+import java.util.*
 
 class AppointmentIntegrationTest : IntegrationTest() {
   @MockBean
@@ -76,7 +76,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
     @Test
     fun `should return video link booking details`() {
       whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), isNull(), isNull()))
-        .thenReturn(listOf(DataHelpers.makeVideoLinkBooking(-1L, courtName = "Court 1")))
+        .thenReturn(listOf(DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = -1L, courtName = "Court 1")))
 
       webTestClient.mutate().responseTimeout(Duration.ofSeconds(10)).build().get()
         .uri("/appointment/$APPOINTMENT_ID")
