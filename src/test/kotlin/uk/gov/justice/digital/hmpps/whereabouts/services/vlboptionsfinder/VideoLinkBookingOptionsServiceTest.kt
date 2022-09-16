@@ -12,7 +12,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.*
+import java.util.Optional
 
 class VideoLinkBookingOptionsServiceTest {
 

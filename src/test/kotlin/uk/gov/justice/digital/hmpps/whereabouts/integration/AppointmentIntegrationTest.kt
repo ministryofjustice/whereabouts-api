@@ -24,7 +24,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepos
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.Duration
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Optional
 
 class AppointmentIntegrationTest : IntegrationTest() {
   @MockBean

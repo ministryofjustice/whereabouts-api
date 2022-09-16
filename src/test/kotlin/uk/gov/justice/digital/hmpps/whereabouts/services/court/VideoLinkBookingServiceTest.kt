@@ -45,7 +45,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.*
+import java.util.Optional
 import javax.persistence.EntityNotFoundException
 
 class VideoLinkBookingServiceTest {
