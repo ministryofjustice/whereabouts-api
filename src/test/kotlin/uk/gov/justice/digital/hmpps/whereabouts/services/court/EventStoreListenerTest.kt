@@ -107,7 +107,7 @@ class EventStoreListenerTest {
         madeByTheCourt = booking.madeByTheCourt,
         videoLinkBookingId = booking.id!!,
         court = booking.courtName,
-        courtId = booking.courtId,
+        courtId = booking.courtId
       )
     )
   }

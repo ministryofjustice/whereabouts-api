@@ -63,7 +63,8 @@ data class PrisonerScheduleDto(
   val eventStatus: @NotBlank String?,
 
   @Schema(required = true, description = "Comment")
-  val comment: @Size(max = 4000) String?,
+  @Size(max = 4000)
+  val comment: String?,
 
   @Schema(required = true, description = "Date and time at which event starts")
   val startTime: @NotNull LocalDateTime?,
@@ -96,5 +97,5 @@ data class PrisonerScheduleDto(
   val locationCode: String?,
 
   @Schema(description = "Event scheduled has been suspended")
-  val suspended: Boolean?,
+  val suspended: Boolean?
 )

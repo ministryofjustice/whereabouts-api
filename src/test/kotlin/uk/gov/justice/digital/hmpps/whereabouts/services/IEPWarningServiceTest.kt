@@ -27,7 +27,6 @@ class IEPWarningServiceTest {
 
   @Test
   fun `should create a negative case note using user supplied comment`() {
-
     val date = LocalDate.of(2019, 10, 10)
 
     whenever(
@@ -54,9 +53,9 @@ class IEPWarningServiceTest {
         eq(date.atStartOfDay())
       )
   }
+
   @Test
   fun `should prefix the sub reason into the comment when creating an iep warning`() {
-
     val date = LocalDate.of(2019, 10, 10)
 
     whenever(
@@ -113,7 +112,6 @@ class IEPWarningServiceTest {
 
   @Test
   fun `should not post a case note amendment going from paid attendance to unpaid absent refused`() {
-
     whenever(
       caseNotesService.postCaseNote(
         anyString(),
@@ -183,7 +181,6 @@ class IEPWarningServiceTest {
 
   @Test
   fun `should not raise case note or amendment IEP warnings`() {
-
     val attendance = Attendance.builder()
       .bookingId(1)
       .eventLocationId(1)
@@ -214,7 +211,6 @@ class IEPWarningServiceTest {
 
   @Test
   fun `should not raise case note or amendment IEP warnings going from unpaid to unpaid`() {
-
     val attendance = Attendance.builder()
       .bookingId(1)
       .eventLocationId(1)
@@ -246,7 +242,6 @@ class IEPWarningServiceTest {
 
   @Test
   fun `should not trigger an IEP warning if one was previously triggered`() {
-
     val attendance = Attendance.builder()
       .bookingId(1)
       .eventLocationId(1)

@@ -44,7 +44,7 @@ class CellMoveController {
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       ), ApiResponse(
         responseCode = "500",
@@ -55,13 +55,14 @@ class CellMoveController {
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       )
     ]
   )
   fun makeCellMove(
-    @RequestBody @Valid cellMoveDetails: CellMoveDetails
+    @RequestBody @Valid
+    cellMoveDetails: CellMoveDetails
   ): CellMoveResponse =
     CellMoveResponse(cellMoveResult = cellMoveService.makeCellMove(cellMoveDetails))
 
@@ -79,7 +80,7 @@ class CellMoveController {
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       ), ApiResponse(
         responseCode = "500",
@@ -90,7 +91,7 @@ class CellMoveController {
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       )
     ]

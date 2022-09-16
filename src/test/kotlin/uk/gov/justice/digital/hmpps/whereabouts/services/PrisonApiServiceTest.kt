@@ -230,7 +230,7 @@ class PrisonApiServiceTest {
           activity = "act 6",
           description = "desc 6",
           comment = "comment 6"
-        ),
+        )
       )
   }
 }

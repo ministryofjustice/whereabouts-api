@@ -63,7 +63,7 @@ class VideoLinkBookingService(
       courtId = getCourtId(specification),
       madeByTheCourt = specification.madeByTheCourt,
       prisonId = mainEvent.agencyId,
-      comment = specification.comment,
+      comment = specification.comment
     )
     videoLinkBooking.addAppointments(mainEvent, preEvent, postEvent)
 
@@ -271,8 +271,9 @@ class VideoLinkBookingService(
   }
 
   private fun VideoLinkBookingSpecification.validate() {
-    if ((court.isNullOrBlank()) && (courtId.isNullOrBlank()))
+    if ((court.isNullOrBlank()) && (courtId.isNullOrBlank())) {
       throw ValidationException("One of court or courtId must be specified")
+    }
 
     (this as VideoLinkAppointmentsSpecification).validate()
   }

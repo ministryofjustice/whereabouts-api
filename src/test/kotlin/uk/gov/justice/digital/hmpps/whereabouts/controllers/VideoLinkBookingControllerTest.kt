@@ -24,11 +24,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingEventService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptionsService
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -59,17 +59,17 @@ class VideoLinkBookingControllerTest : TestController() {
     pre = VideoLinkBookingResponse.LocationTimeslot(
       locationId = 10,
       startTime = LocalDateTime.of(2020, 2, 7, 12, 0),
-      endTime = LocalDateTime.of(2020, 2, 7, 13, 0),
+      endTime = LocalDateTime.of(2020, 2, 7, 13, 0)
     ),
     main = VideoLinkBookingResponse.LocationTimeslot(
       locationId = 9,
       startTime = LocalDateTime.of(2020, 2, 7, 13, 0),
-      endTime = LocalDateTime.of(2020, 2, 7, 14, 0),
+      endTime = LocalDateTime.of(2020, 2, 7, 14, 0)
     ),
     post = VideoLinkBookingResponse.LocationTimeslot(
       locationId = 5,
       startTime = LocalDateTime.of(2020, 2, 7, 14, 0),
-      endTime = LocalDateTime.of(2020, 2, 7, 15, 0),
+      endTime = LocalDateTime.of(2020, 2, 7, 15, 0)
     )
   )
 
@@ -207,7 +207,7 @@ class VideoLinkBookingControllerTest : TestController() {
             "main" to mapOf(
               "startTime" to "2020-12-01T09:30",
               "endTime" to "2020-12-01T10:00"
-            ),
+            )
           )
         ),
         400
@@ -226,7 +226,7 @@ class VideoLinkBookingControllerTest : TestController() {
             "main" to mapOf(
               "startTime" to "2020-12-01T09:30",
               "endTime" to "2020-12-01T10:00"
-            ),
+            )
           )
         ),
         400
@@ -245,7 +245,7 @@ class VideoLinkBookingControllerTest : TestController() {
             "main" to mapOf(
               "locationId" to 1,
               "endTime" to "2020-12-01T10:00"
-            ),
+            )
           )
         ),
         400
@@ -265,7 +265,7 @@ class VideoLinkBookingControllerTest : TestController() {
               "locationId" to 1,
               "startTime" to "2020-13-45T00:00",
               "endTime" to "2020-12-01T10:00"
-            ),
+            )
           )
         ),
         400
@@ -284,7 +284,7 @@ class VideoLinkBookingControllerTest : TestController() {
             "main" to mapOf(
               "locationId" to 1,
               "startTime" to "2020-12-01T10:00"
-            ),
+            )
           )
         ),
         400
@@ -395,7 +395,6 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `Happy flow`() {
-
       mockMvc.perform(
         put("/court/video-link-bookings/1")
           .contentType(MediaType.APPLICATION_JSON)
@@ -453,7 +452,6 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `Bad request`() {
-
       mockMvc.perform(
         put("/court/video-link-bookings/X")
           .contentType(MediaType.APPLICATION_JSON)
@@ -468,7 +466,6 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `Can update`() {
-
       mockMvc.perform(
         put("/court/video-link-bookings/1/comment")
           .contentType(MediaType.TEXT_PLAIN)
@@ -487,7 +484,6 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `Can clear comment`() {
-
       mockMvc.perform(
         put("/court/video-link-bookings/1/comment")
           .contentType(MediaType.TEXT_PLAIN)
@@ -509,7 +505,7 @@ class VideoLinkBookingControllerTest : TestController() {
       val bookingId = 1L
       whenever(videoLinkBookingService.deleteVideoLinkBooking(bookingId))
         .thenReturn(
-          VideoLinkBooking(
+          DataHelpers.makeVideoLinkBooking(
             id = 1L,
             offenderBookingId = 2L,
             madeByTheCourt = true,

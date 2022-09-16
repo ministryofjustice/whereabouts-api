@@ -83,6 +83,7 @@ class EventsIntegrationTest : IntegrationTest() {
           """.trimIndent()
         )
     }
+
     @Test
     fun `should pass through bad request`() {
       prisonApiMockServer.stubGetEvents(

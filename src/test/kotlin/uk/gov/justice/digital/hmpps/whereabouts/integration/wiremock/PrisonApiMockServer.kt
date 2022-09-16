@@ -116,7 +116,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     "offenderNo" to offenderNo,
                     "firstName" to "BRUNO",
                     "lastName" to "BEYETTE",
-                    "createUserId" to "ASMITH",
+                    "createUserId" to "ASMITH"
                   ),
                   mapOf(
                     "id" to 2L,
@@ -130,7 +130,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     "offenderNo" to "B2345BB",
                     "firstName" to "BILL",
                     "lastName" to "BENN",
-                    "createUserId" to "BSMITH",
+                    "createUserId" to "BSMITH"
                   )
                 )
               )
@@ -165,7 +165,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     "offenderNo" to offenderNo,
                     "firstName" to "BRUNO",
                     "lastName" to "BEYETTE",
-                    "createUserId" to "ASMITH",
+                    "createUserId" to "ASMITH"
                   ),
                   mapOf(
                     "id" to 2L,
@@ -179,7 +179,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     "offenderNo" to "B2345BB",
                     "firstName" to "BILL",
                     "lastName" to "BENN",
-                    "createUserId" to "BSMITH",
+                    "createUserId" to "BSMITH"
                   )
                 )
               )
@@ -198,7 +198,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withBody(
               gson.toJson(
                 listOf(
-                  mapOf("bookingId" to 1L, "eventId" to 1L),
+                  mapOf("bookingId" to 1L, "eventId" to 1L)
                 )
               )
             )
@@ -208,7 +208,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
   }
 
   fun stubScheduleActivityCount(
-    prisonId: String = "MDI",
+    prisonId: String = "MDI"
   ) {
     stubFor(
       post(urlPathEqualTo("/api/schedules/$prisonId/count-activities"))
@@ -217,7 +217,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withHeader("Content-Type", "application/json")
             .withBody(
               gson.toJson(
-                mapOf("total" to 13L, "suspended" to 2L, "notRecorded" to 5L),
+                mapOf("total" to 13L, "suspended" to 2L, "notRecorded" to 5L)
               )
             )
             .withStatus(200)

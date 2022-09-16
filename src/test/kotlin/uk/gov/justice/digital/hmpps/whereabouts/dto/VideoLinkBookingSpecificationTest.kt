@@ -26,7 +26,7 @@ class VideoLinkBookingSpecificationTest {
         validObjectAllFields.copy(
           main = validObjectAllFields.main.copy(locationId = null),
           pre = validObjectAllFields.pre!!.copy(locationId = null),
-          post = validObjectAllFields.post!!.copy(locationId = null),
+          post = validObjectAllFields.post!!.copy(locationId = null)
 
         )
       )
@@ -42,7 +42,7 @@ class VideoLinkBookingSpecificationTest {
       main = VideoLinkAppointmentSpecification(
         startTime = LocalDateTime.of(2021, 1, 1, 9, 0),
         endTime = LocalDateTime.of(2021, 1, 1, 9, 30),
-        locationId = 1L,
+        locationId = 1L
       )
     )
 
@@ -51,12 +51,12 @@ class VideoLinkBookingSpecificationTest {
       pre = VideoLinkAppointmentSpecification(
         startTime = LocalDateTime.of(2021, 1, 1, 8, 45),
         endTime = LocalDateTime.of(2021, 1, 1, 9, 0),
-        locationId = 2L,
+        locationId = 2L
       ),
       post = VideoLinkAppointmentSpecification(
         startTime = LocalDateTime.of(2021, 1, 1, 9, 30),
         endTime = LocalDateTime.of(2021, 1, 1, 9, 45),
-        locationId = 3L,
+        locationId = 3L
       )
     )
   }

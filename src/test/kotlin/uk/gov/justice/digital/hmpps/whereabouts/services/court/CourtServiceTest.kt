@@ -24,7 +24,7 @@ class CourtServiceTest {
   val courts = listOf(
     Court(DERBY_JC_ID, DERBY_JC_NAME, DERBY_JC_EMAIL),
     Court("DUDLMC", "Dudley"),
-    Court("HERFCC", "Hereford Crown"),
+    Court("HERFCC", "Hereford Crown")
 
   )
 

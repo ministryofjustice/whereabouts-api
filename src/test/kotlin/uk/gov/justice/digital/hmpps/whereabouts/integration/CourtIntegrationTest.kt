@@ -13,15 +13,15 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.jdbc.JdbcTestUtils
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
 import java.time.temporal.ChronoUnit
 
 class CourtIntegrationTest(
   @Autowired val videoLinkBookingRepository: VideoLinkBookingRepository,
-  @Autowired val jdbcTemplate: JdbcTemplate,
+  @Autowired val jdbcTemplate: JdbcTemplate
 ) : IntegrationTest() {
 
   @MockBean
@@ -76,6 +76,7 @@ class CourtIntegrationTest(
       .jsonPath("$.email").hasJsonPath()
       .jsonPath("$.email").isEqualTo("test@test.gov.uk")
   }
+
   @Test
   fun `return 404 court email when email not exist`() {
     webTestClient.get()
@@ -107,7 +108,7 @@ class CourtIntegrationTest(
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 9,
-      comment = "any comment",
+      comment = "any comment"
     )
 
     private val postPrisonAppointment = PrisonAppointment(
@@ -121,7 +122,8 @@ class CourtIntegrationTest(
       comment = "any comment"
     )
 
-    private fun makeVideoLinkBooking() = VideoLinkBooking(
+    private fun makeVideoLinkBooking() = DataHelpers.makeVideoLinkBooking(
+      id = 1,
       offenderBookingId = 100,
       courtName = "Test Court 1",
       courtId = "TSTCRT1",
@@ -140,7 +142,6 @@ class CourtIntegrationTest(
 
     @Test
     fun `should get booking`() {
-
       val videoLinkBookingId = videoLinkBookingRepository.save(makeVideoLinkBooking()).id!!
 
       prisonApiMockServer.stubGetPrisonAppointment(
@@ -193,7 +194,6 @@ class CourtIntegrationTest(
 
     @Test
     fun `should get booking when only main appointment exists`() {
-
       val videoLinkBookingId = videoLinkBookingRepository.save(makeVideoLinkBooking()).id!!
 
       prisonApiMockServer.stubGetPrisonAppointment(
@@ -228,7 +228,6 @@ class CourtIntegrationTest(
 
     @Test
     fun `should not find booking when only pre and post appointments exist`() {
-
       val videoLinkBookingId = videoLinkBookingRepository.save(makeVideoLinkBooking()).id!!
 
       prisonApiMockServer.stubGetPrisonAppointment(
@@ -258,7 +257,8 @@ class CourtIntegrationTest(
     @Test
     fun `should return video link appointment by appointment id`() {
       val persistentBooking = videoLinkBookingRepository.save(
-        VideoLinkBooking(
+        DataHelpers.makeVideoLinkBooking(
+          id = 1L,
           offenderBookingId = 1L,
           courtName = "York",
           courtId = "TSTCRT",
@@ -340,7 +340,8 @@ class CourtIntegrationTest(
         .usingRecursiveComparison()
         .ignoringFields("id", "appointments.MAIN.id", "appointments.MAIN.videoLinkBooking")
         .isEqualTo(
-          VideoLinkBooking(
+          DataHelpers.makeVideoLinkBooking(
+            id = 1L,
             offenderBookingId = bookingId,
             courtName = "Test Court 1",
             courtId = "TSTCRT",
@@ -399,14 +400,14 @@ class CourtIntegrationTest(
 
     @Test
     fun `Returns 204 when successfully deleting a booking`() {
-
       val preAppointmentId: Long = 2
       val mainAppointmentId: Long = 3
       val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
       val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
 
       val persistentBooking = videoLinkBookingRepository.save(
-        VideoLinkBooking(
+        DataHelpers.makeVideoLinkBooking(
+          id = 1L,
           offenderBookingId = 4,
           courtName = "Test Court 1",
           courtId = null,
@@ -463,7 +464,8 @@ class CourtIntegrationTest(
       prisonApiMockServer.stubAddAppointmentForBooking(offenderBookingId, eventId = newAppointmentId)
 
       val persistentBooking = videoLinkBookingRepository.save(
-        VideoLinkBooking(
+        DataHelpers.makeVideoLinkBooking(
+          id = 1L,
           offenderBookingId = offenderBookingId,
           courtName = "Test Court 1",
           courtId = "TSTCRT",
@@ -498,7 +500,6 @@ class CourtIntegrationTest(
 
     @Test
     fun `Rejects invalid end time`() {
-
       webTestClient.put()
         .uri("/court/video-link-bookings/1")
         .bodyValue(
@@ -536,7 +537,8 @@ class CourtIntegrationTest(
     private val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
     private val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
 
-    private val theVideoLinkBooking = VideoLinkBooking(
+    private val theVideoLinkBooking = DataHelpers.makeVideoLinkBooking(
+      id = 1L,
       offenderBookingId = 1L,
       courtName = "Test Court 1",
       courtId = null,

@@ -53,7 +53,7 @@ class LocationServiceTest {
       .isEqualTo(
         listOf(
           LocationIdAndDescription(locationId = 1, description = "Video Room A"),
-          LocationIdAndDescription(locationId = 2, description = "Video Room B"),
+          LocationIdAndDescription(locationId = 2, description = "Video Room B")
         )
       )
       .doesNotContain(LocationIdAndDescription(locationId = 3, description = "Video Room C"))
@@ -80,7 +80,7 @@ class LocationServiceTest {
       .isEqualTo(
         listOf(
           LocationIdAndDescription(locationId = 1, description = "video-room-a"),
-          LocationIdAndDescription(locationId = 2, description = "Video Room B"),
+          LocationIdAndDescription(locationId = 2, description = "Video Room B")
         )
       )
   }

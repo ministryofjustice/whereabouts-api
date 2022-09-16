@@ -10,10 +10,12 @@ import javax.validation.constraints.Size
 @ApiModel(description = "Attendance update details")
 data class UpdateAttendanceDto(
   @ApiModelProperty(required = true, value = "Flag to indicate the offender attended the event", example = "true")
-  val attended: @NotNull Boolean,
+  @NotNull
+  val attended: Boolean,
 
   @ApiModelProperty(required = true, value = "Flag to indicate the offender should be paid", example = "true")
-  val paid: @NotNull Boolean,
+  @NotNull
+  val paid: Boolean,
 
   @ApiModelProperty(value = "Reason the offender did not attendance the event", example = "Refused")
   val absentReason: AbsentReason? = null,
@@ -22,5 +24,6 @@ data class UpdateAttendanceDto(
   val absentSubReason: AbsentSubReason? = null,
 
   @ApiModelProperty(value = "Comments about non attendance. This also gets used for the IEP warning text ")
-  val comments: @Size(max = 240) String? = null
+  @Size(max = 240)
+  val comments: String? = null
 )

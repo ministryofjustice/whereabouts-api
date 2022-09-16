@@ -21,7 +21,6 @@ class AttendanceServiceForAppScope {
     nomisEventOutcomeMapper: NomisEventOutcomeMapper,
     telemetryClient: TelemetryClient
   ): AttendanceService {
-
     return AttendanceService(
       attendanceRepository,
       attendanceChangesRepository,

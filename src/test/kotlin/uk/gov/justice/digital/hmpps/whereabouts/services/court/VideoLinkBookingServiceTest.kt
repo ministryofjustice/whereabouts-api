@@ -39,12 +39,13 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepos
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.Optional
+import java.util.*
 import javax.persistence.EntityNotFoundException
 
 class VideoLinkBookingServiceTest {
@@ -75,7 +76,7 @@ class VideoLinkBookingServiceTest {
 
   @Test
   fun `Should return and map video link appointments`() {
-    val videoLinkBooking = VideoLinkBooking(
+    val videoLinkBooking = DataHelpers.makeVideoLinkBooking(
       id = 21L,
       offenderBookingId = 3L,
       courtName = COURT_NAME,
@@ -90,7 +91,7 @@ class VideoLinkBookingServiceTest {
       hearingType = HearingType.MAIN,
       startDateTime = startDateTime,
       endDateTime = endDateTime,
-      videoLinkBooking = videoLinkBooking,
+      videoLinkBooking = videoLinkBooking
     )
     val preAppointment = VideoLinkAppointment(
       id = 2,
@@ -99,7 +100,7 @@ class VideoLinkBookingServiceTest {
       hearingType = HearingType.PRE,
       startDateTime = startDateTime,
       endDateTime = endDateTime,
-      videoLinkBooking = videoLinkBooking,
+      videoLinkBooking = videoLinkBooking
     )
     val postAppointment = VideoLinkAppointment(
       id = 3,
@@ -108,7 +109,7 @@ class VideoLinkBookingServiceTest {
       hearingType = HearingType.POST,
       startDateTime = startDateTime,
       endDateTime = endDateTime,
-      videoLinkBooking = videoLinkBooking,
+      videoLinkBooking = videoLinkBooking
     )
     videoLinkBooking.appointments[HearingType.PRE] = preAppointment
     videoLinkBooking.appointments[HearingType.MAIN] = mainAppointment
@@ -118,7 +119,7 @@ class VideoLinkBookingServiceTest {
       setOf(
         preAppointment,
         mainAppointment,
-        postAppointment,
+        postAppointment
       )
     )
     val service = service()
@@ -129,13 +130,13 @@ class VideoLinkBookingServiceTest {
       .containsExactlyInAnyOrder(
         Tuple.tuple(1L, 3L, 3L, 21L, 3L, HearingType.MAIN, COURT_NAME, null, true),
         Tuple.tuple(2L, 3L, 4L, 21L, 3L, HearingType.PRE, COURT_NAME, null, true),
-        Tuple.tuple(3L, 3L, 5L, 21L, 3L, HearingType.POST, COURT_NAME, null, true),
+        Tuple.tuple(3L, 3L, 5L, 21L, 3L, HearingType.POST, COURT_NAME, null, true)
       )
   }
 
   @Test
   fun `Should return and map pre video link appointments without an associated main appointment`() {
-    val videoLinkBooking = VideoLinkBooking(
+    val videoLinkBooking = DataHelpers.makeVideoLinkBooking(
       id = 21L,
       offenderBookingId = 3L,
       courtName = COURT_NAME,
@@ -156,7 +157,7 @@ class VideoLinkBookingServiceTest {
 
     whenever(videoLinkAppointmentRepository.findVideoLinkAppointmentByAppointmentIdIn(setOf(3, 4))).thenReturn(
       setOf(
-        preAppointment,
+        preAppointment
       )
     )
     val service = service()
@@ -194,8 +195,7 @@ class VideoLinkBookingServiceTest {
 
     @Test
     fun `Happy path - Main appointment only - madeByTheCourt`() {
-
-      fun makeBooking(id: Long?) = VideoLinkBooking(
+      fun makeBooking(id: Long) = DataHelpers.makeVideoLinkBooking(
         id = id,
         offenderBookingId = 1L,
         courtName = COURT_NAME,
@@ -243,7 +243,7 @@ class VideoLinkBookingServiceTest {
         )
       )
 
-      verify(videoLinkBookingRepository).save(eqByProps(makeBooking(null)))
+      verify(videoLinkBookingRepository).save(eqByProps(makeBooking(1L)))
 
       verify(videoLinkBookingEventListener).bookingCreated(
         eqByProps(makeBooking(expectedVideoLinkBookingId)),
@@ -435,11 +435,10 @@ class VideoLinkBookingServiceTest {
 
     @Test
     fun `Happy path - pre, main and post appointments - Not madeByTheCourt`() {
-
       val offenderBookingId = 1L
 
-      fun makeBooking(id: Long?) =
-        VideoLinkBooking(
+      fun makeBooking(id: Long) =
+        DataHelpers.makeVideoLinkBooking(
           id = id,
           offenderBookingId = 1L,
           courtName = COURT_NAME,
@@ -537,7 +536,7 @@ class VideoLinkBookingServiceTest {
       verify(prisonApiServiceAuditable).postAppointment(offenderBookingId, preCreateAppointment)
       verify(prisonApiServiceAuditable).postAppointment(offenderBookingId, postCreateAppointment)
 
-      verify(videoLinkBookingRepository).save(eqByProps(makeBooking(null)))
+      verify(videoLinkBookingRepository).save(eqByProps(makeBooking(1L)))
     }
   }
 
@@ -560,7 +559,7 @@ class VideoLinkBookingServiceTest {
     fun `Happy path - update main`() {
       val service = service()
 
-      val theBooking = VideoLinkBooking(
+      val theBooking = DataHelpers.makeVideoLinkBooking(
         id = 1L,
         offenderBookingId = 30L,
         courtName = "The court",
@@ -578,7 +577,7 @@ class VideoLinkBookingServiceTest {
         main = VideoLinkAppointmentSpecification(
           locationId = 99L,
           startTime = referenceTime,
-          endTime = referenceTime.plusMinutes(30),
+          endTime = referenceTime.plusMinutes(30)
         )
       )
 
@@ -597,7 +596,7 @@ class VideoLinkBookingServiceTest {
       )
 
       val expectedAfterUpdate =
-        VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = null, courtId = "TSTCRT", madeByTheCourt = true, prisonId = "WRI")
+        DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = null, courtId = "TSTCRT", madeByTheCourt = true, prisonId = "WRI")
       expectedAfterUpdate.addMainAppointment(3L, 10L, startDateTime, endDateTime)
 
       assertThat(theBooking)
@@ -622,7 +621,7 @@ class VideoLinkBookingServiceTest {
             main = VideoLinkAppointmentSpecification(
               locationId = 99L,
               startTime = referenceNow.minusSeconds(1),
-              endTime = referenceNow.plusSeconds(1),
+              endTime = referenceNow.plusSeconds(1)
             )
           )
         )
@@ -636,7 +635,7 @@ class VideoLinkBookingServiceTest {
       val service = service()
 
       val theBooking =
-        VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = "The court", madeByTheCourt = true, prisonId = "WRI")
+        DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = "The court", madeByTheCourt = true, prisonId = "WRI")
       theBooking.addPreAppointment(appointmentId = 40L, id = 2L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
       theBooking.addMainAppointment(appointmentId = 41L, id = 3L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
       theBooking.addPostAppointment(appointmentId = 42L, id = 4L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
@@ -652,17 +651,17 @@ class VideoLinkBookingServiceTest {
           pre = VideoLinkAppointmentSpecification(
             locationId = 99L,
             startTime = referenceTime,
-            endTime = referenceTime.plusMinutes(30),
+            endTime = referenceTime.plusMinutes(30)
           ),
           main = VideoLinkAppointmentSpecification(
             locationId = 98L,
             startTime = referenceTime.plusMinutes(30),
-            endTime = referenceTime.plusMinutes(60),
+            endTime = referenceTime.plusMinutes(60)
           ),
           post = VideoLinkAppointmentSpecification(
             locationId = 97L,
             startTime = referenceTime.plusMinutes(60),
-            endTime = referenceTime.plusMinutes(90),
+            endTime = referenceTime.plusMinutes(90)
           )
         )
       )
@@ -707,7 +706,7 @@ class VideoLinkBookingServiceTest {
       assertThat(theBooking)
         .usingRecursiveComparison()
         .isEqualTo(
-          VideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = null, courtId = "TSTCRT", madeByTheCourt = true, prisonId = "WRI").apply {
+          DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 30L, courtName = null, courtId = "TSTCRT", madeByTheCourt = true, prisonId = "WRI").apply {
             addPreAppointment(appointmentId = 9999L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
             addMainAppointment(appointmentId = 9999L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
             addPostAppointment(appointmentId = 9999L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
@@ -724,7 +723,7 @@ class VideoLinkBookingServiceTest {
     private val preAppointmentId = 13L
     private val postAppointmentId = 14L
 
-    private val videoLinkBooking = VideoLinkBooking(offenderBookingId = 1, courtName = COURT_NAME, id = 100, prisonId = "WRI").apply {
+    private val videoLinkBooking = DataHelpers.makeVideoLinkBooking(offenderBookingId = 1, courtName = COURT_NAME, id = 100, prisonId = "WRI").apply {
       addPreAppointment(appointmentId = preAppointmentId, id = 111, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
       addMainAppointment(appointmentId = mainAppointmentId, id = 222, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
       addPostAppointment(appointmentId = postAppointmentId, id = 333, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
@@ -732,7 +731,6 @@ class VideoLinkBookingServiceTest {
 
     @Test
     fun `Wen there is no video link booking it throws an exception`() {
-
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.empty())
       Assertions.assertThrows(EntityNotFoundException::class.java) {
         service.deleteVideoLinkBooking(videoLinkBooking.id!!)
@@ -741,7 +739,6 @@ class VideoLinkBookingServiceTest {
 
     @Test
     fun `Happy path`() {
-
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
 
       service.deleteVideoLinkBooking(videoLinkBooking.id!!)
@@ -764,7 +761,7 @@ class VideoLinkBookingServiceTest {
     private val postAppointmentId = 14L
 
     private val videoLinkBooking =
-      VideoLinkBooking(offenderBookingId = 1, courtName = COURT_NAME, courtId = COURT_ID, id = 100, prisonId = "WRI").apply {
+      DataHelpers.makeVideoLinkBooking(offenderBookingId = 1, courtName = COURT_NAME, courtId = COURT_ID, id = 100, prisonId = "WRI").apply {
         addPreAppointment(appointmentId = preAppointmentId, id = 111, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
         addMainAppointment(appointmentId = mainAppointmentId, id = 222, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
         addPostAppointment(appointmentId = postAppointmentId, id = 333, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
@@ -789,7 +786,7 @@ class VideoLinkBookingServiceTest {
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 9,
-      comment = "any comment",
+      comment = "any comment"
     )
 
     private val postAppointment = PrisonAppointment(
@@ -805,7 +802,6 @@ class VideoLinkBookingServiceTest {
 
     @Test
     fun `When there is no video link booking it throws an exception`() {
-
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.empty())
       Assertions.assertThrows(EntityNotFoundException::class.java) {
         service.getVideoLinkBooking(videoLinkBooking.id!!)
@@ -814,7 +810,6 @@ class VideoLinkBookingServiceTest {
 
     @Test
     fun `When there is a video link booking with pre, main and post`() {
-
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
 
       whenever(prisonApiService.getPrisonAppointment(mainAppointmentId)).thenReturn(mainAppointment)
@@ -844,7 +839,7 @@ class VideoLinkBookingServiceTest {
             locationId = postAppointment.eventLocationId,
             startTime = postAppointment.startTime,
             endTime = postAppointment.endTime!!
-          ),
+          )
         )
       )
     }
@@ -868,7 +863,7 @@ class VideoLinkBookingServiceTest {
             locationId = mainAppointment.eventLocationId,
             startTime = mainAppointment.startTime,
             endTime = mainAppointment.endTime!!
-          ),
+          )
         )
       )
     }
@@ -934,7 +929,7 @@ class VideoLinkBookingServiceTest {
           tuple(1007L, 2007L, 3007L),
           tuple(1008L, 2008L, 3008L),
           tuple(1009L, 2009L, 3009L),
-          tuple(1010L, 2010L, 3010L),
+          tuple(1010L, 2010L, 3010L)
         )
 
       verify(videoLinkBookingRepository).findByAppointmentIdsAndHearingType(
@@ -1007,7 +1002,7 @@ class VideoLinkBookingServiceTest {
       )
         .thenReturn(
           listOf(
-            VideoLinkBooking(
+            DataHelpers.makeVideoLinkBooking(
               id = 1000L,
               offenderBookingId = 1000,
               courtName = "Wimbledon",
@@ -1083,7 +1078,7 @@ class VideoLinkBookingServiceTest {
       whenever(videoLinkBookingRepository.findById(1L))
         .thenReturn(
           Optional.of(
-            VideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", prisonId = "WWI").apply {
+            DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", prisonId = "WWI").apply {
               addPreAppointment(id = 100L, appointmentId = 10L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
               addMainAppointment(id = 101L, appointmentId = 11L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
               addPostAppointment(id = 102L, appointmentId = 12L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
@@ -1107,7 +1102,7 @@ class VideoLinkBookingServiceTest {
       whenever(videoLinkBookingRepository.findById(1L))
         .thenReturn(
           Optional.of(
-            VideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", prisonId = "WWI").apply {
+            DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", prisonId = "WWI").apply {
               addMainAppointment(id = 101L, appointmentId = 11L, locationId = 10L, startDateTime = startDateTime, endDateTime = endDateTime)
             }
           )
@@ -1127,7 +1122,7 @@ class VideoLinkBookingServiceTest {
     videoLinkAppointmentRepository,
     videoLinkBookingRepository,
     clock,
-    videoLinkBookingEventListener,
+    videoLinkBookingEventListener
   )
 
   companion object {
@@ -1178,7 +1173,7 @@ class VideoLinkBookingServiceTest {
       endDateTime: LocalDateTime
     ): List<VideoLinkBooking> =
       (firstAppointmentId..lastAppointmentId).map {
-        VideoLinkBooking(id = it + 1000L, offenderBookingId = it + 1000, courtName = court, courtId = courtId, prisonId = "WWI").apply {
+        DataHelpers.makeVideoLinkBooking(id = it + 1000L, offenderBookingId = it + 1000, courtName = court, courtId = courtId, prisonId = "WWI").apply {
           addPreAppointment(id = it + 10000, appointmentId = it + 1000, locationId = locationId, startDateTime = startDateTime, endDateTime = endDateTime)
           addMainAppointment(id = it + 20000, appointmentId = it, locationId = locationId, startDateTime = startDateTime, endDateTime = endDateTime)
           addPostAppointment(id = it + 30000, appointmentId = it + 2000, locationId = locationId, startDateTime = startDateTime, endDateTime = endDateTime)

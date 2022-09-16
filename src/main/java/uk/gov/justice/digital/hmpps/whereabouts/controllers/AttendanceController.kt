@@ -38,34 +38,37 @@ class AttendanceController(private val attendanceService: AttendanceService) {
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "400", description = "Invalid request.",
+        responseCode = "400",
+        description = "Invalid request.",
         content =
         [
           Content(
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
       ),
       ApiResponse(
-        responseCode = "404", description = "Requested resource not found.",
+        responseCode = "404",
+        description = "Requested resource not found.",
         content =
         [
           Content(
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
       ),
       ApiResponse(
-        responseCode = "406", description = "Conflict creating an attendance.",
+        responseCode = "406",
+        description = "Conflict creating an attendance.",
         content =
         [
           Content(
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
       ),
       ApiResponse(
         responseCode = "500",
@@ -76,7 +79,7 @@ class AttendanceController(private val attendanceService: AttendanceService) {
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       )
     ]
@@ -96,14 +99,15 @@ class AttendanceController(private val attendanceService: AttendanceService) {
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "400", description = "Invalid request.",
+        responseCode = "400",
+        description = "Invalid request.",
         content =
         [
           Content(
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       ),
       ApiResponse(responseCode = "404", description = "Requested resource not found."),
@@ -116,14 +120,15 @@ class AttendanceController(private val attendanceService: AttendanceService) {
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       )
     ]
   )
   fun putAttendance(
     @PathVariable("id") id: Long,
-    @RequestBody @Valid attendance: UpdateAttendanceDto
+    @RequestBody @Valid
+    attendance: UpdateAttendanceDto
   ): ResponseEntity<Any> {
     attendanceService.updateAttendance(id, attendance)
     return ResponseEntity.noContent().build()

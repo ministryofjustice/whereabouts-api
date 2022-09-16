@@ -29,7 +29,6 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
 
   @Test
   fun `Happy flow`() {
-
     val uri = "$baseUrl?start-date=${LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)}"
     webTestClient.get()
       .uri(uri)
@@ -81,7 +80,13 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
         main_end_time             
       ) values (DEFAULT, ?, 'CREATE', 'ITAG_USER',  ?, 'MDI', ?, 'The Court', true, 'A comment', ?, ?, ?, ?)
     """,
-        LocalDateTime.now(), i, i, i, i, bookingTime, bookingTime.plusMinutes(30)
+        LocalDateTime.now(),
+        i,
+        i,
+        i,
+        i,
+        bookingTime,
+        bookingTime.plusMinutes(30)
       )
     }
   }

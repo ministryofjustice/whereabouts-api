@@ -11,8 +11,8 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDateTime
 
 @ActiveProfiles("test")
@@ -38,14 +38,15 @@ class VideoLinkAppointmentRepositoryTest {
     val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
     val prisonId = "WWI"
     videoLinkBookingRepository.save(
-      VideoLinkBooking(offenderBookingId = 2, courtName = "York", prisonId = prisonId).apply {
+      DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 2L, courtName = "York", prisonId = prisonId).apply {
         addMainAppointment(1, 20L, startDateTime, endDateTime)
       }
     )
 
     videoLinkBookingRepository.save(
-      VideoLinkBooking(
-        offenderBookingId = 4,
+      DataHelpers.makeVideoLinkBooking(
+        id = 1L,
+        offenderBookingId = 4L,
         courtName = null,
         courtId = "TSTCRT",
         madeByTheCourt = false,

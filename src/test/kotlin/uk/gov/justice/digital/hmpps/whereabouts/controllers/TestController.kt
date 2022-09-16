@@ -12,6 +12,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 open class TestController {
   @Autowired
   internal lateinit var mockMvc: MockMvc
+
   @Autowired
   internal lateinit var objectMapper: ObjectMapper
 }

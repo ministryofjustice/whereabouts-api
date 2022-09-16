@@ -43,7 +43,7 @@ class VideoLinkBookingController(
   private val videoLinkBookingService: VideoLinkBookingService,
   private val videoLinkBookingEventService: VideoLinkBookingEventService,
 
-  private val videoLinkBookingOptionsService: IVideoLinkBookingOptionsService,
+  private val videoLinkBookingOptionsService: IVideoLinkBookingOptionsService
 ) {
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/all-courts"])
   @ResponseStatus(HttpStatus.OK)
@@ -119,7 +119,7 @@ class VideoLinkBookingController(
     @Parameter(
       description = "The name a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned.",
       required = false,
-      example = "Wimbledon",
+      example = "Wimbledon"
     )
     @RequestParam(name = "court", required = false)
     court: String?,
@@ -210,7 +210,7 @@ class VideoLinkBookingController(
     produces = [MediaType.APPLICATION_JSON_VALUE]
   )
   @Operation(
-    description = "Check that a potential video link booking, described by the supplied specification, can be made.  If not then return information about some alternatives.",
+    description = "Check that a potential video link booking, described by the supplied specification, can be made.  If not then return information about some alternatives."
   )
   fun findAvailableVideoLinkBookingOptions(
     @Valid

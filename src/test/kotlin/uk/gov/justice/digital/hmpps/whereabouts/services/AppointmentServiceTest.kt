@@ -273,7 +273,8 @@ class AppointmentServiceTest {
         .getOffenderDetailsFromOffenderNos(
           eq(
             setOf(
-              offenderNo1, offenderNo2
+              offenderNo1,
+              offenderNo2
             )
           )
         )
@@ -499,7 +500,7 @@ class AppointmentServiceTest {
             createAppointmentDetails.copy(appointmentEventId = 1),
             createAppointmentDetails.copy(appointmentEventId = 2),
             createAppointmentDetails.copy(appointmentEventId = 3),
-            createAppointmentDetails.copy(appointmentEventId = 4),
+            createAppointmentDetails.copy(appointmentEventId = 4)
           )
         )
     }
@@ -660,7 +661,6 @@ class AppointmentServiceTest {
 
     @Test
     fun `should delete the single appointment of a sequence of recurring appointments when requested`() {
-
       val relatedAppointments = mutableListOf(RelatedAppointment(2L), RelatedAppointment(3L))
       whenever(prisonApiService.getPrisonAppointment(3L)).thenReturn(DataHelpers.makePrisonAppointment())
       whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
@@ -685,7 +685,6 @@ class AppointmentServiceTest {
 
     @Test
     fun `should delete all recurring appointments in a sequence when the only remaining appointment is deleted`() {
-
       val relatedAppointments = mutableListOf(RelatedAppointment(3L))
       whenever(prisonApiService.getPrisonAppointment(3L)).thenReturn(DataHelpers.makePrisonAppointment())
       whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(

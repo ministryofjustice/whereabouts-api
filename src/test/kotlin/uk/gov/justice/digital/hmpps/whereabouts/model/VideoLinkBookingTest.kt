@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDateTime
 
 class VideoLinkBookingTest {
@@ -15,7 +16,7 @@ class VideoLinkBookingTest {
   val END_DATE_TIME = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
 
   var videoLinkBooking =
-    VideoLinkBooking(courtName = COURT_NAME, courtId = COURT_ID, offenderBookingId = 1L, prisonId = PRISON_ID).apply {
+    DataHelpers.makeVideoLinkBooking(id = 1L, courtName = COURT_NAME, courtId = COURT_ID, offenderBookingId = 1L, prisonId = PRISON_ID).apply {
       addPreAppointment(1L, 10L, START_DATE_TIME, END_DATE_TIME)
       addMainAppointment(2L, 20L, START_DATE_TIME, END_DATE_TIME)
       addPostAppointment(3L, 30L, START_DATE_TIME, END_DATE_TIME)
@@ -47,7 +48,7 @@ class VideoLinkBookingTest {
 
   @Test
   fun `no appointments`() {
-    val vlb = VideoLinkBooking(offenderBookingId = 1L, prisonId = PRISON_ID)
+    val vlb = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = PRISON_ID)
     assertThat(vlb.appointments[PRE]).isNull()
     assertThat(vlb.appointments[MAIN]).isNull()
     assertThat(vlb.appointments[POST]).isNull()

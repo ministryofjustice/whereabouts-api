@@ -36,7 +36,7 @@ class EventToCsvConverterTest {
     postLocationId = 30L,
     postStartTime = LocalDateTime.of(2021, 3, 1, 10, 0),
     postEndTime = LocalDateTime.of(2021, 3, 1, 11, 0),
-    postNomisAppointmentId = 31L,
+    postNomisAppointmentId = 31L
   )
 
   @Test

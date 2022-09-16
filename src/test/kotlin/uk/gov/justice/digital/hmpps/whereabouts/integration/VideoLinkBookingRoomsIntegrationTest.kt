@@ -4,11 +4,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 
-class PrisonIntegrationTest : IntegrationTest() {
+class VideoLinkBookingRoomsIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should retrieve details of rooms of type VIDE only`() {
-
     prisonApiMockServer.stubGetAgencyLocationsForTypeUnrestricted("MDI", "APP", getVideLocations())
 
     webTestClient.get()
@@ -46,5 +45,5 @@ private fun getVideLocations() =
       locationUsage = "", agencyId = "MDI", parentLocationId = 123,
       currentOccupancy = 2, locationPrefix = "", operationalCapacity = 10,
       userDescription = "", internalLocationCode = ""
-    ),
+    )
   )

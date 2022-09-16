@@ -28,7 +28,6 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
 
   @Test
   fun `Pre, main and post appointments, not matched, one alternative`() {
-
     val expectedResult = VideoLinkBookingOptions(
       matched = false,
       alternatives = listOf(
@@ -83,7 +82,6 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
 
   @Test
   fun `Main appointment only, matched`() {
-
     val expectedResult = VideoLinkBookingOptions(matched = true, alternatives = listOf())
 
     every { delegate.findVideoLinkBookingOptions(any()) } returns expectedResult
@@ -92,7 +90,7 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
       VideoLinkBookingSearchSpecification(
         agencyId = "WWI",
         date = LocalDate.of(2020, 6, 1),
-        mainAppointment = LocationAndInterval(2L, Interval(LocalTime.of(10, 0), LocalTime.of(10, 30))),
+        mainAppointment = LocationAndInterval(2L, Interval(LocalTime.of(10, 0), LocalTime.of(10, 30)))
       )
     )
 
@@ -111,7 +109,7 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
           "alternativeMainStartTimes" to "",
           "mainLocationId" to "2",
           "mainStart" to "10:00",
-          "mainEnd" to "10:30",
+          "mainEnd" to "10:30"
         ),
         null
       )
@@ -120,7 +118,6 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
 
   @Test
   fun `Main appointment only, not matched, 2 alternatives`() {
-
     val expectedResult = VideoLinkBookingOptions(
       matched = false,
       alternatives = listOf(
@@ -135,7 +132,7 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
       VideoLinkBookingSearchSpecification(
         agencyId = "WWI",
         date = LocalDate.of(2020, 6, 1),
-        mainAppointment = LocationAndInterval(2L, Interval(LocalTime.of(10, 0), LocalTime.of(10, 30))),
+        mainAppointment = LocationAndInterval(2L, Interval(LocalTime.of(10, 0), LocalTime.of(10, 30)))
       )
     )
 
@@ -154,7 +151,7 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
           "alternativeMainStartTimes" to "12:30,13:30",
           "mainLocationId" to "2",
           "mainStart" to "10:00",
-          "mainEnd" to "10:30",
+          "mainEnd" to "10:30"
         ),
         null
       )

@@ -24,7 +24,6 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should make an elite api request to update an offenders attendance`() {
-
     val bookingId = getNextBookingId()
     val activityId = 2L
     val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"

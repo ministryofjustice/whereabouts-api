@@ -14,5 +14,5 @@ data class CellMoveReasonDto(
   )
   val bedAssignmentsSequence: Int,
   @ApiModelProperty(value = "Id of the case note created", position = 3, example = "3")
-  val caseNoteId: Long,
+  val caseNoteId: Long
 )

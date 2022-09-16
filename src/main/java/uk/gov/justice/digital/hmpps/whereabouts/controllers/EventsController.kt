@@ -22,24 +22,31 @@ import javax.validation.constraints.NotNull
 @RestController
 @RequestMapping(value = ["events"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class EventsController(
-  private val prisonApiServiceAuditable: PrisonApiServiceAuditable,
+  private val prisonApiServiceAuditable: PrisonApiServiceAuditable
 ) {
 
   @ApiResponses(
     ApiResponse(responseCode = "400", description = "Invalid request."),
     ApiResponse(responseCode = "404", description = "Requested resource not found."),
-    ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.",),
+    ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")
   )
   @Operation(
     description = "All scheduled events for offender.  This endpoint filters out cancelled events.",
-    summary = "getEvents",
+    summary = "getEvents"
   )
   @GetMapping("/{offenderNo}")
   fun getEvents(
-    @Parameter(example = "A1234AA", required = true) @PathVariable(value = "offenderNo", required = true) @NotNull offenderNo: String,
+    @Parameter(example = "A1234AA", required = true)
+    @PathVariable(value = "offenderNo", required = true)
+    @NotNull
+    offenderNo: String,
     @Parameter(description = "Returned events must be scheduled on or after this date (in YYYY-MM-DD format).  This date must be on or after today.")
-    @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DATE) fromDate: LocalDate?,
+    @RequestParam(value = "fromDate", required = false)
+    @DateTimeFormat(iso = DATE)
+    fromDate: LocalDate?,
     @Parameter(description = "Returned events must be scheduled on or before this date (in YYYY-MM-DD format).  This date must be on or after the fromDate.")
-    @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DATE) toDate: LocalDate?,
+    @RequestParam(value = "toDate", required = false)
+    @DateTimeFormat(iso = DATE)
+    toDate: LocalDate?
   ): List<ScheduledEventDto> = prisonApiServiceAuditable.getScheduledEvents(offenderNo, fromDate, toDate)
 }

@@ -85,5 +85,5 @@ data class ScheduledEventDto(
   val locationCode: String? = null,
 
   @ApiModelProperty(value = "Staff member who created the appointment")
-  val createUserId: String? = null,
+  val createUserId: String? = null
 )
