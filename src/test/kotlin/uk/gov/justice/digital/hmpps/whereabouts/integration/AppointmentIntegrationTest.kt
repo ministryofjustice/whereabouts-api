@@ -76,7 +76,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
     @Test
     fun `should return video link booking details`() {
       whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), isNull(), isNull()))
-        .thenReturn(listOf(DataHelpers.makeVideoLinkBooking(1)))
+        .thenReturn(listOf(DataHelpers.makeVideoLinkBooking(-1L, courtName = "Court 1")))
 
       webTestClient.mutate().responseTimeout(Duration.ofSeconds(10)).build().get()
         .uri("/appointment/$APPOINTMENT_ID")
