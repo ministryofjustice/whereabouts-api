@@ -48,7 +48,7 @@ class VideoLinkBookingTest {
 
   @Test
   fun `no appointments`() {
-    val vlb = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = PRISON_ID)
+    val vlb = VideoLinkBooking(offenderBookingId = 1L, prisonId = PRISON_ID)
     assertThat(vlb.appointments[PRE]).isNull()
     assertThat(vlb.appointments[MAIN]).isNull()
     assertThat(vlb.appointments[POST]).isNull()

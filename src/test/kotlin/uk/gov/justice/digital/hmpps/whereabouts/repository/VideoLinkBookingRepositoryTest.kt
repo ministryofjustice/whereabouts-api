@@ -56,7 +56,6 @@ class VideoLinkBookingRepositoryTest(
   @Test
   fun `should persist a booking (main only)`() {
     val theBooking = DataHelpers.makeVideoLinkBooking(
-      id = 1,
       offenderBookingId = 1,
       courtName = "A Court",
       madeByTheCourt = true,
@@ -87,7 +86,6 @@ class VideoLinkBookingRepositoryTest(
   @Test
   fun `should persist a booking (main, pre and post)`() {
     val theBooking = DataHelpers.makeVideoLinkBooking(
-      id = 1,
       offenderBookingId = 1,
       courtName = "A Court",
       prisonId = prisonId

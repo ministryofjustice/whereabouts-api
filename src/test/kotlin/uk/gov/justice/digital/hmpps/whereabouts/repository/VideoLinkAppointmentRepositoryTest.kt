@@ -38,14 +38,13 @@ class VideoLinkAppointmentRepositoryTest {
     val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
     val prisonId = "WWI"
     videoLinkBookingRepository.save(
-      DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 2L, courtName = "York", prisonId = prisonId).apply {
+      DataHelpers.makeVideoLinkBooking(offenderBookingId = 2L, courtName = "York", prisonId = prisonId).apply {
         addMainAppointment(1, 20L, startDateTime, endDateTime)
       }
     )
 
     videoLinkBookingRepository.save(
       DataHelpers.makeVideoLinkBooking(
-        id = 1L,
         offenderBookingId = 4L,
         courtName = null,
         courtId = "TSTCRT",
