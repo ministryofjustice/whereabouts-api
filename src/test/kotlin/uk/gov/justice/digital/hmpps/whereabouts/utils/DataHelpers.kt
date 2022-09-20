@@ -14,7 +14,7 @@ class DataHelpers {
   companion object {
 
     fun makeVideoLinkBooking(
-      id: Long,
+      id: Long? = null,
       offenderBookingId: Long = 2L,
       madeByTheCourt: Boolean? = true,
       courtName: String? = "Court name",
