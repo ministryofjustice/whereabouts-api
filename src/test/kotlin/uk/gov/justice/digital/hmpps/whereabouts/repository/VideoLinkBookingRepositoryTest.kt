@@ -19,7 +19,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDateTime
 import java.util.function.Consumer
 
@@ -55,9 +54,11 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `should persist a booking (main only)`() {
-    val theBooking = DataHelpers.makeVideoLinkBooking(
+
+    val theBooking = VideoLinkBooking(
       offenderBookingId = 1,
       courtName = "A Court",
+      courtId = "TSTCRT",
       madeByTheCourt = true,
       prisonId = prisonId
     ).apply {
@@ -85,9 +86,11 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `should persist a booking (main, pre and post)`() {
-    val theBooking = DataHelpers.makeVideoLinkBooking(
+
+    val theBooking = VideoLinkBooking(
       offenderBookingId = 1,
       courtName = "A Court",
+      madeByTheCourt = true,
       prisonId = prisonId
     ).apply {
       addMainAppointment(4, 20L, startDateTime, endDateTime)
@@ -119,11 +122,12 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `Deleting a booking by id should delete its appointments`() {
+
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_BOOKING")).isEqualTo(0)
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
 
     val id = repository.save(
-      DataHelpers.makeVideoLinkBooking(offenderBookingId = 1L, courtName = "A Court", madeByTheCourt = true, prisonId = prisonId).apply {
+      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, prisonId = prisonId).apply {
         addMainAppointment(4, 20L, startDateTime, endDateTime)
         addPreAppointment(12, 20L, startDateTime, endDateTime)
         addPostAppointment(22, 20L, startDateTime, endDateTime)
@@ -146,11 +150,12 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `Deleting a booking should delete its appointments`() {
+
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_BOOKING")).isEqualTo(0)
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
 
     val id = repository.save(
-      DataHelpers.makeVideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, prisonId = prisonId).apply {
+      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, prisonId = prisonId).apply {
         addMainAppointment(4, 20L, startDateTime, endDateTime)
         addPreAppointment(12, 20L, startDateTime, endDateTime)
         addPostAppointment(22, 20L, startDateTime, endDateTime)
@@ -202,28 +207,28 @@ class VideoLinkBookingRepositoryTest(
   @Test
   fun `findByAppointmentIdsAndHearingType filter by courtName`() {
     repository.save(
-      DataHelpers.makeVideoLinkBooking(
+      VideoLinkBooking(
         offenderBookingId = 1L,
         courtName = "C1",
         prisonId = prisonId
       ).apply { addMainAppointment(100L, 20L, startDateTime, endDateTime) }
     )
     repository.save(
-      DataHelpers.makeVideoLinkBooking(
+      VideoLinkBooking(
         offenderBookingId = 2L,
         courtName = "C2",
         prisonId = prisonId
       ).apply { addMainAppointment(101L, 20L, startDateTime, endDateTime) }
     )
     repository.save(
-      DataHelpers.makeVideoLinkBooking(
+      VideoLinkBooking(
         offenderBookingId = 3L,
         courtName = "C1",
         prisonId = prisonId
       ).apply { addMainAppointment(102L, 20L, startDateTime, endDateTime) }
     )
     repository.save(
-      DataHelpers.makeVideoLinkBooking(
+      VideoLinkBooking(
         offenderBookingId = 4L,
         courtName = "C2",
         prisonId = prisonId
@@ -250,28 +255,28 @@ class VideoLinkBookingRepositoryTest(
   @Test
   fun `findByAppointmentIdsAndHearingType filter by courtId`() {
     repository.save(
-      DataHelpers.makeVideoLinkBooking(
+      VideoLinkBooking(
         offenderBookingId = 1L,
         courtId = "C1",
         prisonId = prisonId
       ).apply { addMainAppointment(100L, 20L, startDateTime, endDateTime) }
     )
     repository.save(
-      DataHelpers.makeVideoLinkBooking(
+      VideoLinkBooking(
         offenderBookingId = 2L,
         courtId = "C2",
         prisonId = prisonId
       ).apply { addMainAppointment(101L, 20L, startDateTime, endDateTime) }
     )
     repository.save(
-      DataHelpers.makeVideoLinkBooking(
+      VideoLinkBooking(
         offenderBookingId = 3L,
         courtId = "C1",
         prisonId = prisonId
       ).apply { addMainAppointment(102L, 20L, startDateTime, endDateTime) }
     )
     repository.save(
-      DataHelpers.makeVideoLinkBooking(
+      VideoLinkBooking(
         offenderBookingId = 4L,
         courtId = "C2",
         prisonId = prisonId
@@ -297,13 +302,9 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `Removing appointments from a booking should delete the appointments`() {
+
     val id = repository.save(
-      DataHelpers.makeVideoLinkBooking(
-        offenderBookingId = 1L,
-        courtName = "A Court",
-        madeByTheCourt = true,
-        prisonId = prisonId
-      ).apply {
+      VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, prisonId = prisonId).apply {
         addMainAppointment(4, 20L, startDateTime, endDateTime)
         addPreAppointment(12, 20L, startDateTime, endDateTime)
         addPostAppointment(22, 20L, startDateTime, endDateTime)
@@ -327,9 +328,10 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `Replacing appointments should delete old and persist new`() {
+
     val id = repository.save(
-      DataHelpers.makeVideoLinkBooking(
-        offenderBookingId = 1L,
+      VideoLinkBooking(
+        offenderBookingId = 1,
         courtName = "A Court",
         madeByTheCourt = true,
         prisonId = prisonId
@@ -380,7 +382,7 @@ class VideoLinkBookingRepositoryTest(
 
   fun videoLinkBookings(): List<VideoLinkBooking> =
     (1..10L).map {
-      DataHelpers.makeVideoLinkBooking(
+      VideoLinkBooking(
         offenderBookingId = it * 100L,
         courtName = "Court",
         courtId = "TSTCRT",

@@ -15,14 +15,13 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
-import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
 import java.time.temporal.ChronoUnit
 
 class CourtIntegrationTest(
   @Autowired val videoLinkBookingRepository: VideoLinkBookingRepository,
-  @Autowired val jdbcTemplate: JdbcTemplate
+  @Autowired val jdbcTemplate: JdbcTemplate,
 ) : IntegrationTest() {
 
   @MockBean
@@ -108,7 +107,7 @@ class CourtIntegrationTest(
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 9,
-      comment = "any comment"
+      comment = "any comment",
     )
 
     private val postPrisonAppointment = PrisonAppointment(
@@ -341,8 +340,7 @@ class CourtIntegrationTest(
         .usingRecursiveComparison()
         .ignoringFields("id", "appointments.MAIN.id", "appointments.MAIN.videoLinkBooking")
         .isEqualTo(
-          DataHelpers.makeVideoLinkBooking(
-            id = 5L,
+          VideoLinkBooking(
             offenderBookingId = bookingId,
             courtName = "Test Court 1",
             courtId = "TSTCRT",
@@ -401,14 +399,14 @@ class CourtIntegrationTest(
 
     @Test
     fun `Returns 204 when successfully deleting a booking`() {
+
       val preAppointmentId: Long = 2
       val mainAppointmentId: Long = 3
       val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
       val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
 
       val persistentBooking = videoLinkBookingRepository.save(
-        DataHelpers.makeVideoLinkBooking(
-          id = 1L,
+        VideoLinkBooking(
           offenderBookingId = 4,
           courtName = "Test Court 1",
           courtId = null,
@@ -465,8 +463,7 @@ class CourtIntegrationTest(
       prisonApiMockServer.stubAddAppointmentForBooking(offenderBookingId, eventId = newAppointmentId)
 
       val persistentBooking = videoLinkBookingRepository.save(
-        DataHelpers.makeVideoLinkBooking(
-          id = 1L,
+        VideoLinkBooking(
           offenderBookingId = offenderBookingId,
           courtName = "Test Court 1",
           courtId = "TSTCRT",
@@ -501,6 +498,7 @@ class CourtIntegrationTest(
 
     @Test
     fun `Rejects invalid end time`() {
+
       webTestClient.put()
         .uri("/court/video-link-bookings/1")
         .bodyValue(
@@ -538,8 +536,7 @@ class CourtIntegrationTest(
     private val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
     private val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
 
-    private val theVideoLinkBooking = DataHelpers.makeVideoLinkBooking(
-      id = 1L,
+    private val theVideoLinkBooking = VideoLinkBooking(
       offenderBookingId = 1L,
       courtName = "Test Court 1",
       courtId = null,
