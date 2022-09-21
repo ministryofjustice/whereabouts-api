@@ -13,8 +13,24 @@ class DataHelpers {
 
   companion object {
 
-    fun makeVideoLinkBooking(id: Long): VideoLinkBooking =
-      VideoLinkBooking(id = id, offenderBookingId = -1L, courtName = "Court 1", prisonId = "WWI").apply {
+    fun makeVideoLinkBooking(
+      id: Long? = null,
+      offenderBookingId: Long = 2L,
+      madeByTheCourt: Boolean? = true,
+      courtName: String? = "Court name",
+      courtId: String? = "TSTCRT",
+      prisonId: String? = "WWI",
+      comment: String? = ""
+    ): VideoLinkBooking =
+      VideoLinkBooking(
+        id = id,
+        offenderBookingId = offenderBookingId,
+        courtName = courtName,
+        prisonId = prisonId,
+        courtId = courtId,
+        madeByTheCourt = madeByTheCourt,
+        comment = comment
+      ).apply {
         addMainAppointment(
           id = 1L,
           appointmentId = 1L,

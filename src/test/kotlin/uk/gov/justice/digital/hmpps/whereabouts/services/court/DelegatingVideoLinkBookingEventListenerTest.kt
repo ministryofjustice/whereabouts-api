@@ -13,6 +13,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecif
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDateTime
 
 class DelegatingVideoLinkBookingEventListenerTest {
@@ -45,14 +46,14 @@ class DelegatingVideoLinkBookingEventListenerTest {
     appointmentId = 2,
     hearingType = HearingType.MAIN,
     locationId = 20L,
-    videoLinkBooking = VideoLinkBooking(offenderBookingId = 1, prisonId = "WWI"),
+    videoLinkBooking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI"),
     startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
     endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
   )
 
-  val booking = VideoLinkBooking(
-    id = 123,
-    offenderBookingId = 12345,
+  val booking = DataHelpers.makeVideoLinkBooking(
+    id = 123L,
+    offenderBookingId = 12345L,
     courtId = "EYI",
     madeByTheCourt = true,
     prisonId = "WWI"
