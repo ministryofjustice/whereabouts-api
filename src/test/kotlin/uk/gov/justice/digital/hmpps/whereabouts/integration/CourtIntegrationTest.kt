@@ -21,7 +21,7 @@ import java.time.temporal.ChronoUnit
 
 class CourtIntegrationTest(
   @Autowired val videoLinkBookingRepository: VideoLinkBookingRepository,
-  @Autowired val jdbcTemplate: JdbcTemplate,
+  @Autowired val jdbcTemplate: JdbcTemplate
 ) : IntegrationTest() {
 
   @MockBean
@@ -76,6 +76,7 @@ class CourtIntegrationTest(
       .jsonPath("$.email").hasJsonPath()
       .jsonPath("$.email").isEqualTo("test@test.gov.uk")
   }
+
   @Test
   fun `return 404 court email when email not exist`() {
     webTestClient.get()
@@ -107,7 +108,7 @@ class CourtIntegrationTest(
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 9,
-      comment = "any comment",
+      comment = "any comment"
     )
 
     private val postPrisonAppointment = PrisonAppointment(
@@ -140,7 +141,6 @@ class CourtIntegrationTest(
 
     @Test
     fun `should get booking`() {
-
       val videoLinkBookingId = videoLinkBookingRepository.save(makeVideoLinkBooking()).id!!
 
       prisonApiMockServer.stubGetPrisonAppointment(
@@ -193,7 +193,6 @@ class CourtIntegrationTest(
 
     @Test
     fun `should get booking when only main appointment exists`() {
-
       val videoLinkBookingId = videoLinkBookingRepository.save(makeVideoLinkBooking()).id!!
 
       prisonApiMockServer.stubGetPrisonAppointment(
@@ -228,7 +227,6 @@ class CourtIntegrationTest(
 
     @Test
     fun `should not find booking when only pre and post appointments exist`() {
-
       val videoLinkBookingId = videoLinkBookingRepository.save(makeVideoLinkBooking()).id!!
 
       prisonApiMockServer.stubGetPrisonAppointment(
@@ -399,7 +397,6 @@ class CourtIntegrationTest(
 
     @Test
     fun `Returns 204 when successfully deleting a booking`() {
-
       val preAppointmentId: Long = 2
       val mainAppointmentId: Long = 3
       val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
@@ -498,7 +495,6 @@ class CourtIntegrationTest(
 
     @Test
     fun `Rejects invalid end time`() {
-
       webTestClient.put()
         .uri("/court/video-link-bookings/1")
         .bodyValue(
