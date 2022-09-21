@@ -24,11 +24,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingEventService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptionsService
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -509,7 +509,7 @@ class VideoLinkBookingControllerTest : TestController() {
       val bookingId = 1L
       whenever(videoLinkBookingService.deleteVideoLinkBooking(bookingId))
         .thenReturn(
-          VideoLinkBooking(
+          DataHelpers.makeVideoLinkBooking(
             id = 1L,
             offenderBookingId = 2L,
             madeByTheCourt = true,

@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDateTime
 
 class EventListenerTestData private constructor() {
@@ -11,8 +11,8 @@ class EventListenerTestData private constructor() {
   companion object {
     val startTime: LocalDateTime = LocalDateTime.of(2020, 10, 9, 10, 30)
 
-    val booking = VideoLinkBooking(
-      id = 11,
+    val booking = DataHelpers.makeVideoLinkBooking(
+      id = 11L,
       offenderBookingId = -1L,
       courtName = "York Crown Court",
       courtId = "TSTCRT",

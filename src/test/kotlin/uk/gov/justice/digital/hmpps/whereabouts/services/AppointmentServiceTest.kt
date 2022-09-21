@@ -365,7 +365,7 @@ class AppointmentServiceTest {
           isNull()
         )
       ).thenReturn(
-        listOf(DataHelpers.makeVideoLinkBooking(1L))
+        listOf(DataHelpers.makeVideoLinkBooking(1L, offenderBookingId = BOOKING_ID))
       )
 
       val appointmentDetails = appointmentService.getAppointment(1)
@@ -387,15 +387,15 @@ class AppointmentServiceTest {
 
       assertThat(appointmentDetails.videoLinkBooking?.main)
         .extracting("id", "bookingId", "appointmentId", "court", "hearingType", "createdByUsername", "madeByTheCourt")
-        .contains(1L, BOOKING_ID, 1L, "Court 1", HearingType.MAIN, "SA", true)
+        .contains(1L, BOOKING_ID, 1L, "Court name", HearingType.MAIN, "SA", true)
 
       assertThat(appointmentDetails.videoLinkBooking?.pre)
         .extracting("id", "bookingId", "appointmentId", "court", "hearingType", "createdByUsername", "madeByTheCourt")
-        .contains(2L, BOOKING_ID, 2L, "Court 1", HearingType.PRE, "SA", true)
+        .contains(2L, BOOKING_ID, 2L, "Court name", HearingType.PRE, "SA", true)
 
       assertThat(appointmentDetails.videoLinkBooking?.post)
         .extracting("id", "bookingId", "appointmentId", "court", "hearingType", "createdByUsername", "madeByTheCourt")
-        .contains(3L, BOOKING_ID, 3L, "Court 1", HearingType.POST, "SA", true)
+        .contains(3L, BOOKING_ID, 3L, "Court name", HearingType.POST, "SA", true)
     }
 
     @Test
