@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.repository
 
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -27,4 +28,8 @@ interface VideoLinkBookingRepository : JpaRepository<VideoLinkBooking, Long> {
     @Param("courtName") courtName: String? = null,
     @Param("courtId") courtId: String? = null
   ): List<VideoLinkBooking>
+
+  fun countByPrisonIdisNull(): Long
+
+  fun findByPrisonIdisNull(pageable: Pageable): List<VideoLinkBooking>
 }

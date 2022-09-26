@@ -25,9 +25,9 @@ class VideoLinkAppointment(
   val videoLinkBooking: VideoLinkBooking,
 
   val appointmentId: Long,
-  val locationId: Long? = null,
-  val startDateTime: LocalDateTime? = null,
-  val endDateTime: LocalDateTime? = null,
+  var locationId: Long? = null,
+  var startDateTime: LocalDateTime? = null,
+  var endDateTime: LocalDateTime? = null,
 
   @Enumerated(EnumType.STRING)
   val hearingType: HearingType
