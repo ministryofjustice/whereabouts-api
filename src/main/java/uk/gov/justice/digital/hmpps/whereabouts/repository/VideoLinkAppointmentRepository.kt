@@ -8,5 +8,5 @@ interface VideoLinkAppointmentRepository : CrudRepository<VideoLinkAppointment, 
 
   fun findVideoLinkAppointmentByAppointmentIdIn(appointmentIds: Set<Long>): Set<VideoLinkAppointment>
 
-  fun countByLocationIdisNull(): Long
+  fun countByLocationIdIsNull(): Long
 }

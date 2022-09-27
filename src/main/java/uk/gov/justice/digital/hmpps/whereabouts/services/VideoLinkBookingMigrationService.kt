@@ -22,7 +22,7 @@ class VideoLinkBookingMigrationService(
     videoLinkBookingRepository.findByPrisonIdIsNull(PageRequest.of(0, batchSize)).stream().forEach { v -> updateVideoLink(v) }
 
     return VideoLinkAppointmentMigrationResponse(
-      videoLinkAppointmentRepository.countByLocationIdisNull(),
+      videoLinkAppointmentRepository.countByLocationIdIsNull(),
       videoLinkBookingRepository.countByPrisonIdIsNull(),
     )
   }
