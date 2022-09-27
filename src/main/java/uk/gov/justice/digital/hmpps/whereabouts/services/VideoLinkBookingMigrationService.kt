@@ -19,11 +19,11 @@ class VideoLinkBookingMigrationService(
 ) {
   fun migrateFromNomis(batchSize: Int): VideoLinkAppointmentMigrationResponse {
 
-    videoLinkBookingRepository.findByPrisonIdisNull(PageRequest.of(0, batchSize)).stream().forEach { v -> updateVideoLink(v) }
+    videoLinkBookingRepository.findByPrisonIdIsNull(PageRequest.of(0, batchSize)).stream().forEach { v -> updateVideoLink(v) }
 
     return VideoLinkAppointmentMigrationResponse(
       videoLinkAppointmentRepository.countByLocationIdisNull(),
-      videoLinkBookingRepository.countByPrisonIdisNull(),
+      videoLinkBookingRepository.countByPrisonIdIsNull(),
     )
   }
 

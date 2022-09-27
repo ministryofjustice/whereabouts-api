@@ -29,7 +29,7 @@ interface VideoLinkBookingRepository : JpaRepository<VideoLinkBooking, Long> {
     @Param("courtId") courtId: String? = null
   ): List<VideoLinkBooking>
 
-  fun countByPrisonIdisNull(): Long
+  fun countByPrisonIdIsNull(): Long
 
-  fun findByPrisonIdisNull(pageable: Pageable): List<VideoLinkBooking>
+  fun findByPrisonIdIsNull(pageable: Pageable): List<VideoLinkBooking>
 }
