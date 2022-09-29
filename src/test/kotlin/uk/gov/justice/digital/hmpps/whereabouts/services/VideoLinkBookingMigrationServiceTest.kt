@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
@@ -37,7 +36,6 @@ class VideoLinkBookingMigrationServiceTest {
     videoLinkBooking.addPreAppointment(1L, 123L, START_DATETIME, END_DATETIME, 1L)
 
     service.updateVideoLink(videoLinkBooking)
-    verify(videoLinkAppointmentRepository).deleteAll(videoLinkBooking.appointments.values)
     verify(videoLinkBookingRepository).delete(videoLinkBooking)
   }
 
@@ -50,11 +48,6 @@ class VideoLinkBookingMigrationServiceTest {
     whenever(prisonApiService.getPrisonAppointment(any())).thenReturn(null)
 
     service.updateVideoLink(videoLinkBooking)
-
-    videoLinkBooking.appointments.get(HearingType.MAIN)?.let {
-      verify(videoLinkAppointmentRepository).delete(it)
-    }
-    verify(videoLinkAppointmentRepository).deleteAll(videoLinkBooking.appointments.values)
     verify(videoLinkBookingRepository).delete(videoLinkBooking)
   }
 
@@ -79,8 +72,8 @@ class VideoLinkBookingMigrationServiceTest {
 
     service.updateVideoLink(videoLinkBooking)
 
-    verify(videoLinkAppointmentRepository).delete(videoLinkBooking.appointments.get(HearingType.PRE))
     verify(videoLinkBookingRepository).save(videoLinkBooking)
+    assertThat(videoLinkBooking.appointments.get(HearingType.PRE)).isNull()
     assertThat(videoLinkBooking.prisonId).isEqualTo("MDI")
     assertThat(videoLinkBooking.comment).isEqualTo("comment")
   }
@@ -116,9 +109,11 @@ class VideoLinkBookingMigrationServiceTest {
     service.updateVideoLink(videoLinkBooking)
 
     verify(videoLinkBookingRepository).save(videoLinkBooking)
-    verify(videoLinkAppointmentRepository, times(2)).save(any())
     assertThat(videoLinkBooking.prisonId).isEqualTo("MDI")
     assertThat(videoLinkBooking.comment).isEqualTo("comment")
+    assertThat(videoLinkBooking.appointments.get(HearingType.MAIN)?.startDateTime).isEqualTo(START_DATETIME)
+    assertThat(videoLinkBooking.appointments.get(HearingType.POST)?.startDateTime).isEqualTo(START_DATETIME)
+    assertThat(videoLinkBooking.appointments.get(HearingType.PRE)).isNull()
   }
 
   companion object {

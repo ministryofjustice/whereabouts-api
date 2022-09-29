@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.controllers.VideoLinkAppointmentMigrationResponse
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
@@ -11,6 +12,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentR
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 
 @Service
+@Transactional
 class VideoLinkBookingMigrationService(
 
   val videoLinkBookingRepository: VideoLinkBookingRepository,
@@ -19,7 +21,8 @@ class VideoLinkBookingMigrationService(
 ) {
   fun migrateFromNomis(batchSize: Int): VideoLinkAppointmentMigrationResponse {
 
-    videoLinkBookingRepository.findByPrisonIdIsNull(PageRequest.of(0, batchSize)).stream().forEach { v -> updateVideoLink(v) }
+    videoLinkBookingRepository.findByPrisonIdIsNull(PageRequest.of(0, batchSize)).stream()
+      .forEach { v -> updateVideoLink(v) }
 
     return VideoLinkAppointmentMigrationResponse(
       videoLinkAppointmentRepository.countByLocationIdIsNull(),
@@ -28,23 +31,27 @@ class VideoLinkBookingMigrationService(
   }
 
   fun updateVideoLink(videoLinkBooking: VideoLinkBooking) {
-    val mainAppointment = videoLinkBooking.appointments.get(HearingType.MAIN)
-    val perAppointment = videoLinkBooking.appointments.get(HearingType.PRE)
-    val postAppointment = videoLinkBooking.appointments.get(HearingType.POST)
+    val mainAppointment = videoLinkBooking.appointments[HearingType.MAIN]
+    val preAppointment = videoLinkBooking.appointments[HearingType.PRE]
+    val postAppointment = videoLinkBooking.appointments[HearingType.POST]
+
     if (mainAppointment == null) {
-      videoLinkAppointmentRepository.deleteAll(videoLinkBooking.appointments.values)
       videoLinkBookingRepository.delete(videoLinkBooking)
     } else {
       val nomisMainAppointment = updateAppointment(mainAppointment)
       if (nomisMainAppointment == null) {
-        videoLinkAppointmentRepository.deleteAll(videoLinkBooking.appointments.values)
         videoLinkBookingRepository.delete(videoLinkBooking)
       } else {
         videoLinkBooking.prisonId = nomisMainAppointment.agencyId
         videoLinkBooking.comment = nomisMainAppointment.comment
+
+        if (preAppointment?.let { updateAppointment(it) } == null) {
+          videoLinkBooking.appointments.remove(HearingType.PRE)
+        }
+        if (postAppointment?.let { updateAppointment(it) } == null) {
+          videoLinkBooking.appointments.remove(HearingType.POST)
+        }
         videoLinkBookingRepository.save(videoLinkBooking)
-        perAppointment?.let { updateAppointment(it) }
-        postAppointment?.let { updateAppointment(it) }
       }
     }
   }
@@ -52,13 +59,11 @@ class VideoLinkBookingMigrationService(
   private fun updateAppointment(appointment: VideoLinkAppointment): PrisonAppointment? {
     val nomisAppointment = prisonApiService.getPrisonAppointment(appointment.appointmentId)
     if (nomisAppointment == null) {
-      videoLinkAppointmentRepository.delete(appointment)
       return null
     } else {
       appointment.startDateTime = nomisAppointment.startTime
       appointment.endDateTime = nomisAppointment.endTime
       appointment.locationId = nomisAppointment.eventLocationId
-      videoLinkAppointmentRepository.save(appointment)
       return nomisAppointment
     }
   }

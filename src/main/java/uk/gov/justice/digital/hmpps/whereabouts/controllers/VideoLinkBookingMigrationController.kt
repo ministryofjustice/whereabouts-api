@@ -21,7 +21,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.VideoLinkBookingMigrati
 @RestController
 @RequestMapping(value = ["court"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class VideoLinkBookingMigrationController(
-  private val existingBookingService: VideoLinkBookingMigrationService
+  private val videoLinkBookingMigrationService: VideoLinkBookingMigrationService
 ) {
 
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/migrate-existing-bookings/{batchSize}"])
@@ -62,5 +62,5 @@ class VideoLinkBookingMigrationController(
     @Parameter(description = "Batch Size", required = true)
     @PathVariable("batchSize")
     batchSize: Int
-  ): VideoLinkAppointmentMigrationResponse = existingBookingService.migrateFromNomis(batchSize)
+  ): VideoLinkAppointmentMigrationResponse = videoLinkBookingMigrationService.migrateFromNomis(batchSize)
 }
