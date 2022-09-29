@@ -111,6 +111,7 @@ class VideoLinkBookingMigrationIntegrationTest : IntegrationTest() {
   }
 
   fun deleteAll() {
+    JdbcTestUtils.deleteFromTables(jdbcTemplate, "video_link_appointment")
     JdbcTestUtils.deleteFromTables(jdbcTemplate, "video_link_booking")
   }
 
@@ -139,8 +140,7 @@ VALUES (3, 438577490, 'POST',1, null, null, null);"""
   }
 
   companion object {
-    val startTime = LocalDateTime.now()
-
+    val startTime: LocalDateTime = LocalDateTime.now()
     const val baseUrl = "/court/migrate-existing-bookings"
   }
 }
