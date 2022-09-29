@@ -111,8 +111,8 @@ class VideoLinkBookingMigrationServiceTest {
     verify(videoLinkBookingRepository).save(videoLinkBooking)
     assertThat(videoLinkBooking.prisonId).isEqualTo("MDI")
     assertThat(videoLinkBooking.comment).isEqualTo("comment")
-    assertThat(videoLinkBooking.appointments.get(HearingType.MAIN)?.startDateTime).isEqualTo(START_DATETIME)
-    assertThat(videoLinkBooking.appointments.get(HearingType.POST)?.startDateTime).isEqualTo(START_DATETIME)
+    assertThat(videoLinkBooking.appointments.get(HearingType.MAIN)?.startDateTime).isEqualToIgnoringSeconds(START_DATETIME)
+    assertThat(videoLinkBooking.appointments.get(HearingType.POST)?.startDateTime).isEqualToIgnoringSeconds(START_DATETIME)
     assertThat(videoLinkBooking.appointments.get(HearingType.PRE)).isNull()
   }
 

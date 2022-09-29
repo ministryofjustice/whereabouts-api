@@ -52,7 +52,7 @@ class VideoLinkBookingMigrationIntegrationTest : IntegrationTest() {
     val vlb = videoLinkBookingRepository.findById(1)
     assertThat(vlb.get().prisonId).isEqualTo("MDI")
     assertThat(vlb.get().comment).isEqualTo("test")
-    assertThat(vlb.get().appointments.get(HearingType.MAIN)?.startDateTime).isEqualTo(startTime)
+    assertThat(vlb.get().appointments.get(HearingType.MAIN)?.startDateTime).isEqualToIgnoringSeconds(startTime)
     assertThat(vlb.get().appointments.get(HearingType.PRE)).isEqualTo(null)
     assertThat(vlb.get().appointments.get(HearingType.POST)).isEqualTo(null)
   }
@@ -84,8 +84,8 @@ class VideoLinkBookingMigrationIntegrationTest : IntegrationTest() {
     val vlb = videoLinkBookingRepository.findById(1)
     assertThat(vlb.get().prisonId).isEqualTo("MDI")
     assertThat(vlb.get().comment).isEqualTo("test")
-    assertThat(vlb.get().appointments.get(HearingType.MAIN)?.startDateTime).isEqualTo(startTime)
-    assertThat(vlb.get().appointments.get(HearingType.PRE)?.startDateTime).isEqualTo(startTime)
+    assertThat(vlb.get().appointments.get(HearingType.MAIN)?.startDateTime).isEqualToIgnoringSeconds(startTime)
+    assertThat(vlb.get().appointments.get(HearingType.PRE)?.startDateTime).isEqualToIgnoringSeconds(startTime)
     assertThat(vlb.get().appointments.get(HearingType.POST)).isEqualTo(null)
   }
 
