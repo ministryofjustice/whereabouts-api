@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -31,12 +32,12 @@ class VideoLinkBookingMigrationServiceTest {
   }
 
   @Test
-  fun `delete video link booking when no main appointment attached`() {
+  fun `throw an exception when video link booking has no main appointment attached`() {
     val videoLinkBooking = VideoLinkBooking(1L, 123L, "York", "EYI")
     videoLinkBooking.addPreAppointment(1L, 123L, START_DATETIME, END_DATETIME, 1L)
-
-    service.updateVideoLink(videoLinkBooking)
-    verify(videoLinkBookingRepository).delete(videoLinkBooking)
+    assertThrows(NullPointerException::class.java) {
+      service.updateVideoLink(videoLinkBooking)
+    }
   }
 
   @Test
@@ -77,6 +78,7 @@ class VideoLinkBookingMigrationServiceTest {
     assertThat(videoLinkBooking.prisonId).isEqualTo("MDI")
     assertThat(videoLinkBooking.comment).isEqualTo("comment")
   }
+
   @Test
   fun `update video link booking with main appointment and post appointment when both appointments exists in nomis`() {
     val videoLinkBooking = VideoLinkBooking(1L, 123L, "York", "EYI")
@@ -111,8 +113,12 @@ class VideoLinkBookingMigrationServiceTest {
     verify(videoLinkBookingRepository).save(videoLinkBooking)
     assertThat(videoLinkBooking.prisonId).isEqualTo("MDI")
     assertThat(videoLinkBooking.comment).isEqualTo("comment")
-    assertThat(videoLinkBooking.appointments.get(HearingType.MAIN)?.startDateTime).isEqualToIgnoringSeconds(START_DATETIME)
-    assertThat(videoLinkBooking.appointments.get(HearingType.POST)?.startDateTime).isEqualToIgnoringSeconds(START_DATETIME)
+    assertThat(videoLinkBooking.appointments.get(HearingType.MAIN)?.startDateTime).isEqualToIgnoringSeconds(
+      START_DATETIME
+    )
+    assertThat(videoLinkBooking.appointments.get(HearingType.POST)?.startDateTime).isEqualToIgnoringSeconds(
+      START_DATETIME
+    )
     assertThat(videoLinkBooking.appointments.get(HearingType.PRE)).isNull()
   }
 
