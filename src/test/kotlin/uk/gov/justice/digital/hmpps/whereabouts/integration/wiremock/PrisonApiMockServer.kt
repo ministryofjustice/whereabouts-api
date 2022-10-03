@@ -581,6 +581,16 @@ class PrisonApiMockServer : WireMockServer(8999) {
         )
     )
   }
+  fun stubGetPrisonAppointment404(appointmentId: Long) {
+    stubFor(
+      get(urlPathEqualTo("/api/appointments/$appointmentId"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(404)
+        )
+    )
+  }
 
   fun stubGetLocation(locationId: Long, locationType: String = "VIDE") {
     stubFor(
