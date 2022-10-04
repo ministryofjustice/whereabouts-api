@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDateTime
 
 class EventListenerTestData private constructor() {
@@ -11,16 +11,35 @@ class EventListenerTestData private constructor() {
   companion object {
     val startTime: LocalDateTime = LocalDateTime.of(2020, 10, 9, 10, 30)
 
-    val booking = VideoLinkBooking(
-      id = 11,
+    val booking = DataHelpers.makeVideoLinkBooking(
+      id = 11L,
       offenderBookingId = -1L,
       courtName = "York Crown Court",
       courtId = "TSTCRT",
-      madeByTheCourt = true
+      madeByTheCourt = true,
+      prisonId = "WWI"
     ).apply {
-      addPreAppointment(appointmentId = 12L, id = 120L)
-      addMainAppointment(appointmentId = 13L, id = 130L)
-      addPostAppointment(appointmentId = 14L, id = 140L)
+      addPreAppointment(
+        appointmentId = 12L,
+        id = 120L,
+        locationId = 20L,
+        startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+        endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+      )
+      addMainAppointment(
+        appointmentId = 13L,
+        id = 130L,
+        locationId = 20L,
+        startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+        endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+      )
+      addPostAppointment(
+        appointmentId = 14L,
+        id = 140L,
+        locationId = 20L,
+        startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+        endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+      )
     }
 
     val createSpecification = VideoLinkBookingSpecification(

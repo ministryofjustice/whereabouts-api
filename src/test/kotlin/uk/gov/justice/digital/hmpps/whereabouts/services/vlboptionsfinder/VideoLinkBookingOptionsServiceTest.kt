@@ -6,9 +6,9 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -196,7 +196,6 @@ class VideoLinkBookingOptionsServiceTest {
 
   companion object {
     const val DONT_CARE = "Don't care"
-
     const val excludedVideoLinkBookingId = 100L
     const val excludedMainAppointmentId = 1L
     const val excludedPreAppointmentId = 2L
@@ -212,6 +211,8 @@ class VideoLinkBookingOptionsServiceTest {
     val dontCareDateTime: LocalDateTime = SEARCH_DATE.atTime(dontCareTime)
 
     const val AGENCY_ID = "WWI"
+    val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
+    val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
     const val dontCareOffenderNo = "C3456CC"
     val dontCareInterval = Interval(dontCareTime, dontCareTime)
 
@@ -246,24 +247,26 @@ class VideoLinkBookingOptionsServiceTest {
     val appt_location2_excl_pre = appt1_location2
     val appt_location3_excl_post = appt1_location3
 
-    val excludedVideoLinkBookingMainOnly = VideoLinkBooking(
+    val excludedVideoLinkBookingMainOnly = DataHelpers.makeVideoLinkBooking(
       id = excludedVideoLinkBookingId,
       offenderBookingId = 999L,
       courtName = DONT_CARE,
       courtId = DONT_CARE,
+      prisonId = AGENCY_ID
     ).apply {
-      addMainAppointment(excludedMainAppointmentId, 9999L)
+      addMainAppointment(excludedMainAppointmentId, 20L, startDateTime, endDateTime, 9999L)
     }
 
-    val excludedVideoLinkBooking = VideoLinkBooking(
+    val excludedVideoLinkBooking = DataHelpers.makeVideoLinkBooking(
       id = excludedVideoLinkBookingId,
       offenderBookingId = 999L,
       courtName = DONT_CARE,
       courtId = DONT_CARE,
+      prisonId = AGENCY_ID
     ).apply {
-      addMainAppointment(excludedMainAppointmentId, 9999L)
-      addPreAppointment(excludedPreAppointmentId, 9998L)
-      addPostAppointment(excludedPostAppointmentId, 9997L)
+      addMainAppointment(excludedMainAppointmentId, 20L, startDateTime, endDateTime, 9999L)
+      addPreAppointment(excludedPreAppointmentId, 20L, startDateTime, endDateTime, 9998L)
+      addPostAppointment(excludedPostAppointmentId, 20L, startDateTime, endDateTime, 9997L)
     }
 
     fun appointmentDto(locationId: Long, id: Long, appointmentTypeCode: String = "VLB"): ScheduledAppointmentSearchDto =

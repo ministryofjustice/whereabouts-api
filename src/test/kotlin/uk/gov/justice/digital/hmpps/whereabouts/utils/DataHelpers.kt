@@ -13,11 +13,45 @@ class DataHelpers {
 
   companion object {
 
-    fun makeVideoLinkBooking(id: Long): VideoLinkBooking =
-      VideoLinkBooking(id = id, offenderBookingId = -1L, courtName = "Court 1",).apply {
-        addMainAppointment(id = 1L, appointmentId = 1L)
-        addPreAppointment(id = 2L, appointmentId = 2L)
-        addPostAppointment(id = 3L, appointmentId = 3L)
+    fun makeVideoLinkBooking(
+      id: Long? = null,
+      offenderBookingId: Long = 2L,
+      madeByTheCourt: Boolean? = true,
+      courtName: String? = "Court name",
+      courtId: String? = "TSTCRT",
+      prisonId: String? = "WWI",
+      comment: String? = ""
+    ): VideoLinkBooking =
+      VideoLinkBooking(
+        id = id,
+        offenderBookingId = offenderBookingId,
+        courtName = courtName,
+        prisonId = prisonId,
+        courtId = courtId,
+        madeByTheCourt = madeByTheCourt,
+        comment = comment
+      ).apply {
+        addMainAppointment(
+          id = 1L,
+          appointmentId = 1L,
+          locationId = 10L,
+          startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+          endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+        )
+        addPreAppointment(
+          id = 2L,
+          appointmentId = 2L,
+          locationId = 20L,
+          startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+          endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+        )
+        addPostAppointment(
+          id = 3L,
+          appointmentId = 3L,
+          locationId = 30L,
+          startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+          endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+        )
         createdByUsername = "SA"
       }
 

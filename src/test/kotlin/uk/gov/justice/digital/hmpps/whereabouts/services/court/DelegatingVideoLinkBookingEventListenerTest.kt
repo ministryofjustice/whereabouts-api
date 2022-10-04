@@ -13,6 +13,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecif
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDateTime
 
 class DelegatingVideoLinkBookingEventListenerTest {
@@ -44,14 +45,18 @@ class DelegatingVideoLinkBookingEventListenerTest {
     id = 1,
     appointmentId = 2,
     hearingType = HearingType.MAIN,
-    videoLinkBooking = VideoLinkBooking(offenderBookingId = 1)
+    locationId = 20L,
+    videoLinkBooking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI"),
+    startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+    endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
   )
 
-  val booking = VideoLinkBooking(
-    id = 123,
-    offenderBookingId = 12345,
+  val booking = DataHelpers.makeVideoLinkBooking(
+    id = 123L,
+    offenderBookingId = 12345L,
     courtId = "EYI",
     madeByTheCourt = true,
+    prisonId = "WWI"
   ).also {
     it.createdByUsername = "Smith"
     it.appointments.put(HearingType.MAIN, appointment)
@@ -60,10 +65,10 @@ class DelegatingVideoLinkBookingEventListenerTest {
   @Test
   fun `Should call eventStore with correct args for Updates`() {
     whenever(courtService.chooseCourtName(booking)).thenReturn("Elmley")
-    listener.bookingUpdated(booking, specification, "WWI")
+    listener.bookingUpdated(booking, specification)
 
     argumentCaptor<VideoLinkBooking>().apply {
-      verify(eventStoreListener).bookingUpdated(capture(), eq(specification), eq("WWI"))
+      verify(eventStoreListener).bookingUpdated(capture(), eq(specification))
       assertThat(firstValue.courtName).isEqualTo("Elmley")
       assertThat(firstValue.createdByUsername).isEqualTo(booking.createdByUsername)
       assertThat(firstValue.appointments).isEqualTo(booking.appointments)

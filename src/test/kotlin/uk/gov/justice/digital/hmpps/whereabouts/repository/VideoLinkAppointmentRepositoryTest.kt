@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import java.time.LocalDateTime
 
 @ActiveProfiles("test")
 @Import(AuditConfiguration::class)
@@ -33,10 +34,12 @@ class VideoLinkAppointmentRepositoryTest {
     whenever(authenticationFacade.currentUsername).thenReturn("username1")
 
     val preAppointments = videoLinkAppointmentRepository.findAll()
-
+    val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
+    val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+    val prisonId = "WWI"
     videoLinkBookingRepository.save(
-      VideoLinkBooking(offenderBookingId = 2, courtName = "York").apply {
-        addMainAppointment(appointmentId = 1)
+      VideoLinkBooking(offenderBookingId = 2, courtName = "York", prisonId = prisonId).apply {
+        addMainAppointment(1, 20L, startDateTime, endDateTime)
       }
     )
 
@@ -45,9 +48,10 @@ class VideoLinkAppointmentRepositoryTest {
         offenderBookingId = 4,
         courtName = null,
         courtId = "TSTCRT",
-        madeByTheCourt = false
+        madeByTheCourt = false,
+        prisonId = prisonId
       ).apply {
-        addMainAppointment(appointmentId = 3)
+        addMainAppointment(3, 20L, startDateTime, endDateTime)
         createdByUsername = "username2"
       }
     )
