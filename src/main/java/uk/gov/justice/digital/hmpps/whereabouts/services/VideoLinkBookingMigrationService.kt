@@ -35,24 +35,20 @@ class VideoLinkBookingMigrationService(
     val preAppointment = videoLinkBooking.appointments[HearingType.PRE]
     val postAppointment = videoLinkBooking.appointments[HearingType.POST]
 
-    if (mainAppointment == null) {
+    val nomisMainAppointment = updateAppointment(mainAppointment!!)
+    if (nomisMainAppointment == null) {
       videoLinkBookingRepository.delete(videoLinkBooking)
     } else {
-      val nomisMainAppointment = updateAppointment(mainAppointment)
-      if (nomisMainAppointment == null) {
-        videoLinkBookingRepository.delete(videoLinkBooking)
-      } else {
-        videoLinkBooking.prisonId = nomisMainAppointment.agencyId
-        videoLinkBooking.comment = nomisMainAppointment.comment
+      videoLinkBooking.prisonId = nomisMainAppointment.agencyId
+      videoLinkBooking.comment = nomisMainAppointment.comment
 
-        if (preAppointment?.let { updateAppointment(it) } == null) {
-          videoLinkBooking.appointments.remove(HearingType.PRE)
-        }
-        if (postAppointment?.let { updateAppointment(it) } == null) {
-          videoLinkBooking.appointments.remove(HearingType.POST)
-        }
-        videoLinkBookingRepository.save(videoLinkBooking)
+      if (preAppointment?.let { updateAppointment(it) } == null) {
+        videoLinkBooking.appointments.remove(HearingType.PRE)
       }
+      if (postAppointment?.let { updateAppointment(it) } == null) {
+        videoLinkBooking.appointments.remove(HearingType.POST)
+      }
+      videoLinkBookingRepository.save(videoLinkBooking)
     }
   }
 
