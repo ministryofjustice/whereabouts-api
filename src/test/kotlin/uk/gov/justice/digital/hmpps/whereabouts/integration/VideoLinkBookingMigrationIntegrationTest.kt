@@ -48,6 +48,8 @@ class VideoLinkBookingMigrationIntegrationTest : IntegrationTest() {
       .expectBody()
       .jsonPath("videoLinkAppointmentRemaining").isEqualTo(0)
       .jsonPath("videoLinkBookingRemaining").isEqualTo(0)
+      .jsonPath("outcomes.PRE_DELETED").isEqualTo(1)
+      .jsonPath("outcomes.POST_DELETED").isEqualTo(1)
 
     val vlb = videoLinkBookingRepository.findById(1)
     assertThat(vlb.get().prisonId).isEqualTo("MDI")
@@ -80,6 +82,7 @@ class VideoLinkBookingMigrationIntegrationTest : IntegrationTest() {
       .expectBody()
       .jsonPath("videoLinkAppointmentRemaining").isEqualTo(0)
       .jsonPath("videoLinkBookingRemaining").isEqualTo(0)
+      .jsonPath("outcomes.POST_DELETED").isEqualTo(1)
 
     val vlb = videoLinkBookingRepository.findById(1)
     assertThat(vlb.get().prisonId).isEqualTo("MDI")
@@ -105,9 +108,45 @@ class VideoLinkBookingMigrationIntegrationTest : IntegrationTest() {
       .expectBody()
       .jsonPath("videoLinkAppointmentRemaining").isEqualTo(0)
       .jsonPath("videoLinkBookingRemaining").isEqualTo(0)
+      .jsonPath("outcomes.BOOKING_DELETED").isEqualTo(1)
 
     val vlb = videoLinkBookingRepository.findById(1)
     assertThat(vlb).isEmpty
+  }
+
+  @Test
+  fun `no deletion when all appointments exist`() {
+
+    prisonApiMockServer.stubGetPrisonAppointment(
+      438577488,
+      objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = 1, startTime = startTime))
+    )
+    prisonApiMockServer.stubGetPrisonAppointment(
+      438577489,
+      objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = 1, startTime = startTime))
+    )
+    prisonApiMockServer.stubGetPrisonAppointment(
+      438577490,
+      objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = 1, startTime = startTime))
+    )
+
+    val uri = "$baseUrl/1"
+    webTestClient.get()
+      .uri(uri)
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("videoLinkAppointmentRemaining").isEqualTo(0)
+      .jsonPath("videoLinkBookingRemaining").isEqualTo(0)
+      .jsonPath("outcomes.MIGRATED_NO_MODIFICATIONS").isEqualTo(1)
+
+    val vlb = videoLinkBookingRepository.findById(1)
+    assertThat(vlb.get().prisonId).isEqualTo("MDI")
+    assertThat(vlb.get().comment).isEqualTo("test")
+    assertThat(vlb.get().appointments.get(HearingType.MAIN)?.startDateTime).isEqualToIgnoringSeconds(startTime)
+    assertThat(vlb.get().appointments.get(HearingType.PRE)?.startDateTime).isEqualToIgnoringSeconds(startTime)
+    assertThat(vlb.get().appointments.get(HearingType.POST)?.startDateTime).isEqualToIgnoringSeconds(startTime)
   }
 
   fun deleteAll() {
