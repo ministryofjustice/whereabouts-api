@@ -22,14 +22,14 @@ class EventListenerTest {
   }
 
   @Test
-  fun `delete appointment when delete flat is true`() {
+  fun `delete appointment when delete flag is true`() {
     val eventListener = EventListener(attendanceService, videoLinkBookingService, Gson())
     eventListener.handleEvents(getJson("/services/appointment-deleted-request.json"))
     verify(videoLinkBookingService).deleteAppointments(484209875)
   }
 
   @Test
-  fun `skip sqs message when delete flat is false`() {
+  fun `skip sqs message when delete flag is false`() {
     val eventListener = EventListener(attendanceService, videoLinkBookingService, Gson())
     eventListener.handleEvents(getJson("/services/appointment-changed-request.json"))
     verify(videoLinkBookingService, times(0)).deleteAppointments(any())
