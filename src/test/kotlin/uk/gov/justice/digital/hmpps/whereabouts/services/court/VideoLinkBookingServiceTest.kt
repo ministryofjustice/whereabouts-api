@@ -15,6 +15,7 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.isA
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
@@ -39,6 +40,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepos
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -1047,6 +1049,40 @@ class VideoLinkBookingServiceTest {
         "The court",
         null
       )
+    }
+    @Test
+    fun `Do not delete appointment when appointment not exist`() {
+      whenever(videoLinkAppointmentRepository.findAllByAppointmentId(any())).thenReturn(emptySet())
+      service.deleteAppointments(123)
+      verify(videoLinkBookingRepository, times(0)).delete(any())
+      verify(videoLinkAppointmentRepository, times(0)).delete(any())
+    }
+
+    @Test
+    fun `Delete single appointment when appointment is not MAIN`() {
+      val booking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI")
+
+      whenever(videoLinkAppointmentRepository.findAllByAppointmentId(any())).thenReturn(
+        setOf(
+          booking.appointments[HearingType.POST]
+        ) as Set<VideoLinkAppointment>
+      )
+      service.deleteAppointments(2)
+      verify(videoLinkBookingRepository, times(0)).delete(any())
+      verify(videoLinkAppointmentRepository, times(1)).delete(booking.appointments[HearingType.POST])
+    }
+    @Test
+    fun `Delete booking when appointment is MAIN`() {
+      val booking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI")
+
+      whenever(videoLinkAppointmentRepository.findAllByAppointmentId(any())).thenReturn(
+        setOf(
+          booking.appointments[HearingType.MAIN]
+        ) as Set<VideoLinkAppointment>
+      )
+      service.deleteAppointments(1)
+      verify(videoLinkBookingRepository, times(1)).delete(booking)
+      verify(videoLinkAppointmentRepository, times(0)).delete(any())
     }
 
     @Test

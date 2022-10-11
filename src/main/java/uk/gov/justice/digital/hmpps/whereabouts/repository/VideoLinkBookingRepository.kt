@@ -30,6 +30,6 @@ interface VideoLinkBookingRepository : JpaRepository<VideoLinkBooking, Long> {
   ): List<VideoLinkBooking>
 
   fun countByPrisonIdIsNull(): Long
-
+  fun findOneByAppointmentId(id: Long): VideoLinkBooking
   fun findByPrisonIdIsNull(pageable: Pageable): List<VideoLinkBooking>
 }

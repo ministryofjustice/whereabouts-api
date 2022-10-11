@@ -294,4 +294,14 @@ class VideoLinkBookingService(
       prisonApiService.getLocation(it) ?: throw ValidationException("$prefix locationId $it not found in NOMIS.")
     }
   }
+
+  fun deleteAppointments(appointmentId: Long) {
+    var videoLinkAppointments = videoLinkAppointmentRepository.findAllByAppointmentId(appointmentId)
+    videoLinkAppointments.forEach { videoLinkAppointment ->
+      when (videoLinkAppointment.hearingType == MAIN) {
+        true -> videoLinkBookingRepository.delete(videoLinkAppointment.videoLinkBooking)
+        false -> videoLinkAppointmentRepository.delete(videoLinkAppointment)
+      }
+    }
+  }
 }
