@@ -296,7 +296,7 @@ class VideoLinkBookingService(
   }
 
   fun deleteAppointments(appointmentId: Long) {
-    var videoLinkAppointments = videoLinkAppointmentRepository.findAllByAppointmentId(appointmentId)
+    val videoLinkAppointments = videoLinkAppointmentRepository.findAllByAppointmentId(appointmentId)
     videoLinkAppointments.forEach { videoLinkAppointment ->
       when (videoLinkAppointment.hearingType == MAIN) {
         true -> videoLinkBookingRepository.delete(videoLinkAppointment.videoLinkBooking)

@@ -38,7 +38,7 @@ class EventListener(
         )
       }
       "APPOINTMENT_CHANGED" -> {
-        var appointmentChangedEventMessage = gson.fromJson(Message, AppointmentChangedEventMessage::class.java)
+        val appointmentChangedEventMessage = gson.fromJson(Message, AppointmentChangedEventMessage::class.java)
         if (appointmentChangedEventMessage.recordDeleted) {
           videoLinkBookingService.deleteAppointments(appointmentChangedEventMessage.scheduleEventId)
         }
