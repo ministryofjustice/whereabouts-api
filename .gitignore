@@ -29,4 +29,3 @@
 !secrets-example.yaml
 dps-gradle-spring-boot-suppressions.xml
 sonar-project.properties
-.trivyignore
