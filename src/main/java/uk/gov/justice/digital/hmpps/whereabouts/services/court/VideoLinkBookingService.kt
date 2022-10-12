@@ -300,7 +300,7 @@ class VideoLinkBookingService(
 
     when (videoLinkAppointment != null && videoLinkAppointment.hearingType == MAIN) {
       true -> videoLinkBookingRepository.delete(videoLinkAppointment.videoLinkBooking)
-      else -> videoLinkAppointmentRepository.delete(videoLinkAppointment)
+      false -> videoLinkAppointmentRepository.delete(videoLinkAppointment)
     }
   }
 }
