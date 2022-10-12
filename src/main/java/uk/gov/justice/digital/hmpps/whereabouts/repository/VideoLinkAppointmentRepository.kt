@@ -7,6 +7,6 @@ interface VideoLinkAppointmentRepository : CrudRepository<VideoLinkAppointment, 
   override fun findAll(): Set<VideoLinkAppointment>
 
   fun findVideoLinkAppointmentByAppointmentIdIn(appointmentIds: Set<Long>): Set<VideoLinkAppointment>
-  fun findAllByAppointmentId(appointmentId: Long): Set<VideoLinkAppointment>
+  fun findOneByAppointmentId(appointmentId: Long): VideoLinkAppointment
   fun countByLocationIdIsNull(): Long
 }

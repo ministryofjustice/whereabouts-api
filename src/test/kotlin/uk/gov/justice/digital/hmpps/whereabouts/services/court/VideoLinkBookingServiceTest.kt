@@ -1052,7 +1052,7 @@ class VideoLinkBookingServiceTest {
     }
     @Test
     fun `Do not delete appointment when appointment not exist`() {
-      whenever(videoLinkAppointmentRepository.findAllByAppointmentId(any())).thenReturn(emptySet())
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(null)
       service.deleteAppointments(123)
       verify(videoLinkBookingRepository, times(0)).delete(any())
       verify(videoLinkAppointmentRepository, times(0)).delete(any())
@@ -1062,11 +1062,7 @@ class VideoLinkBookingServiceTest {
     fun `Delete single appointment when appointment is not MAIN`() {
       val booking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI")
 
-      whenever(videoLinkAppointmentRepository.findAllByAppointmentId(any())).thenReturn(
-        setOf(
-          booking.appointments[HearingType.POST]
-        ) as Set<VideoLinkAppointment>
-      )
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(booking.appointments[HearingType.POST])
       service.deleteAppointments(2)
       verify(videoLinkBookingRepository, times(0)).delete(any())
       verify(videoLinkAppointmentRepository, times(1)).delete(booking.appointments[HearingType.POST])
@@ -1075,11 +1071,8 @@ class VideoLinkBookingServiceTest {
     fun `Delete booking when appointment is MAIN`() {
       val booking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI")
 
-      whenever(videoLinkAppointmentRepository.findAllByAppointmentId(any())).thenReturn(
-        setOf(
-          booking.appointments[HearingType.MAIN]
-        ) as Set<VideoLinkAppointment>
-      )
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(booking.appointments[HearingType.MAIN])
+
       service.deleteAppointments(1)
       verify(videoLinkBookingRepository, times(1)).delete(booking)
       verify(videoLinkAppointmentRepository, times(0)).delete(any())
