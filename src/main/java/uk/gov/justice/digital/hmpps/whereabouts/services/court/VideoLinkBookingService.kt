@@ -294,4 +294,13 @@ class VideoLinkBookingService(
       prisonApiService.getLocation(it) ?: throw ValidationException("$prefix locationId $it not found in NOMIS.")
     }
   }
+  @Transactional
+  fun deleteAppointments(appointmentId: Long) {
+    val videoLinkAppointment = videoLinkAppointmentRepository.findOneByAppointmentId(appointmentId)
+
+    when (videoLinkAppointment != null && videoLinkAppointment.hearingType == MAIN) {
+      true -> videoLinkBookingRepository.delete(videoLinkAppointment.videoLinkBooking)
+      false -> videoLinkAppointmentRepository.delete(videoLinkAppointment)
+    }
+  }
 }
