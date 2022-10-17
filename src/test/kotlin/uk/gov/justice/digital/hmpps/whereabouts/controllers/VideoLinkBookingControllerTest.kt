@@ -664,6 +664,25 @@ class VideoLinkBookingControllerTest : TestController() {
   }
 
   @Nested
+  inner class SearchBookingsByPrisonsAndDateAndCourt {
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `get bookings for multiple prisons on date`() {
+      mockMvc.perform(
+        post("/court/video-link-bookings/date/2020-12-25")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("""[agencyIds = agencyIds=LII&agencyIds=MDI]""")
+      )
+        .andExpect(
+          matchAll(
+            content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
+            content().json("""{}""")
+          )
+        )
+    }
+  }
+
+  @Nested
   inner class `Get videolink bookings by start date` {
     @Test
     @WithMockUser(username = "ITAG_USER")
