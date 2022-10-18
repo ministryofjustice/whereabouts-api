@@ -11,7 +11,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingS
 
 @Service
 @ConditionalOnProperty("sqs.provider")
-class EventListener(
+class SqsEventListener(
   @Qualifier("attendanceServiceAppScope")
   private val attendanceService: AttendanceService,
   private val videoLinkBookingService: VideoLinkBookingService,
