@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtEmailDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtLocationsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSearchDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.model.Court
@@ -133,6 +134,26 @@ class VideoLinkBookingController(
     courtId: String?
   ): List<VideoLinkBookingResponse> {
     return videoLinkBookingService.getVideoLinkBookingsForPrisonAndDateAndCourt(agencyId, date, court, courtId)
+  }
+
+  @PostMapping(
+    path = ["/video-link-bookings/date/{date}"],
+    produces = [MediaType.APPLICATION_JSON_VALUE]
+  )
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(description = "Return all video link bookings for the specified date and prisons, optionally filtering by court.")
+  fun searchVideoLinkBookingsByPrisonsDateAndCourt(
+    @Parameter(description = "Video link bookings search details parameters", required = true)
+    @RequestBody
+    @Valid
+    searchDetails: VideoLinkBookingSearchDetails,
+
+    @Parameter(description = "Return video link bookings for this date only. ISO-8601 date format")
+    @PathVariable(name = "date")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    date: LocalDate
+  ): List<VideoLinkBookingResponse> {
+    return emptyList()
   }
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings"])
