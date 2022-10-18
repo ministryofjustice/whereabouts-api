@@ -23,6 +23,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsRespons
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSearchDetails
 import uk.gov.justice.digital.hmpps.whereabouts.model.Court
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingEventService
@@ -142,30 +143,15 @@ class VideoLinkBookingController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(description = "Return all video link bookings for the specified date and prisons, optionally filtering by court.")
   fun searchVideoLinkBookingsByPrisonsDateAndCourt(
-    @Parameter(description = "Return video link bookings for these prisons only (agencyIds=1&agencyIds=2)")
-    @RequestParam(name = "agencyIds", required = true)
-    agencyIds: Set<Long>,
+    @Parameter(description = "Video link bookings search details parameters", required = true)
+    @RequestBody
+    @Valid
+    searchDetails: VideoLinkBookingSearchDetails,
 
     @Parameter(description = "Return video link bookings for this date only. ISO-8601 date format")
     @PathVariable(name = "date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    date: LocalDate,
-
-    @Parameter(
-      description = "The name a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned.",
-      required = false,
-      example = "Wimbledon",
-    )
-    @RequestParam(name = "court", required = false)
-    court: String?,
-
-    @Parameter(
-      description = "The identifier of a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned. Takes precedence over court.",
-      required = false,
-      example = "CMBGMC"
-    )
-    @RequestParam(name = "courtId", required = false)
-    courtId: String?
+    date: LocalDate
   ): List<VideoLinkBookingResponse> {
     return emptyList()
   }
