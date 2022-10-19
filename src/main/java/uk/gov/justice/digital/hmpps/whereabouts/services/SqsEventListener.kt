@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingS
 class SqsEventListener(
   @Qualifier("attendanceServiceAppScope")
   private val attendanceService: AttendanceService,
+  @Qualifier("videoLinkBookingServiceAppScope")
   private val videoLinkBookingService: VideoLinkBookingService,
   private val gson: Gson
 ) {
