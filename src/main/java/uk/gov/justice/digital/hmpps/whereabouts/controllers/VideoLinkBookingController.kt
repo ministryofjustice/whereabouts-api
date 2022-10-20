@@ -142,7 +142,7 @@ class VideoLinkBookingController(
   )
   @ResponseStatus(HttpStatus.OK)
   @Operation(description = "Return all video link bookings for the specified date and prisons, optionally filtering by court.")
-  fun searchVideoLinkBookingsByPrisonsDateAndCourt(
+  fun getVideoLinkBookingsBySearchDetails(
     @Parameter(description = "Video link bookings search details parameters", required = true)
     @RequestBody
     @Valid
@@ -153,7 +153,7 @@ class VideoLinkBookingController(
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     date: LocalDate
   ): List<VideoLinkBookingResponse> {
-    return emptyList()
+    return videoLinkBookingService.getVideoLinkBookingsBySearchDetails(searchDetails, date)
   }
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], path = ["/video-link-bookings"])
