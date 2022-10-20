@@ -37,6 +37,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.eqByProps
 import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
@@ -238,7 +239,7 @@ class VideoLinkBookingServiceTest {
         )
       )
 
-      whenever(prisonApiServiceAuditable.postAppointment(anyLong(), any())).thenReturn(
+      whenever(prisonApiServiceAuditable.postAppointment(anyLong(), any(), any())).thenReturn(
         Event(
           mainAppointmentId,
           AGENCY_WANDSWORTH,
@@ -262,7 +263,8 @@ class VideoLinkBookingServiceTest {
           comment = "Comment",
           startTime = "2020-10-09T10:30",
           endTime = "2020-10-09T11:00"
-        )
+        ),
+        EventPropagation.DENY
       )
 
       verify(videoLinkBookingRepository).save(eqByProps(makeBooking(null)))
@@ -516,7 +518,13 @@ class VideoLinkBookingServiceTest {
         endTime = "2020-10-09T11:20"
       )
 
-      whenever(prisonApiServiceAuditable.postAppointment(offenderBookingId, mainCreateAppointment)).thenReturn(
+      whenever(
+        prisonApiServiceAuditable.postAppointment(
+          offenderBookingId,
+          mainCreateAppointment,
+          EventPropagation.DENY
+        )
+      ).thenReturn(
         Event(
           mainAppointmentId,
           AGENCY_WANDSWORTH,
@@ -525,7 +533,12 @@ class VideoLinkBookingServiceTest {
           endDateTime
         )
       )
-      whenever(prisonApiServiceAuditable.postAppointment(offenderBookingId, preCreateAppointment)).thenReturn(
+      whenever(
+        prisonApiServiceAuditable.postAppointment(
+          offenderBookingId, preCreateAppointment,
+          EventPropagation.DENY
+        )
+      ).thenReturn(
         Event(
           preAppointmentId,
           AGENCY_WANDSWORTH,
@@ -534,7 +547,12 @@ class VideoLinkBookingServiceTest {
           endDateTime
         )
       )
-      whenever(prisonApiServiceAuditable.postAppointment(offenderBookingId, postCreateAppointment)).thenReturn(
+      whenever(
+        prisonApiServiceAuditable.postAppointment(
+          offenderBookingId, postCreateAppointment,
+          EventPropagation.DENY
+        )
+      ).thenReturn(
         Event(
           postAppointmentId,
           AGENCY_WANDSWORTH,
@@ -573,9 +591,18 @@ class VideoLinkBookingServiceTest {
 
       assertThat(vlbBookingId).isEqualTo(11)
 
-      verify(prisonApiServiceAuditable).postAppointment(offenderBookingId, mainCreateAppointment)
-      verify(prisonApiServiceAuditable).postAppointment(offenderBookingId, preCreateAppointment)
-      verify(prisonApiServiceAuditable).postAppointment(offenderBookingId, postCreateAppointment)
+      verify(prisonApiServiceAuditable).postAppointment(
+        offenderBookingId, mainCreateAppointment,
+        EventPropagation.DENY
+      )
+      verify(prisonApiServiceAuditable).postAppointment(
+        offenderBookingId, preCreateAppointment,
+        EventPropagation.DENY
+      )
+      verify(prisonApiServiceAuditable).postAppointment(
+        offenderBookingId, postCreateAppointment,
+        EventPropagation.DENY
+      )
 
       verify(videoLinkBookingRepository).save(eqByProps(makeBooking(null)))
     }
@@ -616,7 +643,12 @@ class VideoLinkBookingServiceTest {
       )
 
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(theBooking))
-      whenever(prisonApiServiceAuditable.postAppointment(anyLong(), any())).thenReturn(
+      whenever(
+        prisonApiServiceAuditable.postAppointment(
+          anyLong(), any(),
+          any()
+        )
+      ).thenReturn(
         Event(
           3L,
           "WRI",
@@ -638,7 +670,10 @@ class VideoLinkBookingServiceTest {
 
       service.updateVideoLinkBooking(1L, updateSpecification)
 
-      verify(prisonApiService).deleteAppointment(40L)
+      verify(prisonApiService).deleteAppointment(
+        40L,
+        EventPropagation.DENY
+      )
       verify(prisonApiServiceAuditable).postAppointment(
         30L,
         CreateBookingAppointment(
@@ -647,7 +682,8 @@ class VideoLinkBookingServiceTest {
           startTime = "2020-10-09T10:30",
           endTime = "2020-10-09T11:00",
           comment = "New Comment"
-        )
+        ),
+        EventPropagation.DENY
       )
 
       val expectedAfterUpdate =
@@ -727,7 +763,7 @@ class VideoLinkBookingServiceTest {
       )
 
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(theBooking))
-      whenever(prisonApiServiceAuditable.postAppointment(anyLong(), any())).thenReturn(
+      whenever(prisonApiServiceAuditable.postAppointment(anyLong(), any(), any())).thenReturn(
         Event(
           9999L,
           "WRI",
@@ -760,9 +796,18 @@ class VideoLinkBookingServiceTest {
         )
       )
 
-      verify(prisonApiService).deleteAppointment(40L)
-      verify(prisonApiService).deleteAppointment(41L)
-      verify(prisonApiService).deleteAppointment(42L)
+      verify(prisonApiService).deleteAppointment(
+        40L,
+        EventPropagation.DENY
+      )
+      verify(prisonApiService).deleteAppointment(
+        41L,
+        EventPropagation.DENY
+      )
+      verify(prisonApiService).deleteAppointment(
+        42L,
+        EventPropagation.DENY
+      )
 
       verify(prisonApiServiceAuditable).postAppointment(
         30L,
@@ -772,7 +817,8 @@ class VideoLinkBookingServiceTest {
           startTime = "2020-10-09T10:30",
           endTime = "2020-10-09T11:00",
           comment = "New Comment"
-        )
+        ),
+        EventPropagation.DENY
       )
 
       verify(prisonApiServiceAuditable).postAppointment(
@@ -783,7 +829,8 @@ class VideoLinkBookingServiceTest {
           startTime = "2020-10-09T11:00",
           endTime = "2020-10-09T11:30",
           comment = "New Comment"
-        )
+        ),
+        EventPropagation.DENY
       )
 
       verify(prisonApiServiceAuditable).postAppointment(
@@ -794,7 +841,8 @@ class VideoLinkBookingServiceTest {
           startTime = "2020-10-09T11:30",
           endTime = "2020-10-09T12:00",
           comment = "New Comment"
-        )
+        ),
+        EventPropagation.DENY
       )
 
       assertThat(theBooking)
@@ -880,9 +928,9 @@ class VideoLinkBookingServiceTest {
 
       service.deleteVideoLinkBooking(videoLinkBooking.id!!)
 
-      verify(prisonApiService).deleteAppointment(preAppointmentId)
-      verify(prisonApiService).deleteAppointment(mainAppointmentId)
-      verify(prisonApiService).deleteAppointment(postAppointmentId)
+      verify(prisonApiService).deleteAppointment(preAppointmentId, EventPropagation.DENY)
+      verify(prisonApiService).deleteAppointment(mainAppointmentId, EventPropagation.DENY)
+      verify(prisonApiService).deleteAppointment(postAppointmentId, EventPropagation.DENY)
 
       verify(videoLinkBookingRepository).deleteById(videoLinkBooking.id!!)
       verify(videoLinkBookingEventListener).bookingDeleted(videoLinkBooking)
@@ -1250,7 +1298,7 @@ class VideoLinkBookingServiceTest {
       whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(Optional.of(booking.appointments[HearingType.MAIN]!!))
 
       service.deleteAppointments(1)
-      verify(prisonApiService, times(1)).deleteAppointments(listOf(2L, 3L))
+      verify(prisonApiService, times(1)).deleteAppointments(listOf(2L, 3L), EventPropagation.DENY)
       verify(videoLinkBookingRepository, times(1)).delete(booking)
       verify(videoLinkAppointmentRepository, times(0)).delete(any())
     }
@@ -1317,9 +1365,9 @@ class VideoLinkBookingServiceTest {
 
       service.updateVideoLinkBookingComment(1L, newComment)
 
-      verify(prisonApiService).updateAppointmentComment(10L, newComment)
-      verify(prisonApiService).updateAppointmentComment(11L, newComment)
-      verify(prisonApiService).updateAppointmentComment(12L, newComment)
+      verify(prisonApiService).updateAppointmentComment(10L, newComment, EventPropagation.DENY)
+      verify(prisonApiService).updateAppointmentComment(11L, newComment, EventPropagation.DENY)
+      verify(prisonApiService).updateAppointmentComment(12L, newComment, EventPropagation.DENY)
       verifyNoMoreInteractions(prisonApiService)
     }
 
@@ -1345,7 +1393,7 @@ class VideoLinkBookingServiceTest {
 
       service.updateVideoLinkBookingComment(1L, newComment)
 
-      verify(prisonApiService).updateAppointmentComment(11L, newComment)
+      verify(prisonApiService).updateAppointmentComment(11L, newComment, EventPropagation.DENY)
       verifyNoMoreInteractions(prisonApiService)
     }
   }
