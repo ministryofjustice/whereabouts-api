@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
@@ -158,7 +159,8 @@ class VideoLinkBookingService(
       startTime = appointmentSpec.startTime.toString(),
       endTime = appointmentSpec.endTime.toString(),
       comment = comment
-    )
+    ),
+    EventPropagation.DENY
   )
 
   @Transactional(readOnly = true)
@@ -199,14 +201,14 @@ class VideoLinkBookingService(
       EntityNotFoundException("Video link booking with id $videoBookingId not found")
     }
 
-    booking.appointments.values.forEach { prisonApiService.deleteAppointment(it.appointmentId) }
+    booking.appointments.values.forEach { prisonApiService.deleteAppointment(it.appointmentId, EventPropagation.DENY) }
     videoLinkBookingRepository.deleteById(booking.id!!)
     videoLinkBookingEventListener.bookingDeleted(booking)
     return booking
   }
 
   private fun deletePrisonAppointmentsForBooking(booking: VideoLinkBooking) {
-    booking.appointments.values.forEach { prisonApiService.deleteAppointment(it.appointmentId) }
+    booking.appointments.values.forEach { prisonApiService.deleteAppointment(it.appointmentId, EventPropagation.DENY) }
   }
 
   @Transactional(readOnly = true)
@@ -252,7 +254,13 @@ class VideoLinkBookingService(
     val booking = videoLinkBookingRepository.findById(videoLinkBookingId).orElseThrow {
       EntityNotFoundException("Video link booking with id $videoLinkBookingId not found")
     }
-    booking.appointments.values.forEach { prisonApiService.updateAppointmentComment(it.appointmentId, comment) }
+    booking.appointments.values.forEach {
+      prisonApiService.updateAppointmentComment(
+        it.appointmentId,
+        comment,
+        EventPropagation.DENY
+      )
+    }
   }
 
   private fun toVideoLinkAppointmentDto(scheduledAppointment: ScheduledAppointmentDto?) =
@@ -305,7 +313,7 @@ class VideoLinkBookingService(
         .filter { it.value.appointmentId != appointmentId }
         .map { it.value.appointmentId }
       if (appointmentsToDelete.isNotEmpty()) {
-        prisonApiService.deleteAppointments(appointmentsToDelete)
+        prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
       }
     } else if (videoLinkAppointment.isPresent) {
       videoLinkAppointmentRepository.delete(videoLinkAppointment.get())
