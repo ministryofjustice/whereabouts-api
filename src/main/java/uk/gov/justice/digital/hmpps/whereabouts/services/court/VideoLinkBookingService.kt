@@ -304,19 +304,23 @@ class VideoLinkBookingService(
   }
 
   @Transactional
-  fun deleteAppointments(appointmentId: Long) {
+  fun processNomisUpdate(appointmentId: Long, recordDeleted: Boolean) {
     val videoLinkAppointment = videoLinkAppointmentRepository.findOneByAppointmentId(appointmentId)
-
-    if (videoLinkAppointment.isPresent && videoLinkAppointment.get().hearingType == MAIN) {
-      videoLinkBookingRepository.delete(videoLinkAppointment.get().videoLinkBooking)
-      val appointmentsToDelete = videoLinkAppointment.get().videoLinkBooking.appointments
-        .filter { it.value.appointmentId != appointmentId }
-        .map { it.value.appointmentId }
-      if (appointmentsToDelete.isNotEmpty()) {
-        prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
+    if (!videoLinkAppointment.isPresent) return
+    if (recordDeleted) {
+      if (videoLinkAppointment.get().hearingType != MAIN) {
+        videoLinkAppointmentRepository.delete(videoLinkAppointment.get())
+      } else {
+        videoLinkBookingRepository.delete(videoLinkAppointment.get().videoLinkBooking)
+        val appointmentsToDelete = videoLinkAppointment.get().videoLinkBooking.appointments
+          .filter { it.value.appointmentId != appointmentId }
+          .map { it.value.appointmentId }
+        if (appointmentsToDelete.isNotEmpty()) {
+          prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
+        }
       }
-    } else if (videoLinkAppointment.isPresent) {
-      videoLinkAppointmentRepository.delete(videoLinkAppointment.get())
+    } else {
+      videoLinkBookingEventListener.bookingUpdatedInNomis(videoLinkAppointment.get().videoLinkBooking)
     }
   }
 }

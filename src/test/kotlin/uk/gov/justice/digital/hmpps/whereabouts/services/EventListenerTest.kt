@@ -2,9 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.google.gson.Gson
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import wiremock.org.apache.commons.io.IOUtils
@@ -22,17 +20,10 @@ class EventListenerTest {
   }
 
   @Test
-  fun `delete appointment when delete flag is true`() {
+  fun `should call process nomis update when event type is APPOINTMENT_CHANGED`() {
     val eventListener = SqsEventListener(attendanceService, videoLinkBookingService, Gson())
     eventListener.handleEvents(getJson("/services/appointment-deleted-request.json"))
-    verify(videoLinkBookingService).deleteAppointments(484209875)
-  }
-
-  @Test
-  fun `skip sqs message when delete flag is false`() {
-    val eventListener = SqsEventListener(attendanceService, videoLinkBookingService, Gson())
-    eventListener.handleEvents(getJson("/services/appointment-changed-request.json"))
-    verify(videoLinkBookingService, times(0)).deleteAppointments(any())
+    verify(videoLinkBookingService).processNomisUpdate(484209875, true)
   }
 
   private fun getJson(filename: String): String {

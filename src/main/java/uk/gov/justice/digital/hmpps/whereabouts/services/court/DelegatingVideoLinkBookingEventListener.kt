@@ -38,6 +38,9 @@ class DelegatingVideoLinkBookingEventListener(
     applicationInsightsEventListener.bookingDeleted(copy)
   }
 
+  override fun bookingUpdatedInNomis(booking: VideoLinkBooking) {
+  }
+
   // ensure changes aren't persisted to existing booking
   private fun copyWithCourtName(booking: VideoLinkBooking): VideoLinkBooking {
     val bookingCopy = booking.copy()

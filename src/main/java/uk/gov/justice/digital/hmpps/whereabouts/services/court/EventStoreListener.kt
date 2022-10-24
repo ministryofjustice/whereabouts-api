@@ -96,4 +96,7 @@ class EventStoreListener(
       )
     )
   }
+
+  override fun bookingUpdatedInNomis(booking: VideoLinkBooking) {
+  }
 }

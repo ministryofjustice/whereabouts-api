@@ -63,6 +63,10 @@ class ApplicationInsightsEventListener(
     telemetryClient.trackEvent("VideoLinkBookingDeleted", telemetryProperties(booking), null)
   }
 
+  override fun bookingUpdatedInNomis(booking: VideoLinkBooking) {
+    telemetryClient.trackEvent("VideoLinkBookingUpdated", telemetryProperties(booking), null)
+  }
+
   private fun telemetryProperties(booking: VideoLinkBooking): MutableMap<String, String?> {
     val properties = mutableMapOf(
       "id" to (booking.id?.toString()),

@@ -1276,7 +1276,7 @@ class VideoLinkBookingServiceTest {
     @Test
     fun `Do not delete appointment when appointment not exist`() {
       whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(Optional.empty())
-      service.deleteAppointments(123)
+      service.processNomisUpdate(123, true)
       verify(videoLinkBookingRepository, times(0)).delete(any())
       verify(videoLinkAppointmentRepository, times(0)).delete(any())
     }
@@ -1286,7 +1286,7 @@ class VideoLinkBookingServiceTest {
       val booking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI")
 
       whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(Optional.of(booking.appointments[HearingType.POST]!!))
-      service.deleteAppointments(2)
+      service.processNomisUpdate(2, true)
       verify(videoLinkBookingRepository, times(0)).delete(any())
       verify(videoLinkAppointmentRepository, times(1)).delete(booking.appointments[HearingType.POST])
     }
@@ -1297,9 +1297,21 @@ class VideoLinkBookingServiceTest {
 
       whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(Optional.of(booking.appointments[HearingType.MAIN]!!))
 
-      service.deleteAppointments(1)
+      service.processNomisUpdate(1, true)
       verify(prisonApiService, times(1)).deleteAppointments(listOf(2L, 3L), EventPropagation.DENY)
       verify(videoLinkBookingRepository, times(1)).delete(booking)
+      verify(videoLinkAppointmentRepository, times(0)).delete(any())
+    }
+
+    @Test
+    fun `Do not delete booking when recordDeleted is false`() {
+      val booking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI")
+
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(Optional.of(booking.appointments[HearingType.MAIN]!!))
+
+      service.processNomisUpdate(1, false)
+      verify(prisonApiService, times(0)).deleteAppointments(listOf(2L, 3L), EventPropagation.DENY)
+      verify(videoLinkBookingRepository, times(0)).delete(booking)
       verify(videoLinkAppointmentRepository, times(0)).delete(any())
     }
 
