@@ -670,8 +670,8 @@ class VideoLinkBookingServiceTest {
 
       service.updateVideoLinkBooking(1L, updateSpecification)
 
-      verify(prisonApiService).deleteAppointment(
-        40L,
+      verify(prisonApiService).deleteAppointments(
+        listOf(40),
         EventPropagation.DENY
       )
       verify(prisonApiServiceAuditable).postAppointment(
@@ -796,16 +796,8 @@ class VideoLinkBookingServiceTest {
         )
       )
 
-      verify(prisonApiService).deleteAppointment(
-        40L,
-        EventPropagation.DENY
-      )
-      verify(prisonApiService).deleteAppointment(
-        41L,
-        EventPropagation.DENY
-      )
-      verify(prisonApiService).deleteAppointment(
-        42L,
+      verify(prisonApiService).deleteAppointments(
+        listOf(40, 41, 42),
         EventPropagation.DENY
       )
 
@@ -928,9 +920,10 @@ class VideoLinkBookingServiceTest {
 
       service.deleteVideoLinkBooking(videoLinkBooking.id!!)
 
-      verify(prisonApiService).deleteAppointment(preAppointmentId, EventPropagation.DENY)
-      verify(prisonApiService).deleteAppointment(mainAppointmentId, EventPropagation.DENY)
-      verify(prisonApiService).deleteAppointment(postAppointmentId, EventPropagation.DENY)
+      verify(prisonApiService).deleteAppointments(
+        listOf(12, 13, 14),
+        EventPropagation.DENY
+      )
 
       verify(videoLinkBookingRepository).deleteById(videoLinkBooking.id!!)
       verify(videoLinkBookingEventListener).bookingDeleted(videoLinkBooking)
