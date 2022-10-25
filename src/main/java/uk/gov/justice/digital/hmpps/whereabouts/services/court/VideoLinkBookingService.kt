@@ -201,14 +201,24 @@ class VideoLinkBookingService(
       EntityNotFoundException("Video link booking with id $videoBookingId not found")
     }
 
-    booking.appointments.values.forEach { prisonApiService.deleteAppointment(it.appointmentId, EventPropagation.DENY) }
+    val appointmentsToDelete = booking.appointments.values.sortedBy { it.appointmentId }
+      .map { it.appointmentId }
+    if (appointmentsToDelete.isNotEmpty()) {
+      prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
+    }
+
     videoLinkBookingRepository.deleteById(booking.id!!)
     videoLinkBookingEventListener.bookingDeleted(booking)
     return booking
   }
 
   private fun deletePrisonAppointmentsForBooking(booking: VideoLinkBooking) {
-    booking.appointments.values.forEach { prisonApiService.deleteAppointment(it.appointmentId, EventPropagation.DENY) }
+
+    val appointmentsToDelete = booking.appointments.values.sortedBy { it.appointmentId }
+      .map { it.appointmentId }
+    if (appointmentsToDelete.isNotEmpty()) {
+      prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
+    }
   }
 
   @Transactional(readOnly = true)
@@ -309,9 +319,10 @@ class VideoLinkBookingService(
 
     if (videoLinkAppointment.isPresent && videoLinkAppointment.get().hearingType == MAIN) {
       videoLinkBookingRepository.delete(videoLinkAppointment.get().videoLinkBooking)
-      val appointmentsToDelete = videoLinkAppointment.get().videoLinkBooking.appointments
-        .filter { it.value.appointmentId != appointmentId }
-        .map { it.value.appointmentId }
+      val appointmentsToDelete = videoLinkAppointment.get().videoLinkBooking.appointments.values
+        .sortedBy { it.appointmentId }
+        .filter { it.appointmentId != appointmentId }
+        .map { it.appointmentId }
       if (appointmentsToDelete.isNotEmpty()) {
         prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
       }
