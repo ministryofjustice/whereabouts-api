@@ -272,7 +272,11 @@ class VideoLinkBookingService(
         agencyId = it.videoLinkBooking.prisonId!!,
         court = it.videoLinkBooking.courtName!!,
         courtId = it.videoLinkBooking.courtId,
-        main = toVideoLinkAppointmentDto(mainPrisonAppointment)!!,
+        main = VideoLinkBookingResponse.LocationTimeslot(
+          it.videoLinkBooking.appointments[MAIN]?.locationId!!,
+          it.videoLinkBooking.appointments[MAIN]?.startDateTime!!,
+          it.videoLinkBooking.appointments[MAIN]?.endDateTime!!
+        )!!,
         pre = toVideoLinkAppointmentDto(scheduledAppointmentsById[it.appointments[PRE]?.appointmentId]),
         post = toVideoLinkAppointmentDto(scheduledAppointmentsById[it.appointments[POST]?.appointmentId])
       )
