@@ -15,19 +15,6 @@ class VideoLinkBookingUpdateSpecificationTest {
   }
 
   @Test
-  fun `invalid pre, main and post locationIds`() {
-    Assertions.assertThat(
-      validator.validate(
-        validObject.copy(
-          pre = validObject.pre!!.copy(locationId = null),
-          main = validObject.main.copy(locationId = null),
-          post = validObject.post!!.copy(locationId = null)
-        )
-      )
-    ).hasSize(3)
-  }
-
-  @Test
   fun `absent pre and post is valid`() {
     Assertions.assertThat(
       validator.validate(validObject.copy(pre = null, post = null))
