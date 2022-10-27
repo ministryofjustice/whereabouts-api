@@ -1275,8 +1275,9 @@ class VideoLinkBookingServiceTest {
 
     @Test
     fun `Do not delete appointment when appointment not exist`() {
-      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(Optional.empty())
-      service.processNomisUpdate(123, true)
+      val appointmentChangedEventMessage = DataHelpers.makeAppointmentChangedEventMessage(scheduleEventId = 123, recordDeleted = true)
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(null)
+      service.processNomisUpdate(appointmentChangedEventMessage)
       verify(videoLinkBookingRepository, times(0)).delete(any())
       verify(videoLinkAppointmentRepository, times(0)).delete(any())
     }
@@ -1284,9 +1285,10 @@ class VideoLinkBookingServiceTest {
     @Test
     fun `Delete single appointment when appointment is not MAIN`() {
       val booking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI")
+      val appointmentChangedEventMessage = DataHelpers.makeAppointmentChangedEventMessage(scheduleEventId = 2, recordDeleted = true)
 
-      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(Optional.of(booking.appointments[HearingType.POST]!!))
-      service.processNomisUpdate(2, true)
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(booking.appointments[HearingType.POST]!!)
+      service.processNomisUpdate(appointmentChangedEventMessage)
       verify(videoLinkBookingRepository, times(0)).delete(any())
       verify(videoLinkAppointmentRepository, times(1)).delete(booking.appointments[HearingType.POST])
     }
@@ -1294,25 +1296,28 @@ class VideoLinkBookingServiceTest {
     @Test
     fun `Delete booking when appointment is MAIN`() {
       val booking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI")
+      val appointmentChangedEventMessage = DataHelpers.makeAppointmentChangedEventMessage(scheduleEventId = 1, recordDeleted = true)
 
-      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(Optional.of(booking.appointments[HearingType.MAIN]!!))
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(booking.appointments[HearingType.MAIN]!!)
 
-      service.processNomisUpdate(1, true)
+      service.processNomisUpdate(appointmentChangedEventMessage)
       verify(prisonApiService, times(1)).deleteAppointments(listOf(2L, 3L), EventPropagation.DENY)
       verify(videoLinkBookingRepository, times(1)).delete(booking)
       verify(videoLinkAppointmentRepository, times(0)).delete(any())
     }
 
     @Test
-    fun `Do not delete booking when recordDeleted is false`() {
+    fun `Call appointmentUpdatedInNomis and do not delete booking when recordDeleted is false`() {
       val booking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI")
+      val appointmentChangedEventMessage = DataHelpers.makeAppointmentChangedEventMessage(scheduleEventId = 1, recordDeleted = false)
 
-      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(Optional.of(booking.appointments[HearingType.MAIN]!!))
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(booking.appointments[HearingType.MAIN]!!)
 
-      service.processNomisUpdate(1, false)
+      service.processNomisUpdate(appointmentChangedEventMessage)
       verify(prisonApiService, times(0)).deleteAppointments(listOf(2L, 3L), EventPropagation.DENY)
       verify(videoLinkBookingRepository, times(0)).delete(booking)
       verify(videoLinkAppointmentRepository, times(0)).delete(any())
+      verify(videoLinkBookingEventListener, times(1)).appointmentUpdatedInNomis(booking.appointments[HearingType.MAIN]!!, appointmentChangedEventMessage)
     }
 
     @Test

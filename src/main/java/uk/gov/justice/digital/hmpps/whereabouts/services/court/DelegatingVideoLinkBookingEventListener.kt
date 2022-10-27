@@ -4,7 +4,9 @@ import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
+import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEventMessage
 
 @Primary
 @Component
@@ -38,9 +40,8 @@ class DelegatingVideoLinkBookingEventListener(
     applicationInsightsEventListener.bookingDeleted(copy)
   }
 
-  override fun bookingUpdatedInNomis(booking: VideoLinkBooking) {
-    val copy = copyWithCourtName(booking)
-    applicationInsightsEventListener.bookingUpdatedInNomis(copy)
+  override fun appointmentUpdatedInNomis(currentAppointment: VideoLinkAppointment, updatedAppointment: AppointmentChangedEventMessage) {
+    applicationInsightsEventListener.appointmentUpdatedInNomis(currentAppointment, updatedAppointment)
   }
 
   // ensure changes aren't persisted to existing booking

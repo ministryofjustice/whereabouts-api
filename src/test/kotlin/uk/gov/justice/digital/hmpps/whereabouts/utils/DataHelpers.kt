@@ -5,8 +5,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDefaults
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatePrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
+import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEventMessage
 import java.time.LocalDateTime
 
 class DataHelpers {
@@ -54,6 +57,23 @@ class DataHelpers {
         )
         createdByUsername = "SA"
       }
+
+    fun makeVideoLinkAppointment(
+      videoLinkBooking: VideoLinkBooking = VideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", prisonId = "WWI"),
+      appointmentId: Long = 1L,
+      locationId: Long = 10L,
+      hearingType: HearingType = HearingType.MAIN,
+      startDateTime: LocalDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
+      endDateTime: LocalDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
+    ): VideoLinkAppointment =
+      VideoLinkAppointment(
+        videoLinkBooking = videoLinkBooking,
+        appointmentId = appointmentId,
+        locationId = locationId,
+        hearingType = hearingType,
+        startDateTime = startDateTime,
+        endDateTime = endDateTime
+      )
 
     fun makeCreatePrisonAppointment(
       appointmentId: Long,
@@ -144,5 +164,23 @@ class DataHelpers {
         ),
         repeat = repeat
       )
+
+    fun makeAppointmentChangedEventMessage(
+      bookingId: Long = 2L,
+      scheduleEventId: Long = 13L,
+      recordDeleted: Boolean = false,
+      agencyLocationId: String = "WWI",
+      eventDatetime: String = "2022-01-01T11:00:00",
+      scheduledStartTime: String = "2022-01-01T11:00",
+      scheduledEndTime: String = "2022-01-01T12:00",
+    ) = AppointmentChangedEventMessage(
+      bookingId = bookingId,
+      scheduleEventId = scheduleEventId,
+      recordDeleted = recordDeleted,
+      agencyLocationId = agencyLocationId,
+      eventDatetime = eventDatetime,
+      scheduledStartTime = scheduledStartTime,
+      scheduledEndTime = scheduledEndTime,
+    )
   }
 }
