@@ -272,13 +272,9 @@ class VideoLinkBookingService(
         agencyId = it.videoLinkBooking.prisonId!!,
         court = it.videoLinkBooking.courtName!!,
         courtId = it.videoLinkBooking.courtId,
-        main = VideoLinkBookingResponse.LocationTimeslot(
-          it.videoLinkBooking.appointments[MAIN]?.locationId!!,
-          it.videoLinkBooking.appointments[MAIN]?.startDateTime!!,
-          it.videoLinkBooking.appointments[MAIN]?.endDateTime!!
-        )!!,
-        pre = toVideoLinkAppointmentDto(scheduledAppointmentsById[it.appointments[PRE]?.appointmentId]),
-        post = toVideoLinkAppointmentDto(scheduledAppointmentsById[it.appointments[POST]?.appointmentId])
+        main = toVideoLinkAppointmentDto(it.videoLinkBooking.appointments[MAIN])!!,
+        pre = toVideoLinkAppointmentDto(it.videoLinkBooking.appointments[PRE]),
+        post = toVideoLinkAppointmentDto(it.videoLinkBooking.appointments[POST])
       )
     }
   }
@@ -289,6 +285,14 @@ class VideoLinkBookingService(
     }
     booking.appointments.values.forEach { prisonApiService.updateAppointmentComment(it.appointmentId, comment) }
   }
+  private fun toVideoLinkAppointmentDto(videoLinkAppointment: VideoLinkAppointment?) =
+    videoLinkAppointment?.takeIf { hasAnEndDate(it) }?.let {
+      VideoLinkBookingResponse.LocationTimeslot(
+        locationId = it.locationId!!,
+        startTime = it.startDateTime!!,
+        endTime = it.endDateTime!!
+      )
+    }
 
   private fun toVideoLinkAppointmentDto(scheduledAppointment: ScheduledAppointmentDto?) =
     scheduledAppointment?.takeIf { hasAnEndDate(it) }?.let {
@@ -299,6 +303,11 @@ class VideoLinkBookingService(
       )
     }
 
+  private fun hasAnEndDate(it: VideoLinkAppointment): Boolean {
+    val hasEndDate = it.endDateTime != null
+    if (!hasEndDate) log.error("Appointment with id ${it.id} has no end date")
+    return hasEndDate
+  }
   private fun hasAnEndDate(it: ScheduledAppointmentDto): Boolean {
     val hasEndDate = it.endTime != null
     if (!hasEndDate) log.error("Appointment with id ${it.id} has no end date")

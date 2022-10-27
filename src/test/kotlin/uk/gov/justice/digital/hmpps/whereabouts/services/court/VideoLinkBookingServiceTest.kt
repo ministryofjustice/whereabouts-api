@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSearchDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto
@@ -1058,6 +1059,33 @@ class VideoLinkBookingServiceTest {
       val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null, null)
       assertThat(bookings).isEmpty()
       verify(prisonApiService).getScheduledAppointments("WWI", date)
+    }
+
+    @Test
+    fun `No prison appointments find by SearchDetails`() {
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), any(), any())
+      ).thenReturn(listOf())
+
+      val bookings =
+        service.getVideoLinkBookingsBySearchDetails(VideoLinkBookingSearchDetails("WWI", listOf("P1", "P2")), date)
+      assertThat(bookings).isEmpty()
+    }
+    @Test
+    fun `One prison appointment find by SearchDetails`() {
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+          any(),
+          eq(HearingType.MAIN),
+          isNull(),
+          isNull()
+        )
+      )
+        .thenReturn(videoLinkBookings("Wimbledon", null, 1, 10, 10L, startDateTime, endDateTime))
+
+      val bookings =
+        service.getVideoLinkBookingsBySearchDetails(VideoLinkBookingSearchDetails("WWI", listOf("P1", "P2")), date)
+      assertThat(bookings).isNotEmpty
     }
 
     @Test
