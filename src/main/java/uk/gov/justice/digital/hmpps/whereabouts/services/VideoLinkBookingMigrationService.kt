@@ -53,11 +53,11 @@ class VideoLinkBookingMigrationService(
       videoLinkBooking.prisonId = nomisMainAppointment.agencyId
       videoLinkBooking.comment = nomisMainAppointment.comment
 
-      if (preAppointment?.let { updateAppointment(it) } == null) {
+      if (preAppointment != null && deleteIfExist(preAppointment)) {
         videoLinkBooking.appointments.remove(HearingType.PRE)
         outcomes.add(PRE_DELETED)
       }
-      if (postAppointment?.let { updateAppointment(it) } == null) {
+      if (postAppointment != null && deleteIfExist(postAppointment)) {
         videoLinkBooking.appointments.remove(HearingType.POST)
         outcomes.add(POST_DELETED)
       }
@@ -65,6 +65,8 @@ class VideoLinkBookingMigrationService(
     }
     return if (outcomes.isEmpty()) listOf(MIGRATED_NO_MODIFICATIONS) else outcomes
   }
+
+  private fun deleteIfExist(appointment: VideoLinkAppointment) = updateAppointment(appointment) == null
 
   private fun updateAppointment(appointment: VideoLinkAppointment): PrisonAppointment? {
     val nomisAppointment = prisonApiService.getPrisonAppointment(appointment.appointmentId)
