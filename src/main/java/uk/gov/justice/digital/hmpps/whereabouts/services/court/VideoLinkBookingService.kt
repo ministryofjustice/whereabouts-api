@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEventMessage
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
@@ -314,20 +315,24 @@ class VideoLinkBookingService(
   }
 
   @Transactional
-  fun deleteAppointments(appointmentId: Long) {
-    val videoLinkAppointment = videoLinkAppointmentRepository.findOneByAppointmentId(appointmentId)
-
-    if (videoLinkAppointment.isPresent && videoLinkAppointment.get().hearingType == MAIN) {
-      videoLinkBookingRepository.delete(videoLinkAppointment.get().videoLinkBooking)
-      val appointmentsToDelete = videoLinkAppointment.get().videoLinkBooking.appointments.values
-        .sortedBy { it.appointmentId }
-        .filter { it.appointmentId != appointmentId }
-        .map { it.appointmentId }
-      if (appointmentsToDelete.isNotEmpty()) {
-        prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
+  fun processNomisUpdate(appointmentChangedEventMessage: AppointmentChangedEventMessage) {
+    val videoLinkAppointment = videoLinkAppointmentRepository.findOneByAppointmentId(appointmentChangedEventMessage.scheduleEventId)
+    if (videoLinkAppointment == null) return
+    if (appointmentChangedEventMessage.recordDeleted) {
+      if (videoLinkAppointment.hearingType != MAIN) {
+        videoLinkAppointmentRepository.delete(videoLinkAppointment)
+      } else {
+        videoLinkBookingRepository.delete(videoLinkAppointment.videoLinkBooking)
+        val appointmentsToDelete = videoLinkAppointment.videoLinkBooking.appointments.values
+          .sortedBy { it.appointmentId }
+          .filter { it.appointmentId != appointmentChangedEventMessage.scheduleEventId }
+          .map { it.appointmentId }
+        if (appointmentsToDelete.isNotEmpty()) {
+          prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
+        }
       }
-    } else if (videoLinkAppointment.isPresent) {
-      videoLinkAppointmentRepository.delete(videoLinkAppointment.get())
+    } else {
+      videoLinkBookingEventListener.appointmentUpdatedInNomis(videoLinkAppointment, appointmentChangedEventMessage)
     }
   }
 }
