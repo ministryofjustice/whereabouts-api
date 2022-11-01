@@ -11,6 +11,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEventMessage
 
 @Component
 class ApplicationInsightsEventListener(
@@ -61,6 +62,22 @@ class ApplicationInsightsEventListener(
 
   override fun bookingDeleted(booking: VideoLinkBooking) {
     telemetryClient.trackEvent("VideoLinkBookingDeleted", telemetryProperties(booking), null)
+  }
+
+  override fun appointmentUpdatedInNomis(currentAppointment: VideoLinkAppointment, updatedAppointment: AppointmentChangedEventMessage) {
+    val properties = mutableMapOf(
+      "bookingId" to (currentAppointment.videoLinkBooking?.id.toString()),
+      "appointmentId" to currentAppointment.appointmentId.toString(),
+      "agencyId" to currentAppointment.videoLinkBooking?.prisonId,
+      "court" to currentAppointment.videoLinkBooking?.courtName,
+      "courtId" to currentAppointment.videoLinkBooking?.courtId,
+      "current_startDate" to currentAppointment.startDateTime.toString(),
+      "current_endDate" to currentAppointment.endDateTime.toString(),
+      "update_startDate" to updatedAppointment.scheduledStartTime,
+      "update_endDate" to updatedAppointment.scheduledEndTime,
+    )
+
+    telemetryClient.trackEvent("VideoLinkAppointmentUpdated", properties, null)
   }
 
   private fun telemetryProperties(booking: VideoLinkBooking): MutableMap<String, String?> {

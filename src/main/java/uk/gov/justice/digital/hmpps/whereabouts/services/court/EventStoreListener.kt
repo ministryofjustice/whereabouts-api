@@ -6,11 +6,13 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecif
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventType
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingEventRepository
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEventMessage
 import java.time.Clock
 import java.time.LocalDateTime
 
@@ -96,4 +98,6 @@ class EventStoreListener(
       )
     )
   }
+
+  override fun appointmentUpdatedInNomis(currentAppointment: VideoLinkAppointment, updatedAppointment: AppointmentChangedEventMessage) {}
 }
