@@ -421,8 +421,7 @@ class CourtIntegrationTest(
       assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "video_link_booking")).isEqualTo(1)
       assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "video_link_appointment")).isEqualTo(2)
 
-      prisonApiMockServer.stubDeleteAppointment(preAppointmentId, 200)
-      prisonApiMockServer.stubDeleteAppointment(mainAppointmentId, 404)
+      prisonApiMockServer.stubDeleteAppointments(listOf(preAppointmentId.toInt(), mainAppointmentId.toInt()))
 
       webTestClient.delete()
         .uri("/court/video-link-bookings/${persistentBooking.id}")
@@ -431,10 +430,7 @@ class CourtIntegrationTest(
         .expectStatus().isNoContent
 
       prisonApiMockServer.verify(
-        WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/$preAppointmentId"))
-      )
-      prisonApiMockServer.verify(
-        WireMock.deleteRequestedFor(WireMock.urlEqualTo("/api/appointments/$mainAppointmentId"))
+        WireMock.postRequestedFor(WireMock.urlEqualTo("/api/appointments/delete"))
       )
 
       assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "video_link_booking")).isEqualTo(0)
@@ -459,7 +455,7 @@ class CourtIntegrationTest(
       val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
 
       prisonApiMockServer.stubGetLocation(2)
-      prisonApiMockServer.stubDeleteAppointment(oldAppointmentId, status = 204)
+      prisonApiMockServer.stubDeleteAppointments(listOf(oldAppointmentId.toInt()))
       prisonApiMockServer.stubAddAppointmentForBooking(offenderBookingId, eventId = newAppointmentId)
 
       val persistentBooking = videoLinkBookingRepository.save(

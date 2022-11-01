@@ -56,6 +56,21 @@ public abstract class PrisonApi {
         this.webClient = webClient;
     }
 
+    public enum EventPropagation {
+        ALLOW(false),
+        DENY(true);
+
+        private final boolean value;
+
+        EventPropagation(final boolean value) {
+            this.value = value;
+        }
+
+        public String doNotPropagate() {
+            return Boolean.toString(value);
+        }
+    }
+
     public void putAttendance(final Long bookingId, final long activityId, final EventOutcome eventOutcome) {
         webClient.put()
                 .uri("/bookings/{bookingId}/activities/{activityId}/attendance", bookingId, activityId)
@@ -114,10 +129,10 @@ public abstract class PrisonApi {
         };
 
         return Objects.requireNonNull(webClient.get()
-                        .uri("/schedules/{prisonId}/activities?date={date}&timeSlot={period}", prisonId, date, period)
-                        .retrieve()
-                        .bodyToMono(responseType)
-                        .block());
+                .uri("/schedules/{prisonId}/activities?date={date}&timeSlot={period}", prisonId, date, period)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block());
     }
 
     public String getOffenderNoFromBookingId(final Long bookingId) {
@@ -160,7 +175,7 @@ public abstract class PrisonApi {
                                                              final LocalDate toDate,
                                                              final Set<TimePeriod> periods,
                                                              final Map<Long, Integer> attendancesBookingIdsCount
-                                                             ) {
+    ) {
         return webClient.post()
                 .uri("/schedules/{prisonId}/count-activities",
                         b -> b.queryParam("fromDate", fromDate)
@@ -253,13 +268,14 @@ public abstract class PrisonApi {
         }
     }
 
-    public Event postAppointment(final long bookingId, @NotNull CreateBookingAppointment createbookingAppointment) {
+    public Event postAppointment(final long bookingId, @NotNull CreateBookingAppointment createbookingAppointment, final EventPropagation propagation) {
         final var responseType = new ParameterizedTypeReference<Event>() {
         };
 
         return webClient.post()
                 .uri("/bookings/{bookingId}/appointments", bookingId)
                 .bodyValue(createbookingAppointment)
+                .header("no-event-propagation", propagation.doNotPropagate())
                 .retrieve()
                 .bodyToMono(responseType)
                 .block();
@@ -299,10 +315,11 @@ public abstract class PrisonApi {
                 .orElse(null);
     }
 
-    public void deleteAppointment(final Long appointmentId) {
+    public void deleteAppointment(final Long appointmentId, final EventPropagation propagation) {
 
         webClient.delete()
                 .uri("/appointments/{appointmentId}", appointmentId)
+                .header("no-event-propagation", propagation.doNotPropagate())
                 .retrieve()
                 .toBodilessEntity()
                 .onErrorResume(WebClientResponseException.NotFound.class, notFound -> {
@@ -312,9 +329,10 @@ public abstract class PrisonApi {
                 .block();
     }
 
-    public void updateAppointmentComment(long appointmentId, @Nullable String comment) {
+    public void updateAppointmentComment(long appointmentId, @Nullable String comment, final EventPropagation propagation) {
         webClient.put()
                 .uri("/appointments/{appointmentId}/comment", appointmentId)
+                .header("no-event-propagation", propagation.doNotPropagate())
                 .contentType(MediaType.TEXT_PLAIN)
                 .body(comment != null ? BodyInserters.fromValue(comment) : BodyInserters.empty())
                 .retrieve()
@@ -364,10 +382,11 @@ public abstract class PrisonApi {
                 .orElse(null);
     }
 
-    public void deleteAppointments(final List<Long> appointmentIds) {
+    public void deleteAppointments(final List<Long> appointmentIds, final EventPropagation propagation) {
         webClient.post()
                 .uri("/appointments/delete")
                 .bodyValue(appointmentIds)
+                .header("no-event-propagation", propagation.doNotPropagate())
                 .retrieve()
                 .toBodilessEntity()
                 .block();

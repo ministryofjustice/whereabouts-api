@@ -18,6 +18,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation.ALLOW
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation.DENY
 import java.time.LocalDate
 
 class PrisonApiServiceTest {
@@ -52,9 +54,10 @@ class PrisonApiServiceTest {
   fun `when successful delete`() {
     val appointmentId = 1L
     prisonApiMockServer.stubDeleteAppointment(appointmentId, 200)
-    prisonApiService.deleteAppointment(appointmentId)
+    prisonApiService.deleteAppointment(appointmentId, DENY)
     prisonApiMockServer.verify(
       deleteRequestedFor(urlEqualTo("/api/appointments/$appointmentId"))
+        .withHeader("no-event-propagation", equalTo("true"))
     )
   }
 
@@ -62,9 +65,10 @@ class PrisonApiServiceTest {
   fun `when appointment to delete is not found`() {
     val appointmentId = 1L
     prisonApiMockServer.stubDeleteAppointment(appointmentId, 404)
-    prisonApiService.deleteAppointment(appointmentId)
+    prisonApiService.deleteAppointment(appointmentId, ALLOW)
     prisonApiMockServer.verify(
       deleteRequestedFor(urlEqualTo("/api/appointments/$appointmentId"))
+        .withHeader("no-event-propagation", equalTo("false"))
     )
   }
 
@@ -73,10 +77,11 @@ class PrisonApiServiceTest {
     val appointmentId = 1L
     prisonApiMockServer.stubDeleteAppointment(appointmentId, 500)
     Assertions.assertThrows(InternalServerError::class.java) {
-      prisonApiService.deleteAppointment(appointmentId)
+      prisonApiService.deleteAppointment(appointmentId, ALLOW)
     }
     prisonApiMockServer.verify(
       deleteRequestedFor(urlEqualTo("/api/appointments/$appointmentId"))
+        .withHeader("no-event-propagation", equalTo("false"))
     )
   }
 
@@ -86,10 +91,11 @@ class PrisonApiServiceTest {
     val comment = "New comment"
 
     prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
-    prisonApiService.updateAppointmentComment(appointmentId, comment)
+    prisonApiService.updateAppointmentComment(appointmentId, comment, ALLOW)
     prisonApiMockServer.verify(
       putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
         .withRequestBody(equalTo(comment))
+        .withHeader("no-event-propagation", equalTo("false"))
     )
   }
 
@@ -99,10 +105,11 @@ class PrisonApiServiceTest {
     val comment = ""
 
     prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
-    prisonApiService.updateAppointmentComment(appointmentId, comment)
+    prisonApiService.updateAppointmentComment(appointmentId, comment, ALLOW)
     prisonApiMockServer.verify(
       putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
         .withRequestBody(absent())
+        .withHeader("no-event-propagation", equalTo("false"))
     )
   }
 
@@ -112,9 +119,10 @@ class PrisonApiServiceTest {
     val comment = null
 
     prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
-    prisonApiService.updateAppointmentComment(appointmentId, comment)
+    prisonApiService.updateAppointmentComment(appointmentId, comment, ALLOW)
     prisonApiMockServer.verify(
       putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
+        .withHeader("no-event-propagation", equalTo("false"))
         .withRequestBody(absent())
     )
   }

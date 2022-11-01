@@ -28,6 +28,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.RecurringAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import java.time.LocalDate
@@ -153,11 +154,11 @@ class AppointmentService(
       ).orElse(null)
 
     if (recurringAppointment == null) {
-      prisonApiService.deleteAppointment(appointmentId)
+      prisonApiService.deleteAppointment(appointmentId, EventPropagation.ALLOW)
       return
     }
 
-    prisonApiService.deleteAppointment(appointmentId)
+    prisonApiService.deleteAppointment(appointmentId, EventPropagation.ALLOW)
     removeSingleAppointmentInRecurringList(appointmentId, recurringAppointment)
     return
   }
@@ -170,7 +171,7 @@ class AppointmentService(
     recurringAppointment.relatedAppointments?.let {
       val appointmentIds = it.map { appointment -> appointment.id }
 
-      prisonApiService.deleteAppointments(appointmentIds)
+      prisonApiService.deleteAppointments(appointmentIds, EventPropagation.ALLOW)
 
       recurringAppointmentRepository.deleteById(recurringAppointmentId)
 
