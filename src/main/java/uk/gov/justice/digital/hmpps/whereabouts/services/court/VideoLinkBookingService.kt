@@ -282,8 +282,8 @@ class VideoLinkBookingService(
       VideoLinkBookingResponse(
         videoLinkBookingId = it.videoLinkBooking.id!!,
         bookingId = it.videoLinkBooking.offenderBookingId,
-        agencyId = it.videoLinkBooking.prisonId!!,
-        court = it.videoLinkBooking.courtName!!,
+        agencyId = it.videoLinkBooking.prisonId,
+        court = it.videoLinkBooking.courtName,
         courtId = it.videoLinkBooking.courtId,
         main = toVideoLinkAppointmentDto(it.videoLinkBooking.appointments[MAIN])!!,
         pre = toVideoLinkAppointmentDto(it.videoLinkBooking.appointments[PRE]),

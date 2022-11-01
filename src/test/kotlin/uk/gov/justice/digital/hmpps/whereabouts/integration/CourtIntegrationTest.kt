@@ -294,6 +294,105 @@ class CourtIntegrationTest(
       """
         )
     }
+
+    @Test
+    fun `should return video link appointments for multiple prisons on date`() {
+      makeSomeBookings()
+
+      webTestClient.post()
+        .uri("/court/video-link-bookings/date/2020-12-25")
+        .headers(setHeaders())
+        .bodyValue(
+          """
+          {
+            "courtId" : "WMBLMC",
+            "prisonIds" : ["1","2"]
+          }
+        """
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+      [
+        {
+          "videoLinkBookingId": 2,
+          "bookingId": 1182547,
+          "agencyId": "2",
+          "court": "Wimbledon",
+          "courtId": "WMBLMC",
+          "main": {
+            "locationId": 1234,
+            "startTime": "2020-12-25T08:00:00",
+            "endTime": "2020-12-25T09:00:00"
+          }
+        },
+        {
+          "videoLinkBookingId": 1,
+          "bookingId": 1182546,
+          "agencyId": "1",
+          "court": "Wimbledon",
+          "courtId": "WMBLMC",
+          "pre": {
+            "locationId": 1234,
+            "startTime": "2020-12-25T09:00:00",
+            "endTime": "2020-12-25T11:00:00"
+          },
+          "main": {
+            "locationId": 1234,
+            "startTime": "2020-12-25T10:00:00",
+            "endTime": "2020-12-25T11:00:00"
+          },
+          "post": {
+            "locationId": 1234,
+            "startTime": "2020-12-25T11:00:00",
+            "endTime": "2020-12-25T12:00:00"
+          }
+        }
+      ] 
+      """
+        )
+      deleteAll()
+    }
+    fun makeSomeBookings() {
+
+      jdbcTemplate.update(
+        """INSERT INTO video_link_booking (id, offender_booking_id, court_name, court_id, made_by_the_court,
+                                       created_by_username, prison_id, comment)
+VALUES (1, 1182546, 'Wimbledon', 'WMBLMC', false, null, '1', null);"""
+      )
+      jdbcTemplate.update(
+        """INSERT INTO video_link_appointment (id, appointment_id, hearing_type, video_link_booking_id, location_id,
+                                           start_date_time, end_date_time)
+VALUES (1, 438577488, 'MAIN',1, 1234L, '2020-12-25 10:00:00', '2020-12-25 11:00:00');"""
+      )
+      jdbcTemplate.update(
+        """INSERT INTO video_link_appointment (id, appointment_id, hearing_type, video_link_booking_id, location_id,
+                                           start_date_time, end_date_time)
+VALUES (2, 438577489, 'PRE', 1, 1234L,'2020-12-25 09:00:00', '2020-12-25 11:00:00');"""
+      )
+      jdbcTemplate.update(
+        """INSERT INTO video_link_appointment (id, appointment_id, hearing_type, video_link_booking_id, location_id,
+                                           start_date_time, end_date_time)
+VALUES (3, 438577490, 'POST',1, 1234L, '2020-12-25 11:00:00', '2020-12-25 12:00:00');"""
+      )
+      jdbcTemplate.update(
+        """INSERT INTO video_link_booking (id, offender_booking_id, court_name, court_id, made_by_the_court,
+                                       created_by_username, prison_id, comment)
+VALUES (2, 1182547, 'Wimbledon', 'WMBLMC', false, null, '2', null);"""
+      )
+      jdbcTemplate.update(
+        """INSERT INTO video_link_appointment (id, appointment_id, hearing_type, video_link_booking_id, location_id,
+                                           start_date_time, end_date_time)
+VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:00');"""
+      )
+    }
+
+    fun deleteAll() {
+      JdbcTestUtils.deleteFromTables(jdbcTemplate, "video_link_appointment")
+      JdbcTestUtils.deleteFromTables(jdbcTemplate, "video_link_booking")
+    }
   }
 
   @Nested

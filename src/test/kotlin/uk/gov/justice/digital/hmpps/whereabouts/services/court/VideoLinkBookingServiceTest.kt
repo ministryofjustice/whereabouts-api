@@ -1114,15 +1114,41 @@ class VideoLinkBookingServiceTest {
     }
     @Test
     fun `One prison appointment find by SearchDetails`() {
+
+      val vbl = VideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", prisonId = "WWI").apply {
+        addPreAppointment(
+          id = 100L,
+          appointmentId = 10L,
+          locationId = 10L,
+          startDateTime = startDateTime,
+          endDateTime = endDateTime
+        )
+        addMainAppointment(
+          id = 101L,
+          appointmentId = 11L,
+          locationId = 10L,
+          startDateTime = startDateTime,
+          endDateTime = endDateTime
+        )
+        addPostAppointment(
+          id = 102L,
+          appointmentId = 12L,
+          locationId = 10L,
+          startDateTime = startDateTime,
+          endDateTime = endDateTime
+        )
+      }
+
       whenever(
-        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+        videoLinkAppointmentRepository.findAllByStartDateTimeBetweenAndHearingTypeIsAndVideoLinkBookingCourtIdIsAndVideoLinkBookingPrisonIdIn(
           any(),
-          eq(HearingType.MAIN),
-          isNull(),
-          isNull()
+          any(),
+          any(),
+          any(),
+          any()
         )
       )
-        .thenReturn(videoLinkBookings("Wimbledon", null, 1, 10, 10L, startDateTime, endDateTime))
+        .thenReturn(vbl.appointments.values.toSet())
 
       val bookings =
         service.getVideoLinkBookingsBySearchDetails(VideoLinkBookingSearchDetails("WWI", listOf("P1", "P2")), date)
@@ -1483,7 +1509,6 @@ class VideoLinkBookingServiceTest {
           offenderNo = "A1234AA"
         )
       }
-
     fun videoLinkBookings(
       court: String?,
       courtId: String?,
