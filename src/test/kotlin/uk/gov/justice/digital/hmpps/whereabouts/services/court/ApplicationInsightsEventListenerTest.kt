@@ -119,6 +119,9 @@ class ApplicationInsightsEventListenerTest {
       mapOf(
         "bookingId" to "1",
         "appointmentId" to "1",
+        "agencyId" to "WWI",
+        "court" to "The Court",
+        "courtId" to "TSTCRT",
         "current_startDate" to "2022-01-01T10:00",
         "current_endDate" to "2022-01-01T11:00",
         "update_startDate" to "2022-01-01T11:00",

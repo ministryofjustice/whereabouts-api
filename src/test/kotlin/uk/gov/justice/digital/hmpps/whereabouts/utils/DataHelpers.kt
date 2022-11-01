@@ -59,7 +59,7 @@ class DataHelpers {
       }
 
     fun makeVideoLinkAppointment(
-      videoLinkBooking: VideoLinkBooking = VideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", prisonId = "WWI"),
+      videoLinkBooking: VideoLinkBooking = VideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", courtId = "TSTCRT", prisonId = "WWI"),
       appointmentId: Long = 1L,
       locationId: Long = 10L,
       hearingType: HearingType = HearingType.MAIN,

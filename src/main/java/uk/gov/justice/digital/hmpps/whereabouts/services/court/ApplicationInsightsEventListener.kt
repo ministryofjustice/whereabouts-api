@@ -68,6 +68,9 @@ class ApplicationInsightsEventListener(
     val properties = mutableMapOf(
       "bookingId" to (currentAppointment.videoLinkBooking?.id.toString()),
       "appointmentId" to currentAppointment.appointmentId.toString(),
+      "agencyId" to currentAppointment.videoLinkBooking?.prisonId,
+      "court" to currentAppointment.videoLinkBooking?.courtName,
+      "courtId" to currentAppointment.videoLinkBooking?.courtId,
       "current_startDate" to currentAppointment.startDateTime.toString(),
       "current_endDate" to currentAppointment.endDateTime.toString(),
       "update_startDate" to updatedAppointment.scheduledStartTime,
