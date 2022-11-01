@@ -40,9 +40,7 @@ class SqsEventListener(
       }
       "APPOINTMENT_CHANGED" -> {
         val appointmentChangedEventMessage = gson.fromJson(Message, AppointmentChangedEventMessage::class.java)
-        if (appointmentChangedEventMessage.recordDeleted) {
-          videoLinkBookingService.deleteAppointments(appointmentChangedEventMessage.scheduleEventId)
-        }
+        videoLinkBookingService.processNomisUpdate(appointmentChangedEventMessage)
       }
     }
   }
@@ -53,7 +51,8 @@ data class MessageAttributes(val eventType: Attribute)
 data class Booking(val offenderBookId: Long)
 data class Offender(val offenderId: Long, val bookings: List<Booking>)
 data class DeleteOffenderEventMessage(val offenderIdDisplay: String, val offenders: List<Offender>)
-data class AppointmentChangedEventMessage(val bookingId: Long, val scheduleEventId: Long, val recordDeleted: Boolean)
+data class AppointmentChangedEventMessage(val bookingId: Long, val scheduleEventId: Long, val recordDeleted: Boolean, val agencyLocationId: String, val eventDatetime: String, val scheduledStartTime: String, val scheduledEndTime: String)
+
 data class Message(
   val Message: String,
   val MessageAttributes: MessageAttributes,
