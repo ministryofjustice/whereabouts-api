@@ -323,10 +323,10 @@ class VideoLinkBookingService(
         videoLinkAppointmentRepository.delete(videoLinkAppointment)
       } else {
         videoLinkBookingRepository.delete(videoLinkAppointment.videoLinkBooking)
-        val appointmentsToDelete = videoLinkAppointment.videoLinkBooking.appointments
-          .sortedBy { it.value.appointmentId }
-          .filter { it.value.appointmentId != appointmentChangedEventMessage.scheduleEventId }
-          .map { it.value.appointmentId }
+        val appointmentsToDelete = videoLinkAppointment.videoLinkBooking.appointments.values
+          .sortedBy { it.appointmentId }
+          .filter { it.appointmentId != appointmentChangedEventMessage.scheduleEventId }
+          .map { it.appointmentId }
         if (appointmentsToDelete.isNotEmpty()) {
           prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
         }
