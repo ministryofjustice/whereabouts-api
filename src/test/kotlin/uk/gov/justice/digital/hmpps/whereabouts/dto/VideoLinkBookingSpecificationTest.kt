@@ -19,20 +19,6 @@ class VideoLinkBookingSpecificationTest {
     assertThat(validator.validate(validObjectAllFields.copy())).isEmpty()
   }
 
-  @Test
-  fun `invalid pre, main and post locationIds`() {
-    assertThat(
-      validator.validate(
-        validObjectAllFields.copy(
-          main = validObjectAllFields.main.copy(locationId = null),
-          pre = validObjectAllFields.pre!!.copy(locationId = null),
-          post = validObjectAllFields.post!!.copy(locationId = null),
-
-        )
-      )
-    ).hasSize(3)
-  }
-
   companion object {
     val validObject = VideoLinkBookingSpecification(
       bookingId = 10L,

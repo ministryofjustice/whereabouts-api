@@ -22,7 +22,7 @@ class DataHelpers {
       madeByTheCourt: Boolean? = true,
       courtName: String? = "Court name",
       courtId: String? = "TSTCRT",
-      prisonId: String? = "WWI",
+      prisonId: String = "WWI",
       comment: String? = ""
     ): VideoLinkBooking =
       VideoLinkBooking(
