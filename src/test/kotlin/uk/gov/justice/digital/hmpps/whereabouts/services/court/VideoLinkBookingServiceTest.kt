@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSearchDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto
@@ -1102,6 +1103,59 @@ class VideoLinkBookingServiceTest {
     }
 
     @Test
+    fun `No prison appointments find by SearchDetails`() {
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), any(), any())
+      ).thenReturn(listOf())
+
+      val bookings =
+        service.getVideoLinkBookingsBySearchDetails(VideoLinkBookingSearchDetails("WWI", listOf("P1", "P2")), date)
+      assertThat(bookings).isEmpty()
+    }
+    @Test
+    fun `One prison appointment find by SearchDetails`() {
+
+      val vbl = VideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", prisonId = "WWI").apply {
+        addPreAppointment(
+          id = 100L,
+          appointmentId = 10L,
+          locationId = 10L,
+          startDateTime = startDateTime,
+          endDateTime = endDateTime
+        )
+        addMainAppointment(
+          id = 101L,
+          appointmentId = 11L,
+          locationId = 10L,
+          startDateTime = startDateTime,
+          endDateTime = endDateTime
+        )
+        addPostAppointment(
+          id = 102L,
+          appointmentId = 12L,
+          locationId = 10L,
+          startDateTime = startDateTime,
+          endDateTime = endDateTime
+        )
+      }
+
+      whenever(
+        videoLinkAppointmentRepository.findAllByStartDateTimeBetweenAndHearingTypeIsAndVideoLinkBookingCourtIdIsAndVideoLinkBookingPrisonIdIn(
+          any(),
+          any(),
+          any(),
+          any(),
+          any()
+        )
+      )
+        .thenReturn(vbl.appointments.values.toSet())
+
+      val bookings =
+        service.getVideoLinkBookingsBySearchDetails(VideoLinkBookingSearchDetails("WWI", listOf("P1", "P2")), date)
+      assertThat(bookings).isNotEmpty
+    }
+
+    @Test
     fun `Happy path`() {
       whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
         .thenReturn(
@@ -1455,7 +1509,6 @@ class VideoLinkBookingServiceTest {
           offenderNo = "A1234AA"
         )
       }
-
     fun videoLinkBookings(
       court: String?,
       courtId: String?,
