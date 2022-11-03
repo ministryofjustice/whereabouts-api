@@ -305,11 +305,11 @@ class VideoLinkBookingService(
     }
   }
   private fun toVideoLinkAppointmentDto(videoLinkAppointment: VideoLinkAppointment?) =
-    videoLinkAppointment?.takeIf { hasAnEndDate(it) }?.let {
+    videoLinkAppointment?.let {
       VideoLinkBookingResponse.LocationTimeslot(
-        locationId = it.locationId!!,
-        startTime = it.startDateTime!!,
-        endTime = it.endDateTime!!
+        locationId = it.locationId,
+        startTime = it.startDateTime,
+        endTime = it.endDateTime
       )
     }
 
@@ -322,11 +322,6 @@ class VideoLinkBookingService(
       )
     }
 
-  private fun hasAnEndDate(it: VideoLinkAppointment): Boolean {
-    val hasEndDate = it.endDateTime != null
-    if (!hasEndDate) log.error("Appointment with id ${it.id} has no end date")
-    return hasEndDate
-  }
   private fun hasAnEndDate(it: ScheduledAppointmentDto): Boolean {
     val hasEndDate = it.endTime != null
     if (!hasEndDate) log.error("Appointment with id ${it.id} has no end date")

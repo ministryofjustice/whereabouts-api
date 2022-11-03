@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -250,7 +251,7 @@ class CourtIntegrationTest(
 
   @Nested
   inner class GetAppointments {
-    @BeforeEach
+    @AfterEach
     fun resetVideoLinkBookings() {
       JdbcTestUtils.deleteFromTables(jdbcTemplate, "VIDEO_LINK_APPOINTMENT", "VIDEO_LINK_BOOKING")
     }
@@ -353,7 +354,6 @@ class CourtIntegrationTest(
       ] 
       """
         )
-      deleteAll()
     }
     fun makeSomeBookings() {
 
@@ -387,11 +387,6 @@ VALUES (2, 1182547, 'Wimbledon', 'WMBLMC', false, null, '2', null);"""
                                            start_date_time, end_date_time)
 VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:00');"""
       )
-    }
-
-    fun deleteAll() {
-      JdbcTestUtils.deleteFromTables(jdbcTemplate, "video_link_appointment")
-      JdbcTestUtils.deleteFromTables(jdbcTemplate, "video_link_booking")
     }
   }
 
