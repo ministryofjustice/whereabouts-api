@@ -19,3 +19,6 @@ generic-prometheus-alerts:
   alertSeverity: digital-prison-service
   rdsAlertsDatabases:
     cloud-platform-67257a8b15c64e7f: "Whereabouts API"
+  sqsAlertsQueueNames:
+    - "Digital-Prison-Services-prod-whereabouts_api_queue"
+    - "Digital-Prison-Services-prod-whereabouts_api_queue_dl"
