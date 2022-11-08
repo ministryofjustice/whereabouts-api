@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSearchDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
@@ -21,6 +22,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEventMessage
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
@@ -28,6 +30,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import javax.persistence.EntityNotFoundException
 
 const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
@@ -260,6 +263,35 @@ class VideoLinkBookingService(
     }
   }
 
+  @Transactional(readOnly = true)
+  fun getVideoLinkBookingsBySearchDetails(
+    searchDetails: VideoLinkBookingSearchDetails,
+    date: LocalDate
+  ): List<VideoLinkBookingResponse> {
+
+    val videoLinkAppointments =
+      videoLinkAppointmentRepository.findAllByStartDateTimeBetweenAndHearingTypeIsAndVideoLinkBookingCourtIdIsAndVideoLinkBookingPrisonIdIn(
+        date.atTime(LocalTime.MIN),
+        date.atTime(LocalTime.MAX),
+        MAIN,
+        searchDetails.courtId,
+        searchDetails.prisonIds
+      )
+
+    return videoLinkAppointments.map {
+      VideoLinkBookingResponse(
+        videoLinkBookingId = it.videoLinkBooking.id!!,
+        bookingId = it.videoLinkBooking.offenderBookingId,
+        agencyId = it.videoLinkBooking.prisonId,
+        court = it.videoLinkBooking.courtName,
+        courtId = it.videoLinkBooking.courtId,
+        main = toVideoLinkAppointmentDto(it.videoLinkBooking.appointments[MAIN])!!,
+        pre = toVideoLinkAppointmentDto(it.videoLinkBooking.appointments[PRE]),
+        post = toVideoLinkAppointmentDto(it.videoLinkBooking.appointments[POST])
+      )
+    }
+  }
+
   fun updateVideoLinkBookingComment(videoLinkBookingId: Long, comment: String?) {
     val booking = videoLinkBookingRepository.findById(videoLinkBookingId).orElseThrow {
       EntityNotFoundException("Video link booking with id $videoLinkBookingId not found")
@@ -272,6 +304,14 @@ class VideoLinkBookingService(
       )
     }
   }
+  private fun toVideoLinkAppointmentDto(videoLinkAppointment: VideoLinkAppointment?) =
+    videoLinkAppointment?.let {
+      VideoLinkBookingResponse.LocationTimeslot(
+        locationId = it.locationId,
+        startTime = it.startDateTime,
+        endTime = it.endDateTime
+      )
+    }
 
   private fun toVideoLinkAppointmentDto(scheduledAppointment: ScheduledAppointmentDto?) =
     scheduledAppointment?.takeIf { hasAnEndDate(it) }?.let {
@@ -314,20 +354,24 @@ class VideoLinkBookingService(
   }
 
   @Transactional
-  fun deleteAppointments(appointmentId: Long) {
-    val videoLinkAppointment = videoLinkAppointmentRepository.findOneByAppointmentId(appointmentId)
-
-    if (videoLinkAppointment.isPresent && videoLinkAppointment.get().hearingType == MAIN) {
-      videoLinkBookingRepository.delete(videoLinkAppointment.get().videoLinkBooking)
-      val appointmentsToDelete = videoLinkAppointment.get().videoLinkBooking.appointments.values
-        .sortedBy { it.appointmentId }
-        .filter { it.appointmentId != appointmentId }
-        .map { it.appointmentId }
-      if (appointmentsToDelete.isNotEmpty()) {
-        prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
+  fun processNomisUpdate(appointmentChangedEventMessage: AppointmentChangedEventMessage) {
+    val videoLinkAppointment = videoLinkAppointmentRepository.findOneByAppointmentId(appointmentChangedEventMessage.scheduleEventId)
+    if (videoLinkAppointment == null) return
+    if (appointmentChangedEventMessage.recordDeleted) {
+      if (videoLinkAppointment.hearingType != MAIN) {
+        videoLinkAppointmentRepository.delete(videoLinkAppointment)
+      } else {
+        videoLinkBookingRepository.delete(videoLinkAppointment.videoLinkBooking)
+        val appointmentsToDelete = videoLinkAppointment.videoLinkBooking.appointments.values
+          .sortedBy { it.appointmentId }
+          .filter { it.appointmentId != appointmentChangedEventMessage.scheduleEventId }
+          .map { it.appointmentId }
+        if (appointmentsToDelete.isNotEmpty()) {
+          prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
+        }
       }
-    } else if (videoLinkAppointment.isPresent) {
-      videoLinkAppointmentRepository.delete(videoLinkAppointment.get())
+    } else {
+      videoLinkBookingEventListener.appointmentUpdatedInNomis(videoLinkAppointment, appointmentChangedEventMessage)
     }
   }
 }

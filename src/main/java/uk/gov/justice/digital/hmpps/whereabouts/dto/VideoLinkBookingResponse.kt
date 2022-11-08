@@ -23,7 +23,7 @@ data class VideoLinkBookingResponse(
     example = "York Crown Court",
     required = true,
   )
-  val court: String,
+  val court: String?,
 
   @ApiModelProperty(
     value = "The identifier for the court that requires the appointment. If present this will be one of the identifier values from the courts register service.",
