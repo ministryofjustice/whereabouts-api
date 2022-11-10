@@ -48,8 +48,9 @@ class VideoLinkBookingMigrationServiceTest {
 
     whenever(prisonApiService.getPrisonAppointment(any())).thenReturn(null)
 
-    service.updateVideoLink(videoLinkBooking)
+    val outcome = service.updateVideoLink(videoLinkBooking)
     verify(videoLinkBookingRepository).delete(videoLinkBooking)
+    assertThat(outcome).contains(VideoLinkBookingMigrationService.Outcome.BOOKING_DELETED)
   }
 
   @Test
@@ -72,11 +73,40 @@ class VideoLinkBookingMigrationServiceTest {
       )
     )
 
-    service.updateVideoLink(videoLinkBooking)
+    val outcome = service.updateVideoLink(videoLinkBooking)
 
     verify(videoLinkBookingRepository).save(videoLinkBooking)
     assertThat(videoLinkBooking.appointments.get(HearingType.PRE)).isNull()
     assertThat(videoLinkBooking.prisonId).isEqualTo("MDI")
+    assertThat(outcome).contains(VideoLinkBookingMigrationService.Outcome.PRE_DELETED)
+    assertThat(videoLinkBooking.comment).isEqualTo("comment")
+  }
+
+  @Test
+  fun `update video link booking with main appointment and do not process post and pre appointments as the booking do not have post and pre appointments`() {
+    val videoLinkBooking = VideoLinkBooking(1L, 123L, "York", "EYI", prisonId = "PR1")
+    videoLinkBooking.addMainAppointment(2L, 123L, START_DATETIME, END_DATETIME, 2L)
+
+    whenever(prisonApiService.getPrisonAppointment(2L)).thenReturn(
+      PrisonAppointment(
+        agencyId = "MDI",
+        bookingId = 1L,
+        startTime = START_DATETIME,
+        endTime = END_DATETIME,
+        eventId = 2L,
+        eventLocationId = 123L,
+        eventSubType = "VLB",
+        comment = "comment",
+      )
+    )
+
+    val outcome = service.updateVideoLink(videoLinkBooking)
+
+    verify(videoLinkBookingRepository).save(videoLinkBooking)
+    assertThat(videoLinkBooking.appointments.get(HearingType.PRE)).isNull()
+    assertThat(videoLinkBooking.appointments.get(HearingType.POST)).isNull()
+    assertThat(videoLinkBooking.prisonId).isEqualTo("MDI")
+    assertThat(outcome).contains(VideoLinkBookingMigrationService.Outcome.MIGRATED_NO_MODIFICATIONS)
     assertThat(videoLinkBooking.comment).isEqualTo("comment")
   }
 
@@ -111,7 +141,7 @@ class VideoLinkBookingMigrationServiceTest {
       )
     )
 
-    service.updateVideoLink(videoLinkBooking)
+    val outcome = service.updateVideoLink(videoLinkBooking)
 
     verify(videoLinkBookingRepository).save(videoLinkBooking)
     assertThat(videoLinkBooking.prisonId).isEqualTo("MDI")
@@ -123,6 +153,7 @@ class VideoLinkBookingMigrationServiceTest {
       START_DATETIME
     )
     assertThat(videoLinkBooking.appointments.get(HearingType.PRE)).isNull()
+    assertThat(outcome).contains(VideoLinkBookingMigrationService.Outcome.MIGRATED_NO_MODIFICATIONS)
   }
 
   companion object {
