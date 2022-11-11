@@ -1,0 +1,181 @@
+package uk.gov.justice.digital.hmpps.whereabouts.integration
+
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.test.context.transaction.TestTransaction
+import org.springframework.test.jdbc.JdbcTestUtils
+import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
+import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
+import java.time.LocalDateTime
+
+@Transactional
+class VideoLinkBookingMigrationIntegrationTest : IntegrationTest() {
+
+  @Autowired
+  lateinit var jdbcTemplate: JdbcTemplate
+  @Autowired
+  lateinit var videoLinkBookingRepository: VideoLinkBookingRepository
+
+  @BeforeEach
+  fun prepare() {
+    deleteAll()
+    makeSomeBookings()
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
+  }
+
+  @Test
+  fun `Update existing booking when main appointment exist`() {
+
+    prisonApiMockServer.stubGetPrisonAppointment(
+      438577488,
+      objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = 1, startTime = startTime))
+    )
+    prisonApiMockServer.stubGetPrisonAppointment404(438577489)
+    prisonApiMockServer.stubGetPrisonAppointment404(438577490)
+
+    val uri = "$baseUrl?fromDate=2022-01-01&toDate=2022-02-01"
+    webTestClient.get()
+      .uri(uri)
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("videoLinkBookingScanned").isEqualTo(1)
+      .jsonPath("outcomes.PRE_DELETED").isEqualTo(1)
+      .jsonPath("outcomes.POST_DELETED").isEqualTo(1)
+
+    val vlb = videoLinkBookingRepository.findById(1)
+    assertThat(vlb.get().prisonId).isEqualTo("MDI")
+    assertThat(vlb.get().comment).isEqualTo("test")
+    assertThat(vlb.get().appointments.get(HearingType.MAIN)?.startDateTime).isEqualToIgnoringSeconds(startTime)
+    assertThat(vlb.get().appointments.get(HearingType.PRE)).isEqualTo(null)
+    assertThat(vlb.get().appointments.get(HearingType.POST)).isEqualTo(null)
+  }
+
+  @Test
+  fun `Update existing booking when pre and main appointment exist`() {
+
+    prisonApiMockServer.stubGetPrisonAppointment(
+      438577488,
+      objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = 1, startTime = startTime))
+    )
+    prisonApiMockServer.stubGetPrisonAppointment(
+      438577489,
+      objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = 1, startTime = startTime))
+    )
+
+    prisonApiMockServer.stubGetPrisonAppointment404(438577490)
+
+    val uri = "$baseUrl?fromDate=2022-01-01&toDate=2022-02-01"
+    webTestClient.get()
+      .uri(uri)
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("videoLinkBookingScanned").isEqualTo(1)
+      .jsonPath("outcomes.POST_DELETED").isEqualTo(1)
+
+    val vlb = videoLinkBookingRepository.findById(1)
+    assertThat(vlb.get().prisonId).isEqualTo("MDI")
+    assertThat(vlb.get().comment).isEqualTo("test")
+    assertThat(vlb.get().appointments.get(HearingType.MAIN)?.startDateTime).isEqualToIgnoringSeconds(startTime)
+    assertThat(vlb.get().appointments.get(HearingType.PRE)?.startDateTime).isEqualToIgnoringSeconds(startTime)
+    assertThat(vlb.get().appointments.get(HearingType.POST)).isEqualTo(null)
+  }
+
+  @Test
+  fun `delete existing booking when main appointment not exist`() {
+
+    prisonApiMockServer.stubGetPrisonAppointment404(438577488)
+    prisonApiMockServer.stubGetPrisonAppointment404(438577489)
+    prisonApiMockServer.stubGetPrisonAppointment404(438577490)
+
+    val uri = "$baseUrl?fromDate=2022-01-01&toDate=2022-02-01"
+    webTestClient.get()
+      .uri(uri)
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("videoLinkBookingScanned").isEqualTo(1)
+      .jsonPath("outcomes.BOOKING_DELETED").isEqualTo(1)
+
+    val vlb = videoLinkBookingRepository.findById(1)
+    assertThat(vlb).isEmpty
+  }
+
+  @Test
+  fun `no deletion when all appointments exist`() {
+
+    prisonApiMockServer.stubGetPrisonAppointment(
+      438577488,
+      objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = 1, startTime = startTime))
+    )
+    prisonApiMockServer.stubGetPrisonAppointment(
+      438577489,
+      objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = 1, startTime = startTime))
+    )
+    prisonApiMockServer.stubGetPrisonAppointment(
+      438577490,
+      objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = 1, startTime = startTime))
+    )
+
+    val uri = "$baseUrl?fromDate=2022-01-01&toDate=2022-02-01"
+    webTestClient.get()
+      .uri(uri)
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("videoLinkBookingScanned").isEqualTo(1)
+      .jsonPath("outcomes.MIGRATED_NO_MODIFICATIONS").isEqualTo(1)
+
+    val vlb = videoLinkBookingRepository.findById(1)
+    assertThat(vlb.get().prisonId).isEqualTo("MDI")
+    assertThat(vlb.get().comment).isEqualTo("test")
+    assertThat(vlb.get().appointments.get(HearingType.MAIN)?.startDateTime).isEqualToIgnoringSeconds(startTime)
+    assertThat(vlb.get().appointments.get(HearingType.PRE)?.startDateTime).isEqualToIgnoringSeconds(startTime)
+    assertThat(vlb.get().appointments.get(HearingType.POST)?.startDateTime).isEqualToIgnoringSeconds(startTime)
+  }
+
+  fun deleteAll() {
+    JdbcTestUtils.deleteFromTables(jdbcTemplate, "video_link_appointment")
+    JdbcTestUtils.deleteFromTables(jdbcTemplate, "video_link_booking")
+  }
+
+  fun makeSomeBookings() {
+
+    jdbcTemplate.update(
+      """INSERT INTO video_link_booking (id, offender_booking_id, court_name, court_id, made_by_the_court,
+                                       created_by_username, prison_id, comment)
+VALUES (1, 1182546, 'Wimbledon', 'WMBLMC', false, null, 'P2', null);"""
+    )
+    jdbcTemplate.update(
+      """INSERT INTO video_link_appointment (id, appointment_id, hearing_type, video_link_booking_id, location_id,
+                                           start_date_time, end_date_time)
+VALUES (1, 438577488, 'MAIN',1, 1234, '2022-01-01 10:00:00', '2022-01-01 11:00:00');"""
+    )
+    jdbcTemplate.update(
+      """INSERT INTO video_link_appointment (id, appointment_id, hearing_type, video_link_booking_id, location_id,
+                                           start_date_time, end_date_time)
+VALUES (2, 438577489, 'PRE', 1, 1234, '2022-01-01 09:00:00', '2022-01-01 10:00:00');"""
+    )
+    jdbcTemplate.update(
+      """INSERT INTO video_link_appointment (id, appointment_id, hearing_type, video_link_booking_id, location_id,
+                                           start_date_time, end_date_time)
+VALUES (3, 438577490, 'POST',1, 1234,'2022-01-01 11:00:00', '2022-01-01 12:00:00');"""
+    )
+  }
+
+  companion object {
+    val startTime: LocalDateTime = LocalDateTime.now()
+    const val baseUrl = "/court/migrate-existing-bookings/"
+  }
+}
