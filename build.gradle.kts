@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.4"
-  kotlin("plugin.spring") version "1.7.0"
-  kotlin("plugin.jpa") version "1.7.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.7"
+  kotlin("plugin.spring") version "1.7.21"
+  kotlin("plugin.jpa") version "1.7.21"
 }
 
 configurations {
@@ -17,9 +17,9 @@ dependencies {
 
   compileOnly("org.projectlombok:lombok:1.18.24")
 
-  runtimeOnly("com.h2database:h2:2.1.210")
-  runtimeOnly("org.flywaydb:flyway-core:8.5.8")
-  runtimeOnly("org.postgresql:postgresql:42.4.1")
+  runtimeOnly("com.h2database:h2:2.1.214")
+  runtimeOnly("org.flywaydb:flyway-core:9.8.1")
+  runtimeOnly("org.postgresql:postgresql:42.5.0")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-cache")
@@ -30,19 +30,19 @@ dependencies {
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
-  implementation("com.sun.xml.bind:jaxb-impl:3.0.2")
-  implementation("com.sun.xml.bind:jaxb-core:3.0.2")
+  implementation("com.sun.xml.bind:jaxb-impl:4.0.1")
+  implementation("com.sun.xml.bind:jaxb-core:4.0.1")
   implementation("javax.activation:activation:1.1.1")
   implementation("javax.transaction:javax.transaction-api:1.3")
   implementation("javax.validation:validation-api")
 
-  implementation("io.swagger:swagger-annotations:1.6.6")
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.11")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.11")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.11")
+  implementation("io.swagger:swagger-annotations:1.6.8")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.12")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.12")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.12")
 
   implementation("org.apache.commons:commons-lang3")
-  implementation("org.apache.commons:commons-text:1.9")
+  implementation("org.apache.commons:commons-text:1.10.0")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
@@ -51,16 +51,16 @@ dependencies {
   implementation("org.jetbrains.kotlin:kotlin-reflect")
 
   implementation("org.springframework:spring-jms")
-  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.267"))
-  implementation("com.amazonaws:amazon-sqs-java-messaging-lib:1.1.0")
+  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.341"))
+  implementation("com.amazonaws:amazon-sqs-java-messaging-lib:2.0.1")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
 
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.34.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("io.mockk:mockk:1.12.3")
+  testImplementation("io.mockk:mockk:1.13.2")
   testCompileOnly("org.projectlombok:lombok:1.18.24")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
 }
