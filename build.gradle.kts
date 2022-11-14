@@ -52,7 +52,7 @@ dependencies {
 
   implementation("org.springframework:spring-jms")
   implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.341"))
-  implementation("com.amazonaws:amazon-sqs-java-messaging-lib:2.0.1")
+  implementation("com.amazonaws:amazon-sqs-java-messaging-lib:1.1.0")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
