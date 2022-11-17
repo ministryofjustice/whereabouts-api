@@ -101,41 +101,6 @@ class VideoLinkBookingController(
     videoBookingId: Long
   ) = videoLinkBookingService.getVideoLinkBooking(videoBookingId)
 
-  @GetMapping(
-    path = ["/video-link-bookings/prison/{agencyId}/date/{date}"],
-    produces = [MediaType.APPLICATION_JSON_VALUE]
-  )
-  @ResponseStatus(HttpStatus.OK)
-  @Operation(description = "Get all video link bookings for the specified date and prison, optionally filtering by court.")
-  fun getVideoLinkBookingsByPrisonDateAndCourt(
-    @Parameter(description = "Return video link bookings for this prison only")
-    @PathVariable(name = "agencyId")
-    agencyId: String,
-
-    @Parameter(description = "Return video link bookings for this date only. ISO-8601 date format")
-    @PathVariable(name = "date")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    date: LocalDate,
-
-    @Parameter(
-      description = "The name a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned.",
-      required = false,
-      example = "Wimbledon",
-    )
-    @RequestParam(name = "court", required = false)
-    court: String?,
-
-    @Parameter(
-      description = "The identifier of a court.  If present the response will only contain video link bookings for this court. Otherwise all bookings will be returned. Takes precedence over court.",
-      required = false,
-      example = "CMBGMC"
-    )
-    @RequestParam(name = "courtId", required = false)
-    courtId: String?
-  ): List<VideoLinkBookingResponse> {
-    return videoLinkBookingService.getVideoLinkBookingsForPrisonAndDateAndCourt(agencyId, date, court, courtId)
-  }
-
   @PostMapping(
     path = ["/video-link-bookings/date/{date}"],
     produces = [MediaType.APPLICATION_JSON_VALUE]

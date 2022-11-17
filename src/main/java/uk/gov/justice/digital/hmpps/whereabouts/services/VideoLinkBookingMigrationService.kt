@@ -57,11 +57,11 @@ class VideoLinkBookingMigrationService(
       videoLinkBooking.prisonId = nomisMainAppointment.agencyId
       videoLinkBooking.comment = nomisMainAppointment.comment
 
-      if (preAppointment != null && preAppointment?.let { updateAppointment(it) } == null) {
+      if (preAppointment != null && updateAppointment(preAppointment) == null) {
         videoLinkBooking.appointments.remove(HearingType.PRE)
         outcomes.add(PRE_DELETED)
       }
-      if (postAppointment != null && postAppointment?.let { updateAppointment(it) } == null) {
+      if (postAppointment != null && updateAppointment(postAppointment) == null) {
         videoLinkBooking.appointments.remove(HearingType.POST)
         outcomes.add(POST_DELETED)
       }
