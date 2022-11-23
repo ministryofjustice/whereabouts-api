@@ -25,12 +25,12 @@ class VideoLinkBooking(
   var courtId: String? = null,
   val madeByTheCourt: Boolean? = true,
   var prisonId: String,
-  var comment: String? = null,
+  var comment: String? = null
 
 ) : BaseEntity(id) {
   @OneToMany(
     mappedBy = "videoLinkBooking",
-    fetch = FetchType.EAGER,
+    fetch = FetchType.LAZY,
     cascade = [CascadeType.PERSIST, CascadeType.REMOVE],
     orphanRemoval = true
   )
@@ -40,7 +40,13 @@ class VideoLinkBooking(
   @CreatedBy
   var createdByUsername: String? = null
 
-  fun addPreAppointment(appointmentId: Long, locationId: Long, startDateTime: LocalDateTime, endDateTime: LocalDateTime, id: Long? = null) = appointments.put(
+  fun addPreAppointment(
+    appointmentId: Long,
+    locationId: Long,
+    startDateTime: LocalDateTime,
+    endDateTime: LocalDateTime,
+    id: Long? = null
+  ) = appointments.put(
     PRE,
     VideoLinkAppointment(
       id = id,
@@ -49,11 +55,17 @@ class VideoLinkBooking(
       locationId = locationId,
       hearingType = PRE,
       startDateTime = startDateTime,
-      endDateTime = endDateTime,
+      endDateTime = endDateTime
     )
   )
 
-  fun addMainAppointment(appointmentId: Long, locationId: Long, startDateTime: LocalDateTime, endDateTime: LocalDateTime, id: Long? = null) = appointments.put(
+  fun addMainAppointment(
+    appointmentId: Long,
+    locationId: Long,
+    startDateTime: LocalDateTime,
+    endDateTime: LocalDateTime,
+    id: Long? = null
+  ) = appointments.put(
     MAIN,
     VideoLinkAppointment(
       id = id,
@@ -62,11 +74,17 @@ class VideoLinkBooking(
       locationId = locationId,
       hearingType = MAIN,
       startDateTime = startDateTime,
-      endDateTime = endDateTime,
+      endDateTime = endDateTime
     )
   )
 
-  fun addPostAppointment(appointmentId: Long, locationId: Long, startDateTime: LocalDateTime, endDateTime: LocalDateTime, id: Long? = null) = appointments.put(
+  fun addPostAppointment(
+    appointmentId: Long,
+    locationId: Long,
+    startDateTime: LocalDateTime,
+    endDateTime: LocalDateTime,
+    id: Long? = null
+  ) = appointments.put(
     POST,
     VideoLinkAppointment(
       id = id,
@@ -75,7 +93,7 @@ class VideoLinkBooking(
       locationId = locationId,
       hearingType = POST,
       startDateTime = startDateTime,
-      endDateTime = endDateTime,
+      endDateTime = endDateTime
     )
   )
 
