@@ -34,6 +34,16 @@ sqs:
   queue.name: whereabouts_api_queue
   dlq.name: whereabouts_api_dlq
 
+org:
+  hibernate:
+    event:
+      internal:
+        DefaultPersistEventListener: TRACE
+
+logging.level.org.hibernate:
+  SQL: DEBUG
+  type.descriptor.sql.BasicBinder: TRACE
+
 
 courts: Test Court 1,Test Court 2
 

@@ -317,6 +317,7 @@ class VideoLinkBookingService(
   @Transactional
   fun processNomisUpdate(appointmentChangedEventMessage: AppointmentChangedEventMessage) {
     val videoLinkAppointment = videoLinkAppointmentRepository.findOneByAppointmentId(appointmentChangedEventMessage.scheduleEventId)
+    log.info("videoLinkAppointment {}", videoLinkAppointment)
     if (videoLinkAppointment == null) return
     if (appointmentChangedEventMessage.recordDeleted) {
       if (videoLinkAppointment.hearingType != MAIN) {
@@ -333,6 +334,11 @@ class VideoLinkBookingService(
       }
     } else {
       videoLinkBookingEventListener.appointmentUpdatedInNomis(videoLinkAppointment, appointmentChangedEventMessage)
+    }
+    videoLinkBookingRepository.findAll().forEach { booking ->
+      booking.appointments.values.forEach { appointment ->
+        log.info(appointment.locationId.toString())
+      }
     }
   }
 }

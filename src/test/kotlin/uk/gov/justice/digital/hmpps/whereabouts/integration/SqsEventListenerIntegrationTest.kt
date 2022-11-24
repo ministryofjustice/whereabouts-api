@@ -41,12 +41,8 @@ class SqsEventListenerIntegrationTest : IntegrationTest() {
   @Test
   fun `delete pre appointment`() {
     sqsEventListener.handleEvents(getJson("/services/pre-appointment-deleted-request.json"))
-    videoLinkBookingRepository.findAll().forEach { booking ->
-      booking.appointments.values.forEach { appointment ->
-        log.info(appointment.locationId.toString())
-      }
-    }
     Assertions.assertThat(videoLinkAppointmentRepository.findAll().size).isEqualTo(2)
+    Assertions.assertThat(videoLinkBookingRepository.findAll().size).isEqualTo(1)
   }
 
   @Test
