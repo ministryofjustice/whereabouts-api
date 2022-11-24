@@ -355,11 +355,12 @@ class VideoLinkBookingService(
 
   @Transactional
   fun processNomisUpdate(appointmentChangedEventMessage: AppointmentChangedEventMessage) {
-    val videoLinkAppointment = videoLinkAppointmentRepository.findOneByAppointmentId(appointmentChangedEventMessage.scheduleEventId)
-    if (videoLinkAppointment == null) return
+    val videoLinkAppointment =
+      videoLinkAppointmentRepository.findOneByAppointmentId(appointmentChangedEventMessage.scheduleEventId) ?: return
     if (appointmentChangedEventMessage.recordDeleted) {
       if (videoLinkAppointment.hearingType != MAIN) {
-        videoLinkAppointmentRepository.delete(videoLinkAppointment)
+        videoLinkAppointment.videoLinkBooking.appointments.remove(videoLinkAppointment.hearingType)
+        videoLinkBookingRepository.save(videoLinkAppointment.videoLinkBooking)
       } else {
         videoLinkBookingRepository.delete(videoLinkAppointment.videoLinkBooking)
         val appointmentsToDelete = videoLinkAppointment.videoLinkBooking.appointments.values

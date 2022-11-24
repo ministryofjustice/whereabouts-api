@@ -1326,7 +1326,6 @@ class VideoLinkBookingServiceTest {
       whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(null)
       service.processNomisUpdate(appointmentChangedEventMessage)
       verify(videoLinkBookingRepository, times(0)).delete(any())
-      verify(videoLinkAppointmentRepository, times(0)).delete(any())
     }
 
     @Test
@@ -1336,8 +1335,7 @@ class VideoLinkBookingServiceTest {
 
       whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(booking.appointments[HearingType.POST]!!)
       service.processNomisUpdate(appointmentChangedEventMessage)
-      verify(videoLinkBookingRepository, times(0)).delete(any())
-      verify(videoLinkAppointmentRepository, times(1)).delete(booking.appointments[HearingType.POST])
+      verify(videoLinkBookingRepository, times(1)).save(any())
     }
 
     @Test
@@ -1350,7 +1348,6 @@ class VideoLinkBookingServiceTest {
       service.processNomisUpdate(appointmentChangedEventMessage)
       verify(prisonApiService, times(1)).deleteAppointments(listOf(2L, 3L), EventPropagation.DENY)
       verify(videoLinkBookingRepository, times(1)).delete(booking)
-      verify(videoLinkAppointmentRepository, times(0)).delete(any())
     }
 
     @Test
@@ -1363,7 +1360,6 @@ class VideoLinkBookingServiceTest {
       service.processNomisUpdate(appointmentChangedEventMessage)
       verify(prisonApiService, times(0)).deleteAppointments(listOf(2L, 3L), EventPropagation.DENY)
       verify(videoLinkBookingRepository, times(0)).delete(booking)
-      verify(videoLinkAppointmentRepository, times(0)).delete(any())
       verify(videoLinkBookingEventListener, times(1)).appointmentUpdatedInNomis(booking.appointments[HearingType.MAIN]!!, appointmentChangedEventMessage)
     }
 
