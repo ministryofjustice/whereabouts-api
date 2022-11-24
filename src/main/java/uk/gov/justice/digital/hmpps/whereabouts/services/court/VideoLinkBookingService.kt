@@ -321,7 +321,8 @@ class VideoLinkBookingService(
     if (videoLinkAppointment == null) return
     if (appointmentChangedEventMessage.recordDeleted) {
       if (videoLinkAppointment.hearingType != MAIN) {
-        videoLinkAppointmentRepository.delete(videoLinkAppointment)
+        videoLinkAppointment.videoLinkBooking.appointments.remove(videoLinkAppointment.hearingType)
+        videoLinkBookingRepository.save(videoLinkAppointment.videoLinkBooking)
       } else {
         videoLinkBookingRepository.delete(videoLinkAppointment.videoLinkBooking)
         val appointmentsToDelete = videoLinkAppointment.videoLinkBooking.appointments.values
@@ -334,11 +335,6 @@ class VideoLinkBookingService(
       }
     } else {
       videoLinkBookingEventListener.appointmentUpdatedInNomis(videoLinkAppointment, appointmentChangedEventMessage)
-    }
-    videoLinkBookingRepository.findAll().forEach { booking ->
-      booking.appointments.values.forEach { appointment ->
-        log.info(appointment.locationId.toString())
-      }
     }
   }
 }

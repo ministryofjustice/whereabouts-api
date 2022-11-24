@@ -30,7 +30,7 @@ class VideoLinkBooking(
 ) : BaseEntity(id) {
   @OneToMany(
     mappedBy = "videoLinkBooking",
-    fetch = FetchType.LAZY,
+    fetch = FetchType.EAGER,
     cascade = [CascadeType.PERSIST, CascadeType.REMOVE],
     orphanRemoval = true
   )
