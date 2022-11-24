@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.transaction.TestTransaction
@@ -19,6 +20,7 @@ class SqsEventListenerIntegrationTest : IntegrationTest() {
 
   @Autowired
   lateinit var jdbcTemplate: JdbcTemplate
+
   @Autowired
   lateinit var videoLinkBookingRepository: VideoLinkBookingRepository
 
@@ -39,8 +41,14 @@ class SqsEventListenerIntegrationTest : IntegrationTest() {
   @Test
   fun `delete pre appointment`() {
     sqsEventListener.handleEvents(getJson("/services/pre-appointment-deleted-request.json"))
+    videoLinkBookingRepository.findAll().forEach { booking ->
+      booking.appointments.values.forEach { appointment ->
+        log.info(appointment.locationId.toString())
+      }
+    }
     Assertions.assertThat(videoLinkAppointmentRepository.findAll().size).isEqualTo(2)
   }
+
   @Test
   fun `delete main appointment`() {
     prisonApiMockServer.stubDeleteAppointments(listOf(438577489, 438577490))
@@ -80,5 +88,9 @@ VALUES (2, 438577489, 'PRE', 1, 1234, '2022-01-01 09:00:00', '2022-01-01 10:00:0
                                            start_date_time, end_date_time)
 VALUES (3, 438577490, 'POST',1, 1234,'2022-01-01 11:00:00', '2022-01-01 12:00:00');"""
     )
+  }
+
+  companion object {
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
