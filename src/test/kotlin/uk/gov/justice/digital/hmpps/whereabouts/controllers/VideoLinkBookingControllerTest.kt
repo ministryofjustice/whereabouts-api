@@ -2,8 +2,10 @@ package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.isNull
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -553,6 +555,111 @@ class VideoLinkBookingControllerTest : TestController() {
           .contentType(MediaType.APPLICATION_JSON)
       )
         .andExpect(status().`is`(401))
+    }
+  }
+
+  @Nested
+  inner class GetBookingsByPrisonAndDateAndCourt {
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `get bookings on date`() {
+      whenever(videoLinkBookingService.getVideoLinkBookingsForPrisonAndDateAndCourt(any(), any(), isNull(), isNull()))
+        .thenReturn(listOf(videoLinkBookingResponse.copy(agencyId = "LEI")))
+
+      mockMvc.perform(
+        get("/court/video-link-bookings/prison/LEI/date/2020-12-25").accept(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(
+          matchAll(
+            status().isOk,
+            content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
+            content().json(
+              """
+              [
+                {
+                  "videoLinkBookingId": 1,
+                  "bookingId": 100,
+                  "comment": "any comment",
+                  "court": "Test Court",
+                  "courtId": "TSTCRT",
+                  "agencyId": "LEI",
+                  "pre": {
+                    "locationId": 10,
+                    "startTime": "2020-02-07T12:00:00",
+                    "endTime": "2020-02-07T13:00:00"
+                  },
+                  "main": {
+                    "locationId": 9,
+                    "startTime": "2020-02-07T13:00:00",
+                    "endTime": "2020-02-07T14:00:00"
+                  },
+                  "post": {
+                    "locationId": 5,
+                    "startTime": "2020-02-07T14:00:00",
+                    "endTime": "2020-02-07T15:00:00"
+                  }
+                }
+              ]"""
+            )
+          )
+        )
+
+      verify(videoLinkBookingService)
+        .getVideoLinkBookingsForPrisonAndDateAndCourt("LEI", LocalDate.of(2020, 12, 25), null, null)
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `get bookings on date for court`() {
+      whenever(
+        videoLinkBookingService.getVideoLinkBookingsForPrisonAndDateAndCourt(
+          any(),
+          any(),
+          anyString(),
+          isNull()
+        )
+      )
+        .thenReturn(listOf())
+
+      mockMvc.perform(
+        get("/court/video-link-bookings/prison/LEI/date/2020-12-25?court=The Court").accept(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(
+          matchAll(
+            status().isOk,
+            content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+          )
+        )
+
+      verify(videoLinkBookingService)
+        .getVideoLinkBookingsForPrisonAndDateAndCourt("LEI", LocalDate.of(2020, 12, 25), "The Court", null)
+    }
+
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `get bookings on date for courtId`() {
+      whenever(
+        videoLinkBookingService.getVideoLinkBookingsForPrisonAndDateAndCourt(
+          any(),
+          any(),
+          isNull(),
+          anyString()
+        )
+      )
+        .thenReturn(listOf())
+
+      mockMvc.perform(
+        get("/court/video-link-bookings/prison/LEI/date/2020-12-25?courtId=TSTCRT").accept(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(
+          matchAll(
+            status().isOk,
+            content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+          )
+        )
+
+      verify(videoLinkBookingService)
+        .getVideoLinkBookingsForPrisonAndDateAndCourt("LEI", LocalDate.of(2020, 12, 25), null, "TSTCRT")
     }
   }
 
