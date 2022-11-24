@@ -2,16 +2,20 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.assertj.core.api.Assertions.tuple
 import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.isA
+import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
@@ -20,6 +24,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSearchDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto
@@ -37,8 +42,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagat
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.Clock
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Optional
@@ -1075,6 +1082,311 @@ class VideoLinkBookingServiceTest {
       Assertions.assertThrows(EntityNotFoundException::class.java) {
         service.getVideoLinkBooking(videoLinkBooking.id!!)
       }
+    }
+  }
+
+  @Nested
+  inner class GetVideoLinkBookingsForDateAndCourt {
+    val service = service()
+    val date: LocalDate = LocalDate.of(2020, 12, 25)
+
+    @Test
+    fun `No prison appointments, no VLBs`() {
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any())).thenReturn(listOf())
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), any(), any())
+      ).thenReturn(listOf())
+
+      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null, null)
+      assertThat(bookings).isEmpty()
+      verify(prisonApiService).getScheduledAppointments("WWI", date)
+    }
+
+    @Test
+    fun `No prison appointments find by SearchDetails`() {
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), any(), any())
+      ).thenReturn(listOf())
+
+      val bookings =
+        service.getVideoLinkBookingsBySearchDetails(VideoLinkBookingSearchDetails("WWI", listOf("P1", "P2")), date)
+      assertThat(bookings).isEmpty()
+    }
+    @Test
+    fun `One prison appointment find by SearchDetails`() {
+
+      val vbl = VideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", prisonId = "WWI").apply {
+        addPreAppointment(
+          id = 100L,
+          appointmentId = 10L,
+          locationId = 10L,
+          startDateTime = startDateTime,
+          endDateTime = endDateTime
+        )
+        addMainAppointment(
+          id = 101L,
+          appointmentId = 11L,
+          locationId = 10L,
+          startDateTime = startDateTime,
+          endDateTime = endDateTime
+        )
+        addPostAppointment(
+          id = 102L,
+          appointmentId = 12L,
+          locationId = 10L,
+          startDateTime = startDateTime,
+          endDateTime = endDateTime
+        )
+      }
+
+      whenever(
+        videoLinkAppointmentRepository.findAllByStartDateTimeBetweenAndHearingTypeIsAndVideoLinkBookingCourtIdIsAndVideoLinkBookingPrisonIdIn(
+          any(),
+          any(),
+          any(),
+          any(),
+          any()
+        )
+      )
+        .thenReturn(vbl.appointments.values.toSet())
+
+      val bookings =
+        service.getVideoLinkBookingsBySearchDetails(VideoLinkBookingSearchDetails("WWI", listOf("P1", "P2")), date)
+      assertThat(bookings).isNotEmpty
+    }
+
+    @Test
+    fun `Happy path`() {
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
+        .thenReturn(
+          scheduledAppointments("VLB", "WWI", 1, 10) +
+            scheduledAppointments("VLB", "WWI", 1000, 1010) +
+            scheduledAppointments("VLB", "WWI", 2000, 2010) +
+            scheduledAppointments("XXX", "WWI", 3000, 3010)
+        )
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+          any(),
+          eq(HearingType.MAIN),
+          isNull(),
+          isNull()
+        )
+      )
+        .thenReturn(videoLinkBookings("Wimbledon", null, 1, 10, 10L, startDateTime, endDateTime))
+
+      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null, null)
+      assertThat(bookings)
+        .extracting("main.locationId", "pre.locationId", "post.locationId")
+        .containsExactlyInAnyOrder(
+          tuple(1001L, 2001L, 3001L),
+          tuple(1002L, 2002L, 3002L),
+          tuple(1003L, 2003L, 3003L),
+          tuple(1004L, 2004L, 3004L),
+          tuple(1005L, 2005L, 3005L),
+          tuple(1006L, 2006L, 3006L),
+          tuple(1007L, 2007L, 3007L),
+          tuple(1008L, 2008L, 3008L),
+          tuple(1009L, 2009L, 3009L),
+          tuple(1010L, 2010L, 3010L),
+        )
+
+      verify(videoLinkBookingRepository).findByAppointmentIdsAndHearingType(
+        rangesAsList(
+          (1L..10L),
+          (1000L..1010L),
+          (2000L..2010L)
+        ),
+        HearingType.MAIN
+      )
+    }
+
+    private fun rangesAsList(vararg ranges: LongRange) = ranges.asList().flatMap { range -> range.map { it } }
+
+    @Test
+    fun `Happy path - filter appointment type`() {
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
+        .thenReturn(scheduledAppointments("NOWT", "WWI", 1, 10))
+
+      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), any(), any()))
+        .thenReturn(emptyList())
+
+      service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null, null)
+
+      verify(videoLinkBookingRepository).findByAppointmentIdsAndHearingType(emptyList(), HearingType.MAIN)
+    }
+
+    @Test
+    fun `Appointments with missing end times are filtered out`() {
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any()))
+        .thenReturn(
+          listOf(
+            ScheduledAppointmentDto(
+              id = 1001,
+              agencyId = "WEI",
+              locationId = 1001,
+              appointmentTypeCode = "VLB",
+              startTime = LocalDateTime.of(2020, 1, 1, 9, 40),
+              endTime = LocalDateTime.of(2020, 1, 1, 10, 0),
+              "A1234AA"
+            ),
+            ScheduledAppointmentDto(
+              id = 1002,
+              agencyId = "WEI",
+              locationId = 1002,
+              appointmentTypeCode = "VLB",
+              startTime = LocalDateTime.of(2020, 1, 1, 10, 0),
+              endTime = LocalDateTime.of(2020, 1, 1, 10, 30),
+              "B2345BB"
+            ),
+            ScheduledAppointmentDto(
+              id = 1003,
+              agencyId = "WEI",
+              locationId = 1003,
+              appointmentTypeCode = "VLB",
+              startTime = LocalDateTime.of(2020, 1, 1, 10, 30),
+              endTime = null,
+              "C3456CC"
+            )
+          )
+        )
+
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+          any(),
+          eq(HearingType.MAIN),
+          isNull(),
+          isNull()
+        )
+      )
+        .thenReturn(
+          listOf(
+            VideoLinkBooking(
+              id = 1000L,
+              offenderBookingId = 1000,
+              courtName = "Wimbledon",
+              prisonId = "WEI"
+            ).apply {
+              addPreAppointment(
+                id = 10001,
+                appointmentId = 1001,
+                locationId = 10L,
+                startDateTime = startDateTime,
+                endDateTime = endDateTime
+              )
+              addMainAppointment(
+                id = 20000,
+                appointmentId = 1002,
+                locationId = 10L,
+                startDateTime = startDateTime,
+                endDateTime = endDateTime
+              )
+              addPostAppointment(
+                id = 30000,
+                appointmentId = 1003,
+                locationId = 10L,
+                startDateTime = startDateTime,
+                endDateTime = endDateTime
+              )
+            }
+          )
+        )
+
+      val bookings = service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null, null)
+      assertThat(bookings).hasSize(1)
+      assertThat(bookings[0].pre).isNotNull
+      assertThat(bookings[0].main).isNotNull
+      assertThat(bookings[0].post).isNull()
+    }
+
+    @Test
+    fun `Filter by courtName`() {
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any())).thenReturn(emptyList())
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+          any(),
+          eq(HearingType.MAIN),
+          any(),
+          isNull()
+        )
+      )
+        .thenReturn(emptyList())
+
+      service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, "The court", null)
+      verify(videoLinkBookingRepository).findByAppointmentIdsAndHearingType(
+        emptyList(),
+        HearingType.MAIN,
+        "The court",
+        null
+      )
+    }
+
+    @Test
+    fun `Do not delete appointment when appointment not exist`() {
+      val appointmentChangedEventMessage = DataHelpers.makeAppointmentChangedEventMessage(scheduleEventId = 123, recordDeleted = true)
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(null)
+      service.processNomisUpdate(appointmentChangedEventMessage)
+      verify(videoLinkBookingRepository, times(0)).delete(any())
+      verify(videoLinkAppointmentRepository, times(0)).delete(any())
+    }
+
+    @Test
+    fun `Delete single appointment when appointment is not MAIN`() {
+      val booking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI")
+      val appointmentChangedEventMessage = DataHelpers.makeAppointmentChangedEventMessage(scheduleEventId = 2, recordDeleted = true)
+
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(booking.appointments[HearingType.POST]!!)
+      service.processNomisUpdate(appointmentChangedEventMessage)
+      verify(videoLinkBookingRepository, times(0)).delete(any())
+      verify(videoLinkAppointmentRepository, times(1)).delete(booking.appointments[HearingType.POST])
+    }
+
+    @Test
+    fun `Delete booking when appointment is MAIN`() {
+      val booking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI")
+      val appointmentChangedEventMessage = DataHelpers.makeAppointmentChangedEventMessage(scheduleEventId = 1, recordDeleted = true)
+
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(booking.appointments[HearingType.MAIN]!!)
+
+      service.processNomisUpdate(appointmentChangedEventMessage)
+      verify(prisonApiService, times(1)).deleteAppointments(listOf(2L, 3L), EventPropagation.DENY)
+      verify(videoLinkBookingRepository, times(1)).delete(booking)
+      verify(videoLinkAppointmentRepository, times(0)).delete(any())
+    }
+
+    @Test
+    fun `Call appointmentUpdatedInNomis and do not delete booking when recordDeleted is false`() {
+      val booking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI")
+      val appointmentChangedEventMessage = DataHelpers.makeAppointmentChangedEventMessage(scheduleEventId = 1, recordDeleted = false)
+
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(any())).thenReturn(booking.appointments[HearingType.MAIN]!!)
+
+      service.processNomisUpdate(appointmentChangedEventMessage)
+      verify(prisonApiService, times(0)).deleteAppointments(listOf(2L, 3L), EventPropagation.DENY)
+      verify(videoLinkBookingRepository, times(0)).delete(booking)
+      verify(videoLinkAppointmentRepository, times(0)).delete(any())
+      verify(videoLinkBookingEventListener, times(1)).appointmentUpdatedInNomis(booking.appointments[HearingType.MAIN]!!, appointmentChangedEventMessage)
+    }
+
+    @Test
+    fun `Filter by courtId`() {
+      whenever(prisonApiService.getScheduledAppointments(anyString(), any())).thenReturn(emptyList())
+      whenever(
+        videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+          any(),
+          eq(HearingType.MAIN),
+          isNull(),
+          any()
+        )
+      )
+        .thenReturn(emptyList())
+
+      service.getVideoLinkBookingsForPrisonAndDateAndCourt("WWI", date, null, "COURTID")
+      verify(videoLinkBookingRepository).findByAppointmentIdsAndHearingType(
+        emptyList(),
+        HearingType.MAIN,
+        null,
+        "COURTID"
+      )
     }
   }
 
