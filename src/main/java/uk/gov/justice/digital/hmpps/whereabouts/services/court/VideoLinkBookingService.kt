@@ -225,6 +225,45 @@ class VideoLinkBookingService(
   }
 
   @Transactional(readOnly = true)
+  fun getVideoLinkBookingsForPrisonAndDateAndCourt(
+    agencyId: String,
+    date: LocalDate,
+    courtName: String?,
+    courtId: String?
+  ): List<VideoLinkBookingResponse> {
+    val scheduledAppointments = prisonApiService
+      .getScheduledAppointments(agencyId, date)
+      .filter { it.appointmentTypeCode == VIDEO_LINK_APPOINTMENT_TYPE }
+      .filter { hasAnEndDate(it) }
+
+    val scheduledAppointmentIds = scheduledAppointments.map { it.id }
+
+    // If a booking's main appointment doesn't match one of the scheduledAppointmentIds then it is excluded
+    val bookings = videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
+      ids = scheduledAppointmentIds,
+      courtName = courtName,
+      courtId = courtId,
+      hearingType = MAIN
+    )
+
+    val scheduledAppointmentsById = scheduledAppointments.associateBy { it.id }
+
+    return bookings.map {
+      val mainPrisonAppointment = scheduledAppointmentsById[it.appointments[MAIN]?.appointmentId]!!
+      VideoLinkBookingResponse(
+        videoLinkBookingId = it.id!!,
+        bookingId = it.offenderBookingId,
+        agencyId = mainPrisonAppointment.agencyId,
+        court = courtService.chooseCourtName(it),
+        courtId = it.courtId,
+        main = toVideoLinkAppointmentDto(mainPrisonAppointment)!!,
+        pre = toVideoLinkAppointmentDto(scheduledAppointmentsById[it.appointments[PRE]?.appointmentId]),
+        post = toVideoLinkAppointmentDto(scheduledAppointmentsById[it.appointments[POST]?.appointmentId])
+      )
+    }
+  }
+
+  @Transactional(readOnly = true)
   fun getVideoLinkBookingsBySearchDetails(
     searchDetails: VideoLinkBookingSearchDetails,
     date: LocalDate
