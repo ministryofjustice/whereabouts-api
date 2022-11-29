@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance
-import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation.ALLOW
@@ -124,35 +123,6 @@ class PrisonApiServiceTest {
       putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
         .withHeader("no-event-propagation", equalTo("false"))
         .withRequestBody(absent())
-    )
-  }
-
-  @Test
-  fun `get appointments for agency on date`() {
-    val date = LocalDate.of(2020, 12, 25)
-    val agencyId = "WWI"
-
-    prisonApiMockServer.stubGetScheduledAppointmentsByAgencyAndDate(agencyId)
-    val scheduledAppointments = prisonApiService.getScheduledAppointments(agencyId, date)
-    assertThat(scheduledAppointments).containsExactlyInAnyOrder(
-      ScheduledAppointmentDto(
-        id = 1L,
-        agencyId = agencyId,
-        locationId = 10L,
-        appointmentTypeCode = "VLB",
-        startTime = date.atTime(9, 0),
-        endTime = date.atTime(9, 30),
-        offenderNo = "A1234AA"
-      ),
-      ScheduledAppointmentDto(
-        id = 2L,
-        agencyId = agencyId,
-        locationId = 11L,
-        appointmentTypeCode = "MEH",
-        startTime = date.atTime(10, 0),
-        endTime = date.atTime(10, 30),
-        offenderNo = "B2345BB"
-      )
     )
   }
 
