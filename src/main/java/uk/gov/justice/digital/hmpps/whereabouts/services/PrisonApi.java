@@ -358,20 +358,6 @@ public abstract class PrisonApi {
                 .block();
     }
 
-
-    public List<ScheduledAppointmentDto> getScheduledAppointments(final String agencyId, final LocalDate date) {
-        return webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/schedules/{agencyId}/appointments")
-                        .queryParam("date", "{date}")
-                        .build(agencyId, date))
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<ScheduledAppointmentDto>>() {
-                })
-                .block();
-    }
-
-
     public LocationDto getLocation(long locationId) {
         return webClient.get()
                 .uri("/locations/{locationId}", locationId)
