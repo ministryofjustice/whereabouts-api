@@ -17,10 +17,4 @@ interface VideoLinkAppointmentRepository : ReadOnlyRepository<VideoLinkAppointme
     courtId: String,
     prisonIds: List<String>
   ): Set<VideoLinkAppointment>
-
-  fun findAllByStartDateTimeBetweenAndHearingTypeIs(
-    startDateTime: LocalDateTime,
-    endDateTime: LocalDateTime,
-    hearingType: HearingType,
-  ): Set<VideoLinkAppointment>
 }
