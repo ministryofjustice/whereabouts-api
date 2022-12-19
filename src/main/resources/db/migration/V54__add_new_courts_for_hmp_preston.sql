@@ -1,6 +1,6 @@
 insert into enabled_court (id, name) values
-(  'WRKTCT-??', 'Workington Magistrates'),
-(  'BRRWCC-??', 'Barrow Magistrates'),
+(  'CRT022', 'Workington Magistrates'),
+(  'BRRWMC', 'Barrow Magistrates'),
 (  'LANCMC', 'Lancaster Magistrates'),
 (  'BURNMC', 'Burnley Magistrates'),
 (  'BURNCC', 'Burnley Crown'),
