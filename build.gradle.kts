@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.7"
-  kotlin("plugin.spring") version "1.7.21"
-  kotlin("plugin.jpa") version "1.7.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.4"
+  kotlin("plugin.spring") version "1.7.22"
+  kotlin("plugin.jpa") version "1.7.22"
 }
 
 configurations {
@@ -18,8 +18,8 @@ dependencies {
   compileOnly("org.projectlombok:lombok:1.18.24")
 
   runtimeOnly("com.h2database:h2:2.1.214")
-  runtimeOnly("org.flywaydb:flyway-core:9.8.1")
-  runtimeOnly("org.postgresql:postgresql:42.5.0")
+  runtimeOnly("org.flywaydb:flyway-core:9.10.2")
+  runtimeOnly("org.postgresql:postgresql:42.5.1")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-cache")
@@ -36,10 +36,10 @@ dependencies {
   implementation("javax.transaction:javax.transaction-api:1.3")
   implementation("javax.validation:validation-api")
 
-  implementation("io.swagger:swagger-annotations:1.6.8")
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.12")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.12")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.12")
+  implementation("io.swagger:swagger-annotations:1.6.9")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.14")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.14")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.14")
 
   implementation("org.apache.commons:commons-lang3")
   implementation("org.apache.commons:commons-text:1.10.0")
@@ -51,8 +51,8 @@ dependencies {
   implementation("org.jetbrains.kotlin:kotlin-reflect")
 
   implementation("org.springframework:spring-jms")
-  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.341"))
-  implementation("com.amazonaws:amazon-sqs-java-messaging-lib:1.1.0")
+  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.370"))
+  implementation("com.amazonaws:amazon-sqs-java-messaging-lib:2.0.2")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
@@ -60,7 +60,7 @@ dependencies {
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("io.mockk:mockk:1.13.2")
+  testImplementation("io.mockk:mockk:1.13.3")
   testCompileOnly("org.projectlombok:lombok:1.18.24")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
 }
