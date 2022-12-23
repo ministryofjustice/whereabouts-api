@@ -1,10 +1,13 @@
 ---
 # Values here are the same across all environments
 generic-service:
+  nameOverride: whereabouts-api
+
+  replicaCount: 4
 
   image:
     repository: quay.io/hmpps/whereabouts-api
-    tag: latest
+    tag: app_version    # override at deployment time
     port: 8080
 
   ingress:
@@ -36,13 +39,13 @@ generic-service:
       DATABASE_NAME: "database_name"
       DATABASE_ENDPOINT: "rds_instance_endpoint"
     whereabouts-api-sqs-instance-output:
-      SQS_AWS_ACCESS_KEY_ID: "access_key_id"
-      SQS_AWS_SECRET_ACCESS_KEY: "secret_access_key"
-      SQS_QUEUE_NAME: "sqs_wb_name"
+      HMPPS_SQS_QUEUES_WHEREABOUTS_QUEUE_ACCESS_KEY_ID: "access_key_id"
+      HMPPS_SQS_QUEUES_WHEREABOUTS_QUEUE_SECRET_ACCESS_KEY: "secret_access_key"
+      HMPPS_SQS_QUEUES_WHEREABOUTS_QUEUE_NAME: "sqs_wb_name"
     whereabouts-api-sqs-dl-instance-output:
-      SQS_AWS_DLQ_ACCESS_KEY_ID: "access_key_id"
-      SQS_AWS_DLQ_SECRET_ACCESS_KEY: "secret_access_key"
-      SQS_DLQ_NAME: "sqs_wb_name"
+      HMPPS_SQS_QUEUES_WHEREABOUTS_DLQ_ACCESS_KEY_ID: "access_key_id"
+      HMPPS_SQS_QUEUES_WHEREABOUTS_DLQ_SECRET_ACCESS_KEY: "secret_access_key"
+      HMPPS_SQS_QUEUES_WHEREABOUTS_DLQ_NAME: "sqs_wb_name"
 
   allowlist:
       office: "217.33.148.210/32"
@@ -54,8 +57,5 @@ generic-service:
       petty-france-wifi: "213.121.161.112/28"
       global-protect: "35.176.93.186/32"
 
-
 generic-prometheus-alerts:
   targetApplication: whereabouts-api
-
-

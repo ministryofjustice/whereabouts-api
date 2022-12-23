@@ -28,12 +28,12 @@ spring:
         jwt:
           public-key-location: classpath:local-public-key.pub
 
-sqs:
+hmpps.sqs:
   provider: localstack
-  endpoint.url: http://localhost:4566
-  queue.name: whereabouts_api_queue
-  dlq.name: whereabouts_api_dlq
-
+  queues:
+    whereabouts:
+      queueName: whereabouts_api_queue
+      dlqName: whereabouts_api_dlq
 
 courts: Test Court 1,Test Court 2
 

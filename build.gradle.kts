@@ -28,6 +28,8 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
 
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.2.0")
+
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
   implementation("com.sun.xml.bind:jaxb-impl:4.0.1")
@@ -49,10 +51,6 @@ dependencies {
   implementation("com.google.code.gson:gson")
   implementation("com.google.guava:guava")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
-
-  implementation("org.springframework:spring-jms")
-  implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.370"))
-  implementation("com.amazonaws:amazon-sqs-java-messaging-lib:1.1.2")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")

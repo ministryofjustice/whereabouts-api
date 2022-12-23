@@ -4,13 +4,11 @@ import com.google.gson.Gson
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.jms.annotation.JmsListener
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 
 @Service
-@ConditionalOnProperty("sqs.provider")
 class SqsEventListener(
   @Qualifier("attendanceServiceAppScope")
   private val attendanceService: AttendanceService,
@@ -22,7 +20,7 @@ class SqsEventListener(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  @JmsListener(destination = "\${sqs.queue.name}")
+  @JmsListener(destination = "whereabouts", containerFactory = "hmppsQueueContainerFactoryProxy")
   fun handleEvents(requestJson: String?) {
     val (Message, MessageAttributes) = gson.fromJson<Message>(requestJson, Message::class.java)
     val eventType = MessageAttributes.eventType.Value
