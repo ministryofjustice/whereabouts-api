@@ -3,6 +3,9 @@ package uk.gov.justice.digital.hmpps.whereabouts.controllers
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.persistence.EntityNotFoundException
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotNull
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -32,9 +35,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.IVideo
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptions
 import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingSearchSpecification
 import java.time.LocalDate
-import javax.persistence.EntityNotFoundException
-import javax.validation.Valid
-import javax.validation.constraints.NotNull
 
 @Tag(name = "court")
 @RestController

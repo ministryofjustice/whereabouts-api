@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
+import jakarta.persistence.EntityNotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -19,7 +20,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceExists
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceLocked
 import uk.gov.justice.digital.hmpps.whereabouts.services.InvalidCourtLocation
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
-import javax.persistence.EntityNotFoundException
 
 @RestControllerAdvice
 class ControllerAdvice {

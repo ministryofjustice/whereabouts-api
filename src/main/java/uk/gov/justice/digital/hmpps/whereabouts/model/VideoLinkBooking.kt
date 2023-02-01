@@ -1,18 +1,18 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Entity
+import jakarta.persistence.EntityListeners
+import jakarta.persistence.FetchType
+import jakarta.persistence.MapKey
+import jakarta.persistence.OneToMany
+import jakarta.persistence.Table
 import org.springframework.data.annotation.CreatedBy
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
 import java.time.LocalDateTime
-import javax.persistence.CascadeType
-import javax.persistence.Entity
-import javax.persistence.EntityListeners
-import javax.persistence.FetchType
-import javax.persistence.MapKey
-import javax.persistence.OneToMany
-import javax.persistence.Table
 
 @Entity
 @Table(name = "VIDEO_LINK_BOOKING")

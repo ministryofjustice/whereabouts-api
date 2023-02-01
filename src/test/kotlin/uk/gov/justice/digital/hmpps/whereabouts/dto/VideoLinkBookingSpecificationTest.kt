@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.whereabouts.dto
 
+import jakarta.validation.Validation
+import jakarta.validation.Validator
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
-import javax.validation.Validation
-import javax.validation.Validator
 
 class VideoLinkBookingSpecificationTest {
   private val validator: Validator = Validation.buildDefaultValidatorFactory().validator

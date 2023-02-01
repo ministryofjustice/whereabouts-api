@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
+import jakarta.persistence.EntityNotFoundException
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyLong
@@ -21,7 +22,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveReasonDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult
 import uk.gov.justice.digital.hmpps.whereabouts.services.CellMoveService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
-import javax.persistence.EntityNotFoundException
 
 @WebMvcTest(CellMoveController::class)
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)

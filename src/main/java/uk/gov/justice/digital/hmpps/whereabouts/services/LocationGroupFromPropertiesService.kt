@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import jakarta.persistence.EntityNotFoundException
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
@@ -7,7 +8,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import java.util.Properties
 import java.util.function.Predicate
 import java.util.regex.Pattern
-import javax.persistence.EntityNotFoundException
 
 /**
  * An implementation of LocationGroupService backed by a properties file.

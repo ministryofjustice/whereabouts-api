@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.microsoft.applicationinsights.TelemetryClient
+import jakarta.persistence.EntityNotFoundException
+import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveDetails
@@ -11,8 +13,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.CellMoveReasonPK
 import uk.gov.justice.digital.hmpps.whereabouts.repository.CellMoveReasonRepository
 import java.time.Clock
 import java.time.LocalDateTime
-import javax.persistence.EntityNotFoundException
-import javax.transaction.Transactional
 
 @Service
 class CellMoveService(

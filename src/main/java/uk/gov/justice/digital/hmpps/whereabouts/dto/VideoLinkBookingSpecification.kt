@@ -2,8 +2,8 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
-import javax.validation.Valid
-import javax.validation.constraints.NotNull
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotNull
 
 @ApiModel(description = "Video Link Booking details")
 data class VideoLinkBookingSpecification(

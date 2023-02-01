@@ -22,7 +22,7 @@ class SqsEventListener(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  @JmsListener(destination = "\${sqs.queue.name}")
+  @JmsListener(destination = "\${sqs.queue.name}", containerFactory = "hmppsQueueContainerFactoryProxy")
   fun handleEvents(requestJson: String?) {
     val (Message, MessageAttributes) = gson.fromJson<Message>(requestJson, Message::class.java)
     val eventType = MessageAttributes.eventType.Value

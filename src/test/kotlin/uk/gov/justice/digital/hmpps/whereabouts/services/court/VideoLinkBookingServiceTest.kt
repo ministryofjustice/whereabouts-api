@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
+import jakarta.persistence.EntityNotFoundException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.groups.Tuple
@@ -42,7 +43,6 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Optional
-import javax.persistence.EntityNotFoundException
 
 class VideoLinkBookingServiceTest {
   private val courtRepository: CourtRepository = mock()

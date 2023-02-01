@@ -1,12 +1,12 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 
+import jakarta.validation.Validation
+import jakarta.validation.Validator
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.Month
-import javax.validation.Validation
-import javax.validation.Validator
 
 class VideoLinkBookingSearchSpecificationTest {
   private val validator: Validator = Validation.buildDefaultValidatorFactory().validator

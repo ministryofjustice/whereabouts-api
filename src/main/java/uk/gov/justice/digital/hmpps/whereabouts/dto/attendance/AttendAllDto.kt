@@ -3,10 +3,10 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto.attendance
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
+import jakarta.validation.constraints.NotNull
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.time.LocalDate
-import javax.validation.constraints.NotNull
 
 @ApiModel(description = "Attend all parameters")
 data class AttendAllDto(

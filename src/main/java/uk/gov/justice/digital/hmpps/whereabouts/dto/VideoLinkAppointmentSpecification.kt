@@ -2,8 +2,8 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
+import jakarta.validation.constraints.NotNull
 import java.time.LocalDateTime
-import javax.validation.constraints.NotNull
 
 @ApiModel(description = "Detail of a single Video Link Appointment, either pre, main or post")
 data class VideoLinkAppointmentSpecification(

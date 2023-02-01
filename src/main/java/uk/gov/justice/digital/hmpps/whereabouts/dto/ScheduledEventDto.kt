@@ -3,11 +3,11 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.NotNull
 
 /**
  * Scheduled Event

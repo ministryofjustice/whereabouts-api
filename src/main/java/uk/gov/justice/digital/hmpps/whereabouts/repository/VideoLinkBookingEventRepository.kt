@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.repository
 
+import jakarta.persistence.QueryHint
 import org.hibernate.jpa.QueryHints.HINT_CACHEABLE
 import org.hibernate.jpa.QueryHints.HINT_FETCH_SIZE
 import org.hibernate.jpa.QueryHints.HINT_READONLY
@@ -11,7 +12,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.stream.Stream
-import javax.persistence.QueryHint
 
 interface VideoLinkBookingEventRepository : JpaRepository<VideoLinkBookingEvent, Long> {
   @QueryHints(

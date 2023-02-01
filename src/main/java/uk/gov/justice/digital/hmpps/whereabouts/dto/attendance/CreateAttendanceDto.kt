@@ -3,12 +3,12 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto.attendance
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Size
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.time.LocalDate
-import javax.validation.constraints.NotNull
-import javax.validation.constraints.Size
 
 @ApiModel(description = "Create an attendance for a booking")
 data class CreateAttendanceDto(
