@@ -1,6 +1,6 @@
-sqs:
+hmpps.sqs:
   provider: localstack
-  queue.name: whereabouts_api_queue
-  dlq.name: whereabouts_api_dlq
-  endpoint.url: http://localhost:4566
-
+  queues:
+    whereabouts:
+      queueName: whereabouts_api_queue
+      dlqName: whereabouts_api_dlq

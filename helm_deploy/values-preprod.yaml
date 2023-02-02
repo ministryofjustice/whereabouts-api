@@ -2,7 +2,6 @@
 # Declare variables to be passed into your templates.
 
 generic-service:
-  replicaCount: 4
 
   ingress:
     host: whereabouts-api-preprod.service.justice.gov.uk
@@ -12,6 +11,3 @@ generic-service:
     OAUTH_ENDPOINT_URL: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth"
     CASENOTES_ENDPOINT_URL: "https://preprod.offender-case-notes.service.justice.gov.uk"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
-
-
-

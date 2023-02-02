@@ -85,10 +85,6 @@ management:
     env:
       enabled: true
 
-sqs:
-  provider: aws
-  endpoint.region: eu-west-2
-
 video-link-booking:
   booking-options-finder:
     day-start: "08:00"
