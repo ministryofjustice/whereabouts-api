@@ -1,7 +1,6 @@
 ---
 # Values here are the same across all environments
 generic-service:
-  nameOverride: whereabouts-api
 
   replicaCount: 4
 
