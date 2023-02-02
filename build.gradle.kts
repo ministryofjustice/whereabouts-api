@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.4"
-  kotlin("plugin.spring") version "1.7.22"
-  kotlin("plugin.jpa") version "1.7.22"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.0"
+  kotlin("plugin.spring") version "1.8.0"
+  kotlin("plugin.jpa") version "1.8.0"
 }
 
 configurations {
@@ -18,7 +18,7 @@ dependencies {
   compileOnly("org.projectlombok:lombok:1.18.24")
 
   runtimeOnly("com.h2database:h2:2.1.214")
-  runtimeOnly("org.flywaydb:flyway-core:9.10.2")
+  runtimeOnly("org.flywaydb:flyway-core:9.11.0")
   runtimeOnly("org.postgresql:postgresql:42.5.1")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
