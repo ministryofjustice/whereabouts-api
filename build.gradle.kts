@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.0"
-  kotlin("plugin.spring") version "1.8.0"
-  kotlin("plugin.jpa") version "1.8.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.0.1"
+  kotlin("plugin.spring") version "1.8.10"
+  kotlin("plugin.jpa") version "1.8.10"
 }
 
 configurations {
@@ -11,15 +11,19 @@ configurations {
   testImplementation { exclude(group = "org.junit.vintage") }
 }
 
+repositories {
+  maven { url = uri("https://repo.spring.io/milestone") }
+  mavenCentral()
+}
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.24")
+  annotationProcessor("org.projectlombok:lombok:1.18.26")
 
-  compileOnly("org.projectlombok:lombok:1.18.24")
+  compileOnly("org.projectlombok:lombok:1.18.26")
 
   runtimeOnly("com.h2database:h2:2.1.214")
-  runtimeOnly("org.flywaydb:flyway-core:9.11.0")
-  runtimeOnly("org.postgresql:postgresql:42.5.1")
+  runtimeOnly("org.flywaydb:flyway-core:9.14.1")
+  runtimeOnly("org.postgresql:postgresql:42.5.3")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-cache")
@@ -27,21 +31,10 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
-
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.2.0")
-
-  implementation("javax.annotation:javax.annotation-api:1.3.2")
-  implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
-  implementation("com.sun.xml.bind:jaxb-impl:4.0.1")
-  implementation("com.sun.xml.bind:jaxb-core:4.0.1")
-  implementation("javax.activation:activation:1.1.1")
-  implementation("javax.transaction:javax.transaction-api:1.3")
-  implementation("javax.validation:validation-api")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.0.0-beta-10")
 
   implementation("io.swagger:swagger-annotations:1.6.9")
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.14")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.14")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.14")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 
   implementation("org.apache.commons:commons-lang3")
   implementation("org.apache.commons:commons-text:1.10.0")
@@ -56,11 +49,12 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
 
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
-  testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("io.mockk:mockk:1.13.3")
-  testCompileOnly("org.projectlombok:lombok:1.18.24")
-  testImplementation("io.jsonwebtoken:jjwt:0.9.1")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.1")
+  testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
+  testImplementation("io.mockk:mockk:1.13.4")
+  testCompileOnly("org.projectlombok:lombok:1.18.26")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
 }
 
 /**
@@ -76,9 +70,9 @@ tasks.withType<KotlinCompile>().configureEach {
 
 allOpen {
   annotations(
-    "javax.persistence.Entity",
-    "javax.persistence.MappedSuperclass",
-    "javax.persistence.Embeddable"
+    "jakarta.persistence.Entity",
+    "jakarta.persistence.MappedSuperclass",
+    "jakarta.persistence.Embeddable"
   )
 }
 

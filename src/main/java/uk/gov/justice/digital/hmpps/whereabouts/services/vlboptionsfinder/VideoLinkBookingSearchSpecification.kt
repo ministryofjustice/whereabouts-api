@@ -1,9 +1,9 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 
 import io.swagger.annotations.ApiModelProperty
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import java.time.LocalDate
-import javax.validation.Valid
-import javax.validation.constraints.NotBlank
 
 data class VideoLinkBookingSearchSpecification(
   @ApiModelProperty(value = "The locations must be within the agency (prison) having this identifier.", example = "WWI")

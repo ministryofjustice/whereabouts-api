@@ -2,11 +2,11 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
+import jakarta.validation.Constraint
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
+import jakarta.validation.Payload
 import java.time.LocalTime
-import javax.validation.Constraint
-import javax.validation.ConstraintValidator
-import javax.validation.ConstraintValidatorContext
-import javax.validation.Payload
 import kotlin.reflect.KClass
 
 /**

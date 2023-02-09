@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import jakarta.persistence.EntityNotFoundException
 import org.apache.commons.text.WordUtils
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
@@ -8,7 +9,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationIdAndDescription
 import java.util.Properties
-import javax.persistence.EntityNotFoundException
 
 @Service
 class LocationService(

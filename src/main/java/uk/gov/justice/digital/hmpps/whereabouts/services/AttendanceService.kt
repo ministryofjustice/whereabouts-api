@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.microsoft.applicationinsights.TelemetryClient
+import jakarta.transaction.Transactional
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -30,7 +31,6 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.function.Predicate
 import java.util.stream.Collectors
-import javax.transaction.Transactional
 
 @Service
 class AttendanceService(

@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.dto
 
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import java.time.LocalDate
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.NotNull
 
 data class OffenderBooking(
   val bookingId: Long,

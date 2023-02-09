@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
+import jakarta.persistence.EntityNotFoundException
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -30,7 +31,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.persistence.EntityNotFoundException
 
 @WebMvcTest(VideoLinkBookingController::class)
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)

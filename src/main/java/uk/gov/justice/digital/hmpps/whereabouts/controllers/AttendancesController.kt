@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.controllers
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import lombok.extern.slf4j.Slf4j
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -32,7 +33,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.validation.Valid
 
 @Tag(name = "attendances")
 @RestController

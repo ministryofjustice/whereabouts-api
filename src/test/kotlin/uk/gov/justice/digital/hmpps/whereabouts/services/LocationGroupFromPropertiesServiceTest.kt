@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
+import jakarta.persistence.EntityNotFoundException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -8,7 +9,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import java.util.Properties
 import java.util.function.Predicate
 import java.util.regex.PatternSyntaxException
-import javax.persistence.EntityNotFoundException
 
 class LocationGroupFromPropertiesServiceTest {
 
