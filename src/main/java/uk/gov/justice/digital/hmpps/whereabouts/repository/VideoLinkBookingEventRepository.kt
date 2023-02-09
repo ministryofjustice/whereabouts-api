@@ -27,7 +27,7 @@ interface VideoLinkBookingEventRepository : JpaRepository<VideoLinkBookingEvent,
     nativeQuery = true,
     value = """
     select
-       *
+       vlbe.*
     from video_link_booking_event vlbe
     left join video_link_booking_event later on
       vlbe.video_link_booking_id = later.video_link_booking_id
