@@ -1,5 +1,5 @@
 create table court_type (
-    id varchar(30) not null primary key,
+    id varchar(40) not null primary key,
     name varchar(50) not null
 );
 
