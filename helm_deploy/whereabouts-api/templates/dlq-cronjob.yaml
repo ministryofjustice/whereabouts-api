@@ -18,5 +18,5 @@ spec:
               args:
                 - /bin/sh
                 - -c
-                - curl --retry 2 -XPUT http://hmpps-incentives-api/queue-admin/retry-all-dlqs
+                - curl --retry 2 -XPUT http://whereabouts-api/queue-admin/retry-all-dlqs
           restartPolicy: Never
