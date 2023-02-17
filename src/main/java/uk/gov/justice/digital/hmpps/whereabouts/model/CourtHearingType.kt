@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
-enum class CourtHearingType(val courtHearingType: String) {
+enum class CourtHearingType(val description: String) {
   APPEAL("Appeal"),
   APPLICATION("Application"),
   BACKER_TRIAL("Backer Trial"),
