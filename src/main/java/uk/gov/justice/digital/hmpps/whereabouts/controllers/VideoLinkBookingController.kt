@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtEmailDto
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtHearingTypeDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtLocationsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
@@ -25,6 +26,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSearchDetail
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.model.Court
+import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingEventService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
@@ -61,6 +63,14 @@ class VideoLinkBookingController(
     description = "Return information about all courts."
   )
   fun getCourts(): List<Court> = courtService.courts
+
+  @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/court-hearing-types"])
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "All court hearing types",
+    description = "Return a list of all court hearing types."
+  )
+  fun getCourtHearingTypes(): List<CourtHearingTypeDto> = CourtHearingType.values().map { CourtHearingTypeDto(it.name, it.description) }
 
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/courts/{courtId}/email"])
   @ResponseStatus(HttpStatus.OK)
