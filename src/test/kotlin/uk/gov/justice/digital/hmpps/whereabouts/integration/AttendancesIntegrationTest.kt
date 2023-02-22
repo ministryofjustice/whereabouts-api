@@ -483,6 +483,26 @@ class AttendancesIntegrationTest : IntegrationTest() {
   }
 
   @Test
+  fun `should return unauthorised for getAttendances with no token`() {
+    val offenderNo = "A1234AX"
+    val START = LocalDate.of(2021, 3, 14)
+    val END = LocalDate.of(2021, 5, 24)
+
+    prisonApiMockServer.stubGetAttendanceForOffender(offenderNo, START, END)
+
+    webTestClient
+      .get()
+      .uri {
+        it.path("/attendances/offender/$offenderNo/unacceptable-absence-count")
+          .queryParam("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .queryParam("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .build()
+      }
+      .exchange()
+      .expectStatus().isUnauthorized
+  }
+
+  @Test
   fun `should handle empty attendance summary data for offender`() {
     val offenderNo = "A1234AX"
     val START = LocalDate.of(2021, 3, 14)
@@ -532,6 +552,26 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .jsonPath("$.content[2].comments").isEqualTo("comment 3")
       .jsonPath("$.content[3].comments").isEmpty
       .jsonPath("$.content[5].activity").isEqualTo("act 6")
+  }
+
+  @Test
+  fun `should return unacceptable for getAttendanceDetails with no token`() {
+    val offenderNo = "A1234AX"
+    val START = LocalDate.of(2021, 3, 14)
+    val END = LocalDate.of(2021, 5, 24)
+
+    prisonApiMockServer.stubGetAttendanceForOffender(offenderNo, START, END, "UNACAB", "0", "20")
+
+    webTestClient
+      .get()
+      .uri {
+        it.path("/attendances/offender/$offenderNo/unacceptable-absences")
+          .queryParam("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .queryParam("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .build()
+      }
+      .exchange()
+      .expectStatus().isUnauthorized
   }
 
   private val attendance = Attendance.builder()
