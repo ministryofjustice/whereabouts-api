@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtEmailDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtHearingTypeDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CourtLocationsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
@@ -70,7 +69,7 @@ class VideoLinkBookingController(
     summary = "All court hearing types",
     description = "Return a list of all court hearing types."
   )
-  fun getCourtHearingTypes(): List<CourtHearingTypeDto> = CourtHearingType.values().map { CourtHearingTypeDto(it.name, it.description) }
+  fun getCourtHearingTypes(): Array<CourtHearingType> = CourtHearingType.values()
 
   @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE], path = ["/courts/{courtId}/email"])
   @ResponseStatus(HttpStatus.OK)
