@@ -666,9 +666,9 @@ class VideoLinkBookingControllerTest : TestController() {
           .contentType(MediaType.APPLICATION_JSON)
       )
         .andExpect(status().isOk)
-        .andExpect(jsonPath("[0].code").value("APPEAL"))
+        .andExpect(jsonPath("[0].name").value("APPEAL"))
         .andExpect(jsonPath("[0].description").value("Appeal"))
-        .andExpect(jsonPath("[1].code").value("APPLICATION"))
+        .andExpect(jsonPath("[1].name").value("APPLICATION"))
         .andExpect(jsonPath("[1].description").value("Application"))
     }
   }

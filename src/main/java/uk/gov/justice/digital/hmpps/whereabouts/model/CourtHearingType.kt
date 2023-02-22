@@ -1,5 +1,9 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonFormat
+
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 enum class CourtHearingType(val description: String) {
   APPEAL("Appeal"),
   APPLICATION("Application"),
@@ -25,5 +29,13 @@ enum class CourtHearingType(val description: String) {
   SECTION_28("Section 28"),
   SENTENCE("Sentence (SEN)"),
   TRIBUNAL("Tribunal"),
-  OTHER("Other")
+  OTHER("Other");
+
+  fun getName(): String = name
+
+  companion object {
+    @JsonCreator
+    @JvmStatic
+    fun getCourtHearingType(name: String) = CourtHearingType.values().find { it.name == name }
+  }
 }
