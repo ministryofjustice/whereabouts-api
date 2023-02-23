@@ -654,4 +654,22 @@ class VideoLinkBookingControllerTest : TestController() {
         .andExpect(status().isBadRequest)
     }
   }
+
+  @Nested
+  inner class `Get court hearing types` {
+    @Test
+    @WithMockUser(username = "ITAG_USER")
+    fun `get all court hearing types`() {
+
+      mockMvc.perform(
+        get("/court/court-hearing-types")
+          .contentType(MediaType.APPLICATION_JSON)
+      )
+        .andExpect(status().isOk)
+        .andExpect(jsonPath("[0].name").value("APPEAL"))
+        .andExpect(jsonPath("[0].description").value("Appeal"))
+        .andExpect(jsonPath("[1].name").value("APPLICATION"))
+        .andExpect(jsonPath("[1].description").value("Application"))
+    }
+  }
 }
