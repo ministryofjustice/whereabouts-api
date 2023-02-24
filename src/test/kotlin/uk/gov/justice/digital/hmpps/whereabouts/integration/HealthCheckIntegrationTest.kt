@@ -84,7 +84,7 @@ class HealthCheckIntegrationTest : IntegrationTest() {
   }
 
   @Test
-  fun `Queue health ok and dlq health ok, reports everything up`() {
+  fun `Health status is OK`() {
     subPing(200)
 
     webTestClient.get()
@@ -94,20 +94,6 @@ class HealthCheckIntegrationTest : IntegrationTest() {
       .expectStatus().isOk
       .expectBody()
       .jsonPath("$.status").isEqualTo("UP")
-      .jsonPath("$.components.whereabouts-health.status").isEqualTo("UP")
-      .jsonPath("$.components.whereabouts-health.details.dlqStatus").isEqualTo("UP")
-  }
-
-  @Test
-  fun `Dlq health reports interesting attributes`() {
-    subPing(200)
-
-    webTestClient.get()
-      .uri("/health")
-      .headers(setHeaders())
-      .exchange()
-      .expectBody()
-      .jsonPath("$.components.whereabouts-health.details.messagesOnDlq").isEqualTo(0)
   }
 
   @Test

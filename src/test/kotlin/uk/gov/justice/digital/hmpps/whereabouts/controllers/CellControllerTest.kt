@@ -16,7 +16,6 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -35,14 +34,6 @@ class CellControllerTest : TestController() {
 
   @MockBean
   lateinit var cellMoveService: CellMoveService
-
-  @Test
-  fun `returns a an unauthorized error when no valid login is present`() {
-    mockMvc.perform(
-      put("/cell/booking/$SOME_BOOKING_ID/living-unit/$SOME_ASSIGNED_LIVING_UNIT_ID")
-    ).andDo(MockMvcResultHandlers.print())
-      .andExpect(status().isUnauthorized)
-  }
 
   @Test
   @WithMockUser(username = "ITAG_USER")

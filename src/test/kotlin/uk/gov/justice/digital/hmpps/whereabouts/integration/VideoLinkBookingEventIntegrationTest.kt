@@ -28,6 +28,51 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
   }
 
   @Test
+  fun `Valid request to create booking without user token`() {
+    val url = "/court/video-link-bookings"
+
+    webTestClient.post()
+      .uri(url)
+      .bodyValue(
+        mapOf(
+          "bookingId" to 1,
+          "court" to "Test Court 1",
+          "madeByTheCourt" to true,
+          "main" to mapOf(
+            "locationId" to 2,
+            "startTime" to "2020-12-01T09:00",
+            "endTime" to "2020-12-01T09:30"
+          )
+        )
+      )
+      .exchange()
+      .expectStatus()
+      .isUnauthorized
+  }
+
+  @Test
+  fun `Get video link bookings request without user token`() {
+    val url = "/court/video-link-bookings/1"
+
+    webTestClient.get()
+      .uri(url)
+      .exchange()
+      .expectStatus()
+      .isUnauthorized
+  }
+
+  @Test
+  fun `Delete video link bookings request without user token`() {
+    val url = "/court/video-link-bookings/1"
+
+    webTestClient.delete()
+      .uri(url)
+      .exchange()
+      .expectStatus()
+      .isUnauthorized
+  }
+
+  @Test
   fun `Happy flow`() {
 
     val uri = "$baseUrl?start-date=${LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)}"

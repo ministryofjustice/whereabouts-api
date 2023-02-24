@@ -295,25 +295,6 @@ class VideoLinkBookingControllerTest : TestController() {
       )
     }
 
-    @Test
-    fun `Valid request, no user`() {
-      failWithJson(
-        objectMapper.writeValueAsString(
-          mapOf(
-            "bookingId" to 1,
-            "court" to "Test Court 1",
-            "madeByTheCourt" to true,
-            "main" to mapOf(
-              "locationId" to 2,
-              "startTime" to "2020-12-01T09:00",
-              "endTime" to "2020-12-01T09:30"
-            )
-          )
-        ),
-        401
-      )
-    }
-
     private fun passWithJson(json: String) {
       whenever(videoLinkBookingService.createVideoLinkBooking(any())).thenReturn(1L)
 
@@ -380,17 +361,6 @@ class VideoLinkBookingControllerTest : TestController() {
         .andExpect(jsonPath("$.post.locationId").value(5))
         .andExpect(jsonPath("$.post.startTime").value("2020-02-07T14:00:00"))
         .andExpect(jsonPath("$.post.endTime").value("2020-02-07T15:00:00"))
-    }
-
-    @Test
-    fun `there is no user`() {
-      val bookingId = 1L
-
-      mockMvc.perform(
-        get("/court/video-link-bookings/$bookingId")
-          .accept(MediaType.APPLICATION_JSON)
-      )
-        .andExpect(status().isUnauthorized)
     }
   }
 
@@ -548,17 +518,6 @@ class VideoLinkBookingControllerTest : TestController() {
           .contentType(MediaType.APPLICATION_JSON)
       )
         .andExpect(status().`is`(404))
-    }
-
-    @Test
-    fun `there is no user`() {
-      val bookingId = 1L
-
-      mockMvc.perform(
-        delete("/court/video-link-bookings/$bookingId")
-          .contentType(MediaType.APPLICATION_JSON)
-      )
-        .andExpect(status().`is`(401))
     }
   }
 

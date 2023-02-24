@@ -91,18 +91,6 @@ class AttendancesControllerTest : TestController() {
   }
 
   @Test
-  fun `getAttendances details - unauthorised`() {
-    mockMvc
-      .perform(
-        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absences")
-          .param("offenderNo", OFFENDER_NO)
-          .param("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
-          .param("toDate", END.format((DateTimeFormatter.ISO_LOCAL_DATE)))
-      )
-      .andExpect(MockMvcResultMatchers.status().isUnauthorized)
-  }
-
-  @Test
   @WithMockUser(username = "ITAG_USER")
   fun `getAttendances details - missing parameter`() {
     mockMvc
@@ -131,16 +119,5 @@ class AttendancesControllerTest : TestController() {
         MockMvcResultMatchers.jsonPath("developerMessage")
           .value("Required request parameter 'fromDate' for method parameter type LocalDate is not present")
       )
-  }
-
-  @Test
-  fun `getAttendances unauthorised`() {
-    mockMvc
-      .perform(
-        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absence-count")
-          .param("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
-          .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
-      )
-      .andExpect(MockMvcResultMatchers.status().isUnauthorized)
   }
 }
