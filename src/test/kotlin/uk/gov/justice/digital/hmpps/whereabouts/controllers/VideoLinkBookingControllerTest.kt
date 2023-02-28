@@ -1,11 +1,15 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
+import jakarta.persistence.EntityNotFoundException
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
@@ -30,9 +34,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.persistence.EntityNotFoundException
 
-@WebMvcTest(VideoLinkBookingController::class)
+@WebMvcTest(
+  VideoLinkBookingController::class,
+  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class]
+)
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)
 class VideoLinkBookingControllerTest : TestController() {
   @MockBean
@@ -289,25 +295,6 @@ class VideoLinkBookingControllerTest : TestController() {
       )
     }
 
-    @Test
-    fun `Valid request, no user`() {
-      failWithJson(
-        objectMapper.writeValueAsString(
-          mapOf(
-            "bookingId" to 1,
-            "court" to "Test Court 1",
-            "madeByTheCourt" to true,
-            "main" to mapOf(
-              "locationId" to 2,
-              "startTime" to "2020-12-01T09:00",
-              "endTime" to "2020-12-01T09:30"
-            )
-          )
-        ),
-        401
-      )
-    }
-
     private fun passWithJson(json: String) {
       whenever(videoLinkBookingService.createVideoLinkBooking(any())).thenReturn(1L)
 
@@ -374,17 +361,6 @@ class VideoLinkBookingControllerTest : TestController() {
         .andExpect(jsonPath("$.post.locationId").value(5))
         .andExpect(jsonPath("$.post.startTime").value("2020-02-07T14:00:00"))
         .andExpect(jsonPath("$.post.endTime").value("2020-02-07T15:00:00"))
-    }
-
-    @Test
-    fun `there is no user`() {
-      val bookingId = 1L
-
-      mockMvc.perform(
-        get("/court/video-link-bookings/$bookingId")
-          .accept(MediaType.APPLICATION_JSON)
-      )
-        .andExpect(status().isUnauthorized)
     }
   }
 
@@ -542,17 +518,6 @@ class VideoLinkBookingControllerTest : TestController() {
           .contentType(MediaType.APPLICATION_JSON)
       )
         .andExpect(status().`is`(404))
-    }
-
-    @Test
-    fun `there is no user`() {
-      val bookingId = 1L
-
-      mockMvc.perform(
-        delete("/court/video-link-bookings/$bookingId")
-          .contentType(MediaType.APPLICATION_JSON)
-      )
-        .andExpect(status().`is`(401))
     }
   }
 

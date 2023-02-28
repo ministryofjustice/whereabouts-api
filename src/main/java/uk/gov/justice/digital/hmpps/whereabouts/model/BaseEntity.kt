@@ -1,13 +1,13 @@
 package uk.gov.justice.digital.hmpps.whereabouts.model
 
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.MappedSuperclass
 import org.hibernate.Hibernate
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.MappedSuperclass
 
 @MappedSuperclass
-class BaseEntity(
+open class BaseEntity(
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   val id: Long? = null

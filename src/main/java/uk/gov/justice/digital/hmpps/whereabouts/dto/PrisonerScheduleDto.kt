@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Size
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import java.math.BigDecimal
 import java.time.LocalDateTime
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.NotNull
-import javax.validation.constraints.Size
 
 @ApiModel(description = "Scheduled response")
 data class ScheduledResponse(

@@ -3,6 +3,9 @@ package uk.gov.justice.digital.hmpps.whereabouts.controllers
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.whenever
+import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.PageImpl
@@ -16,7 +19,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@WebMvcTest(AttendancesController::class)
+@WebMvcTest(
+  AttendancesController::class,
+  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class]
+)
 class AttendancesControllerTest : TestController() {
   private val OFFENDER_NO = "A1234AB"
   private val START = LocalDate.of(2021, 3, 14)
@@ -85,18 +91,6 @@ class AttendancesControllerTest : TestController() {
   }
 
   @Test
-  fun `getAttendances details - unauthorised`() {
-    mockMvc
-      .perform(
-        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absences")
-          .param("offenderNo", OFFENDER_NO)
-          .param("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
-          .param("toDate", END.format((DateTimeFormatter.ISO_LOCAL_DATE)))
-      )
-      .andExpect(MockMvcResultMatchers.status().isUnauthorized)
-  }
-
-  @Test
   @WithMockUser(username = "ITAG_USER")
   fun `getAttendances details - missing parameter`() {
     mockMvc
@@ -125,16 +119,5 @@ class AttendancesControllerTest : TestController() {
         MockMvcResultMatchers.jsonPath("developerMessage")
           .value("Required request parameter 'fromDate' for method parameter type LocalDate is not present")
       )
-  }
-
-  @Test
-  fun `getAttendances unauthorised`() {
-    mockMvc
-      .perform(
-        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absence-count")
-          .param("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
-          .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
-      )
-      .andExpect(MockMvcResultMatchers.status().isUnauthorized)
   }
 }

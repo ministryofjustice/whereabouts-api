@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
+import jakarta.persistence.EntityNotFoundException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -31,7 +32,6 @@ import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import javax.persistence.EntityNotFoundException
 
 const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
 

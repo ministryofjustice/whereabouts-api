@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.repository
 
+import jakarta.validation.ConstraintViolationException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.groups.Tuple
@@ -23,7 +24,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.validation.ConstraintViolationException
 
 @ExtendWith(SpringExtension::class)
 @ActiveProfiles("test")

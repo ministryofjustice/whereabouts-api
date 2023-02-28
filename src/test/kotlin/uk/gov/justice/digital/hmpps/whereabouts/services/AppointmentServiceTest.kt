@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.microsoft.applicationinsights.TelemetryClient
+import jakarta.persistence.EntityNotFoundException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -40,7 +41,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
-import javax.persistence.EntityNotFoundException
 
 class AppointmentServiceTest {
   private val courtRepository: CourtRepository = mock()

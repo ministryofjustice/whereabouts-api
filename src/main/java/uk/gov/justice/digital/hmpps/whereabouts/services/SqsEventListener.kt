@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.google.gson.Gson
+import io.awspring.cloud.sqs.annotation.SqsListener
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.jms.annotation.JmsListener
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 
@@ -20,7 +20,7 @@ class SqsEventListener(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  @JmsListener(destination = "whereabouts", containerFactory = "hmppsQueueContainerFactoryProxy")
+  @SqsListener("whereabouts", factory = "hmppsQueueContainerFactoryProxy")
   fun handleEvents(requestJson: String?) {
     val (Message, MessageAttributes) = gson.fromJson<Message>(requestJson, Message::class.java)
     val eventType = MessageAttributes.eventType.Value

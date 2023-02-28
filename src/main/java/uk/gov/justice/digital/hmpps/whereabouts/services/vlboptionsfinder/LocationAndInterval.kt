@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder
 
 import io.swagger.annotations.ApiModelProperty
+import jakarta.validation.constraints.NotNull
 import java.time.Duration
-import javax.validation.constraints.NotNull
 
 data class LocationAndInterval(
   @field:NotNull

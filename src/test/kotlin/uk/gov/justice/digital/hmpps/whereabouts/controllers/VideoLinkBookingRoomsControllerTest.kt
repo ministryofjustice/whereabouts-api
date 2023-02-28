@@ -3,6 +3,9 @@ package uk.gov.justice.digital.hmpps.whereabouts.controllers
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.whenever
+import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
@@ -15,7 +18,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.LocationIdAndDescription
 import uk.gov.justice.digital.hmpps.whereabouts.services.LocationService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 
-@WebMvcTest(VideoLinkBookingRoomsController::class)
+@WebMvcTest(
+  VideoLinkBookingRoomsController::class,
+  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class]
+)
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)
 class VideoLinkBookingRoomsControllerTest : TestController() {
   @MockBean

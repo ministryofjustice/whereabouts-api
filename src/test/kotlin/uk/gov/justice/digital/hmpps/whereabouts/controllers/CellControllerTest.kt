@@ -1,10 +1,14 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
+import jakarta.persistence.EntityNotFoundException
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
+import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
@@ -12,7 +16,6 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -21,22 +24,16 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveReasonDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult
 import uk.gov.justice.digital.hmpps.whereabouts.services.CellMoveService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
-import javax.persistence.EntityNotFoundException
 
-@WebMvcTest(CellMoveController::class)
+@WebMvcTest(
+  CellMoveController::class,
+  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class]
+)
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)
 class CellControllerTest : TestController() {
 
   @MockBean
   lateinit var cellMoveService: CellMoveService
-
-  @Test
-  fun `returns a an unauthorized error when no valid login is present`() {
-    mockMvc.perform(
-      put("/cell/booking/$SOME_BOOKING_ID/living-unit/$SOME_ASSIGNED_LIVING_UNIT_ID")
-    ).andDo(MockMvcResultHandlers.print())
-      .andExpect(status().isUnauthorized)
-  }
 
   @Test
   @WithMockUser(username = "ITAG_USER")

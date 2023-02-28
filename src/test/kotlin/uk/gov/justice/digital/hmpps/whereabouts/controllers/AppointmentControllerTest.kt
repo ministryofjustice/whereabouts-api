@@ -1,11 +1,15 @@
 package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
+import jakarta.persistence.EntityNotFoundException
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpHeaders
@@ -22,9 +26,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
 import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentService
 import java.time.LocalDateTime
-import javax.persistence.EntityNotFoundException
 
-@WebMvcTest(AppointmentController::class)
+@WebMvcTest(
+  AppointmentController::class,
+  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class]
+)
 class AppointmentControllerTest : TestController() {
 
   @MockBean

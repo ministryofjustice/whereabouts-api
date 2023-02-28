@@ -23,6 +23,28 @@ class AttendanceIntegrationTest : IntegrationTest() {
   lateinit var attendanceRepository: AttendanceRepository
 
   @Test
+  fun `unacceptable absences details is unauthorised when no auth token provided`() {
+    val updateAttendanceUrl = "/attendances/offender/A1234AB/unacceptable-absences?offenderNo=A1234AB&fromDate=2021-03-14&toDate=2021-05-24"
+
+    webTestClient.get()
+      .uri(updateAttendanceUrl)
+      .exchange()
+      .expectStatus()
+      .isUnauthorized
+  }
+
+  @Test
+  fun `unacceptable absence count details is unauthorised when no auth token provided`() {
+    val updateAttendanceUrl = "/attendances/offender/A1234AB/unacceptable-absence-count?fromDate=2021-03-14&toDate=2021-05-24"
+
+    webTestClient.get()
+      .uri(updateAttendanceUrl)
+      .exchange()
+      .expectStatus()
+      .isUnauthorized
+  }
+
+  @Test
   fun `should make an elite api request to update an offenders attendance`() {
 
     val bookingId = getNextBookingId()

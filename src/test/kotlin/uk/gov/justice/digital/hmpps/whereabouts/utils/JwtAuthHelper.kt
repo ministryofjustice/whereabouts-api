@@ -43,7 +43,7 @@ class JwtAuthHelper {
       .setSubject(subject)
       .addClaims(claims)
       .setExpiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
-      .signWith(RS256, keyPair.private)
+      .signWith(keyPair.private, RS256)
       .compact()
   }
 }

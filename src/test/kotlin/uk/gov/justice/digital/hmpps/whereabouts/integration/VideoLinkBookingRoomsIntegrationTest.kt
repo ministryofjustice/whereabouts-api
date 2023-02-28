@@ -4,7 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 
-class PrisonIntegrationTest : IntegrationTest() {
+class VideoLinkBookingRoomsIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should retrieve details of rooms of type VIDE only`() {

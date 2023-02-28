@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -22,7 +23,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.UpdateAttendanceDto
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
-import javax.validation.Valid
 
 @Tag(name = "attendance")
 @RestController
