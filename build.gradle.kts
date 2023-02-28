@@ -55,6 +55,7 @@ dependencies {
   testCompileOnly("org.projectlombok:lombok:1.18.26")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.22.0")
 }
 
 /**
