@@ -12,6 +12,26 @@
   },
   "selfDiagnostics": {
     "destination": "console"
+  },
+  "sampling": {
+    "percentage": 100
+  },
+  "preview": {
+    "sampling": {
+      "overrides": [
+        {
+          "attributes": [
+            {
+              "key": "http.url",
+              "value": "https?://[^/]+/health.*",
+              "matchType": "regexp"
+            }
+          ],
+          "percentage": 10
+        }
+      ]
+    }
   }
 }
+
 
