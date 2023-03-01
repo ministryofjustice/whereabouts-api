@@ -51,7 +51,7 @@ class VideoLinkBookingController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     description = "All court locations",
-    summary = "Return all court locations"
+    summary = "Return all court locations",
   )
   fun getCourtNames() = CourtLocationsResponse(courtLocations = courtService.courtNames)
 
@@ -59,7 +59,7 @@ class VideoLinkBookingController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "All courts",
-    description = "Return information about all courts."
+    description = "Return information about all courts.",
   )
   fun getCourts(): List<Court> = courtService.courts
 
@@ -67,7 +67,7 @@ class VideoLinkBookingController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "All court hearing types",
-    description = "Return a list of all court hearing types."
+    description = "Return a list of all court hearing types.",
   )
   fun getCourtHearingTypes(): Array<CourtHearingType> = CourtHearingType.values()
 
@@ -75,12 +75,12 @@ class VideoLinkBookingController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Court email address",
-    description = "Return information about email address."
+    description = "Return information about email address.",
   )
   fun getEmailByCourtId(
     @Parameter(description = "Court id", required = true)
     @PathVariable("courtId")
-    courtId: String
+    courtId: String,
   ): CourtEmailDto =
     CourtEmailDto(courtService.getCourtEmailForCourtId(courtId) ?: throw EntityNotFoundException("Email not exist"))
 
@@ -88,7 +88,7 @@ class VideoLinkBookingController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Video link appointments",
-    description = "Return video link appointments"
+    description = "Return video link appointments",
   )
   fun getVideoLinkAppointments(@RequestBody appointmentIds: Set<Long>): VideoLinkAppointmentsResponse {
     val courtAppointments = videoLinkBookingService.getVideoLinkAppointments(appointmentIds)
@@ -102,17 +102,17 @@ class VideoLinkBookingController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "A video Link Booking",
-    description = "Return a video Link Booking"
+    description = "Return a video Link Booking",
   )
   fun getVideoLinkBooking(
     @Parameter(description = "Video link booking id", required = true)
     @PathVariable("videoBookingId")
-    videoBookingId: Long
+    videoBookingId: Long,
   ) = videoLinkBookingService.getVideoLinkBooking(videoBookingId)
 
   @PostMapping(
     path = ["/video-link-bookings/date/{date}"],
-    produces = [MediaType.APPLICATION_JSON_VALUE]
+    produces = [MediaType.APPLICATION_JSON_VALUE],
   )
   @ResponseStatus(HttpStatus.OK)
   @Operation(description = "Return all video link bookings for the specified date and prisons, optionally filtering by court.")
@@ -125,7 +125,7 @@ class VideoLinkBookingController(
     @Parameter(description = "Return video link bookings for this date only. ISO-8601 date format")
     @PathVariable(name = "date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    date: LocalDate
+    date: LocalDate,
   ): List<VideoLinkBookingResponse> {
     return videoLinkBookingService.getVideoLinkBookingsBySearchDetails(searchDetails, date)
   }
@@ -136,7 +136,7 @@ class VideoLinkBookingController(
   fun createVideoLinkBooking(
     @RequestBody
     @Valid
-    videoLinkBookingSpecification: VideoLinkBookingSpecification
+    videoLinkBookingSpecification: VideoLinkBookingSpecification,
   ) =
     videoLinkBookingService.createVideoLinkBooking(videoLinkBookingSpecification)
 
@@ -151,7 +151,7 @@ class VideoLinkBookingController(
 
     @RequestBody
     @Valid
-    videoLinkBookingUpdateSpecification: VideoLinkBookingUpdateSpecification?
+    videoLinkBookingUpdateSpecification: VideoLinkBookingUpdateSpecification?,
   ): ResponseEntity<Void> {
     videoLinkBookingService.updateVideoLinkBooking(videoBookingId!!, videoLinkBookingUpdateSpecification!!)
     /**
@@ -169,7 +169,7 @@ class VideoLinkBookingController(
   fun deleteVideoLinkBooking(
     @Parameter(description = "Video link booking id", required = true)
     @PathVariable("videoBookingId")
-    videoBookingId: Long
+    videoBookingId: Long,
   ): ResponseEntity<Void> {
     videoLinkBookingService.deleteVideoLinkBooking(videoBookingId)
     return ResponseEntity.noContent().build()
@@ -177,7 +177,7 @@ class VideoLinkBookingController(
 
   @PutMapping(
     path = ["/video-link-bookings/{videoLinkBookingId}/comment"],
-    consumes = [MediaType.TEXT_PLAIN_VALUE]
+    consumes = [MediaType.TEXT_PLAIN_VALUE],
   )
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(description = "Update the comment for a Video Link Booking")
@@ -187,7 +187,7 @@ class VideoLinkBookingController(
     videoLinkBookingId: Long,
 
     @RequestBody(required = false)
-    comment: String?
+    comment: String?,
   ): ResponseEntity<Void> {
     videoLinkBookingService.updateVideoLinkBookingComment(videoLinkBookingId, comment)
     /**
@@ -202,7 +202,7 @@ class VideoLinkBookingController(
   @PostMapping(
     path = ["/video-link-booking-check"],
     consumes = [MediaType.APPLICATION_JSON_VALUE],
-    produces = [MediaType.APPLICATION_JSON_VALUE]
+    produces = [MediaType.APPLICATION_JSON_VALUE],
   )
   @Operation(
     description = "Check that a potential video link booking, described by the supplied specification, can be made.  If not then return information about some alternatives.",
@@ -210,17 +210,17 @@ class VideoLinkBookingController(
   fun findAvailableVideoLinkBookingOptions(
     @Valid
     @RequestBody
-    specification: VideoLinkBookingSearchSpecification
+    specification: VideoLinkBookingSearchSpecification,
   ): VideoLinkBookingOptions =
     videoLinkBookingOptionsService.findVideoLinkBookingOptions(specification)
 
   @GetMapping(
     path = ["/video-link-bookings"],
-    produces = ["text/csv"]
+    produces = ["text/csv"],
   )
   @Operation(
     summary = "Video Link Bookings",
-    description = "Return details of Video Link Bookings in CSV format. Restrict the response to bookings with a main start time within 'days' of start-date."
+    description = "Return details of Video Link Bookings in CSV format. Restrict the response to bookings with a main start time within 'days' of start-date.",
   )
   fun getVideoLinkBookingsByStartDate(
     @RequestParam(name = "start-date", required = true)
@@ -230,7 +230,7 @@ class VideoLinkBookingController(
 
     @RequestParam(name = "days")
     @Parameter(description = "Return details of bookings occurring within this number of days of start-date")
-    days: Long?
+    days: Long?,
   ) =
     videoLinkBookingEventService.getBookingsByStartDateAsCSV(startDate, days ?: 7L)
 }

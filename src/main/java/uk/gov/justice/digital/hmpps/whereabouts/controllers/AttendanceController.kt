@@ -33,38 +33,41 @@ class AttendanceController(private val attendanceService: AttendanceService) {
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(
     summary = "Create new attendance",
-    description = "Stores new attendance record, posts attendance details back up to PNOMIS. IEP warnings are triggered when certain absence reasons are used."
+    description = "Stores new attendance record, posts attendance details back up to PNOMIS. IEP warnings are triggered when certain absence reasons are used.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "400", description = "Invalid request.",
+        responseCode = "400",
+        description = "Invalid request.",
         content =
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
         ],
       ),
       ApiResponse(
-        responseCode = "404", description = "Requested resource not found.",
+        responseCode = "404",
+        description = "Requested resource not found.",
         content =
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
         ],
       ),
       ApiResponse(
-        responseCode = "406", description = "Conflict creating an attendance.",
+        responseCode = "406",
+        description = "Conflict creating an attendance.",
         content =
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
         ],
       ),
       ApiResponse(
@@ -74,35 +77,36 @@ class AttendanceController(private val attendanceService: AttendanceService) {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
         ],
 
-      )
-    ]
+      ),
+    ],
   )
   fun postAttendance(
     @Parameter(description = "Attendance details", required = true)
     @RequestBody
     @Valid
-    attendance: CreateAttendanceDto
+    attendance: CreateAttendanceDto,
   ): AttendanceDto = attendanceService.createAttendance(attendance)
 
   @PutMapping(path = ["/{id}"], consumes = [MediaType.APPLICATION_JSON_VALUE])
   @Operation(
     summary = "Updates existing attendance information",
-    description = "Updates the attendance record, posts attendance details back up to PNOMIS. IEP warnings are triggered when certain absence reasons are used."
+    description = "Updates the attendance record, posts attendance details back up to PNOMIS. IEP warnings are triggered when certain absence reasons are used.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "400", description = "Invalid request.",
+        responseCode = "400",
+        description = "Invalid request.",
         content =
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
         ],
 
       ),
@@ -114,16 +118,17 @@ class AttendanceController(private val attendanceService: AttendanceService) {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
         ],
 
-      )
-    ]
+      ),
+    ],
   )
   fun putAttendance(
     @PathVariable("id") id: Long,
-    @RequestBody @Valid attendance: UpdateAttendanceDto
+    @RequestBody @Valid
+    attendance: UpdateAttendanceDto,
   ): ResponseEntity<Any> {
     attendanceService.updateAttendance(id, attendance)
     return ResponseEntity.noContent().build()

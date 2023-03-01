@@ -20,7 +20,7 @@ class ApplicationInsightsEventListener(
 ) : VideoLinkBookingEventListener {
   override fun bookingCreated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingSpecification
+    specification: VideoLinkBookingSpecification,
 
   ) {
     val properties = mutableMapOf(
@@ -42,7 +42,7 @@ class ApplicationInsightsEventListener(
 
   override fun bookingUpdated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingUpdateSpecification
+    specification: VideoLinkBookingUpdateSpecification,
 
   ) {
     val properties = mutableMapOf(
@@ -95,7 +95,7 @@ class ApplicationInsightsEventListener(
 
   private fun appointmentDetail(
     appointment: VideoLinkAppointment,
-    specification: VideoLinkAppointmentSpecification
+    specification: VideoLinkAppointmentSpecification,
   ): Map<String, String> {
     val prefix = appointment.hearingType.name.lowercase()
     return mapOf(

@@ -16,7 +16,7 @@ data class VideoLinkBookingSpecification(
     value = "The location of the court that requires the appointment",
     example = "York Crown Court",
     required = false,
-    notes = "One of court or courtId must contain a value.  courtId takes precedence over court."
+    notes = "One of court or courtId must contain a value.  courtId takes precedence over court.",
   )
   val court: String?,
 
@@ -24,7 +24,7 @@ data class VideoLinkBookingSpecification(
     value = "The identifier of the court that requires the appointment.  This must be one of the court identifier values from the courts register service.",
     example = "CMBGMC",
     required = false,
-    notes = "One of court or courtId must contain a value.  courtId takes precedence over court."
+    notes = "One of court or courtId must contain a value.  courtId takes precedence over court.",
   )
   val courtId: String?,
 
@@ -45,5 +45,5 @@ data class VideoLinkBookingSpecification(
 
   @ApiModelProperty(value = "Post-hearing appointment")
   @field:Valid
-  override val post: VideoLinkAppointmentSpecification? = null
+  override val post: VideoLinkAppointmentSpecification? = null,
 ) : VideoLinkAppointmentsSpecification

@@ -58,7 +58,7 @@ data class Stats(
 @Service
 class AttendanceStatistics(
   private val attendanceRepository: AttendanceRepository,
-  private val prisonApiService: PrisonApiService
+  private val prisonApiService: PrisonApiService,
 ) {
   fun getStats(prisonId: String, period: TimePeriod?, from: LocalDate, to: LocalDate): Stats {
     val periods = period?.let { setOf(it) } ?: setOf(TimePeriod.PM, TimePeriod.AM)

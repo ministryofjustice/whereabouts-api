@@ -56,7 +56,7 @@ class PrisonApiServiceTest {
     prisonApiService.deleteAppointment(appointmentId, DENY)
     prisonApiMockServer.verify(
       deleteRequestedFor(urlEqualTo("/api/appointments/$appointmentId"))
-        .withHeader("no-event-propagation", equalTo("true"))
+        .withHeader("no-event-propagation", equalTo("true")),
     )
   }
 
@@ -67,7 +67,7 @@ class PrisonApiServiceTest {
     prisonApiService.deleteAppointment(appointmentId, ALLOW)
     prisonApiMockServer.verify(
       deleteRequestedFor(urlEqualTo("/api/appointments/$appointmentId"))
-        .withHeader("no-event-propagation", equalTo("false"))
+        .withHeader("no-event-propagation", equalTo("false")),
     )
   }
 
@@ -80,7 +80,7 @@ class PrisonApiServiceTest {
     }
     prisonApiMockServer.verify(
       deleteRequestedFor(urlEqualTo("/api/appointments/$appointmentId"))
-        .withHeader("no-event-propagation", equalTo("false"))
+        .withHeader("no-event-propagation", equalTo("false")),
     )
   }
 
@@ -94,7 +94,7 @@ class PrisonApiServiceTest {
     prisonApiMockServer.verify(
       putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
         .withRequestBody(equalTo(comment))
-        .withHeader("no-event-propagation", equalTo("false"))
+        .withHeader("no-event-propagation", equalTo("false")),
     )
   }
 
@@ -108,7 +108,7 @@ class PrisonApiServiceTest {
     prisonApiMockServer.verify(
       putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
         .withRequestBody(absent())
-        .withHeader("no-event-propagation", equalTo("false"))
+        .withHeader("no-event-propagation", equalTo("false")),
     )
   }
 
@@ -122,7 +122,7 @@ class PrisonApiServiceTest {
     prisonApiMockServer.verify(
       putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
         .withHeader("no-event-propagation", equalTo("false"))
-        .withRequestBody(absent())
+        .withRequestBody(absent()),
     )
   }
 
@@ -142,8 +142,8 @@ class PrisonApiServiceTest {
           agencyId = "WWI",
           currentOccupancy = 0,
           locationPrefix = "XXX",
-          operationalCapacity = 10
-        )
+          operationalCapacity = 10,
+        ),
       )
   }
 
@@ -167,7 +167,7 @@ class PrisonApiServiceTest {
           prisonId = "MDI",
           activity = "act 1",
           description = "desc 1",
-          comment = "comment 1"
+          comment = "comment 1",
         ),
         OffenderAttendance(
           eventDate = "2021-05-04",
@@ -175,7 +175,7 @@ class PrisonApiServiceTest {
           prisonId = "MDI",
           activity = "act 2",
           description = "desc 2",
-          comment = "comment 2"
+          comment = "comment 2",
         ),
         OffenderAttendance(
           eventDate = "2021-06-04",
@@ -183,7 +183,7 @@ class PrisonApiServiceTest {
           prisonId = "MDI",
           activity = null,
           description = "desc 3",
-          comment = "comment 3"
+          comment = "comment 3",
         ),
         OffenderAttendance(
           eventDate = "2021-06-05",
@@ -191,7 +191,7 @@ class PrisonApiServiceTest {
           prisonId = "WWI",
           activity = "act 4",
           description = "desc 4",
-          comment = null
+          comment = null,
         ),
         OffenderAttendance(
           eventDate = "2021-07-14",
@@ -199,7 +199,7 @@ class PrisonApiServiceTest {
           prisonId = "WWI",
           activity = "act 5",
           description = "desc 5",
-          comment = "comment 5"
+          comment = "comment 5",
         ),
         OffenderAttendance(
           eventDate = "2021-08-14",
@@ -207,7 +207,7 @@ class PrisonApiServiceTest {
           prisonId = "WWI",
           activity = "act 6",
           description = "desc 6",
-          comment = "comment 6"
+          comment = "comment 6",
         ),
       )
   }
@@ -219,6 +219,6 @@ private fun getLocation() =
       locationId = 1L, locationType = "VIDE", description = "A VLB location",
       locationUsage = null, agencyId = "WWI", parentLocationId = null,
       currentOccupancy = 0, locationPrefix = "XXX", operationalCapacity = 10,
-      userDescription = null, internalLocationCode = ""
-    )
+      userDescription = null, internalLocationCode = "",
+    ),
   )

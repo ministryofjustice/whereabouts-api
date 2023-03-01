@@ -35,18 +35,17 @@ class VideoLinkBookingEventServiceTest {
   inner class `find by timestamp between` {
     @Test
     fun `Should include court name in csv object when courtId is present`() {
-
       val eventStream = Stream.of(
         VideoLinkBookingEvent(
           courtId = "EYI",
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findByTimestampBetweenOrderByEventId(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
       whenever(courtsService.getCourtNameForCourtId("EYI")).thenReturn("Elmley")
 
@@ -58,7 +57,6 @@ class VideoLinkBookingEventServiceTest {
 
     @Test
     fun `Should return court when courtId is not present`() {
-
       val court = "Elmley"
 
       val eventStream = Stream.of(
@@ -66,12 +64,12 @@ class VideoLinkBookingEventServiceTest {
           court = court,
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findByTimestampBetweenOrderByEventId(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
 
       val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
@@ -81,18 +79,17 @@ class VideoLinkBookingEventServiceTest {
 
     @Test
     fun `Should not return court when court is not present`() {
-
       val eventStream = Stream.of(
         VideoLinkBookingEvent(
           courtId = "EYI",
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findByTimestampBetweenOrderByEventId(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
       whenever(courtsService.getCourtNameForCourtId("EYI")).thenReturn(null)
 
@@ -103,17 +100,16 @@ class VideoLinkBookingEventServiceTest {
 
     @Test
     fun `Should not return court when both courtId and court are not present`() {
-
       val eventStream = Stream.of(
         VideoLinkBookingEvent(
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findByTimestampBetweenOrderByEventId(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
 
       val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
@@ -126,18 +122,17 @@ class VideoLinkBookingEventServiceTest {
   inner class `find by start date between` {
     @Test
     fun `Should include court name in csv object when courtId is present`() {
-
       val eventStream = Stream.of(
         VideoLinkBookingEvent(
           courtId = "EYI",
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findEventsByBookingTime(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
       whenever(courtsService.getCourtNameForCourtId("EYI")).thenReturn("Elmley")
 
@@ -149,7 +144,6 @@ class VideoLinkBookingEventServiceTest {
 
     @Test
     fun `Should return court when courtId is not present`() {
-
       val court = "Elmley"
 
       val eventStream = Stream.of(
@@ -157,12 +151,12 @@ class VideoLinkBookingEventServiceTest {
           court = court,
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findEventsByBookingTime(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
 
       val events = service.getBookingsByStartDateAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
@@ -172,18 +166,17 @@ class VideoLinkBookingEventServiceTest {
 
     @Test
     fun `Should not return court when court is not present`() {
-
       val eventStream = Stream.of(
         VideoLinkBookingEvent(
           courtId = "EYI",
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findEventsByBookingTime(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
       whenever(courtsService.getCourtNameForCourtId("EYI")).thenReturn(null)
 
@@ -194,17 +187,16 @@ class VideoLinkBookingEventServiceTest {
 
     @Test
     fun `Should not return court when both courtId and court are not present`() {
-
       val eventStream = Stream.of(
         VideoLinkBookingEvent(
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findEventsByBookingTime(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
 
       val events = service.getBookingsByStartDateAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)

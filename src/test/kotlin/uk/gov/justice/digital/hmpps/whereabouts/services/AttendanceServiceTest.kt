@@ -70,7 +70,7 @@ class AttendanceServiceTest {
       prisonId = "LEI",
       bookingId = 100,
       eventDate = today,
-      comments = "hello"
+      comments = "hello",
     )
 
   private val START = LocalDate.of(2021, 3, 14)
@@ -90,7 +90,7 @@ class AttendanceServiceTest {
     prisonApiService,
     iepWarningService,
     nomisEventOutcomeMapper,
-    telemetryClient
+    telemetryClient,
   )
 
   init {
@@ -106,12 +106,11 @@ class AttendanceServiceTest {
 
   @Test
   fun `should find attendance given some criteria`() {
-
     val now = LocalDateTime.now()
 
     whenever(
       attendanceRepository
-        .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, today, TimePeriod.AM)
+        .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, today, TimePeriod.AM),
     )
       .thenReturn(
         setOf(
@@ -130,8 +129,8 @@ class AttendanceServiceTest {
             .createUserId("user")
             .createDateTime(now)
             .caseNoteId(1)
-            .build()
-        )
+            .build(),
+        ),
       )
 
     val result = service.getAttendanceForEventLocation("LEI", 1, today, TimePeriod.AM)
@@ -155,8 +154,8 @@ class AttendanceServiceTest {
           .createDateTime(now)
           .caseNoteId(1)
           .locked(false)
-          .build()
-      )
+          .build(),
+      ),
     )
   }
 
@@ -166,7 +165,7 @@ class AttendanceServiceTest {
 
     whenever(
       attendanceRepository
-        .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, sevenDaysAgoTime.toLocalDate(), TimePeriod.AM)
+        .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, sevenDaysAgoTime.toLocalDate(), TimePeriod.AM),
     )
       .thenReturn(
         setOf(
@@ -185,8 +184,8 @@ class AttendanceServiceTest {
             .createUserId("user")
             .createDateTime(sevenDaysAgoTime)
             .caseNoteId(1)
-            .build()
-        )
+            .build(),
+        ),
       )
 
     val result = service.getAttendanceForEventLocation("LEI", 1, sevenDaysAgoTime.toLocalDate(), TimePeriod.AM)
@@ -210,8 +209,8 @@ class AttendanceServiceTest {
           .createDateTime(sevenDaysAgoTime)
           .caseNoteId(1)
           .locked(true)
-          .build()
-      )
+          .build(),
+      ),
     )
   }
 
@@ -221,7 +220,7 @@ class AttendanceServiceTest {
 
     whenever(
       attendanceRepository
-        .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, sixDaysAgoTime.toLocalDate(), TimePeriod.AM)
+        .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, sixDaysAgoTime.toLocalDate(), TimePeriod.AM),
     )
       .thenReturn(
         setOf(
@@ -240,8 +239,8 @@ class AttendanceServiceTest {
             .createUserId("user")
             .createDateTime(sixDaysAgoTime)
             .caseNoteId(1)
-            .build()
-        )
+            .build(),
+        ),
       )
 
     val result = service.getAttendanceForEventLocation("LEI", 1, sixDaysAgoTime.toLocalDate(), TimePeriod.AM)
@@ -265,8 +264,8 @@ class AttendanceServiceTest {
           .createDateTime(sixDaysAgoTime)
           .caseNoteId(1)
           .locked(false)
-          .build()
-      )
+          .build(),
+      ),
     )
   }
 
@@ -276,7 +275,7 @@ class AttendanceServiceTest {
 
     whenever(
       attendanceRepository
-        .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, yesterdayTime.toLocalDate(), TimePeriod.AM)
+        .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod("LEI", 1, yesterdayTime.toLocalDate(), TimePeriod.AM),
     )
       .thenReturn(
         setOf(
@@ -295,8 +294,8 @@ class AttendanceServiceTest {
             .createUserId("user")
             .createDateTime(yesterdayTime)
             .caseNoteId(1)
-            .build()
-        )
+            .build(),
+        ),
       )
 
     val result = service.getAttendanceForEventLocation("LEI", 1, yesterdayTime.toLocalDate(), TimePeriod.AM)
@@ -320,21 +319,20 @@ class AttendanceServiceTest {
           .createDateTime(yesterdayTime)
           .caseNoteId(1)
           .locked(true)
-          .build()
-      )
+          .build(),
+      ),
     )
   }
 
   @Test
   fun `should create an attendance record`() {
-
     service.createAttendance(
       testAttendanceDto.copy(
         paid = true,
         attended = true,
         absentReason = null,
         absentSubReason = null,
-      )
+      ),
     )
 
     verify(attendanceRepository).save(
@@ -348,7 +346,7 @@ class AttendanceServiceTest {
         .bookingId(100)
         .eventDate(today)
         .comments("hello")
-        .build()
+        .build(),
     )
   }
 
@@ -358,14 +356,14 @@ class AttendanceServiceTest {
       EventOutcome(
         "ACCAB",
         null,
-        "hello"
-      )
+        "hello",
+      ),
     )
 
     val attendance = testAttendanceDto.copy(
       absentReason = AbsentReason.AcceptableAbsence,
       attended = false,
-      paid = true
+      paid = true,
     )
 
     service.createAttendance(attendance)
@@ -375,7 +373,7 @@ class AttendanceServiceTest {
       AbsentSubReason.ExternalMoves,
       false,
       true,
-      "hello"
+      "hello",
     )
   }
 
@@ -388,8 +386,8 @@ class AttendanceServiceTest {
         any(),
         any(),
         any(),
-        any()
-      )
+        any(),
+      ),
     ).thenReturn(Optional.of(100L))
 
     service.createAttendance(
@@ -405,8 +403,8 @@ class AttendanceServiceTest {
           prisonId = "LEI",
           bookingId = 100L,
           eventDate = today,
-          comments = "hello, world"
-        )
+          comments = "hello, world",
+        ),
     )
 
     verify(attendanceRepository).save(
@@ -424,7 +422,7 @@ class AttendanceServiceTest {
         .caseNoteId(100L)
         .eventDate(today)
         .comments("hello, world")
-        .build()
+        .build(),
     )
   }
 
@@ -439,15 +437,14 @@ class AttendanceServiceTest {
 
   @Test
   fun `should throw an AttendanceExistsException when attendance already created`() {
-
     whenever(
       attendanceRepository.findByPrisonIdAndBookingIdAndEventIdAndEventDateAndPeriod(
         "LEI",
         1,
         1,
         LocalDate.now(),
-        TimePeriod.AM
-      )
+        TimePeriod.AM,
+      ),
     ).thenReturn(
       setOf(
         Attendance
@@ -461,8 +458,8 @@ class AttendanceServiceTest {
           .prisonId("LEI")
           .bookingId(1)
           .period(TimePeriod.AM)
-          .build()
-      )
+          .build(),
+      ),
     )
 
     assertThatThrownBy {
@@ -478,15 +475,14 @@ class AttendanceServiceTest {
           eventLocationId = 2,
           period = TimePeriod.AM,
           prisonId = "LEI",
-          eventDate = LocalDate.now()
-        )
+          eventDate = LocalDate.now(),
+        ),
       )
     }.isExactlyInstanceOf(AttendanceExists::class.java)
   }
 
   @Test
   fun `should update select fields only`() {
-
     whenever(attendanceRepository.findById(1)).thenReturn(
       Optional.of(
         Attendance
@@ -500,8 +496,8 @@ class AttendanceServiceTest {
           .prisonId("LEI")
           .bookingId(1)
           .period(TimePeriod.AM)
-          .build()
-      )
+          .build(),
+      ),
     )
 
     service.updateAttendance(
@@ -511,8 +507,8 @@ class AttendanceServiceTest {
         absentSubReason = AbsentSubReason.ExternalMoves,
         attended = false,
         paid = false,
-        comments = "Session cancelled due to riot"
-      )
+        comments = "Session cancelled due to riot",
+      ),
     )
 
     verify(attendanceRepository).save(
@@ -530,13 +526,12 @@ class AttendanceServiceTest {
         .prisonId("LEI")
         .bookingId(1)
         .period(TimePeriod.AM)
-        .build()
+        .build(),
     )
   }
 
   @Test
   fun `should go from unpaid none attendance to paid attendance `() {
-
     whenever(iepWarningService.handleIEPWarningScenarios(any(), any())).thenReturn(Optional.empty())
 
     whenever(attendanceRepository.findById(1)).thenReturn(
@@ -556,16 +551,16 @@ class AttendanceServiceTest {
           .prisonId("LEI")
           .bookingId(1)
           .period(TimePeriod.AM)
-          .build()
-      )
+          .build(),
+      ),
     )
 
     service.updateAttendance(
       1,
       UpdateAttendanceDto(
         attended = true,
-        paid = true
-      )
+        paid = true,
+      ),
     )
 
     verify(attendanceRepository).save(
@@ -583,7 +578,7 @@ class AttendanceServiceTest {
         .prisonId("LEI")
         .bookingId(1)
         .period(TimePeriod.AM)
-        .build()
+        .build(),
     )
 
     verify(iepWarningService).handleIEPWarningScenarios(any(), any())
@@ -610,8 +605,8 @@ class AttendanceServiceTest {
           .prisonId("LEI")
           .bookingId(1)
           .period(TimePeriod.AM)
-          .build()
-      )
+          .build(),
+      ),
     )
 
     assertThatThrownBy {
@@ -638,8 +633,8 @@ class AttendanceServiceTest {
           .prisonId("LEI")
           .bookingId(1)
           .period(TimePeriod.AM)
-          .build()
-      )
+          .build(),
+      ),
     )
 
     assertThatThrownBy {
@@ -666,13 +661,13 @@ class AttendanceServiceTest {
           .prisonId("LEI")
           .bookingId(1)
           .period(TimePeriod.AM)
-          .build()
-      )
+          .build(),
+      ),
     )
 
     service.updateAttendance(
       1,
-      UpdateAttendanceDto(paid = true, attended = false, absentReason = AbsentReason.ApprovedCourse)
+      UpdateAttendanceDto(paid = true, attended = false, absentReason = AbsentReason.ApprovedCourse),
     )
   }
 
@@ -685,8 +680,8 @@ class AttendanceServiceTest {
         any(),
         any(),
         any(),
-        any()
-      )
+        any(),
+      ),
     ).thenReturn(Optional.of(100L))
 
     val created = service.createAttendance(
@@ -701,8 +696,8 @@ class AttendanceServiceTest {
         eventLocationId = 2,
         period = TimePeriod.AM,
         prisonId = "LEI",
-        eventDate = LocalDate.now()
-      )
+        eventDate = LocalDate.now(),
+      ),
     )
 
     assertThat(created).isEqualTo(
@@ -723,13 +718,12 @@ class AttendanceServiceTest {
         .eventDate(LocalDate.now())
         .comments("test comments")
         .locked(false)
-        .build()
+        .build(),
     )
   }
 
   @Test
   fun `should remove previous comment when no longer required`() {
-
     val attendanceEntity = Attendance.builder()
       .bookingId(1)
       .eventLocationId(1)
@@ -756,7 +750,7 @@ class AttendanceServiceTest {
         .absentSubReason(null)
         .attended(true)
         .paid(true)
-        .build()
+        .build(),
     )
   }
 
@@ -771,7 +765,7 @@ class AttendanceServiceTest {
       "LEI",
       setOf(1, 2),
       today,
-      TimePeriod.AM
+      TimePeriod.AM,
     )
   }
 
@@ -781,8 +775,8 @@ class AttendanceServiceTest {
       EventOutcome(
         "ATT",
         "STANDARD",
-        ""
-      )
+        "",
+      ),
     )
 
     val bookingIds = setOf(1L, 2L)
@@ -798,8 +792,8 @@ class AttendanceServiceTest {
         eventLocationId = 2L,
         prisonId = "LEI",
         period = TimePeriod.AM,
-        bookingActivities = bookingActivities
-      )
+        bookingActivities = bookingActivities,
+      ),
     )
 
     assertThat(savedAttendanceDetails).containsExactlyInAnyOrder(
@@ -826,13 +820,13 @@ class AttendanceServiceTest {
         .locked(false)
         .paid(true)
         .attended(true)
-        .build()
+        .build(),
     )
 
     verify(attendanceRepository).saveAll(anySet())
     verify(prisonApiService).putAttendanceForMultipleBookings(
       bookingActivities,
-      EventOutcome("ATT", "STANDARD", "")
+      EventOutcome("ATT", "STANDARD", ""),
     )
   }
 
@@ -858,7 +852,7 @@ class AttendanceServiceTest {
           scheduleDto.copy(bookingId = 2, eventId = 2, offenderNo = "MATCH2"),
           scheduleDto.copy(bookingId = 3, eventId = 1, offenderNo = "MATCH3"),
           scheduleDto.copy(bookingId = 3, eventId = 2, offenderNo = "NO_MATCH"),
-        )
+        ),
       )
       whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(any(), any(), any(), any()))
         .thenReturn(
@@ -866,7 +860,7 @@ class AttendanceServiceTest {
             attendance.toBuilder().bookingId(1).eventId(2).build(),
             attendance.toBuilder().bookingId(3).eventId(1).build(),
             attendance.toBuilder().bookingId(2).eventId(2).build(),
-          )
+          ),
         )
 
       val scheduled = service.getPrisonersUnaccountedFor(prisonId, date, period)
@@ -880,8 +874,8 @@ class AttendanceServiceTest {
       EventOutcome(
         "ACCAB",
         null,
-        "test"
-      )
+        "test",
+      ),
     )
 
     val bookingIds = setOf(1L, 2L)
@@ -901,8 +895,8 @@ class AttendanceServiceTest {
         comments = "test",
         attended = false,
         paid = true,
-        bookingActivities = bookingActivities
-      )
+        bookingActivities = bookingActivities,
+      ),
     )
 
     assertThat(savedAttendanceDetails).containsExactlyInAnyOrder(
@@ -933,13 +927,13 @@ class AttendanceServiceTest {
         .attended(false)
         .comments("test")
         .absentReason(AbsentReason.AcceptableAbsence)
-        .build()
+        .build(),
     )
 
     verify(attendanceRepository).saveAll(anySet())
     verify(prisonApiService).putAttendanceForMultipleBookings(
       bookingActivities,
-      EventOutcome("ACCAB", null, "test")
+      EventOutcome("ACCAB", null, "test"),
     )
   }
 
@@ -961,7 +955,7 @@ class AttendanceServiceTest {
         fromDate,
         toDate,
         setOf(period),
-        reason
+        reason,
       )
     }
 
@@ -979,7 +973,7 @@ class AttendanceServiceTest {
         fromDate,
         toDate,
         setOf(TimePeriod.AM, TimePeriod.PM),
-        reason
+        reason,
       )
     }
 
@@ -994,8 +988,8 @@ class AttendanceServiceTest {
           any(),
           any(),
           any(),
-          any()
-        )
+          any(),
+        ),
       ).thenReturn(
         setOf(
           Attendance.builder().bookingId(1).eventId(1).attended(false).paid(false).prisonId(prison)
@@ -1007,7 +1001,7 @@ class AttendanceServiceTest {
           Attendance.builder().bookingId(1).eventId(3).attended(false).paid(false).prisonId(prison)
             .period(TimePeriod.AM)
             .absentReason(AbsentReason.RestDay).build(),
-        )
+        ),
       )
 
       service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, TimePeriod.AM)
@@ -1032,7 +1026,7 @@ class AttendanceServiceTest {
             comment = "Gym",
             firstName = "john",
             lastName = "doe",
-            suspended = true
+            suspended = true,
           ),
           OffenderDetails(
             bookingId = 1,
@@ -1044,7 +1038,7 @@ class AttendanceServiceTest {
             comment = "Workshop 1",
             firstName = "john",
             lastName = "doe",
-            suspended = false
+            suspended = false,
           ),
           OffenderDetails(
             bookingId = 2,
@@ -1054,7 +1048,7 @@ class AttendanceServiceTest {
             timeSlot = "PM",
             firstName = "dave",
             lastName = "doe1",
-            suspended = true
+            suspended = true,
           ),
           OffenderDetails(
             bookingId = 2,
@@ -1065,9 +1059,9 @@ class AttendanceServiceTest {
             timeSlot = "PM",
             firstName = "dave",
             lastName = "doe1",
-            suspended = false
-          )
-        )
+            suspended = false,
+          ),
+        ),
       )
 
       whenever(
@@ -1076,8 +1070,8 @@ class AttendanceServiceTest {
           any(),
           any(),
           any(),
-          any()
-        )
+          any(),
+        ),
       ).thenReturn(
         setOf(
           Attendance.builder()
@@ -1135,8 +1129,8 @@ class AttendanceServiceTest {
             .absentSubReason(AbsentSubReason.ExternalMoves)
             .comments("comment4")
             .eventDate(eventDate)
-            .build()
-        )
+            .build(),
+        ),
       )
 
       val attendances = service.getAbsencesForReason(prison, AbsentReason.Refused, eventDate, eventDate, null)
@@ -1156,7 +1150,7 @@ class AttendanceServiceTest {
         "cellLocation",
         "firstName",
         "lastName",
-        "suspended"
+        "suspended",
       )
         .containsExactlyInAnyOrder(
           Tuple.tuple(
@@ -1174,7 +1168,7 @@ class AttendanceServiceTest {
             "cell1",
             "john",
             "doe",
-            true
+            true,
           ),
           Tuple.tuple(
             2L,
@@ -1191,7 +1185,7 @@ class AttendanceServiceTest {
             "cell2",
             "john",
             "doe",
-            false
+            false,
           ),
 
           Tuple.tuple(
@@ -1209,7 +1203,7 @@ class AttendanceServiceTest {
             null,
             "dave",
             "doe1",
-            true
+            true,
           ),
           Tuple.tuple(
             4L,
@@ -1226,8 +1220,8 @@ class AttendanceServiceTest {
             "cell4",
             "dave",
             "doe1",
-            false
-          )
+            false,
+          ),
         )
     }
 
@@ -1246,7 +1240,7 @@ class AttendanceServiceTest {
         date,
         date,
         setOf(period),
-        reason
+        reason,
       )
     }
   }
@@ -1265,7 +1259,7 @@ class AttendanceServiceTest {
       setOf(1, 2),
       date,
       date,
-      setOf(period)
+      setOf(period),
     )
   }
 
@@ -1282,7 +1276,7 @@ class AttendanceServiceTest {
       setOf(1, 2),
       date,
       date,
-      setOf(TimePeriod.AM, TimePeriod.PM)
+      setOf(TimePeriod.AM, TimePeriod.PM),
     )
   }
 
@@ -1294,8 +1288,8 @@ class AttendanceServiceTest {
       setOf(
         Attendance.builder().id(1).bookingId(1).build(),
         Attendance.builder().id(2).bookingId(1).build(),
-        Attendance.builder().id(3).bookingId(1).build()
-      )
+        Attendance.builder().id(3).bookingId(1).build(),
+      ),
     )
 
     service.deleteAttendancesForOffenderDeleteEvent(offenderNo, listOf(1L))
@@ -1306,9 +1300,9 @@ class AttendanceServiceTest {
         setOf(
           Attendance.builder().id(1).bookingId(1).build(),
           Attendance.builder().id(2).bookingId(1).build(),
-          Attendance.builder().id(3).bookingId(1).build()
-        )
-      )
+          Attendance.builder().id(3).bookingId(1).build(),
+        ),
+      ),
     )
     verify(telemetryClient).trackEvent("OffenderDelete", mapOf("offenderNo" to "A12345", "count" to "3"), null)
   }
@@ -1334,15 +1328,15 @@ class AttendanceServiceTest {
 
     service.updateAttendance(
       1L,
-      UpdateAttendanceDto(absentReason = AbsentReason.NotRequired, attended = false, paid = false)
+      UpdateAttendanceDto(absentReason = AbsentReason.NotRequired, attended = false, paid = false),
     )
 
     verify(attendanceChangesRepository).save(
       AttendanceChange(
         attendance = attendance,
         changedFrom = AttendanceChangeValues.Refused,
-        changedTo = AttendanceChangeValues.NotRequired
-      )
+        changedTo = AttendanceChangeValues.NotRequired,
+      ),
     )
   }
 
@@ -1370,8 +1364,8 @@ class AttendanceServiceTest {
       AttendanceChange(
         attendance = attendance,
         changedFrom = AttendanceChangeValues.Refused,
-        changedTo = AttendanceChangeValues.Attended
-      )
+        changedTo = AttendanceChangeValues.Attended,
+      ),
     )
   }
 
@@ -1417,7 +1411,7 @@ class AttendanceServiceTest {
       changedFrom = AttendanceChangeValues.Attended,
       changedTo = AttendanceChangeValues.Refused,
       createDateTime = createdDateTime,
-      createUserId = "ITAG_USER"
+      createUserId = "ITAG_USER",
     )
 
     whenever(attendanceRepository.findById(1L)).thenReturn(Optional.of(attendance))
@@ -1451,8 +1445,8 @@ class AttendanceServiceTest {
         LocalDate.now().minusYears(1),
         LocalDate.now(),
         null,
-        Pageable.unpaged()
-      )
+        Pageable.unpaged(),
+      ),
     ).thenReturn(
       PageImpl(
         listOf(
@@ -1464,8 +1458,8 @@ class AttendanceServiceTest {
           createOffenderAttendance(eventDate = "2021-08-01", outcome = "ATT"),
           createOffenderAttendance(eventDate = "2021-08-01", outcome = ""),
           createOffenderAttendance(eventDate = "2021-05-01", outcome = null),
-        )
-      )
+        ),
+      ),
     )
 
     val result =
@@ -1484,8 +1478,8 @@ class AttendanceServiceTest {
         LocalDate.now().minusYears(1),
         LocalDate.now(),
         "UNACAB",
-        pageable
-      )
+        pageable,
+      ),
     ).thenReturn(
       PageImpl(
         listOf(
@@ -1495,7 +1489,7 @@ class AttendanceServiceTest {
             prisonId = "WWI",
             activity = "a1",
             description = "d1",
-            comment = "Test comment 1"
+            comment = "Test comment 1",
           ),
           OffenderAttendance(
             "2021-03-14",
@@ -1503,10 +1497,10 @@ class AttendanceServiceTest {
             prisonId = "MDI",
             activity = "a",
             description = "d",
-            comment = "Test comment"
-          )
-        )
-      )
+            comment = "Test comment",
+          ),
+        ),
+      ),
     )
 
     val result =
@@ -1514,7 +1508,7 @@ class AttendanceServiceTest {
         offenderNo,
         LocalDate.now().minusYears(1),
         LocalDate.now(),
-        pageable
+        pageable,
       )
 
     assertThat(result.content).hasSize(2)
@@ -1544,8 +1538,8 @@ class AttendanceServiceTest {
 
     whenever(
       prisonApiService.getOffenderDetailsFromOffenderNos(
-        listOf(offenderNo)
-      )
+        listOf(offenderNo),
+      ),
     ).thenReturn(
       listOf(
         OffenderBooking(
@@ -1555,15 +1549,15 @@ class AttendanceServiceTest {
           "Jon",
           "Doe",
           "AGC",
-          testAttendanceHistoryDto.eventDate, null, null
-        )
-      )
+          testAttendanceHistoryDto.eventDate, null, null,
+        ),
+      ),
     )
 
     whenever(
-      attendanceRepository.findByBookingIdInAndEventDateBetween(any(), any(), any())
+      attendanceRepository.findByBookingIdInAndEventDateBetween(any(), any(), any()),
     ).thenReturn(
-      listOf(attendance)
+      listOf(attendance),
     )
 
     val result =
@@ -1571,7 +1565,7 @@ class AttendanceServiceTest {
         offenderNo,
         LocalDate.now().minusYears(1),
         LocalDate.now(),
-        pageable
+        pageable,
       )
 
     assertThat(result.content).hasSize(1)

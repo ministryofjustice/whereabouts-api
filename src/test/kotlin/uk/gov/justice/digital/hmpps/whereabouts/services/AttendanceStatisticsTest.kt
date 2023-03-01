@@ -23,6 +23,7 @@ class AttendanceStatisticsTest {
   companion object {
     @JvmStatic
     private fun getPaidReasons() = AbsentReason.paidReasons
+
     @JvmStatic
     private fun getUnpaidReasons() = AbsentReason.unpaidReasons
   }
@@ -122,7 +123,7 @@ class AttendanceStatisticsTest {
       .absentReason(AbsentReason.RefusedIncentiveLevelWarning)
       .paid(false)
       .period(TimePeriod.AM)
-      .build()
+      .build(),
   )
 
   @Nested
@@ -130,7 +131,7 @@ class AttendanceStatisticsTest {
     @BeforeEach
     fun setup() {
       whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
-        PrisonerActivitiesCount(0, 0, 0)
+        PrisonerActivitiesCount(0, 0, 0),
       )
     }
 
@@ -171,7 +172,7 @@ class AttendanceStatisticsTest {
     @Test
     fun `count not recorded`() {
       whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
-        PrisonerActivitiesCount(13, 1, 2)
+        PrisonerActivitiesCount(13, 1, 2),
       )
 
       whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(anyString(), any(), any(), any()))
@@ -185,7 +186,7 @@ class AttendanceStatisticsTest {
     @Test
     fun `count offender schedules`() {
       whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
-        PrisonerActivitiesCount(8, 1, 0)
+        PrisonerActivitiesCount(8, 1, 0),
       )
       val stats = service.getStats(prisonId, TimePeriod.AM, from, to)
 
@@ -237,13 +238,13 @@ class AttendanceStatisticsTest {
           prisonId,
           from,
           to,
-          setOf(TimePeriod.AM, TimePeriod.PM)
-        )
+          setOf(TimePeriod.AM, TimePeriod.PM),
+        ),
       )
         .thenReturn(attendances)
 
       whenever(prisonApiService.getScheduleActivityCounts(anyString(), any(), any(), any(), any())).thenReturn(
-        PrisonerActivitiesCount(5, 2, 3)
+        PrisonerActivitiesCount(5, 2, 3),
       )
 
       val stats = service.getStats(prisonId, null, from, to)
@@ -258,18 +259,23 @@ class AttendanceStatisticsTest {
           prisonId,
           from,
           to,
-          setOf(TimePeriod.AM, TimePeriod.PM)
-        )
+          setOf(TimePeriod.AM, TimePeriod.PM),
+        ),
       )
         .thenReturn(attendances.filter { setOf(1L, 2L, 3L).contains(it.bookingId) }.toSet())
 
       val stats = service.getStats(prisonId, null, from, to)
 
       verify(prisonApiService).getScheduleActivityCounts(
-        prisonId, from, to, setOf(TimePeriod.AM, TimePeriod.PM),
+        prisonId,
+        from,
+        to,
+        setOf(TimePeriod.AM, TimePeriod.PM),
         mapOf(
-          1L to 1, 2L to 1, 3L to 1
-        )
+          1L to 1,
+          2L to 1,
+          3L to 1,
+        ),
       )
     }
   }

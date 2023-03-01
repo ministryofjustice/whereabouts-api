@@ -9,7 +9,7 @@ import java.util.function.Predicate
 @Service("locationGroupServiceSelector")
 class LocationGroupServiceSelector(
   @Qualifier("defaultLocationGroupService") private val defaultService: LocationGroupService,
-  @Qualifier("overrideLocationGroupService") private val overrideService: LocationGroupService
+  @Qualifier("overrideLocationGroupService") private val overrideService: LocationGroupService,
 ) : LocationGroupService {
 
   override fun getLocationGroupsForAgency(agencyId: String): List<LocationGroup> {
@@ -20,12 +20,16 @@ class LocationGroupServiceSelector(
     val groups = overrideService.getLocationGroups(agencyId)
     return if (groups.isNotEmpty()) {
       groups
-    } else defaultService.getLocationGroups(agencyId)
+    } else {
+      defaultService.getLocationGroups(agencyId)
+    }
   }
 
   override fun locationGroupFilter(agencyId: String, groupName: String): Predicate<Location> {
     return if (overrideService.getLocationGroups(agencyId).isNotEmpty()) {
       overrideService.locationGroupFilter(agencyId, groupName)
-    } else defaultService.locationGroupFilter(agencyId, groupName)
+    } else {
+      defaultService.locationGroupFilter(agencyId, groupName)
+    }
   }
 }

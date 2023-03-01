@@ -20,7 +20,7 @@ import java.time.LocalDate
 
 @WebMvcTest(
   VideoLinkBookingEventController::class,
-  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class]
+  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class],
 )
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)
 class VideoLinkBookingEventControllerTest : TestController() {
@@ -36,7 +36,7 @@ class VideoLinkBookingEventControllerTest : TestController() {
       .perform(
         get("/events/video-link-booking-events")
           .param("start-date", "2021-03-01")
-          .accept("text/csv")
+          .accept("text/csv"),
       )
       .andExpect(status().isOk)
       .andExpect(content().contentType("text/csv;charset=UTF-8"))
@@ -54,7 +54,7 @@ class VideoLinkBookingEventControllerTest : TestController() {
       .perform(
         get("/events/video-link-booking-events")
           .param("start-date", "xxxxx")
-          .accept("text/csv")
+          .accept("text/csv"),
       )
       .andExpect(status().isBadRequest)
   }
@@ -67,7 +67,7 @@ class VideoLinkBookingEventControllerTest : TestController() {
     mockMvc
       .perform(
         get("/events/video-link-booking-events")
-          .accept("text/csv")
+          .accept("text/csv"),
       )
       .andExpect(status().isBadRequest)
   }
@@ -82,7 +82,7 @@ class VideoLinkBookingEventControllerTest : TestController() {
         get("/events/video-link-booking-events")
           .param("start-date", "2021-03-01")
           .param("days", "3")
-          .accept("text/csv")
+          .accept("text/csv"),
       )
       .andExpect(status().isOk)
 
@@ -99,7 +99,7 @@ class VideoLinkBookingEventControllerTest : TestController() {
         get("/events/video-link-booking-events")
           .param("start-date", "2021-03-01")
           .param("days", "xxxx")
-          .accept("text/csv")
+          .accept("text/csv"),
       )
       .andExpect(status().isBadRequest)
   }

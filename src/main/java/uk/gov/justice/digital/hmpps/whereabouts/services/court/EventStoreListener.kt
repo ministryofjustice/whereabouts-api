@@ -24,7 +24,7 @@ class EventStoreListener(
 ) : VideoLinkBookingEventListener {
   override fun bookingCreated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingSpecification
+    specification: VideoLinkBookingSpecification,
   ) {
     repository.save(
       VideoLinkBookingEvent(
@@ -49,14 +49,14 @@ class EventStoreListener(
         postLocationId = specification.post?.locationId,
         postNomisAppointmentId = booking.appointments[POST]?.appointmentId,
         postStartTime = specification.post?.startTime,
-        postEndTime = specification.post?.endTime
-      )
+        postEndTime = specification.post?.endTime,
+      ),
     )
   }
 
   override fun bookingUpdated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingUpdateSpecification
+    specification: VideoLinkBookingUpdateSpecification,
   ) {
     repository.save(
       VideoLinkBookingEvent(
@@ -80,8 +80,8 @@ class EventStoreListener(
         postLocationId = specification.post?.locationId,
         postNomisAppointmentId = booking.appointments[POST]?.appointmentId,
         postStartTime = specification.post?.startTime,
-        postEndTime = specification.post?.endTime
-      )
+        postEndTime = specification.post?.endTime,
+      ),
     )
   }
 
@@ -94,8 +94,8 @@ class EventStoreListener(
         madeByTheCourt = booking.madeByTheCourt,
         videoLinkBookingId = booking.id!!,
         court = booking.courtName,
-        courtId = booking.courtId
-      )
+        courtId = booking.courtId,
+      ),
     )
   }
 

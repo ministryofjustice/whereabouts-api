@@ -7,5 +7,5 @@ data class EventOutcomesDto(
   val eventOutcome: String,
   val performance: String? = null,
   val outcomeComment: String? = null,
-  val bookingActivities: Set<BookingActivity>
+  val bookingActivities: Set<BookingActivity>,
 )

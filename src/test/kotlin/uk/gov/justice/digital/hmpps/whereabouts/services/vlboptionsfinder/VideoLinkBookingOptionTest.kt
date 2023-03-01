@@ -10,9 +10,9 @@ class VideoLinkBookingOptionTest {
       1L,
       Interval(
         LocalTime.of(10, 0),
-        LocalTime.of(11, 0)
-      )
-    )
+        LocalTime.of(11, 0),
+      ),
+    ),
   )
 
   private val preMainAndPost = VideoLinkBookingOption(
@@ -20,23 +20,23 @@ class VideoLinkBookingOptionTest {
       1L,
       Interval(
         LocalTime.of(9, 45),
-        LocalTime.of(10, 0)
-      )
+        LocalTime.of(10, 0),
+      ),
     ),
     main = LocationAndInterval(
       1L,
       Interval(
         LocalTime.of(10, 0),
-        LocalTime.of(10, 30)
-      )
+        LocalTime.of(10, 30),
+      ),
     ),
     post = LocationAndInterval(
       1L,
       Interval(
         LocalTime.of(10, 30),
-        LocalTime.of(10, 45)
-      )
-    )
+        LocalTime.of(10, 45),
+      ),
+    ),
   )
 
   @Test
@@ -67,10 +67,10 @@ class VideoLinkBookingOptionTest {
           1L,
           Interval(
             LocalTime.of(9, 0),
-            LocalTime.of(10, 0)
-          )
-        )
-      )
+            LocalTime.of(10, 0),
+          ),
+        ),
+      ),
     )
   }
 
@@ -82,24 +82,24 @@ class VideoLinkBookingOptionTest {
           1L,
           Interval(
             LocalTime.of(9, 0),
-            LocalTime.of(9, 15)
-          )
+            LocalTime.of(9, 15),
+          ),
         ),
         main = LocationAndInterval(
           1L,
           Interval(
             LocalTime.of(9, 15),
-            LocalTime.of(9, 45)
-          )
+            LocalTime.of(9, 45),
+          ),
         ),
         post = LocationAndInterval(
           1L,
           Interval(
             LocalTime.of(9, 45),
-            LocalTime.of(10, 0)
-          )
-        )
-      )
+            LocalTime.of(10, 0),
+          ),
+        ),
+      ),
     )
   }
 }

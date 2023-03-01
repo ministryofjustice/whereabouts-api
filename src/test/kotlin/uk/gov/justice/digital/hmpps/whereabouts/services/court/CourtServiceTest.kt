@@ -88,7 +88,7 @@ class CourtServiceTest {
     @Test
     fun `case insensitive match with whitespace`() {
       assertThat(CourtService(repository).getCourtIdForCourtName(" ${DERBY_JC_NAME.uppercase()}  ")).isEqualTo(
-        DERBY_JC_ID
+        DERBY_JC_ID,
       )
     }
   }

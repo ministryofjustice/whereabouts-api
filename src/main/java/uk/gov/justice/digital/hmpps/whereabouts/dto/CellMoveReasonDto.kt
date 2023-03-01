@@ -10,7 +10,7 @@ data class CellMoveReasonDto(
   @ApiModelProperty(
     value = "Bed assignment sequence. Used as a primary key when combined with the booking id",
     position = 2,
-    example = "2"
+    example = "2",
   )
   val bedAssignmentsSequence: Int,
   @ApiModelProperty(value = "Id of the case note created", position = 3, example = "3")

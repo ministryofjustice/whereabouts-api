@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 interface AttendanceChangesRepository : CrudRepository<AttendanceChange, Long> {
   fun findAttendanceChangeByCreateDateTimeBetween(
     fromDateTime: LocalDateTime,
-    toDateTime: LocalDateTime
+    toDateTime: LocalDateTime,
   ): Set<AttendanceChange>
 
   fun findAttendanceChangeByCreateDateTime(createDateTime: LocalDateTime): Set<AttendanceChange>

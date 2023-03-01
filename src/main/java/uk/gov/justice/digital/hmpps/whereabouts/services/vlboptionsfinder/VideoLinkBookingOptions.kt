@@ -10,12 +10,12 @@ data class VideoLinkBookingOption(
 
   @ApiModelProperty(
     value = "The location (by location id) and Interval for the main appointment (the court appearance).",
-    required = true
+    required = true,
   )
   val main: LocationAndInterval,
 
   @ApiModelProperty(value = "The location and Interval for the post-hearing appointment.")
-  val post: LocationAndInterval? = null
+  val post: LocationAndInterval? = null,
 ) {
   fun toLocationsAndIntervals() = listOfNotNull(pre, main, post)
 
@@ -24,7 +24,7 @@ data class VideoLinkBookingOption(
     return VideoLinkBookingOption(
       pre = this.pre?.shift(offset),
       main = this.main.shift(offset),
-      post = this.post?.shift(offset)
+      post = this.post?.shift(offset),
     )
   }
 
@@ -40,21 +40,21 @@ data class VideoLinkBookingOption(
         pre = specification.preAppointment?.let {
           LocationAndInterval(
             locationId = it.locationId,
-            interval = it.interval
+            interval = it.interval,
           )
         },
         main = specification.mainAppointment.let {
           LocationAndInterval(
             locationId = it.locationId,
-            interval = it.interval
+            interval = it.interval,
           )
         },
         post = specification.postAppointment?.let {
           LocationAndInterval(
             locationId = it.locationId,
-            interval = it.interval
+            interval = it.interval,
           )
-        }
+        },
       )
   }
 }
@@ -64,5 +64,5 @@ data class VideoLinkBookingOptions(
   val matched: Boolean,
 
   @ApiModelProperty(value = "If the specification could not be met then up to three alternative booking times are offered.")
-  val alternatives: List<VideoLinkBookingOption>
+  val alternatives: List<VideoLinkBookingOption>,
 )

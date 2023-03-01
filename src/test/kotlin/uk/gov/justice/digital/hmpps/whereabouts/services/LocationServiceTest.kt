@@ -31,19 +31,19 @@ class LocationServiceTest {
     val location1 = Location(
       locationId = 1, locationType = "VIDE", description = "video-room-a", locationUsage = "APP",
       agencyId = "MDI", parentLocationId = 123, currentOccupancy = 2, locationPrefix = "MDI-prefix",
-      operationalCapacity = 2, userDescription = "Video Room A", internalLocationCode = "Room 1"
+      operationalCapacity = 2, userDescription = "Video Room A", internalLocationCode = "Room 1",
     )
 
     val location2 = Location(
       locationId = 2, locationType = "VIDE", description = "video-room-b", locationUsage = "APP",
       agencyId = "MDI", parentLocationId = 123, currentOccupancy = 2, locationPrefix = "MDI-prefix",
-      operationalCapacity = 2, userDescription = "Video Room B", internalLocationCode = "Room 2"
+      operationalCapacity = 2, userDescription = "Video Room B", internalLocationCode = "Room 2",
     )
 
     val location3 = Location(
       locationId = 3, locationType = "MEETING ROOM", description = "video-room-c", locationUsage = "APP",
       agencyId = "MDI", parentLocationId = 123, currentOccupancy = 2, locationPrefix = "MDI-prefix",
-      operationalCapacity = 2, userDescription = "Video Room C", internalLocationCode = "Room 3"
+      operationalCapacity = 2, userDescription = "Video Room C", internalLocationCode = "Room 3",
     )
 
     whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted("MDI", "APP"))
@@ -54,7 +54,7 @@ class LocationServiceTest {
         listOf(
           LocationIdAndDescription(locationId = 1, description = "Video Room A"),
           LocationIdAndDescription(locationId = 2, description = "Video Room B"),
-        )
+        ),
       )
       .doesNotContain(LocationIdAndDescription(locationId = 3, description = "Video Room C"))
   }
@@ -64,13 +64,13 @@ class LocationServiceTest {
     val location1 = Location(
       locationId = 1, locationType = "VIDE", description = "video-room-a", locationUsage = "APP",
       agencyId = "MDI", parentLocationId = 123, currentOccupancy = 2, locationPrefix = "MDI-prefix",
-      operationalCapacity = 2, userDescription = null, internalLocationCode = "Room 1"
+      operationalCapacity = 2, userDescription = null, internalLocationCode = "Room 1",
     )
 
     val location2 = Location(
       locationId = 2, locationType = "VIDE", description = "video-room-b", locationUsage = "APP",
       agencyId = "MDI", parentLocationId = 123, currentOccupancy = 2, locationPrefix = "MDI-prefix",
-      operationalCapacity = 2, userDescription = "Video Room B", internalLocationCode = "Room 2"
+      operationalCapacity = 2, userDescription = "Video Room B", internalLocationCode = "Room 2",
     )
 
     whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted("MDI", "APP"))
@@ -81,7 +81,7 @@ class LocationServiceTest {
         listOf(
           LocationIdAndDescription(locationId = 1, description = "video-room-a"),
           LocationIdAndDescription(locationId = 2, description = "Video Room B"),
-        )
+        ),
       )
   }
 
@@ -134,16 +134,16 @@ class LocationServiceTest {
             description = "LEI-1-1",
             userDescription = "Dormitory",
             noOfOccupants = 1,
-            capacity = 2
+            capacity = 2,
           ),
           CellWithAttributes(
             id = 2L,
             description = "LEI-1-2",
             userDescription = "Dormitory",
             noOfOccupants = 1,
-            capacity = 2
-          )
-        )
+            capacity = 2,
+          ),
+        ),
       )
     whenever(locationGroupService.locationGroupFilter("LEI", "myList"))
       .thenReturn(locationPrefixPredicate("LEI-1-1", "LEI-1-2"))
@@ -163,16 +163,16 @@ class LocationServiceTest {
             description = "LEI-1-1",
             userDescription = "Dormitory",
             noOfOccupants = 1,
-            capacity = 2
+            capacity = 2,
           ),
           CellWithAttributes(
             id = 2L,
             description = "LEI-1-2",
             userDescription = "Dormitory",
             noOfOccupants = 1,
-            capacity = 2
-          )
-        )
+            capacity = 2,
+          ),
+        ),
       )
     whenever(locationGroupService.locationGroupFilter("LEI", "myList"))
       .thenReturn(Predicate { false })
@@ -218,7 +218,7 @@ class LocationServiceTest {
       agencyId = "",
       internalLocationCode = "",
       locationUsage = "",
-      locationType = ""
+      locationType = "",
     )
   }
 }

@@ -4,5 +4,5 @@ import com.fasterxml.jackson.annotation.JsonInclude
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class CourtEmailDto(
-  val email: String
+  val email: String,
 )

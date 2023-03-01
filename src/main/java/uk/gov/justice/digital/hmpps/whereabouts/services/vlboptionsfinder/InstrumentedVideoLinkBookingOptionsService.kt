@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter
 class InstrumentedVideoLinkBookingOptionsService(
   private val delegate: VideoLinkBookingOptionsService,
   private val authenticationFacade: AuthenticationFacade,
-  private val telemetryClient: TelemetryClient
+  private val telemetryClient: TelemetryClient,
 ) : IVideoLinkBookingOptionsService {
 
   override fun findVideoLinkBookingOptions(specification: VideoLinkBookingSearchSpecification): VideoLinkBookingOptions {
@@ -28,7 +28,7 @@ class InstrumentedVideoLinkBookingOptionsService(
       "vlbToExclude" to (specification.vlbIdToExclude?.toString() ?: ""),
       "matched" to result.matched.toString(),
       "alternativesCount" to result.alternatives.size.toString(),
-      "alternativeMainStartTimes" to result.alternatives.joinToString(",") { formatMainStartTime(it) }
+      "alternativeMainStartTimes" to result.alternatives.joinToString(",") { formatMainStartTime(it) },
     ) +
       appointmentDetail("main", specification.mainAppointment) +
       (specification.preAppointment?.let { appointmentDetail("pre", it) } ?: emptyMap()) +

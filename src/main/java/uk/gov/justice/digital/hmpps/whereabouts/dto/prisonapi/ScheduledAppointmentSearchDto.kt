@@ -14,6 +14,6 @@ data class ScheduledAppointmentSearchDto(
   val offenderNo: String,
   val firstName: String,
   val lastName: String,
-  val createUserId: String
+  val createUserId: String,
 
 )

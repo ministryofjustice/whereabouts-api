@@ -28,9 +28,9 @@ class VideoLinkBookingSearchSpecificationTest {
         validSpec.copy(
           preAppointment = LocationAndInterval(1L, Interval(T09_30, T09_00)),
           mainAppointment = LocationAndInterval(2L, Interval(T10_00, T10_00)),
-          postAppointment = LocationAndInterval(3L, Interval(T10_30, T09_00))
-        )
-      )
+          postAppointment = LocationAndInterval(3L, Interval(T10_30, T09_00)),
+        ),
+      ),
     ).hasSize(3)
   }
 
@@ -40,9 +40,9 @@ class VideoLinkBookingSearchSpecificationTest {
       validator.validate(
         validSpec.copy(
           preAppointment = null,
-          postAppointment = null
-        )
-      )
+          postAppointment = null,
+        ),
+      ),
     ).hasSize(0)
   }
 
@@ -58,7 +58,7 @@ class VideoLinkBookingSearchSpecificationTest {
       preAppointment = LocationAndInterval(1L, Interval(T09_00, T09_30)),
       mainAppointment = LocationAndInterval(1L, Interval(T09_30, T10_00)),
       postAppointment = LocationAndInterval(1L, Interval(T10_00, T10_30)),
-      vlbIdToExclude = 1L
+      vlbIdToExclude = 1L,
     )
   }
 }

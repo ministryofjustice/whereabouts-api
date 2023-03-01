@@ -41,9 +41,9 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
           "main" to mapOf(
             "locationId" to 2,
             "startTime" to "2020-12-01T09:00",
-            "endTime" to "2020-12-01T09:30"
-          )
-        )
+            "endTime" to "2020-12-01T09:30",
+          ),
+        ),
       )
       .exchange()
       .expectStatus()
@@ -74,7 +74,6 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
 
   @Test
   fun `Happy flow`() {
-
     val uri = "$baseUrl?start-date=${LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)}"
     webTestClient.get()
       .uri(uri)
@@ -84,8 +83,8 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
           jwtAuthHelper.createJwt(
             subject = "ITAG_USER",
             roles = listOf("ROLE_VIDEO_LINK_COURT_USER"),
-            clientId = "elite2apiclient"
-          )
+            clientId = "elite2apiclient",
+          ),
         )
       }
       .exchange()
@@ -126,7 +125,13 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
         main_end_time             
       ) values (DEFAULT, ?, 'CREATE', 'ITAG_USER',  ?, 'MDI', ?, 'The Court', true, 'A comment', ?, ?, ?, ?)
     """,
-        LocalDateTime.now(), i, i, i, i, bookingTime, bookingTime.plusMinutes(30)
+        LocalDateTime.now(),
+        i,
+        i,
+        i,
+        i,
+        bookingTime,
+        bookingTime.plusMinutes(30),
       )
     }
   }

@@ -27,7 +27,7 @@ class NomisEventOutcomeMapper {
       outcomeComment = comment?.let {
         // comment is only 240 chars in nomis, so need to truncate if we've prefixed the sub reason
         subReason?.let { "${subReason.label}. $comment" }?.take(240) ?: comment
-      }
+      },
     )
   }
 

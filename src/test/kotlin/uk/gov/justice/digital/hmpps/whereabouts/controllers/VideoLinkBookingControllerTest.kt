@@ -37,7 +37,7 @@ import java.time.LocalDateTime
 
 @WebMvcTest(
   VideoLinkBookingController::class,
-  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class]
+  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class],
 )
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)
 class VideoLinkBookingControllerTest : TestController() {
@@ -74,7 +74,7 @@ class VideoLinkBookingControllerTest : TestController() {
       locationId = 5,
       startTime = LocalDateTime.of(2020, 2, 7, 14, 0),
       endTime = LocalDateTime.of(2020, 2, 7, 15, 0),
-    )
+    ),
   )
 
   @Nested
@@ -93,10 +93,10 @@ class VideoLinkBookingControllerTest : TestController() {
             "main" to mapOf(
               "locationId" to 2,
               "startTime" to "2020-12-01T09:00",
-              "endTime" to "2020-12-01T09:30"
-            )
-          )
-        )
+              "endTime" to "2020-12-01T09:30",
+            ),
+          ),
+        ),
       )
     }
 
@@ -112,10 +112,10 @@ class VideoLinkBookingControllerTest : TestController() {
             "main" to mapOf(
               "locationId" to 2,
               "startTime" to "2020-12-01T09:00",
-              "endTime" to "2020-12-01T09:30"
-            )
-          )
-        )
+              "endTime" to "2020-12-01T09:30",
+            ),
+          ),
+        ),
       )
     }
 
@@ -131,10 +131,10 @@ class VideoLinkBookingControllerTest : TestController() {
             "main" to mapOf(
               "locationId" to 2,
               "startTime" to "2020-12-01T09:00",
-              "endTime" to "2020-12-01T09:30"
-            )
-          )
-        )
+              "endTime" to "2020-12-01T09:30",
+            ),
+          ),
+        ),
       )
     }
 
@@ -151,20 +151,20 @@ class VideoLinkBookingControllerTest : TestController() {
             "pre" to mapOf(
               "locationId" to 1,
               "startTime" to "2020-12-01T09:00",
-              "endTime" to "2020-12-01T09:30"
+              "endTime" to "2020-12-01T09:30",
             ),
             "main" to mapOf(
               "locationId" to 2,
               "startTime" to "2020-12-01T09:30",
-              "endTime" to "2020-12-01T10:00"
+              "endTime" to "2020-12-01T10:00",
             ),
             "post" to mapOf(
               "locationId" to 3,
               "startTime" to "2020-12-01T10:00",
-              "endTime" to "2020-12-01T10:30"
-            )
-          )
-        )
+              "endTime" to "2020-12-01T10:30",
+            ),
+          ),
+        ),
       )
     }
 
@@ -179,10 +179,10 @@ class VideoLinkBookingControllerTest : TestController() {
             "main" to mapOf(
               "locationId" to 2,
               "startTime" to "2020-12-01T09:00",
-              "endTime" to "2020-12-01T09:30"
-            )
-          )
-        )
+              "endTime" to "2020-12-01T09:30",
+            ),
+          ),
+        ),
       )
     }
 
@@ -193,10 +193,10 @@ class VideoLinkBookingControllerTest : TestController() {
         objectMapper.writeValueAsString(
           mapOf(
             "bookingId" to 1,
-            "court" to "Test Court 1"
-          )
+            "court" to "Test Court 1",
+          ),
         ),
-        400
+        400,
       )
     }
 
@@ -210,11 +210,11 @@ class VideoLinkBookingControllerTest : TestController() {
             "madeByTheCourt" to true,
             "main" to mapOf(
               "startTime" to "2020-12-01T09:30",
-              "endTime" to "2020-12-01T10:00"
+              "endTime" to "2020-12-01T10:00",
             ),
-          )
+          ),
         ),
-        400
+        400,
       )
     }
 
@@ -229,11 +229,11 @@ class VideoLinkBookingControllerTest : TestController() {
             "madeByTheCourt" to true,
             "main" to mapOf(
               "startTime" to "2020-12-01T09:30",
-              "endTime" to "2020-12-01T10:00"
+              "endTime" to "2020-12-01T10:00",
             ),
-          )
+          ),
         ),
-        400
+        400,
       )
     }
 
@@ -248,11 +248,11 @@ class VideoLinkBookingControllerTest : TestController() {
             "madeByTheCourt" to true,
             "main" to mapOf(
               "locationId" to 1,
-              "endTime" to "2020-12-01T10:00"
+              "endTime" to "2020-12-01T10:00",
             ),
-          )
+          ),
         ),
-        400
+        400,
       )
     }
 
@@ -268,11 +268,11 @@ class VideoLinkBookingControllerTest : TestController() {
             "main" to mapOf(
               "locationId" to 1,
               "startTime" to "2020-13-45T00:00",
-              "endTime" to "2020-12-01T10:00"
+              "endTime" to "2020-12-01T10:00",
             ),
-          )
+          ),
         ),
-        400
+        400,
       )
     }
 
@@ -287,11 +287,11 @@ class VideoLinkBookingControllerTest : TestController() {
             "madeByTheCourt" to true,
             "main" to mapOf(
               "locationId" to 1,
-              "startTime" to "2020-12-01T10:00"
+              "startTime" to "2020-12-01T10:00",
             ),
-          )
+          ),
         ),
-        400
+        400,
       )
     }
 
@@ -301,7 +301,7 @@ class VideoLinkBookingControllerTest : TestController() {
       mockMvc.perform(
         post("/court/video-link-bookings")
           .contentType(MediaType.APPLICATION_JSON)
-          .content(json)
+          .content(json),
       )
         .andExpect(status().isCreated)
         .andExpect(jsonPath("$").value(1))
@@ -313,7 +313,7 @@ class VideoLinkBookingControllerTest : TestController() {
       mockMvc.perform(
         post("/court/video-link-bookings")
           .contentType(MediaType.APPLICATION_JSON)
-          .content(json)
+          .content(json),
       )
         .andExpect(status().`is`(expectedStatus))
     }
@@ -326,13 +326,13 @@ class VideoLinkBookingControllerTest : TestController() {
     fun `the booking does not exist`() {
       val bookingId = 1L
       doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(
-        videoLinkBookingService
+        videoLinkBookingService,
       )
         .getVideoLinkBooking(bookingId)
 
       mockMvc.perform(
         get("/court/video-link-bookings/$bookingId")
-          .contentType(MediaType.APPLICATION_JSON)
+          .contentType(MediaType.APPLICATION_JSON),
       )
         .andExpect(status().`is`(404))
     }
@@ -345,7 +345,7 @@ class VideoLinkBookingControllerTest : TestController() {
 
       mockMvc.perform(
         get("/court/video-link-bookings/$bookingId")
-          .contentType(MediaType.APPLICATION_JSON)
+          .contentType(MediaType.APPLICATION_JSON),
       )
         .andExpect(status().isOk)
         .andExpect(jsonPath("$.videoLinkBookingId").value(1))
@@ -369,7 +369,6 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `Happy flow`() {
-
       mockMvc.perform(
         put("/court/video-link-bookings/1")
           .contentType(MediaType.APPLICATION_JSON)
@@ -394,8 +393,8 @@ class VideoLinkBookingControllerTest : TestController() {
                   "endTime": "2020-01-01T14:30"
                 }
               }
-            """
-          )
+            """,
+          ),
       )
         .andExpect(status().isNoContent)
 
@@ -407,31 +406,30 @@ class VideoLinkBookingControllerTest : TestController() {
           pre = VideoLinkAppointmentSpecification(
             locationId = 1L,
             startTime = LocalDateTime.of(2020, 1, 1, 12, 0),
-            endTime = LocalDateTime.of(2020, 1, 1, 12, 30)
+            endTime = LocalDateTime.of(2020, 1, 1, 12, 30),
           ),
           main = VideoLinkAppointmentSpecification(
             locationId = 2L,
             startTime = LocalDateTime.of(2020, 1, 1, 13, 0),
-            endTime = LocalDateTime.of(2020, 1, 1, 13, 30)
+            endTime = LocalDateTime.of(2020, 1, 1, 13, 30),
 
           ),
           post = VideoLinkAppointmentSpecification(
             locationId = 3L,
             startTime = LocalDateTime.of(2020, 1, 1, 14, 0),
-            endTime = LocalDateTime.of(2020, 1, 1, 14, 30)
-          )
-        )
+            endTime = LocalDateTime.of(2020, 1, 1, 14, 30),
+          ),
+        ),
       )
     }
 
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `Bad request`() {
-
       mockMvc.perform(
         put("/court/video-link-bookings/X")
           .contentType(MediaType.APPLICATION_JSON)
-          .content("{}")
+          .content("{}"),
       )
         .andExpect(status().isBadRequest)
     }
@@ -442,35 +440,33 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `Can update`() {
-
       mockMvc.perform(
         put("/court/video-link-bookings/1/comment")
           .contentType(MediaType.TEXT_PLAIN)
           .content(
-            "Some Content"
-          )
+            "Some Content",
+          ),
       )
         .andExpect(status().isNoContent)
 
       verify(videoLinkBookingService).updateVideoLinkBookingComment(
         1L,
-        "Some Content"
+        "Some Content",
       )
     }
 
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `Can clear comment`() {
-
       mockMvc.perform(
         put("/court/video-link-bookings/1/comment")
-          .contentType(MediaType.TEXT_PLAIN)
+          .contentType(MediaType.TEXT_PLAIN),
       )
         .andExpect(status().isNoContent)
 
       verify(videoLinkBookingService).updateVideoLinkBookingComment(
         1L,
-        null
+        null,
       )
     }
   }
@@ -489,15 +485,15 @@ class VideoLinkBookingControllerTest : TestController() {
             madeByTheCourt = true,
             courtId = "CRT",
             prisonId = "WWI",
-            comment = "some comment"
+            comment = "some comment",
           ).apply {
             addMainAppointment(3L, 10L, LocalDateTime.of(2022, 1, 1, 10, 0, 0), LocalDateTime.of(2022, 1, 1, 11, 0, 0))
-          }
+          },
         )
 
       mockMvc.perform(
         delete("/court/video-link-bookings/$bookingId")
-          .contentType(MediaType.APPLICATION_JSON)
+          .contentType(MediaType.APPLICATION_JSON),
       )
         .andExpect(status().isNoContent)
 
@@ -509,13 +505,13 @@ class VideoLinkBookingControllerTest : TestController() {
     fun `the booking does not exist`() {
       val bookingId = 1L
       doThrow(EntityNotFoundException("Video link booking with id $bookingId not found")).whenever(
-        videoLinkBookingService
+        videoLinkBookingService,
       )
         .deleteVideoLinkBooking(bookingId)
 
       mockMvc.perform(
         delete("/court/video-link-bookings/$bookingId")
-          .contentType(MediaType.APPLICATION_JSON)
+          .contentType(MediaType.APPLICATION_JSON),
       )
         .andExpect(status().`is`(404))
     }
@@ -529,13 +525,13 @@ class VideoLinkBookingControllerTest : TestController() {
       mockMvc.perform(
         post("/court/video-link-bookings/date/2020-12-25")
           .contentType(MediaType.APPLICATION_JSON)
-          .content("""[agencyIds = agencyIds=LII&agencyIds=MDI]""")
+          .content("""[agencyIds = agencyIds=LII&agencyIds=MDI]"""),
       )
         .andExpect(
           matchAll(
             content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
-            content().json("""{}""")
-          )
+            content().json("""{}"""),
+          ),
         )
     }
   }
@@ -551,7 +547,7 @@ class VideoLinkBookingControllerTest : TestController() {
         .perform(
           get("/court/video-link-bookings")
             .param("start-date", "2021-03-01")
-            .accept("text/csv")
+            .accept("text/csv"),
         )
         .andExpect(status().isOk)
         .andExpect(content().contentType("text/csv;charset=UTF-8"))
@@ -569,7 +565,7 @@ class VideoLinkBookingControllerTest : TestController() {
         .perform(
           get("/court/video-link-bookings")
             .param("start-date", "xxxxx")
-            .accept("text/csv")
+            .accept("text/csv"),
         )
         .andExpect(status().isBadRequest)
     }
@@ -582,7 +578,7 @@ class VideoLinkBookingControllerTest : TestController() {
       mockMvc
         .perform(
           get("/court/video-link-bookings")
-            .accept("text/csv")
+            .accept("text/csv"),
         )
         .andExpect(status().isBadRequest)
     }
@@ -597,7 +593,7 @@ class VideoLinkBookingControllerTest : TestController() {
           get("/court/video-link-bookings")
             .param("start-date", "2021-03-01")
             .param("days", "3")
-            .accept("text/csv")
+            .accept("text/csv"),
         )
         .andExpect(status().isOk)
 
@@ -614,7 +610,7 @@ class VideoLinkBookingControllerTest : TestController() {
           get("/court/video-link-bookings")
             .param("start-date", "2021-03-01")
             .param("days", "xxxx")
-            .accept("text/csv")
+            .accept("text/csv"),
         )
         .andExpect(status().isBadRequest)
     }
@@ -625,10 +621,9 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `get all court hearing types`() {
-
       mockMvc.perform(
         get("/court/court-hearing-types")
-          .contentType(MediaType.APPLICATION_JSON)
+          .contentType(MediaType.APPLICATION_JSON),
       )
         .andExpect(status().isOk)
         .andExpect(jsonPath("[0].name").value("APPEAL"))

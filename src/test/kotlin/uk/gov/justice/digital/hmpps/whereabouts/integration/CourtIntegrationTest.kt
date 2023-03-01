@@ -77,6 +77,7 @@ class CourtIntegrationTest(
       .jsonPath("$.email").hasJsonPath()
       .jsonPath("$.email").isEqualTo("test@test.gov.uk")
   }
+
   @Test
   fun `return 404 court email when email not exist`() {
     webTestClient.get()
@@ -97,7 +98,7 @@ class CourtIntegrationTest(
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 10,
-      comment = "any comment"
+      comment = "any comment",
     )
 
     private val mainPrisonAppointment = PrisonAppointment(
@@ -119,7 +120,7 @@ class CourtIntegrationTest(
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 5,
-      comment = "any comment"
+      comment = "any comment",
     )
 
     private fun makeVideoLinkBooking() = VideoLinkBooking(
@@ -127,7 +128,7 @@ class CourtIntegrationTest(
       courtName = "Test Court 1",
       courtId = "TSTCRT1",
       prisonId = "WWI",
-      comment = "any comment"
+      comment = "any comment",
     ).apply {
       addPreAppointment(appointmentId = preAppointmentId, locationId = preLocationId, startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0), endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0))
       addMainAppointment(appointmentId = mainAppointmentId, locationId = mainLocationId, startDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0), endDateTime = LocalDateTime.of(2022, 1, 1, 12, 0, 0))
@@ -141,20 +142,19 @@ class CourtIntegrationTest(
 
     @Test
     fun `should get booking`() {
-
       val videoLinkBookingId = videoLinkBookingRepository.save(makeVideoLinkBooking()).id!!
 
       prisonApiMockServer.stubGetPrisonAppointment(
         preAppointmentId,
-        objectMapper.writeValueAsString(prePrisonAppointment)
+        objectMapper.writeValueAsString(prePrisonAppointment),
       )
       prisonApiMockServer.stubGetPrisonAppointment(
         mainAppointmentId,
-        objectMapper.writeValueAsString(mainPrisonAppointment)
+        objectMapper.writeValueAsString(mainPrisonAppointment),
       )
       prisonApiMockServer.stubGetPrisonAppointment(
         postAppointmentId,
-        objectMapper.writeValueAsString(postPrisonAppointment)
+        objectMapper.writeValueAsString(postPrisonAppointment),
       )
 
       webTestClient.get()
@@ -188,18 +188,17 @@ class CourtIntegrationTest(
               "endTime": "${referenceTime.plusMinutes(90).format(ISO_LOCAL_DATE_TIME)}"
             }
           }
-        """
+        """,
         )
     }
 
     @Test
     fun `should get booking when only main appointment exists`() {
-
       val videoLinkBookingId = videoLinkBookingRepository.save(makeVideoLinkBooking()).id!!
 
       prisonApiMockServer.stubGetPrisonAppointment(
         mainAppointmentId,
-        objectMapper.writeValueAsString(mainPrisonAppointment)
+        objectMapper.writeValueAsString(mainPrisonAppointment),
       )
 
       webTestClient.get()
@@ -223,22 +222,21 @@ class CourtIntegrationTest(
               "endTime": "${referenceTime.plusMinutes(60).format(ISO_LOCAL_DATE_TIME)}"
             }
           }
-        """
+        """,
         )
     }
 
     @Test
     fun `should not find booking when only pre and post appointments exist`() {
-
       val videoLinkBookingId = videoLinkBookingRepository.save(makeVideoLinkBooking()).id!!
 
       prisonApiMockServer.stubGetPrisonAppointment(
         preAppointmentId,
-        objectMapper.writeValueAsString(prePrisonAppointment)
+        objectMapper.writeValueAsString(prePrisonAppointment),
       )
       prisonApiMockServer.stubGetPrisonAppointment(
         postAppointmentId,
-        objectMapper.writeValueAsString(postPrisonAppointment)
+        objectMapper.writeValueAsString(postPrisonAppointment),
       )
 
       webTestClient.get()
@@ -264,8 +262,8 @@ class CourtIntegrationTest(
           courtName = "York",
           courtId = "TSTCRT",
           prisonId = "WWI",
-          comment = "any comment"
-        ).apply { addMainAppointment(appointmentId = 1L, locationId = mainLocationId, startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0), endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)) }
+          comment = "any comment",
+        ).apply { addMainAppointment(appointmentId = 1L, locationId = mainLocationId, startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0), endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)) },
       )
 
       val mainAppointmentId = persistentBooking.appointments[MAIN]?.id
@@ -292,7 +290,7 @@ class CourtIntegrationTest(
               }
             ]
           }
-      """
+      """,
         )
     }
 
@@ -309,7 +307,7 @@ class CourtIntegrationTest(
             "courtId" : "WMBLMC",
             "prisonIds" : ["1","2"]
           }
-        """
+        """,
         )
         .exchange()
         .expectStatus().isOk
@@ -352,40 +350,39 @@ class CourtIntegrationTest(
           }
         }
       ] 
-      """
+      """,
         )
     }
     fun makeSomeBookings() {
-
       jdbcTemplate.update(
         """INSERT INTO video_link_booking (id, offender_booking_id, court_name, court_id, made_by_the_court,
                                        created_by_username, prison_id, comment)
-VALUES (1, 1182546, 'Wimbledon', 'WMBLMC', false, null, '1', null);"""
+VALUES (1, 1182546, 'Wimbledon', 'WMBLMC', false, null, '1', null);""",
       )
       jdbcTemplate.update(
         """INSERT INTO video_link_appointment (id, appointment_id, hearing_type, video_link_booking_id, location_id,
                                            start_date_time, end_date_time)
-VALUES (1, 438577488, 'MAIN',1, 1234L, '2020-12-25 10:00:00', '2020-12-25 11:00:00');"""
+VALUES (1, 438577488, 'MAIN',1, 1234L, '2020-12-25 10:00:00', '2020-12-25 11:00:00');""",
       )
       jdbcTemplate.update(
         """INSERT INTO video_link_appointment (id, appointment_id, hearing_type, video_link_booking_id, location_id,
                                            start_date_time, end_date_time)
-VALUES (2, 438577489, 'PRE', 1, 1234L,'2020-12-25 09:00:00', '2020-12-25 11:00:00');"""
+VALUES (2, 438577489, 'PRE', 1, 1234L,'2020-12-25 09:00:00', '2020-12-25 11:00:00');""",
       )
       jdbcTemplate.update(
         """INSERT INTO video_link_appointment (id, appointment_id, hearing_type, video_link_booking_id, location_id,
                                            start_date_time, end_date_time)
-VALUES (3, 438577490, 'POST',1, 1234L, '2020-12-25 11:00:00', '2020-12-25 12:00:00');"""
+VALUES (3, 438577490, 'POST',1, 1234L, '2020-12-25 11:00:00', '2020-12-25 12:00:00');""",
       )
       jdbcTemplate.update(
         """INSERT INTO video_link_booking (id, offender_booking_id, court_name, court_id, made_by_the_court,
                                        created_by_username, prison_id, comment)
-VALUES (2, 1182547, 'Wimbledon', 'WMBLMC', false, null, '2', null);"""
+VALUES (2, 1182547, 'Wimbledon', 'WMBLMC', false, null, '2', null);""",
       )
       jdbcTemplate.update(
         """INSERT INTO video_link_appointment (id, appointment_id, hearing_type, video_link_booking_id, location_id,
                                            start_date_time, end_date_time)
-VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:00');"""
+VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:00');""",
       )
     }
   }
@@ -419,9 +416,9 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
             "main" to mapOf(
               "locationId" to 1,
               "startTime" to referenceTime.plusMinutes(30).format(ISO_LOCAL_DATE_TIME),
-              "endTime" to referenceTime.plusMinutes(60).format(ISO_LOCAL_DATE_TIME)
-            )
-          )
+              "endTime" to referenceTime.plusMinutes(60).format(ISO_LOCAL_DATE_TIME),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
@@ -439,11 +436,11 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
             courtName = "Test Court 1",
             courtId = "TSTCRT",
             madeByTheCourt = false,
-            prisonId = "WWI"
+            prisonId = "WWI",
           ).apply {
             addMainAppointment(mainAppointmentId, mainLocationId, startDateTime, endDateTime)
             createdByUsername = "ITAG_USER"
-          }
+          },
         )
     }
 
@@ -462,9 +459,9 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
             "main" to mapOf(
               "locationId" to 1,
               "startTime" to yesterday.plusMinutes(30).format(ISO_LOCAL_DATE_TIME),
-              "endTime" to yesterday.plusMinutes(60).format(ISO_LOCAL_DATE_TIME)
-            )
-          )
+              "endTime" to yesterday.plusMinutes(60).format(ISO_LOCAL_DATE_TIME),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -493,7 +490,6 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
 
     @Test
     fun `Returns 204 when successfully deleting a booking`() {
-
       val preAppointmentId: Long = 2
       val mainAppointmentId: Long = 3
       val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
@@ -505,11 +501,11 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
           courtName = "Test Court 1",
           courtId = null,
           prisonId = "WWI",
-          comment = "any comment"
+          comment = "any comment",
         ).apply {
           addPreAppointment(preAppointmentId, preLocationId, startDateTime, endDateTime)
           addMainAppointment(mainAppointmentId, postLocationId, startDateTime, endDateTime)
-        }
+        },
       )
 
       assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "video_link_booking")).isEqualTo(1)
@@ -524,7 +520,7 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
         .expectStatus().isNoContent
 
       prisonApiMockServer.verify(
-        WireMock.postRequestedFor(WireMock.urlEqualTo("/api/appointments/delete"))
+        WireMock.postRequestedFor(WireMock.urlEqualTo("/api/appointments/delete")),
       )
 
       assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "video_link_booking")).isEqualTo(0)
@@ -559,10 +555,10 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
           courtId = "TSTCRT",
           madeByTheCourt = false,
           prisonId = "WWI",
-          comment = "any comment"
+          comment = "any comment",
         ).apply {
           addMainAppointment(oldAppointmentId, mainLocationId, startDateTime, endDateTime)
-        }
+        },
       )
 
       webTestClient.put()
@@ -579,7 +575,7 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
                   "endTime": "${referenceTime.plusMinutes(30).format(ISO_LOCAL_DATE_TIME)}"
                 }
               }
-            """
+            """,
         )
         .headers(setHeaders())
         .exchange()
@@ -588,7 +584,6 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
 
     @Test
     fun `Rejects invalid end time`() {
-
       webTestClient.put()
         .uri("/court/video-link-bookings/1")
         .bodyValue(
@@ -603,7 +598,7 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
                   "endTime": "${referenceTime.minusSeconds(1).format(ISO_LOCAL_DATE_TIME)}"
                 }
               }
-            """
+            """,
         )
         .headers(setHeaders())
         .exchange()
@@ -615,7 +610,7 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
               "userMessage":"Main appointment start time must precede end time.",
               "developerMessage":"Main appointment start time must precede end time."
             }
-          """
+          """,
         )
     }
   }
@@ -632,7 +627,7 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
       courtId = null,
       madeByTheCourt = true,
       prisonId = "WWI",
-      comment = "any comment"
+      comment = "any comment",
     ).apply {
       addMainAppointment(appointmentId, mainLocationId, startDateTime, endDateTime)
     }
@@ -656,7 +651,7 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
         .expectStatus().isNoContent
 
       prisonApiMockServer.verify(
-        WireMock.putRequestedFor(WireMock.urlEqualTo("/api/appointments/10/comment"))
+        WireMock.putRequestedFor(WireMock.urlEqualTo("/api/appointments/10/comment")),
       )
     }
   }
@@ -682,7 +677,7 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
               }
             }
           }
-        """
+        """,
         )
         .headers(setHeaders())
         .exchange()
@@ -697,7 +692,7 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
               { "pre": null, "main": { "locationId": 1, "interval": { "start": "09:30:00", "end": "10:00:00" }}, "post": null }
             ]
           }
-          """
+          """,
         )
     }
 
@@ -718,7 +713,7 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
               }
             }
           }
-        """
+        """,
         )
         .headers(setHeaders())
         .exchange()

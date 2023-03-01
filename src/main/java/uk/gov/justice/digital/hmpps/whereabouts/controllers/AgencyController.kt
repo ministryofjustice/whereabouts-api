@@ -24,13 +24,13 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.WhereaboutsEnabledServi
 @RequestMapping(value = ["agencies"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class AgencyController(
   @Qualifier("locationGroupServiceSelector") private val locationGroupService: LocationGroupService,
-  private val whereaboutsEnabledService: WhereaboutsEnabledService
+  private val whereaboutsEnabledService: WhereaboutsEnabledService,
 ) {
 
   @GetMapping("/{agencyId}/locations/groups")
   @Operation(
     description = "List of all available Location Groups at agency.",
-    summary = "getAvailableLocationGroups"
+    summary = "getAvailableLocationGroups",
   )
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -41,8 +41,8 @@ class AgencyController(
       [
         Content(
           mediaType = "application/json",
-          schema = Schema(implementation = ErrorResponse::class)
-        )
+          schema = Schema(implementation = ErrorResponse::class),
+        ),
       ],
     ),
     ApiResponse(
@@ -52,8 +52,8 @@ class AgencyController(
       [
         Content(
           mediaType = "application/json",
-          schema = Schema(implementation = ErrorResponse::class)
-        )
+          schema = Schema(implementation = ErrorResponse::class),
+        ),
       ],
     ),
     ApiResponse(
@@ -63,23 +63,25 @@ class AgencyController(
       [
         Content(
           mediaType = "application/json",
-          schema = Schema(implementation = ErrorResponse::class)
-        )
+          schema = Schema(implementation = ErrorResponse::class),
+        ),
       ],
-    )
+    ),
   )
   fun getAvailableLocationGroups(
     @Parameter(
       description = "The prison",
-      required = true
-    ) @PathVariable("agencyId") agencyId: String
+      required = true,
+    )
+    @PathVariable("agencyId")
+    agencyId: String,
   ): List<LocationGroup> =
     locationGroupService.getLocationGroupsForAgency(agencyId)
 
   @GetMapping("/{agencyId}/locations/whereabouts")
   @Operation(
     description = "Whereabouts details (e.g. whether enabled) for prison.",
-    summary = "getWhereabouts"
+    summary = "getWhereabouts",
   )
   @ApiResponses(
     value = [
@@ -95,14 +97,16 @@ class AgencyController(
       ApiResponse(
         responseCode = "500",
         description = "Unrecoverable error occurred whilst processing request.",
-      )
-    ]
+      ),
+    ],
   )
   fun getWhereabouts(
     @Parameter(
       description = "The prison",
-      required = true
-    ) @PathVariable("agencyId") agencyId: String
+      required = true,
+    )
+    @PathVariable("agencyId")
+    agencyId: String,
   ): WhereaboutsConfig =
     WhereaboutsConfig(whereaboutsEnabledService.isEnabled(agencyId))
 }

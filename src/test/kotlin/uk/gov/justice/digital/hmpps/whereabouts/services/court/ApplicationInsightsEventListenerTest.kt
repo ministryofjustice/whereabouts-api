@@ -54,7 +54,7 @@ class ApplicationInsightsEventListenerTest {
         "postStart" to startTime.plusMinutes(120).toString(),
         "postEnd" to startTime.plusMinutes(150).toString(),
       ),
-      null
+      null,
     )
   }
 
@@ -83,7 +83,7 @@ class ApplicationInsightsEventListenerTest {
         "postStart" to startTime.plusMinutes(120).toString(),
         "postEnd" to startTime.plusMinutes(150).toString(),
       ),
-      null
+      null,
     )
   }
 
@@ -106,7 +106,7 @@ class ApplicationInsightsEventListenerTest {
         "postAppointmentId" to "14",
         "postId" to "140",
       ),
-      null
+      null,
     )
   }
 
@@ -127,7 +127,7 @@ class ApplicationInsightsEventListenerTest {
         "update_startDate" to "2022-01-01T11:00",
         "update_endDate" to "2022-01-01T12:00",
       ),
-      null
+      null,
     )
   }
 }

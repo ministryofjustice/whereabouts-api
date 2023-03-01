@@ -27,6 +27,10 @@ data class CellMoveReason(
 @Entity
 @Embeddable
 data class CellMoveReasonPK(
-  @Id @Column(name = "BOOKING_ID") var bookingId: Long,
-  @Id @Column(name = "BED_ASSIGNMENT_SEQUENCE") var bedAssignmentsSequence: Int
+  @Id
+  @Column(name = "BOOKING_ID")
+  var bookingId: Long,
+  @Id
+  @Column(name = "BED_ASSIGNMENT_SEQUENCE")
+  var bedAssignmentsSequence: Int,
 ) : Serializable

@@ -23,7 +23,7 @@ import java.time.LocalDateTime
 
 @WebMvcTest(
   AppointmentsController::class,
-  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class]
+  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class],
 )
 class AppointmentsControllerTest : TestController() {
   @MockBean
@@ -40,8 +40,8 @@ class AppointmentsControllerTest : TestController() {
         any(),
         anyOrNull(),
         anyOrNull(),
-        anyOrNull()
-      )
+        anyOrNull(),
+      ),
     )
       .thenReturn(
         listOf(
@@ -57,9 +57,9 @@ class AppointmentsControllerTest : TestController() {
             offenderNo = "A1234AA",
             firstName = "BILL",
             lastName = "BENN",
-            createUserId = "ASMITH"
-          )
-        )
+            createUserId = "ASMITH",
+          ),
+        ),
       )
 
     mockMvc
@@ -68,7 +68,7 @@ class AppointmentsControllerTest : TestController() {
           .param("date", "2021-03-01")
           .param("timeSlot", "PM")
           .param("offenderLocationPrefix", "MDI-1")
-          .param("locationId", locationId.toString())
+          .param("locationId", locationId.toString()),
       )
       .andExpect(MockMvcResultMatchers.status().isOk)
       .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize<Array<Any>>(1)))
@@ -84,7 +84,7 @@ class AppointmentsControllerTest : TestController() {
     mockMvc
       .perform(
         MockMvcRequestBuilders.get("/appointments/MDI")
-          .param("date", "xxxxx")
+          .param("date", "xxxxx"),
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest)
   }
@@ -94,7 +94,7 @@ class AppointmentsControllerTest : TestController() {
   fun `getAppointments missing date returns bad request`() {
     mockMvc
       .perform(
-        MockMvcRequestBuilders.get("/appointments/MDI")
+        MockMvcRequestBuilders.get("/appointments/MDI"),
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest)
   }

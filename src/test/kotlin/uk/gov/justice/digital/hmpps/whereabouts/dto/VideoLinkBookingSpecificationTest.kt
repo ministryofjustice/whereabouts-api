@@ -29,7 +29,7 @@ class VideoLinkBookingSpecificationTest {
         startTime = LocalDateTime.of(2021, 1, 1, 9, 0),
         endTime = LocalDateTime.of(2021, 1, 1, 9, 30),
         locationId = 1L,
-      )
+      ),
     )
 
     val validObjectAllFields = validObject.copy(
@@ -43,7 +43,7 @@ class VideoLinkBookingSpecificationTest {
         startTime = LocalDateTime.of(2021, 1, 1, 9, 30),
         endTime = LocalDateTime.of(2021, 1, 1, 9, 45),
         locationId = 3L,
-      )
+      ),
     )
   }
 }

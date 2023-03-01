@@ -23,7 +23,7 @@ class VideoLinkBookingServiceForAppScope {
     videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
     videoLinkBookingRepository: VideoLinkBookingRepository,
     clock: Clock,
-    videoLinkBookingEventListener: VideoLinkBookingEventListener
+    videoLinkBookingEventListener: VideoLinkBookingEventListener,
   ): VideoLinkBookingService {
     return VideoLinkBookingService(
       courtService,
@@ -32,7 +32,7 @@ class VideoLinkBookingServiceForAppScope {
       videoLinkAppointmentRepository,
       videoLinkBookingRepository,
       clock,
-      videoLinkBookingEventListener
+      videoLinkBookingEventListener,
     )
   }
 }

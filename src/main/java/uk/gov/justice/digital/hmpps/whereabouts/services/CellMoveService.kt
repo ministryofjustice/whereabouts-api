@@ -20,7 +20,7 @@ class CellMoveService(
   val caseNotesService: CaseNotesService,
   val cellMoveRepository: CellMoveReasonRepository,
   val telemetryClient: TelemetryClient,
-  val clock: Clock
+  val clock: Clock,
 ) {
 
   @Transactional
@@ -32,14 +32,14 @@ class CellMoveService(
     val moveResult = prisonApiService.putCellMove(
       cellMoveDetails.bookingId,
       cellMoveDetails.internalLocationDescriptionDestination,
-      cellMoveDetails.cellMoveReasonCode
+      cellMoveDetails.cellMoveReasonCode,
     )
 
     log.info(
       "Creating a case note: offenderNo: {} type: {} subType: {}",
       cellMoveDetails.offenderNo,
       MOVE_CELL,
-      cellMoveDetails.cellMoveReasonCode
+      cellMoveDetails.cellMoveReasonCode,
     )
 
     val caseNoteDetails = caseNotesService.postCaseNote(
@@ -47,13 +47,13 @@ class CellMoveService(
       MOVE_CELL,
       cellMoveDetails.cellMoveReasonCode,
       cellMoveDetails.commentText,
-      occurrenceDateTime
+      occurrenceDateTime,
     )
 
     val cellMove = CellMoveReason(
       bookingId = moveResult.bookingId,
       bedAssignmentsSequence = moveResult.bedAssignmentHistorySequence,
-      caseNoteId = caseNoteDetails.caseNoteId
+      caseNoteId = caseNoteDetails.caseNoteId,
     )
 
     log.info("Saving cell move details: {}", cellMove)
@@ -66,9 +66,9 @@ class CellMoveService(
         "bookingId" to moveResult.bookingId.toString(),
         "assignedLivingUnitDesc" to moveResult.assignedLivingUnitDesc,
         "assignedLivingUnitId" to moveResult.assignedLivingUnitId.toString(),
-        "cellMoveReasonCode" to cellMoveDetails.cellMoveReasonCode
+        "cellMoveReasonCode" to cellMoveDetails.cellMoveReasonCode,
       ),
-      null
+      null,
     )
 
     return moveResult.copy(caseNoteId = caseNoteDetails.caseNoteId)

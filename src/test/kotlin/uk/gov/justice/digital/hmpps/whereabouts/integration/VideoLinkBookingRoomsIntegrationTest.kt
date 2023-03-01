@@ -8,7 +8,6 @@ class VideoLinkBookingRoomsIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should retrieve details of rooms of type VIDE only`() {
-
     prisonApiMockServer.stubGetAgencyLocationsForTypeUnrestricted("MDI", "APP", getVideLocations())
 
     webTestClient.get()
@@ -31,20 +30,20 @@ private fun getVideLocations() =
       locationId = 1, locationType = "VIDE", description = "room-a",
       locationUsage = "", agencyId = "MDI", parentLocationId = 123,
       currentOccupancy = 2, locationPrefix = "", operationalCapacity = 10,
-      userDescription = "Room A", internalLocationCode = ""
+      userDescription = "Room A", internalLocationCode = "",
     ),
 
     Location(
       locationId = 2, locationType = "VIDE", description = "room-b",
       locationUsage = "", agencyId = "MDI", parentLocationId = 123,
       currentOccupancy = 2, locationPrefix = "", operationalCapacity = 10,
-      userDescription = null, internalLocationCode = ""
+      userDescription = null, internalLocationCode = "",
     ),
 
     Location(
       locationId = 3, locationType = "MEETING", description = "Meeting room",
       locationUsage = "", agencyId = "MDI", parentLocationId = 123,
       currentOccupancy = 2, locationPrefix = "", operationalCapacity = 10,
-      userDescription = "", internalLocationCode = ""
+      userDescription = "", internalLocationCode = "",
     ),
   )

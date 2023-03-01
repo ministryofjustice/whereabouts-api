@@ -46,7 +46,6 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should make an elite api request to update an offenders attendance`() {
-
     val bookingId = getNextBookingId()
     val activityId = 2L
     val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
@@ -61,7 +60,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       eventDate = LocalDate.of(2010, 10, 10),
       period = TimePeriod.AM,
       attended = true,
-      paid = true
+      paid = true,
     )
 
     webTestClient.post()
@@ -79,11 +78,11 @@ class AttendanceIntegrationTest : IntegrationTest() {
             objectMapper.writeValueAsString(
               mapOf(
                 "eventOutcome" to "ATT",
-                "performance" to "STANDARD"
-              )
-            )
-          )
-        )
+                "performance" to "STANDARD",
+              ),
+            ),
+          ),
+        ),
     )
   }
 
@@ -110,7 +109,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       paid = false,
       absentReason = AbsentReason.RefusedIncentiveLevelWarning,
       absentSubReason = AbsentSubReason.ExternalMoves,
-      comments = comments
+      comments = comments,
     )
 
     webTestClient.post()
@@ -127,11 +126,11 @@ class AttendanceIntegrationTest : IntegrationTest() {
           objectMapper.writeValueAsString(
             mapOf(
               "eventOutcome" to "UNACAB",
-              "outcomeComment" to "External moves. Test comment"
-            )
-          )
-        )
-      )
+              "outcomeComment" to "External moves. Test comment",
+            ),
+          ),
+        ),
+      ),
     )
 
     caseNotesMockServer.verify(
@@ -139,7 +138,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .withRequestBody(matchingJsonPath("$[?(@.type == 'NEG')]"))
         .withRequestBody(matchingJsonPath("$[?(@.subType == 'IEP_WARN')]"))
         .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused to attend - incentive level warning - External moves. Test comment')]"))
-        .withRequestBody(matchingJsonPath("$.occurrenceDateTime"))
+        .withRequestBody(matchingJsonPath("$.occurrenceDateTime")),
     )
   }
 
@@ -163,7 +162,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .prisonId("LEI")
         .period(TimePeriod.AM)
         .eventLocationId(2)
-        .build()
+        .build(),
     )
 
     webTestClient.put()
@@ -202,7 +201,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .period(TimePeriod.AM)
         .createDateTime(LocalDateTime.now())
         .createUserId("user")
-        .build()
+        .build(),
     )
 
     val attendance = CreateAttendanceDto(
@@ -213,7 +212,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       eventDate = LocalDate.of(2010, 10, 10),
       period = TimePeriod.AM,
       attended = true,
-      paid = true
+      paid = true,
     )
 
     webTestClient.put()
@@ -226,7 +225,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
     caseNotesMockServer.verify(
       putRequestedFor(urlEqualTo("/case-notes/$offenderNo/$caseNoteId"))
-        .withRequestBody(matchingJsonPath("$[?(@.text == 'Incentive level warning removed: attended')]"))
+        .withRequestBody(matchingJsonPath("$[?(@.text == 'Incentive level warning removed: attended')]")),
 
     )
   }
@@ -257,7 +256,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
         eventId = 2,
         eventLocationId = 1,
         period = TimePeriod.AM,
-        eventDate = (LocalDate.now())
+        eventDate = (LocalDate.now()),
       )
 
     webTestClient.post()

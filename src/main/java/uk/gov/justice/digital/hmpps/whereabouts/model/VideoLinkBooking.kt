@@ -32,7 +32,7 @@ class VideoLinkBooking(
     mappedBy = "videoLinkBooking",
     fetch = FetchType.EAGER,
     cascade = [CascadeType.PERSIST, CascadeType.REMOVE],
-    orphanRemoval = true
+    orphanRemoval = true,
   )
   @MapKey(name = "hearingType")
   val appointments: MutableMap<HearingType, VideoLinkAppointment> = mutableMapOf()
@@ -50,7 +50,7 @@ class VideoLinkBooking(
       hearingType = PRE,
       startDateTime = startDateTime,
       endDateTime = endDateTime,
-    )
+    ),
   )
 
   fun addMainAppointment(appointmentId: Long, locationId: Long, startDateTime: LocalDateTime, endDateTime: LocalDateTime, id: Long? = null) = appointments.put(
@@ -63,7 +63,7 @@ class VideoLinkBooking(
       hearingType = MAIN,
       startDateTime = startDateTime,
       endDateTime = endDateTime,
-    )
+    ),
   )
 
   fun addPostAppointment(appointmentId: Long, locationId: Long, startDateTime: LocalDateTime, endDateTime: LocalDateTime, id: Long? = null) = appointments.put(
@@ -76,7 +76,7 @@ class VideoLinkBooking(
       hearingType = POST,
       startDateTime = startDateTime,
       endDateTime = endDateTime,
-    )
+    ),
   )
 
   override fun toString(): String =
@@ -89,7 +89,7 @@ class VideoLinkBooking(
     courtId,
     madeByTheCourt,
     prisonId,
-    comment
+    comment,
   ).also {
     it.appointments.putAll(appointments)
     it.createdByUsername = createdByUsername

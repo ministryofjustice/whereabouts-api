@@ -10,7 +10,8 @@ enum class AbsentReason(val label: String, val eventOutcome: String) {
   UnacceptableAbsenceIncentiveLevelWarning("Unacceptable absence", "UNACAB"),
   NotRequired("Not required to attend", "NREQ"),
   Refused("Refused to attend", "UNACAB"),
-  RefusedIncentiveLevelWarning("Refused to attend", "UNACAB");
+  RefusedIncentiveLevelWarning("Refused to attend", "UNACAB"),
+  ;
 
   val labelWithWarning: String
     get() = if (iepTriggers.contains(this)) "$label - incentive level warning" else label
@@ -52,7 +53,8 @@ enum class AbsentSubReason(val label: String) {
   Operational("Operational"),
   OverAllocated("Over allocated or schedule clash"),
   Visits("Visits"),
-  NotListed("Not listed");
+  NotListed("Not listed"),
+  ;
 
   companion object {
     // Behaviour is not a paid reason

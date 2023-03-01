@@ -23,7 +23,7 @@ class DataHelpers {
       courtName: String? = "Court name",
       courtId: String? = "TSTCRT",
       prisonId: String = "WWI",
-      comment: String? = ""
+      comment: String? = "",
     ): VideoLinkBooking =
       VideoLinkBooking(
         id = id,
@@ -32,28 +32,28 @@ class DataHelpers {
         prisonId = prisonId,
         courtId = courtId,
         madeByTheCourt = madeByTheCourt,
-        comment = comment
+        comment = comment,
       ).apply {
         addMainAppointment(
           id = 1L,
           appointmentId = 1L,
           locationId = 10L,
           startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-          endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+          endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
         )
         addPreAppointment(
           id = 2L,
           appointmentId = 2L,
           locationId = 20L,
           startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-          endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+          endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
         )
         addPostAppointment(
           id = 3L,
           appointmentId = 3L,
           locationId = 30L,
           startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-          endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+          endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
         )
         createdByUsername = "SA"
       }
@@ -72,7 +72,7 @@ class DataHelpers {
         locationId = locationId,
         hearingType = hearingType,
         startDateTime = startDateTime,
-        endDateTime = endDateTime
+        endDateTime = endDateTime,
       )
 
     fun makeCreatePrisonAppointment(
@@ -84,7 +84,7 @@ class DataHelpers {
       eventSubType: String = "INST",
       comment: String = "test",
       eventLocationId: Long = 2L,
-      createUserId: String = "SA"
+      createUserId: String = "SA",
     ) = PrisonAppointment(
       eventId = appointmentId,
       eventLocationId = eventLocationId,
@@ -94,7 +94,7 @@ class DataHelpers {
       endTime = endTime,
       eventSubType = eventSubType,
       comment = comment,
-      createUserId = createUserId
+      createUserId = createUserId,
     )
 
     fun makePrisonAppointment(
@@ -106,7 +106,7 @@ class DataHelpers {
       bookingId: Long = 1L,
       comment: String = "test",
       agencyId: String = "MDI",
-      createUserId: String = "SA"
+      createUserId: String = "SA",
     ): PrisonAppointment = PrisonAppointment(
       eventId = eventId,
       eventSubType = eventSubType,
@@ -116,7 +116,7 @@ class DataHelpers {
       bookingId = bookingId,
       comment = comment,
       agencyId = agencyId,
-      createUserId = createUserId
+      createUserId = createUserId,
     )
 
     fun makeCreateAppointmentSpecification(
@@ -126,7 +126,7 @@ class DataHelpers {
       comment: String? = "test",
       startTime: LocalDateTime = LocalDateTime.now(),
       endTime: LocalDateTime = LocalDateTime.now(),
-      repeat: Repeat? = null
+      repeat: Repeat? = null,
     ): CreateAppointmentSpecification = CreateAppointmentSpecification(
       bookingId = bookingId,
       appointmentType = appointmentType,
@@ -134,7 +134,7 @@ class DataHelpers {
       comment = comment,
       startTime = startTime,
       endTime = endTime,
-      repeat = repeat
+      repeat = repeat,
     )
 
     fun makeCreatePrisonAppointment(
@@ -144,7 +144,7 @@ class DataHelpers {
       comment: String? = "test",
       startTime: LocalDateTime = LocalDateTime.now(),
       endTime: LocalDateTime = LocalDateTime.now(),
-      repeat: Repeat? = null
+      repeat: Repeat? = null,
     ) =
       CreatePrisonAppointment(
         appointmentDefaults = AppointmentDefaults(
@@ -152,17 +152,17 @@ class DataHelpers {
           comment = comment,
           startTime = startTime,
           endTime = endTime,
-          locationId = locationId
+          locationId = locationId,
         ),
         appointments = listOf(
           Appointment(
             bookingId = bookingId,
             comment = comment,
             startTime = startTime,
-            endTime = endTime
-          )
+            endTime = endTime,
+          ),
         ),
-        repeat = repeat
+        repeat = repeat,
       )
 
     fun makeAppointmentChangedEventMessage(

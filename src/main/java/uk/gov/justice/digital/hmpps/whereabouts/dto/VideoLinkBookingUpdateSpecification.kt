@@ -27,5 +27,5 @@ data class VideoLinkBookingUpdateSpecification(
 
   @ApiModelProperty(value = "Post-hearing appointment")
   @field:Valid
-  override val post: VideoLinkAppointmentSpecification? = null
+  override val post: VideoLinkAppointmentSpecification? = null,
 ) : VideoLinkAppointmentsSpecification

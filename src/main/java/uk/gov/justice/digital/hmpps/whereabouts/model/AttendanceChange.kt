@@ -30,9 +30,10 @@ data class AttendanceChange(
   val changedFrom: AttendanceChangeValues,
   @Enumerated(EnumType.STRING)
   val changedTo: AttendanceChangeValues,
-  @CreatedDate @Column(name = "CREATE_DATETIME", nullable = false)
+  @CreatedDate
+  @Column(name = "CREATE_DATETIME", nullable = false)
   var createDateTime: LocalDateTime? = null,
   @CreatedBy
   @Column(name = "CREATE_USER_ID", nullable = false)
-  var createUserId: String? = null
+  var createUserId: String? = null,
 )

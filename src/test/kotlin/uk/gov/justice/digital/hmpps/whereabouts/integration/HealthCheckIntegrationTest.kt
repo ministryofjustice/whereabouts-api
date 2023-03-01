@@ -124,8 +124,8 @@ class HealthCheckIntegrationTest : IntegrationTest() {
         aResponse()
           .withHeader("Content-Type", "application/json")
           .withBody(if (status == 200) "pong" else "some error")
-          .withStatus(status)
-      )
+          .withStatus(status),
+      ),
     )
 
     oauthMockServer.stubFor(
@@ -133,8 +133,8 @@ class HealthCheckIntegrationTest : IntegrationTest() {
         aResponse()
           .withHeader("Content-Type", "application/json")
           .withBody(if (status == 200) "pong" else "some error")
-          .withStatus(status)
-      )
+          .withStatus(status),
+      ),
     )
 
     caseNotesMockServer.stubFor(
@@ -142,8 +142,8 @@ class HealthCheckIntegrationTest : IntegrationTest() {
         aResponse()
           .withHeader("Content-Type", "application/json")
           .withBody(if (status == 200) "pong" else "some error")
-          .withStatus(status)
-      )
+          .withStatus(status),
+      ),
     )
   }
 
@@ -154,8 +154,8 @@ class HealthCheckIntegrationTest : IntegrationTest() {
           .withHeader("Content-Type", "application/json")
           .withBody(if (status == 200) "pong" else "some error")
           .withStatus(status)
-          .withFixedDelay(1000)
-      )
+          .withFixedDelay(1000),
+      ),
     )
 
     oauthMockServer.stubFor(
@@ -163,8 +163,8 @@ class HealthCheckIntegrationTest : IntegrationTest() {
         aResponse()
           .withHeader("Content-Type", "application/json")
           .withBody(if (status == 200) "pong" else "some error")
-          .withStatus(status)
-      )
+          .withStatus(status),
+      ),
     )
 
     caseNotesMockServer.stubFor(
@@ -172,8 +172,8 @@ class HealthCheckIntegrationTest : IntegrationTest() {
         aResponse()
           .withHeader("Content-Type", "application/json")
           .withBody(if (status == 200) "pong" else "some error")
-          .withStatus(status)
-      )
+          .withStatus(status),
+      ),
     )
   }
 }

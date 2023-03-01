@@ -44,7 +44,7 @@ class AppointmentService(
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val recurringAppointmentRepository: RecurringAppointmentRepository,
   private val videoLinkBookingService: VideoLinkBookingService,
-  private val telemetryClient: TelemetryClient
+  private val telemetryClient: TelemetryClient,
 ) {
 
   fun getAppointments(
@@ -52,9 +52,8 @@ class AppointmentService(
     date: LocalDate,
     timeSlot: TimePeriod?,
     offenderLocationPrefix: String?,
-    locationId: Long?
+    locationId: Long?,
   ): List<AppointmentSearchDto> {
-
     val appointmentsFromPrisonApi =
       prisonApiService.getScheduledAppointments(agencyId, date, timeSlot, locationId)
 
@@ -67,9 +66,8 @@ class AppointmentService(
 
   private fun generateOffenderLocationFilter(
     offenderLocationPrefix: String?,
-    appointmentsFromPrisonApi: List<ScheduledAppointmentSearchDto>
+    appointmentsFromPrisonApi: List<ScheduledAppointmentSearchDto>,
   ): LocationFilter {
-
     if (offenderLocationPrefix == null) return NoOpFilter()
 
     val offenderNos = appointmentsFromPrisonApi.map { a -> a.offenderNo }.toSet()
@@ -96,7 +94,7 @@ class AppointmentService(
 
     val recurringAppointment: RecurringAppointment? =
       recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(
-        RelatedAppointment(appointmentId)
+        RelatedAppointment(appointmentId),
       ).orElse(null)
 
     return AppointmentDetailsDto(
@@ -109,7 +107,7 @@ class AppointmentService(
 
         makeVideoLinkBookingAppointmentDto(it, mainAppointmentDetails, preAppointmentDetails, postAppointmentDetails)
       },
-      recurring = recurringAppointment?.let { makeRecurringAppointmentDto(it) }
+      recurring = recurringAppointment?.let { makeRecurringAppointmentDto(it) },
     )
   }
 
@@ -128,7 +126,7 @@ class AppointmentService(
 
       raiseRecurringAppointmentCreatedTrackingEvent(
         createAppointmentSpecification,
-        createAppointmentSpecification.repeat
+        createAppointmentSpecification.repeat,
       )
     }
 
@@ -150,7 +148,7 @@ class AppointmentService(
 
     val recurringAppointment: RecurringAppointment? =
       recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(
-        RelatedAppointment(appointmentId)
+        RelatedAppointment(appointmentId),
       ).orElse(null)
 
     if (recurringAppointment == null) {
@@ -194,7 +192,7 @@ class AppointmentService(
   private fun makeRecurringAppointment(
     appointmentIds: Set<Long>,
     startTime: LocalDateTime,
-    repeat: Repeat
+    repeat: Repeat,
   ) = RecurringAppointment(
     repeatPeriod = repeat.repeatPeriod,
     count = repeat.count,
@@ -202,15 +200,15 @@ class AppointmentService(
     relatedAppointments = appointmentIds.let {
       it.map { id ->
         RelatedAppointment(
-          id
+          id,
         )
       }
-    }.toMutableList()
+    }.toMutableList(),
   )
 
   private fun raiseRecurringAppointmentCreatedTrackingEvent(
     createAppointmentSpecification: CreateAppointmentSpecification,
-    repeat: Repeat
+    repeat: Repeat,
   ) {
     telemetryClient.trackEvent(
       "Recurring Appointment created for a prisoner",
@@ -219,9 +217,9 @@ class AppointmentService(
         "repeatPeriod" to repeat.repeatPeriod.toString(),
         "count" to repeat.count.toString(),
         "bookingId" to createAppointmentSpecification.bookingId.toString(),
-        "locationId" to createAppointmentSpecification.locationId.toString()
+        "locationId" to createAppointmentSpecification.locationId.toString(),
       ),
-      null
+      null,
     )
   }
 
@@ -229,9 +227,9 @@ class AppointmentService(
     telemetryClient.trackEvent(
       "Recurring Appointment deleted",
       mapOf(
-        "appointmentsDeleted" to appointmentsDeleted.toString()
+        "appointmentsDeleted" to appointmentsDeleted.toString(),
       ),
-      null
+      null,
     )
   }
 
@@ -239,7 +237,7 @@ class AppointmentService(
     videoLinkBooking: VideoLinkBooking,
     mainAppointmentDetails: PrisonAppointment? = null,
     preAppointmentDetails: PrisonAppointment? = null,
-    postAppointmentDetails: PrisonAppointment? = null
+    postAppointmentDetails: PrisonAppointment? = null,
   ): VideoLinkBookingDto =
     VideoLinkBookingDto(
       id = videoLinkBooking.id!!,
@@ -248,7 +246,7 @@ class AppointmentService(
         mainAppointmentId = videoLinkBooking.appointments[MAIN]!!.appointmentId,
         startTime = mainAppointmentDetails?.startTime,
         endTime = mainAppointmentDetails?.endTime,
-        locationId = mainAppointmentDetails?.eventLocationId
+        locationId = mainAppointmentDetails?.eventLocationId,
       ),
       pre = videoLinkBooking.appointments[PRE]?.let {
         makeVideoLinkAppointmentDto(
@@ -256,7 +254,7 @@ class AppointmentService(
           mainAppointmentId = videoLinkBooking.appointments[MAIN]!!.appointmentId,
           startTime = preAppointmentDetails?.startTime,
           endTime = preAppointmentDetails?.endTime,
-          locationId = preAppointmentDetails?.eventLocationId
+          locationId = preAppointmentDetails?.eventLocationId,
         )
       },
       post = videoLinkBooking.appointments[POST]?.let {
@@ -265,9 +263,9 @@ class AppointmentService(
           mainAppointmentId = videoLinkBooking.appointments[MAIN]!!.appointmentId,
           startTime = postAppointmentDetails?.startTime,
           endTime = postAppointmentDetails?.endTime,
-          locationId = postAppointmentDetails?.eventLocationId
+          locationId = postAppointmentDetails?.eventLocationId,
         )
-      }
+      },
     )
 
   private fun makeVideoLinkAppointmentDto(
@@ -275,7 +273,7 @@ class AppointmentService(
     mainAppointmentId: Long?,
     startTime: LocalDateTime? = null,
     endTime: LocalDateTime? = null,
-    locationId: Long? = null
+    locationId: Long? = null,
   ): VideoLinkAppointmentDto =
     VideoLinkAppointmentDto(
       id = videoLinkAppointment.id!!,
@@ -290,7 +288,7 @@ class AppointmentService(
       madeByTheCourt = videoLinkAppointment.videoLinkBooking.madeByTheCourt,
       startTime = startTime,
       endTime = endTime,
-      locationId = locationId
+      locationId = locationId,
     )
 
   companion object {
@@ -311,7 +309,7 @@ private fun makeAppointmentDto(scheduledAppointmentDto: ScheduledAppointmentSear
     lastName = scheduledAppointmentDto.lastName,
     startTime = scheduledAppointmentDto.startTime,
     endTime = scheduledAppointmentDto.endTime,
-    createUserId = scheduledAppointmentDto.createUserId
+    createUserId = scheduledAppointmentDto.createUserId,
   )
 
 private fun makeAppointmentDto(offenderNo: String? = null, prisonAppointment: PrisonAppointment): AppointmentDto =
@@ -324,7 +322,7 @@ private fun makeAppointmentDto(offenderNo: String? = null, prisonAppointment: Pr
     endTime = prisonAppointment.endTime,
     offenderNo = offenderNo,
     createUserId = prisonAppointment.createUserId,
-    comment = prisonAppointment.comment
+    comment = prisonAppointment.comment,
   )
 
 private fun makeRecurringAppointmentDto(recurringAppointment: RecurringAppointment): RecurringAppointmentDto =
@@ -332,7 +330,7 @@ private fun makeRecurringAppointmentDto(recurringAppointment: RecurringAppointme
     id = recurringAppointment.id!!,
     repeatPeriod = recurringAppointment.repeatPeriod,
     count = recurringAppointment.count,
-    startTime = recurringAppointment.startTime
+    startTime = recurringAppointment.startTime,
   )
 
 private fun makePrisonAppointment(createAppointmentSpecification: CreateAppointmentSpecification) =
@@ -342,15 +340,15 @@ private fun makePrisonAppointment(createAppointmentSpecification: CreateAppointm
       comment = createAppointmentSpecification.comment,
       startTime = createAppointmentSpecification.startTime,
       endTime = createAppointmentSpecification.endTime,
-      locationId = createAppointmentSpecification.locationId
+      locationId = createAppointmentSpecification.locationId,
     ),
     appointments = listOf(
       Appointment(
         bookingId = createAppointmentSpecification.bookingId,
         comment = createAppointmentSpecification.comment,
         startTime = createAppointmentSpecification.startTime,
-        endTime = createAppointmentSpecification.endTime
-      )
+        endTime = createAppointmentSpecification.endTime,
+      ),
     ),
-    repeat = createAppointmentSpecification.repeat
+    repeat = createAppointmentSpecification.repeat,
   )

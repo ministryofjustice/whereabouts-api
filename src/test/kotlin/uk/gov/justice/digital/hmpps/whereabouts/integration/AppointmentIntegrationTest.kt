@@ -54,9 +54,9 @@ class AppointmentIntegrationTest : IntegrationTest() {
           DataHelpers.makeCreatePrisonAppointment(
             appointmentId = APPOINTMENT_ID,
             startTime = START_TIME,
-            endTime = END_TIME
-          )
-        )
+            endTime = END_TIME,
+          ),
+        ),
       )
 
       prisonApiMockServer.stubGetBooking(bookingId = BOOKING_ID, offenderNo = OFFENDER_NO)
@@ -96,9 +96,9 @@ class AppointmentIntegrationTest : IntegrationTest() {
             repeatPeriod = RepeatPeriod.FORTNIGHTLY,
             count = 10,
             startTime = LocalDateTime.of(2021, 1, 21, 0, 0, 0),
-            relatedAppointments = mutableListOf(RelatedAppointment(1))
-          )
-        )
+            relatedAppointments = mutableListOf(RelatedAppointment(1)),
+          ),
+        ),
       )
 
       webTestClient.get()
@@ -140,8 +140,8 @@ class AppointmentIntegrationTest : IntegrationTest() {
             "bookingId" to 2,
             "startTime" to START_TIME,
             "endTime" to END_TIME,
-          )
-        )
+          ),
+        ),
       )
     }
 
@@ -156,7 +156,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
 
       prisonApiMockServer.verify(
         postRequestedFor(urlEqualTo("/api/appointments"))
-          .withRequestBody(equalToJson(loadJsonFile("create-prison-appointment-no-repeat.json")))
+          .withRequestBody(equalToJson(loadJsonFile("create-prison-appointment-no-repeat.json"))),
       )
 
       oauthMockServer.verify(0, postRequestedFor(urlEqualTo("/auth/oauth/token")))
@@ -171,8 +171,8 @@ class AppointmentIntegrationTest : IntegrationTest() {
             startTime = START_TIME,
             endTime = END_TIME,
             repeatPeriod = RepeatPeriod.DAILY,
-            count = 1
-          )
+            count = 1,
+          ),
         )
         .headers(setHeaders())
         .exchange()
@@ -182,7 +182,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
 
       prisonApiMockServer.verify(
         postRequestedFor(urlEqualTo("/api/appointments"))
-          .withRequestBody(equalToJson(loadJsonFile("create-prison-appointment-with-repeat.json")))
+          .withRequestBody(equalToJson(loadJsonFile("create-prison-appointment-with-repeat.json"))),
       )
     }
 
@@ -194,9 +194,8 @@ class AppointmentIntegrationTest : IntegrationTest() {
       comment: String = "test",
       appointmentType: String = "ABC",
       repeatPeriod: RepeatPeriod? = null,
-      count: Long? = null
+      count: Long? = null,
     ): Map<String, Any> {
-
       val appointmentMap = mutableMapOf<String, Any>(
         "locationId" to locationId,
         "startTime" to startTime,
@@ -218,7 +217,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
     fun `should delete an appointment`() {
       prisonApiMockServer.stubGetPrisonAppointment(
         APPOINTMENT_ID,
-        objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = APPOINTMENT_ID))
+        objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = APPOINTMENT_ID)),
       )
       prisonApiMockServer.stubDeleteAppointment(APPOINTMENT_ID, 200)
 
@@ -229,7 +228,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
         .expectStatus().isOk
 
       prisonApiMockServer.verify(
-        deleteRequestedFor(urlEqualTo("/api/appointments/$APPOINTMENT_ID"))
+        deleteRequestedFor(urlEqualTo("/api/appointments/$APPOINTMENT_ID")),
       )
     }
 
@@ -237,17 +236,18 @@ class AppointmentIntegrationTest : IntegrationTest() {
     fun `should delete a single appointment in the recurring list`() {
       prisonApiMockServer.stubGetPrisonAppointment(
         1,
-        objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = 1))
+        objectMapper.writeValueAsString(DataHelpers.makePrisonAppointment(eventId = 1)),
       )
       whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
         Optional.of(
           RecurringAppointment(
-            1, relatedAppointments = mutableListOf(RelatedAppointment(1), RelatedAppointment(2)),
+            1,
+            relatedAppointments = mutableListOf(RelatedAppointment(1), RelatedAppointment(2)),
             repeatPeriod = RepeatPeriod.DAILY,
             count = 1,
-            startTime = LocalDateTime.of(2021, 1, 21, 0, 0, 0)
-          )
-        )
+            startTime = LocalDateTime.of(2021, 1, 21, 0, 0, 0),
+          ),
+        ),
       )
 
       prisonApiMockServer.stubDeleteAppointments(listOf(1))
@@ -267,12 +267,13 @@ class AppointmentIntegrationTest : IntegrationTest() {
       whenever(recurringAppointmentRepository.findById(any())).thenReturn(
         Optional.of(
           RecurringAppointment(
-            100, relatedAppointments = mutableListOf(RelatedAppointment(1), RelatedAppointment(2)),
+            100,
+            relatedAppointments = mutableListOf(RelatedAppointment(1), RelatedAppointment(2)),
             repeatPeriod = RepeatPeriod.DAILY,
             count = 1,
-            startTime = LocalDateTime.of(2021, 1, 21, 0, 0, 0)
-          )
-        )
+            startTime = LocalDateTime.of(2021, 1, 21, 0, 0, 0),
+          ),
+        ),
       )
 
       prisonApiMockServer.stubDeleteAppointments(listOf(1, 2))

@@ -40,8 +40,8 @@ class CellMoveServiceTest {
         offenderNo = OFFENDER_NO,
         internalLocationDescriptionDestination = ASSIGNED_LIVING_UNIT_DESC,
         cellMoveReasonCode = REASON_CODE,
-        commentText = TEXT
-      )
+        commentText = TEXT,
+      ),
     )
 
     assertThat(details.agencyId).isEqualTo(AGENCY_ID)
@@ -64,8 +64,8 @@ class CellMoveServiceTest {
         offenderNo = OFFENDER_NO,
         internalLocationDescriptionDestination = ASSIGNED_LIVING_UNIT_DESC,
         cellMoveReasonCode = REASON_CODE,
-        commentText = TEXT
-      )
+        commentText = TEXT,
+      ),
     )
 
     verify(caseNoteService).postCaseNote(
@@ -73,7 +73,7 @@ class CellMoveServiceTest {
       CASE_NOTE_TYPE,
       REASON_CODE,
       TEXT,
-      LocalDateTime.parse(OCCURRENCE_DATE_TIME)
+      LocalDateTime.parse(OCCURRENCE_DATE_TIME),
     )
   }
 
@@ -89,31 +89,31 @@ class CellMoveServiceTest {
         offenderNo = OFFENDER_NO,
         internalLocationDescriptionDestination = ASSIGNED_LIVING_UNIT_DESC,
         cellMoveReasonCode = REASON_CODE,
-        commentText = TEXT
-      )
+        commentText = TEXT,
+      ),
     )
 
     verify(cellMoveRepository).save(
       CellMoveReason(
         bookingId = BOOKING_ID,
         caseNoteId = CASE_NOTE_ID,
-        bedAssignmentsSequence = BED_ASSIGNMENT_SEQUENCE
-      )
+        bedAssignmentsSequence = BED_ASSIGNMENT_SEQUENCE,
+      ),
     )
   }
 
   @Test
   fun `should return cell reason dto`() {
     whenever(
-      cellMoveRepository.findById(any())
+      cellMoveRepository.findById(any()),
     ).thenReturn(
       Optional.of(
         CellMoveReason(
           bookingId = BOOKING_ID,
           bedAssignmentsSequence = BED_ASSIGNMENT_SEQUENCE,
-          caseNoteId = CASE_NOTE_ID
-        )
-      )
+          caseNoteId = CASE_NOTE_ID,
+        ),
+      ),
     )
 
     val service = CellMoveService(prisonApiService, caseNoteService, cellMoveRepository, telemetryClient, clock)
@@ -137,8 +137,8 @@ class CellMoveServiceTest {
         offenderNo = OFFENDER_NO,
         internalLocationDescriptionDestination = ASSIGNED_LIVING_UNIT_DESC,
         cellMoveReasonCode = REASON_CODE,
-        commentText = TEXT
-      )
+        commentText = TEXT,
+      ),
     )
 
     verify(telemetryClient).trackEvent(
@@ -147,9 +147,9 @@ class CellMoveServiceTest {
         "bookingId" to BOOKING_ID.toString(),
         "assignedLivingUnitDesc" to ASSIGNED_LIVING_UNIT_DESC,
         "assignedLivingUnitId" to ASSIGNED_LIVING_UNIT_ID.toString(),
-        "cellMoveReasonCode" to REASON_CODE
+        "cellMoveReasonCode" to REASON_CODE,
       ),
-      null
+      null,
     )
   }
 
@@ -162,8 +162,8 @@ class CellMoveServiceTest {
           assignedLivingUnitId = ASSIGNED_LIVING_UNIT_ID,
           assignedLivingUnitDesc = ASSIGNED_LIVING_UNIT_DESC,
           bedAssignmentHistorySequence = BED_ASSIGNMENT_SEQUENCE,
-          caseNoteId = CASE_NOTE_ID
-        )
+          caseNoteId = CASE_NOTE_ID,
+        ),
       )
     whenever(caseNoteService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any()))
       .thenReturn(CaseNoteDto.builder().caseNoteId(CASE_NOTE_ID).build())

@@ -15,12 +15,12 @@ data class CellMoveResult(
   val assignedLivingUnitDesc: String,
   @ApiModelProperty(
     value = "Bed assignment sequence associated with the entry created for this cell move",
-    example = "2"
+    example = "2",
   )
   val bedAssignmentHistorySequence: Int,
   @ApiModelProperty(
     value = "Case note id",
-    example = "2"
+    example = "2",
   )
-  val caseNoteId: Long? = null
+  val caseNoteId: Long? = null,
 )

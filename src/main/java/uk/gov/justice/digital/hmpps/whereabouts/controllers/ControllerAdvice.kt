@@ -43,7 +43,7 @@ class ControllerAdvice {
         ErrorResponse
           .builder()
           .status(HttpStatus.UNAUTHORIZED.value())
-          .build()
+          .build(),
       )
   }
 
@@ -56,7 +56,7 @@ class ControllerAdvice {
         ErrorResponse
           .builder()
           .status(HttpStatus.FORBIDDEN.value())
-          .build()
+          .build(),
       )
   }
 
@@ -83,7 +83,7 @@ class ControllerAdvice {
           .status(HttpStatus.CONFLICT.value())
           .userMessage(e.message)
           .developerMessage(e.message)
-          .build()
+          .build(),
       )
   }
 
@@ -99,7 +99,7 @@ class ControllerAdvice {
           .status(HttpStatus.BAD_REQUEST.value())
           .userMessage(e.message)
           .developerMessage(e.message)
-          .build()
+          .build(),
       )
   }
 
@@ -113,7 +113,7 @@ class ControllerAdvice {
           .builder()
           .status(HttpStatus.BAD_REQUEST.value())
           .developerMessage(e.message)
-          .build()
+          .build(),
       )
   }
 
@@ -127,7 +127,7 @@ class ControllerAdvice {
           .builder()
           .status(HttpStatus.BAD_REQUEST.value())
           .developerMessage(e.message)
-          .build()
+          .build(),
       )
   }
 
@@ -141,7 +141,7 @@ class ControllerAdvice {
           .builder()
           .status(HttpStatus.BAD_REQUEST.value())
           .developerMessage(e.message)
-          .build()
+          .build(),
       )
   }
 
@@ -155,7 +155,7 @@ class ControllerAdvice {
           .builder()
           .status(HttpStatus.BAD_REQUEST.value())
           .developerMessage(e.message)
-          .build()
+          .build(),
       )
   }
 
@@ -169,7 +169,7 @@ class ControllerAdvice {
           .builder()
           .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
           .developerMessage(e.message)
-          .build()
+          .build(),
       )
   }
 
@@ -184,7 +184,7 @@ class ControllerAdvice {
           .status(HttpStatus.BAD_REQUEST.value())
           .userMessage(e.message)
           .developerMessage(e.message)
-          .build()
+          .build(),
       )
   }
 
@@ -199,7 +199,7 @@ class ControllerAdvice {
           .status(HttpStatus.BAD_REQUEST.value())
           .userMessage(e.message)
           .developerMessage(e.message)
-          .build()
+          .build(),
       )
   }
 
@@ -213,7 +213,7 @@ class ControllerAdvice {
           .builder()
           .status(HttpStatus.NOT_FOUND.value())
           .developerMessage(e.message)
-          .build()
+          .build(),
       )
   }
 
@@ -226,7 +226,7 @@ class ControllerAdvice {
           .builder()
           .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
           .developerMessage(e.message)
-          .build()
+          .build(),
       )
   }
 

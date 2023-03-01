@@ -27,51 +27,57 @@ class LocationController(private val locationService: LocationService) {
   @GetMapping("/groups/{agencyId}/{name}")
   @Operation(
     description = "List of cell locations by group at agency location.",
-    summary = "getLocationGroup"
+    summary = "getLocationGroup",
   )
   @ApiResponses(
     value = [
-      ApiResponse(responseCode = "200", description = "OK",),
+      ApiResponse(responseCode = "200", description = "OK"),
       ApiResponse(responseCode = "400", description = "Invalid request."),
       ApiResponse(responseCode = "404", description = "Requested resource not found."),
       ApiResponse(
         responseCode = "500",
         description = "Unrecoverable error occurred whilst processing request.",
-      )
-    ]
+      ),
+    ],
   )
   fun getLocationGroup(
-    @Parameter(description = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
-    @Parameter(description = "The group name", required = true) @PathVariable("name") name: String
+    @Parameter(description = "The prison", required = true)
+    @PathVariable("agencyId")
+    agencyId: String,
+    @Parameter(description = "The group name", required = true)
+    @PathVariable("name")
+    name: String,
   ): List<Location> =
     locationService.getCellLocationsForGroup(agencyId, name)
 
   @GetMapping("/cellsWithCapacity/{agencyId}/{group}")
   @Operation(
     description = "List of cells by group at agency location which have capacity.",
-    summary = "getCellsWithCapacityForGroup"
+    summary = "getCellsWithCapacityForGroup",
   )
   @ApiResponses(
     value = [
       ApiResponse(responseCode = "200", description = "OK"),
       ApiResponse(
-        responseCode = "400", description = "Invalid request.",
+        responseCode = "400",
+        description = "Invalid request.",
         content =
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
         ],
       ),
       ApiResponse(
-        responseCode = "404", description = "Requested resource not found.",
+        responseCode = "404",
+        description = "Requested resource not found.",
         content =
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
         ],
       ),
       ApiResponse(
@@ -81,17 +87,23 @@ class LocationController(private val locationService: LocationService) {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
         ],
 
-      )
-    ]
+      ),
+    ],
   )
   fun getCellsWithCapacityForGroup(
-    @Parameter(description = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
-    @Parameter(description = "The group name", required = true) @PathVariable("group") group: String,
-    @Parameter(description = "Cell attribute") @RequestParam(name = "attribute") attribute: String?
+    @Parameter(description = "The prison", required = true)
+    @PathVariable("agencyId")
+    agencyId: String,
+    @Parameter(description = "The group name", required = true)
+    @PathVariable("group")
+    group: String,
+    @Parameter(description = "Cell attribute")
+    @RequestParam(name = "attribute")
+    attribute: String?,
   ): List<CellWithAttributes> =
     locationService.getCellsWithCapacityForGroup(agencyId, group, attribute)
 
@@ -100,23 +112,25 @@ class LocationController(private val locationService: LocationService) {
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "400", description = "Invalid request.",
+        responseCode = "400",
+        description = "Invalid request.",
         content =
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
         ],
       ),
       ApiResponse(
-        responseCode = "404", description = "Requested resource not found.",
+        responseCode = "404",
+        description = "Requested resource not found.",
         content =
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
         ],
       ),
       ApiResponse(
@@ -126,16 +140,20 @@ class LocationController(private val locationService: LocationService) {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
         ],
 
-      )
-    ]
+      ),
+    ],
   )
   fun getLocationPrefixFromGroup(
-    @Parameter(description = "The prison", required = true) @PathVariable("agencyId") agencyId: String,
-    @Parameter(description = "The group name", required = true, example = "Houseblock 1") @PathVariable("group") group: String
+    @Parameter(description = "The prison", required = true)
+    @PathVariable("agencyId")
+    agencyId: String,
+    @Parameter(description = "The group name", required = true, example = "Houseblock 1")
+    @PathVariable("group")
+    group: String,
   ): LocationPrefixDto =
     locationService.getLocationPrefixFromGroup(agencyId, group)
 }

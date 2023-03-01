@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 @Service
 class WhereaboutsEnabledService(
   @Qualifier("overrideLocationGroupService") private val service: LocationGroupService,
-  @Qualifier("whereaboutsEnabled") private val enabledAgencies: Set<String>
+  @Qualifier("whereaboutsEnabled") private val enabledAgencies: Set<String>,
 ) {
 
   fun isEnabled(agencyId: String): Boolean {

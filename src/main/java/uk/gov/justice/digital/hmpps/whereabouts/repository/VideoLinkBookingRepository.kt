@@ -19,12 +19,12 @@ interface VideoLinkBookingRepository : JpaRepository<VideoLinkBooking, Long> {
              )
              and (:courtName is null or b.courtName = :courtName)
              and (:courtId is null   or b.courtId = :courtId)
-          """
+          """,
   )
   fun findByAppointmentIdsAndHearingType(
     @Param("ids") ids: List<Long>,
     @Param("hearingType") hearingType: HearingType = HearingType.MAIN,
     @Param("courtName") courtName: String? = null,
-    @Param("courtId") courtId: String? = null
+    @Param("courtId") courtId: String? = null,
   ): List<VideoLinkBooking>
 }

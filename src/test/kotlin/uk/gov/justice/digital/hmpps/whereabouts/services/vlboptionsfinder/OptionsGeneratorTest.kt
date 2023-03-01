@@ -9,8 +9,8 @@ class OptionsGeneratorTest {
   private val mainOnlyReference = VideoLinkBookingOption(
     main = LocationAndInterval(
       1L,
-      Interval(LocalTime.of(7, 0), LocalTime.of(8, 0))
-    )
+      Interval(LocalTime.of(7, 0), LocalTime.of(8, 0)),
+    ),
   )
 
   @Test
@@ -18,12 +18,12 @@ class OptionsGeneratorTest {
     val options = OptionsGenerator(
       LocalTime.of(9, 0),
       LocalTime.of(10, 0),
-      Duration.ofMinutes(15)
+      Duration.ofMinutes(15),
     ).getOptionsInPreferredOrder(mainOnlyReference)
       .toList()
 
     assertThat(options).containsExactly(
-      mainOnlyReference.copyStartingAt(LocalTime.of(9, 0))
+      mainOnlyReference.copyStartingAt(LocalTime.of(9, 0)),
     )
   }
 
@@ -32,7 +32,7 @@ class OptionsGeneratorTest {
     val options = OptionsGenerator(
       LocalTime.of(9, 0),
       LocalTime.of(11, 0),
-      Duration.ofMinutes(15)
+      Duration.ofMinutes(15),
     ).getOptionsInPreferredOrder(mainOnlyReference)
       .toList()
 
@@ -50,7 +50,7 @@ class OptionsGeneratorTest {
     val options = OptionsGenerator(
       LocalTime.of(9, 0),
       LocalTime.of(11, 0),
-      Duration.ofMinutes(15)
+      Duration.ofMinutes(15),
     ).getOptionsInPreferredOrder(mainOnlyReference.copyStartingAt(LocalTime.of(17, 0)))
       .toList()
 
@@ -68,7 +68,7 @@ class OptionsGeneratorTest {
     val options = OptionsGenerator(
       LocalTime.of(9, 0),
       LocalTime.of(11, 0),
-      Duration.ofMinutes(15)
+      Duration.ofMinutes(15),
     ).getOptionsInPreferredOrder(mainOnlyReference.copyStartingAt(LocalTime.of(9, 20)))
       .toList()
 

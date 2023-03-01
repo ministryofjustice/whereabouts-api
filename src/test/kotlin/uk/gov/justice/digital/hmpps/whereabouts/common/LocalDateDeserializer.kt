@@ -24,7 +24,7 @@ private class LocalDateTimeDeserializer : JsonSerializer<LocalDateTime?>, JsonDe
   override fun serialize(
     localDateTime: LocalDateTime?,
     srcType: Type,
-    context: JsonSerializationContext
+    context: JsonSerializationContext,
   ): JsonElement {
     return JsonPrimitive(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(localDateTime))
   }
@@ -32,7 +32,7 @@ private class LocalDateTimeDeserializer : JsonSerializer<LocalDateTime?>, JsonDe
   override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): LocalDateTime {
     return LocalDateTime.parse(
       json.asString,
-      DateTimeFormatter.ISO_LOCAL_DATE_TIME.withLocale(Locale.ENGLISH)
+      DateTimeFormatter.ISO_LOCAL_DATE_TIME.withLocale(Locale.ENGLISH),
     )
   }
 }

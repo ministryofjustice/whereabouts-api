@@ -27,7 +27,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 
 @WebMvcTest(
   CellMoveController::class,
-  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class]
+  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class],
 )
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)
 class CellControllerTest : TestController() {
@@ -49,9 +49,9 @@ class CellControllerTest : TestController() {
             SOME_OFFENDER_NO,
             SOME_ASSIGNED_LIVING_UNIT_DESC,
             SOME_REASON_CODE,
-            SOME_COMMENT_TEXT
-          )
-        )
+            SOME_COMMENT_TEXT,
+          ),
+        ),
     ).andDo(MockMvcResultHandlers.print())
       .andExpect(status().isNotFound)
       .andExpect(jsonPath(".developerMessage").value(SOME_ERROR_MESSAGE))
@@ -71,9 +71,9 @@ class CellControllerTest : TestController() {
             SOME_OFFENDER_NO,
             SOME_ASSIGNED_LIVING_UNIT_DESC,
             SOME_REASON_CODE,
-            SOME_COMMENT_TEXT
-          )
-        )
+            SOME_COMMENT_TEXT,
+          ),
+        ),
     ).andDo(MockMvcResultHandlers.print())
       .andExpect(status().is5xxServerError)
       .andExpect(jsonPath(".developerMessage").value(SOME_ERROR_MESSAGE))
@@ -90,8 +90,8 @@ class CellControllerTest : TestController() {
           agencyId = SOME_AGENCY_ID,
           assignedLivingUnitId = SOME_ASSIGNED_LIVING_UNIT_ID.toLong(),
           bedAssignmentHistorySequence = SOME_BED_ASSIGNMENT_ID,
-          caseNoteId = SOME_CASE_NOTE_ID
-        )
+          caseNoteId = SOME_CASE_NOTE_ID,
+        ),
       )
 
     mockMvc.perform(
@@ -103,9 +103,9 @@ class CellControllerTest : TestController() {
             SOME_OFFENDER_NO,
             SOME_ASSIGNED_LIVING_UNIT_DESC,
             SOME_REASON_CODE,
-            SOME_COMMENT_TEXT
-          )
-        )
+            SOME_COMMENT_TEXT,
+          ),
+        ),
     )
       .andDo(MockMvcResultHandlers.print())
       .andExpect(status().isCreated())
@@ -120,7 +120,7 @@ class CellControllerTest : TestController() {
   fun `should handle missing body`() {
     mockMvc.perform(
       post("/cell/make-cell-move")
-        .contentType(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON),
     ).andDo(MockMvcResultHandlers.print())
       .andExpect(status().isBadRequest)
   }
@@ -131,7 +131,7 @@ class CellControllerTest : TestController() {
     mockMvc.perform(
       post("/cell/make-cell-move")
         .contentType(MediaType.APPLICATION_JSON)
-        .content(getJsonBody(null, null, null, null, null))
+        .content(getJsonBody(null, null, null, null, null)),
     ).andDo(MockMvcResultHandlers.print())
       .andExpect(status().isBadRequest)
   }
@@ -140,11 +140,11 @@ class CellControllerTest : TestController() {
   @WithMockUser(username = "ITAG_USER")
   fun `should return cell move reason`() {
     whenever(
-      cellMoveService.getCellMoveReason(anyLong(), anyInt())
+      cellMoveService.getCellMoveReason(anyLong(), anyInt()),
     ).thenReturn(CellMoveReasonDto(1L, 2, 3L))
 
     mockMvc.perform(
-      get("/cell/cell-move-reason/booking/$SOME_BOOKING_ID/bed-assignment-sequence/$SOME_BED_ASSIGNMENT_SEQUENCE")
+      get("/cell/cell-move-reason/booking/$SOME_BOOKING_ID/bed-assignment-sequence/$SOME_BED_ASSIGNMENT_SEQUENCE"),
     )
       .andDo(MockMvcResultHandlers.print())
       .andExpect(status().isOk)
@@ -158,7 +158,7 @@ class CellControllerTest : TestController() {
     offenderNo: String?,
     destination: String?,
     cellMoveReason: String?,
-    commentText: String?
+    commentText: String?,
   ) =
     objectMapper.writeValueAsString(
       mapOf(
@@ -167,8 +167,8 @@ class CellControllerTest : TestController() {
         "offenderNo" to offenderNo,
         "cellMoveReasonCode" to cellMoveReason,
         "internalLocationDescriptionDestination" to destination,
-        "commentText" to commentText
-      )
+        "commentText" to commentText,
+      ),
     )
 
   companion object {

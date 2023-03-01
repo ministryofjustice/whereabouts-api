@@ -17,7 +17,7 @@ class OptionsGenerator(
   val dayEnd: LocalTime,
 
   @Value("\${video-link-booking.booking-options-finder.step}")
-  val step: Duration
+  val step: Duration,
 ) {
   fun getOptionsInPreferredOrder(preferredOption: VideoLinkBookingOption): Sequence<VideoLinkBookingOption> =
     durations(step)

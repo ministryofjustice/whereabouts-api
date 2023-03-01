@@ -13,5 +13,5 @@ data class CellAttribute(
   @ApiModelProperty(required = true, value = "Cell attribute code", example = "LC")
   val code: String,
   @ApiModelProperty(required = true, value = "Cell attribute description", example = "Listener cell")
-  val description: String
+  val description: String,
 )

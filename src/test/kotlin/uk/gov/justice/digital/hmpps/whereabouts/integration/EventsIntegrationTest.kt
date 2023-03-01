@@ -33,7 +33,7 @@ class EventsIntegrationTest : IntegrationTest() {
 
       prisonApiMockServer.verify(
         getRequestedFor(anyUrl())
-          .withUrl("/api/offenders/ABC123/scheduled-events?fromDate=&toDate=")
+          .withUrl("/api/offenders/ABC123/scheduled-events?fromDate=&toDate="),
       )
     }
 
@@ -47,7 +47,7 @@ class EventsIntegrationTest : IntegrationTest() {
             .queryParam("fromDate", "2022-02-20")
             .queryParam("toDate", "2022-03-20")
             .build()
-            .toString()
+            .toString(),
         )
         .headers(setHeaders())
         .exchange()
@@ -55,7 +55,7 @@ class EventsIntegrationTest : IntegrationTest() {
 
       prisonApiMockServer.verify(
         getRequestedFor(anyUrl())
-          .withUrl("/api/offenders/ABC123/scheduled-events?fromDate=2022-02-20&toDate=2022-03-20")
+          .withUrl("/api/offenders/ABC123/scheduled-events?fromDate=2022-02-20&toDate=2022-03-20"),
       )
     }
 
@@ -69,7 +69,7 @@ class EventsIntegrationTest : IntegrationTest() {
             "developerMessage": "Resource with id [ABC123] not found."
         }
         """.trimIndent(),
-        404
+        404,
       )
 
       webTestClient.get()
@@ -80,9 +80,10 @@ class EventsIntegrationTest : IntegrationTest() {
         .expectBody().json(
           """
             {"status":404,"developerMessage":"Resource with id [ABC123] not found."}
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
+
     @Test
     fun `should pass through bad request`() {
       prisonApiMockServer.stubGetEvents(
@@ -93,7 +94,7 @@ class EventsIntegrationTest : IntegrationTest() {
           "developerMessage": "400 Invalid date range: toDate is before fromDate."
         }
         """.trimIndent(),
-        400
+        400,
       )
 
       webTestClient.get()
@@ -104,7 +105,7 @@ class EventsIntegrationTest : IntegrationTest() {
         .expectBody().json(
           """
             {"status":400,"developerMessage":"400 Invalid date range: toDate is before fromDate."}
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 

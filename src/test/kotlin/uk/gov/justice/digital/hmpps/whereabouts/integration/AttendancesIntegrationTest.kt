@@ -49,8 +49,8 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .attended(false)
             .paid(false)
             .bookingId(1)
-            .build()
-        )
+            .build(),
+        ),
       )
 
     webTestClient
@@ -108,8 +108,8 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .createUserId("user")
             .modifyDateTime(date)
             .modifyUserId("user")
-            .build()
-        )
+            .build(),
+        ),
       )
 
     webTestClient
@@ -165,8 +165,8 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .attended(true)
             .paid(true)
             .bookingId(2)
-            .build()
-        )
+            .build(),
+        ),
       )
 
     webTestClient
@@ -223,8 +223,8 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .attended(true)
             .paid(true)
             .bookingId(2)
-            .build()
-        )
+            .build(),
+        ),
       )
 
     val bookings = setOf(1, 2)
@@ -261,8 +261,8 @@ class AttendancesIntegrationTest : IntegrationTest() {
         any(),
         any(),
         any(),
-        any()
-      )
+        any(),
+      ),
     )
       .thenReturn(
         setOf(
@@ -295,8 +295,8 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .attended(true)
             .paid(true)
             .bookingId(2)
-            .build()
-        )
+            .build(),
+        ),
       )
 
     val bookings = setOf(1, 2)
@@ -338,7 +338,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
       period = TimePeriod.AM,
       bookingActivities = bookingActivities,
       attended = true,
-      paid = true
+      paid = true,
     )
 
     webTestClient
@@ -357,11 +357,11 @@ class AttendancesIntegrationTest : IntegrationTest() {
               mapOf(
                 "performance" to "STANDARD",
                 "bookingActivities" to bookingActivities,
-                "eventOutcome" to "ATT"
-              )
-            )
-          )
-        )
+                "eventOutcome" to "ATT",
+              ),
+            ),
+          ),
+        ),
     )
 
     verify(attendanceRepository).saveAll(anySet())
@@ -379,7 +379,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .thenReturn(
         setOf(
           attendance.toBuilder().bookingId(1).eventId(2).build(),
-        )
+        ),
       )
 
     webTestClient
@@ -415,8 +415,8 @@ class AttendancesIntegrationTest : IntegrationTest() {
         any(),
         any(),
         anySet(),
-        any()
-      )
+        any(),
+      ),
     )
       .thenReturn(
         setOf(
@@ -435,8 +435,8 @@ class AttendancesIntegrationTest : IntegrationTest() {
             .bookingId(1L)
             .caseNoteId(1)
             .period(TimePeriod.AM)
-            .build()
-        )
+            .build(),
+        ),
       )
 
     webTestClient

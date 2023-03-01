@@ -24,7 +24,7 @@ class VideoLinkBookingOptionsServiceTest {
     VideoLinkBookingOptionsService(
       prisonApiService,
       videoLinkBookingRepository,
-      videoLinkBookingOptionsFinder
+      videoLinkBookingOptionsFinder,
     )
 
   @Test
@@ -41,20 +41,19 @@ class VideoLinkBookingOptionsServiceTest {
             date = SEARCH_DATE,
             agencyId = AGENCY_ID,
             preAppointment = null,
-            mainAppointment = LocationAndInterval(location1, dontCareInterval)
-          )
-        )
+            mainAppointment = LocationAndInterval(location1, dontCareInterval),
+          ),
+        ),
     ).isEqualTo(theResult)
   }
 
   @Test
   fun `It filters ScheduledAppointmentDtos from prisonApiService`() {
-
     every {
       videoLinkBookingOptionsFinder.findOptions(any(), any())
     } returns VideoLinkBookingOptions(
       matched = true,
-      alternatives = emptyList()
+      alternatives = emptyList(),
     )
 
     every {
@@ -71,7 +70,7 @@ class VideoLinkBookingOptionsServiceTest {
       date = SEARCH_DATE,
       agencyId = AGENCY_ID,
       preAppointment = null,
-      mainAppointment = LocationAndInterval(location1, dontCareInterval)
+      mainAppointment = LocationAndInterval(location1, dontCareInterval),
     )
 
     service().findVideoLinkBookingOptions(specification)
@@ -86,21 +85,20 @@ class VideoLinkBookingOptionsServiceTest {
           specification,
           listOf(
             appt1_location1,
-            appt2_location1
-          )
+            appt2_location1,
+          ),
         )
     }
   }
 
   @Test
   fun `The appointments for an excluded booking are removed from the set of appointments for a location`() {
-
     // The returned value doesn't matter here.
     every {
       videoLinkBookingOptionsFinder.findOptions(any(), any())
     } returns VideoLinkBookingOptions(
       matched = true,
-      alternatives = emptyList()
+      alternatives = emptyList(),
     )
 
     every {
@@ -113,7 +111,7 @@ class VideoLinkBookingOptionsServiceTest {
       listOf(
         // excluded because id matches the id of the excluded video link booking's appointment id in the spec below
         appt_location1_excl_main,
-        appt2_location1
+        appt2_location1,
       )
 
     val specification = VideoLinkBookingSearchSpecification(
@@ -121,7 +119,7 @@ class VideoLinkBookingOptionsServiceTest {
       agencyId = AGENCY_ID,
       preAppointment = null,
       mainAppointment = LocationAndInterval(location1, dontCareInterval),
-      vlbIdToExclude = excludedVideoLinkBookingId
+      vlbIdToExclude = excludedVideoLinkBookingId,
     )
     service().findVideoLinkBookingOptions(specification)
 
@@ -129,7 +127,7 @@ class VideoLinkBookingOptionsServiceTest {
       videoLinkBookingOptionsFinder
         .findOptions(
           specification,
-          listOf(appt2_location1)
+          listOf(appt2_location1),
         )
     }
 
@@ -138,12 +136,11 @@ class VideoLinkBookingOptionsServiceTest {
 
   @Test
   fun `It filters ScheduledAppointmentDtos from prisonApiService for the spec's main, pre and post appointments`() {
-
     every {
       videoLinkBookingOptionsFinder.findOptions(any(), any())
     } returns VideoLinkBookingOptions(
       matched = true,
-      alternatives = emptyList()
+      alternatives = emptyList(),
     )
 
     every {
@@ -172,7 +169,7 @@ class VideoLinkBookingOptionsServiceTest {
       preAppointment = LocationAndInterval(location2, dontCareInterval),
       mainAppointment = LocationAndInterval(location1, dontCareInterval),
       postAppointment = LocationAndInterval(location3, dontCareInterval),
-      vlbIdToExclude = excludedVideoLinkBookingId
+      vlbIdToExclude = excludedVideoLinkBookingId,
     )
 
     service().findVideoLinkBookingOptions(specification)
@@ -188,8 +185,8 @@ class VideoLinkBookingOptionsServiceTest {
           listOf(
             appt2_location2,
             appt2_location1,
-            appt2_location3
-          )
+            appt2_location3,
+          ),
         )
     }
   }
@@ -234,7 +231,7 @@ class VideoLinkBookingOptionsServiceTest {
         createUserId = DONT_CARE,
         firstName = DONT_CARE,
         lastName = DONT_CARE,
-        locationDescription = DONT_CARE
+        locationDescription = DONT_CARE,
       )
 
     val appt1_location2 = appointmentDto(location2, excludedPreAppointmentId)
@@ -252,7 +249,7 @@ class VideoLinkBookingOptionsServiceTest {
       offenderBookingId = 999L,
       courtName = DONT_CARE,
       courtId = DONT_CARE,
-      prisonId = AGENCY_ID
+      prisonId = AGENCY_ID,
     ).apply {
       addMainAppointment(excludedMainAppointmentId, 20L, startDateTime, endDateTime, 9999L)
     }
@@ -262,7 +259,7 @@ class VideoLinkBookingOptionsServiceTest {
       offenderBookingId = 999L,
       courtName = DONT_CARE,
       courtId = DONT_CARE,
-      prisonId = AGENCY_ID
+      prisonId = AGENCY_ID,
     ).apply {
       addMainAppointment(excludedMainAppointmentId, 20L, startDateTime, endDateTime, 9999L)
       addPreAppointment(excludedPreAppointmentId, 20L, startDateTime, endDateTime, 9998L)
@@ -282,7 +279,7 @@ class VideoLinkBookingOptionsServiceTest {
         createUserId = DONT_CARE,
         firstName = DONT_CARE,
         lastName = DONT_CARE,
-        locationDescription = DONT_CARE
+        locationDescription = DONT_CARE,
       )
   }
 }

@@ -29,7 +29,8 @@ enum class CourtHearingType(val description: String) {
   SECTION_28("Section 28"),
   SENTENCE("Sentence (SEN)"),
   TRIBUNAL("Tribunal"),
-  OTHER("Other");
+  OTHER("Other"),
+  ;
 
   fun getName(): String = name
 

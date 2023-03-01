@@ -39,7 +39,7 @@ class AttendanceService(
   private val prisonApiService: PrisonApiService,
   private val iepWarningService: IEPWarningService,
   private val nomisEventOutcomeMapper: NomisEventOutcomeMapper,
-  private val telemetryClient: TelemetryClient
+  private val telemetryClient: TelemetryClient,
 ) {
 
   private companion object {
@@ -50,7 +50,7 @@ class AttendanceService(
     prisonId: String?,
     eventLocationId: Long?,
     date: LocalDate?,
-    period: TimePeriod?
+    period: TimePeriod?,
   ): Set<AttendanceDto> {
     val attendance = attendanceRepository
       .findByPrisonIdAndEventLocationIdAndEventDateAndPeriod(prisonId, eventLocationId, date, period)
@@ -69,7 +69,7 @@ class AttendanceService(
     prisonId: String?,
     bookings: Set<Long?>?,
     date: LocalDate?,
-    period: TimePeriod?
+    period: TimePeriod?,
   ): Set<AttendanceDto> {
     val attendance = attendanceRepository
       .findByPrisonIdAndBookingIdInAndEventDateAndPeriod(prisonId, bookings, date, period)
@@ -82,9 +82,8 @@ class AttendanceService(
     bookings: Set<Long>,
     fromDate: LocalDate,
     toDate: LocalDate?,
-    period: TimePeriod?
+    period: TimePeriod?,
   ): Set<AttendanceDto> {
-
     val periods = if (period == null) setOf(TimePeriod.AM, TimePeriod.PM) else setOf(period)
     val endDate = toDate ?: fromDate
 
@@ -103,7 +102,7 @@ class AttendanceService(
       provisionalAttendance.bookingId,
       provisionalAttendance.eventId,
       provisionalAttendance.eventDate,
-      provisionalAttendance.period
+      provisionalAttendance.period,
     )
 
     if (existing.size > 0) {
@@ -120,7 +119,7 @@ class AttendanceService(
       reason = attendance.absentReason,
       subReason = attendance.absentSubReason,
       text = attendance.comments,
-      eventDate = attendance.eventDate
+      eventDate = attendance.eventDate,
     ).ifPresent { caseNoteId: Long? -> attendance.caseNoteId = caseNoteId }
     log.info("attendance created {}", attendance.toBuilder().comments(null))
     return toAttendanceDto(attendance)
@@ -140,11 +139,15 @@ class AttendanceService(
 
     val changedFrom = if (attendance.attended) {
       AttendanceChangeValues.Attended
-    } else AttendanceChangeValues.valueOf(attendance.absentReason.toString())
+    } else {
+      AttendanceChangeValues.valueOf(attendance.absentReason.toString())
+    }
 
     val changedTo = if (newAttendanceDetails.absentReason != null) {
       AttendanceChangeValues.valueOf(newAttendanceDetails.absentReason.toString())
-    } else AttendanceChangeValues.Attended
+    } else {
+      AttendanceChangeValues.Attended
+    }
 
     attendance.comments = newAttendanceDetails.comments
     attendance.attended = newAttendanceDetails.attended
@@ -159,8 +162,8 @@ class AttendanceService(
       AttendanceChange(
         attendance = attendance,
         changedFrom = changedFrom,
-        changedTo = changedTo
-      )
+        changedTo = changedTo,
+      ),
     )
   }
 
@@ -171,7 +174,7 @@ class AttendanceService(
       subReason = null,
       attended = true,
       paid = true,
-      comment = ""
+      comment = "",
     )
 
     prisonApiService.putAttendanceForMultipleBookings(attendAll.bookingActivities, eventOutcome)
@@ -200,7 +203,7 @@ class AttendanceService(
       subReason = attendance.absentSubReason,
       attended = attendance.attended,
       paid = attendance.paid,
-      comment = attendance.comments
+      comment = attendance.comments,
     )
 
     log.info("Updating attendance on NOMIS {} {}", attendance.toBuilder().comments(null).build(), eventOutcome)
@@ -255,7 +258,7 @@ class AttendanceService(
       subReason = null, // for creating multiple attendances can only specify reasons where sub reason not required
       attended = attendancesDto.attended,
       paid = attendancesDto.paid,
-      comment = attendancesDto.comments
+      comment = attendancesDto.comments,
     )
 
     prisonApiService.putAttendanceForMultipleBookings(attendancesDto.bookingActivities, eventOutcome)
@@ -268,9 +271,8 @@ class AttendanceService(
     absentReason: AbsentReason?,
     fromDate: LocalDate,
     toDate: LocalDate?,
-    period: TimePeriod?
+    period: TimePeriod?,
   ): List<AbsenceDto> {
-
     val periods = period?.let { setOf(it) } ?: setOf(TimePeriod.PM, TimePeriod.AM)
     val endDate = toDate ?: fromDate
 
@@ -280,7 +282,9 @@ class AttendanceService(
 
     val offenderDetails = if (attendanceMap.isNotEmpty()) {
       prisonApiService.getScheduleActivityOffenderData(prisonId, attendanceMap.keys)
-    } else emptyList()
+    } else {
+      emptyList()
+    }
 
     return offenderDetails.map { toAbsenceDto2(it, attendanceMap[it.eventId]!!) }
   }
@@ -298,7 +302,7 @@ class AttendanceService(
     telemetryClient.trackEvent(
       "OffenderDelete",
       mapOf("offenderNo" to offenderNo, "count" to totalAttendances.toString()),
-      null
+      null,
     )
   }
 
@@ -306,8 +310,9 @@ class AttendanceService(
     val changes =
       if (toDateTime == null) {
         attendanceChangesRepository.findAttendanceChangeByCreateDateTime(fromDateTime)
-      } else
+      } else {
         attendanceChangesRepository.findAttendanceChangeByCreateDateTimeBetween(fromDateTime, toDateTime)
+      }
 
     return changes
       .map {
@@ -321,7 +326,7 @@ class AttendanceService(
           changedTo = it.changedTo,
           changedOn = it.createDateTime,
           changedBy = it.createUserId,
-          prisonId = it.attendance.prisonId
+          prisonId = it.attendance.prisonId,
 
         )
       }.toSet()
@@ -349,7 +354,7 @@ class AttendanceService(
   fun getAttendanceAbsenceSummaryForOffender(
     offenderNo: String,
     fromDate: LocalDate,
-    toDate: LocalDate
+    toDate: LocalDate,
   ): AttendanceSummary {
     val attendances =
       prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate, null, Pageable.unpaged())
@@ -360,7 +365,7 @@ class AttendanceService(
     offenderNo: String,
     fromDate: LocalDate,
     toDate: LocalDate,
-    pageable: Pageable
+    pageable: Pageable,
   ): Page<AttendanceHistoryDto> =
 
     prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate, "UNACAB", pageable)
@@ -385,7 +390,7 @@ class AttendanceService(
       firstName = details.firstName,
       lastName = details.lastName,
       comment = details.comment,
-      suspended = details.suspended
+      suspended = details.suspended,
     )
 
   private fun toAbsenceDto(details: OffenderDetails, attendance: Attendance): AbsenceDto =
@@ -405,7 +410,7 @@ class AttendanceService(
       cellLocation = details.cellLocation,
       firstName = details.firstName,
       lastName = details.lastName,
-      suspended = details.suspended
+      suspended = details.suspended,
     )
 
   private fun toAbsenceDto2(details: OffenderDetails, attendance: Attendance): AbsenceDto =
@@ -425,7 +430,7 @@ class AttendanceService(
       cellLocation = details.cellLocation,
       firstName = details.firstName,
       lastName = details.lastName,
-      suspended = details.suspended
+      suspended = details.suspended,
     )
 
   private fun findAttendance(bookingId: Long, eventId: Long?, period: TimePeriod): Predicate<in OffenderDetails> {

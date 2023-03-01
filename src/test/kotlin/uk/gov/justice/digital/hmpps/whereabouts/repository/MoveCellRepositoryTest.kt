@@ -16,8 +16,8 @@ class MoveCellRepositoryTest {
       CellMoveReason(
         bookingId = 1L,
         bedAssignmentsSequence = 2,
-        caseNoteId = 3L
-      )
+        caseNoteId = 3L,
+      ),
     )
   }
 }

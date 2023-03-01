@@ -15,6 +15,6 @@ interface VideoLinkAppointmentRepository : ReadOnlyRepository<VideoLinkAppointme
     endDateTime: LocalDateTime,
     hearingType: HearingType,
     courtId: String,
-    prisonIds: List<String>
+    prisonIds: List<String>,
   ): Set<VideoLinkAppointment>
 }

@@ -13,5 +13,5 @@ data class OffenderBooking(
   val agencyId: @NotBlank String,
   val dateOfBirth: @NotNull LocalDate,
   val assignedLivingUnitId: Long?,
-  val assignedLivingUnitDesc: String?
+  val assignedLivingUnitDesc: String?,
 )

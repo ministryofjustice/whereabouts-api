@@ -64,16 +64,16 @@ class EventToCsvConverterTest {
             eventType = VideoLinkBookingEventType.DELETE,
             timestamp = LocalDateTime.of(2021, 3, 1, 1, 1, 1, 1),
             videoLinkBookingId = 99L,
-            courtId = "EYI"
-          )
-        )
-      )
+            courtId = "EYI",
+          ),
+        ),
+      ),
     ).isEqualTo(
       expectedHeader +
         exepectedRow +
         exepectedRow +
         exepectedRow +
-        ",\"2021-03-01T01:01:01.000000001\",99,DELETE,,,EYI,,,,,,,\n"
+        ",\"2021-03-01T01:01:01.000000001\",99,DELETE,,,EYI,,,,,,,\n",
     )
   }
 }

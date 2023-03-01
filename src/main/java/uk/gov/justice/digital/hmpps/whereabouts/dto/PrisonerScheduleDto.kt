@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 @ApiModel(description = "Scheduled response")
 data class ScheduledResponse(
   @ApiModelProperty(value = "List of scheduled events")
-  val scheduled: List<PrisonerScheduleDto>
+  val scheduled: List<PrisonerScheduleDto>,
 )
 
 @Schema(description = "Prisoner Schedule")
@@ -31,7 +31,7 @@ data class PrisonerScheduleDto(
 
   @Schema(
     required = true,
-    description = "The number which (uniquely) identifies the internal location associated with the Scheduled Event (Prisoner Schedule)"
+    description = "The number which (uniquely) identifies the internal location associated with the Scheduled Event (Prisoner Schedule)",
   )
   val locationId: @NotNull Long?,
 
@@ -63,7 +63,8 @@ data class PrisonerScheduleDto(
   val eventStatus: @NotBlank String?,
 
   @Schema(required = true, description = "Comment")
-  val comment: @Size(max = 4000) String?,
+  @Size(max = 4000)
+  val comment: String?,
 
   @Schema(required = true, description = "Date and time at which event starts")
   val startTime: @NotNull LocalDateTime?,

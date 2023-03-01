@@ -28,5 +28,5 @@ data class AttendAllDto(
   @JsonFormat(pattern = "yyyy-MM-dd")
   @ApiModelProperty(required = true, value = "Date the event is scheduled", example = "2019-10-01", position = 5)
   @field:NotNull
-  val eventDate: LocalDate? = null
+  val eventDate: LocalDate? = null,
 )

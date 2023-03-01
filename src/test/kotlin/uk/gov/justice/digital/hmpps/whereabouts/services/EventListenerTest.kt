@@ -19,7 +19,7 @@ class EventListenerTest {
     agencyLocationId = "WWI",
     eventDatetime = "2022-10-06T09:34:40",
     scheduledStartTime = "2022-10-06T11:00:00",
-    scheduledEndTime = "2022-10-06T15:00:00"
+    scheduledEndTime = "2022-10-06T15:00:00",
   )
 
   @Test

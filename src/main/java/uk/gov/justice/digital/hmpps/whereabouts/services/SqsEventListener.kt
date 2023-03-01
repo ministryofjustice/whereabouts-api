@@ -14,7 +14,7 @@ class SqsEventListener(
   private val attendanceService: AttendanceService,
   @Qualifier("videoLinkBookingServiceAppScope")
   private val videoLinkBookingService: VideoLinkBookingService,
-  private val gson: Gson
+  private val gson: Gson,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -33,7 +33,7 @@ class SqsEventListener(
 
         attendanceService.deleteAttendancesForOffenderDeleteEvent(
           offenderIdDisplay,
-          bookingIds
+          bookingIds,
         )
       }
       "APPOINTMENT_CHANGED" -> {
@@ -54,5 +54,5 @@ data class AppointmentChangedEventMessage(val bookingId: Long, val scheduleEvent
 data class Message(
   val Message: String,
   val MessageAttributes: MessageAttributes,
-  val message: DeleteOffenderEventMessage
+  val message: DeleteOffenderEventMessage,
 )
