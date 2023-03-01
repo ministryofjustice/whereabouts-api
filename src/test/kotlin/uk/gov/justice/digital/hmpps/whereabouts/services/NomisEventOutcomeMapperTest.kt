@@ -16,6 +16,7 @@ class NomisEventOutcomeMapperTest {
   companion object {
     @JvmStatic
     private fun getUnpaidReasons() = unpaidReasons
+
     @JvmStatic
     private fun getPaidReasons() = paidReasons
   }

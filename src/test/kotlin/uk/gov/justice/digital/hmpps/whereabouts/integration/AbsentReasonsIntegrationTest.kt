@@ -13,7 +13,7 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
     val paidReasons = listOf(
       AbsentReason.AcceptableAbsence,
       AbsentReason.NotRequired,
-      AbsentReason.ApprovedCourse,
+      AbsentReason.ApprovedCourse
     ).map { AbsentReasonDto(it, it.label) }
     val unpaidReasons = listOf(
       AbsentReason.RestDay,
@@ -22,12 +22,12 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
       AbsentReason.RefusedIncentiveLevelWarning,
       AbsentReason.SessionCancelled,
       AbsentReason.UnacceptableAbsence,
-      AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
+      AbsentReason.UnacceptableAbsenceIncentiveLevelWarning
     ).map { AbsentReasonDto(it, it.label) }
 
     val triggersIEPWarnings = listOf(
       AbsentReason.RefusedIncentiveLevelWarning,
-      AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
+      AbsentReason.UnacceptableAbsenceIncentiveLevelWarning
     )
     val triggersAbsentSubReason = listOf(
       AbsentReason.AcceptableAbsence,
@@ -35,7 +35,7 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
       AbsentReason.RefusedIncentiveLevelWarning,
       AbsentReason.SessionCancelled,
       AbsentReason.UnacceptableAbsence,
-      AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
+      AbsentReason.UnacceptableAbsenceIncentiveLevelWarning
     )
     val paidSubReasons = AbsentSubReason.values().toList()
       .filter { it != AbsentSubReason.Behaviour }
@@ -49,7 +49,7 @@ class AbsentReasonsIntegrationTest : IntegrationTest() {
       triggersIEPWarnings,
       triggersAbsentSubReason,
       paidSubReasons,
-      unpaidSubReasons,
+      unpaidSubReasons
     )
 
     webTestClient.get()

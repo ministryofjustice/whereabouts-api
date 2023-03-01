@@ -28,7 +28,7 @@ data class AbsentReasonsDto(
   val paidSubReasons: List<AbsentSubReasonDto>,
 
   @ApiModelProperty(value = "List of unpaid absence sub reasons")
-  val unpaidSubReasons: List<AbsentSubReasonDto>,
+  val unpaidSubReasons: List<AbsentSubReasonDto>
 )
 
 data class AbsentReasonDto(val code: AbsentReason, val name: String)

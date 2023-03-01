@@ -44,7 +44,7 @@ class AppointmentsController(
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       ),
       ApiResponse(
@@ -56,26 +56,37 @@ class AppointmentsController(
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       )
     ]
   )
   fun getAppointments(
-    @Parameter(description = "The agency Id") @PathVariable("agencyId") agencyId: String,
+    @Parameter(description = "The agency Id")
+    @PathVariable("agencyId")
+    agencyId: String,
     @Parameter(
       description = "Date the appointments are scheduled",
       required = true
-    ) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("date") date: LocalDate,
-    @Parameter(description = "AM, PM or ED") @RequestParam(
+    )
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @RequestParam("date")
+    date: LocalDate,
+    @Parameter(description = "AM, PM or ED")
+    @RequestParam(
       value = "timeSlot",
       required = false
-    ) timeSlot: TimePeriod?,
+    )
+    timeSlot: TimePeriod?,
     @Parameter(
       description = "The location prefix of any offenders' residence associated with a returned appointment",
       example = "Block A"
-    ) @RequestParam(value = "offenderLocationPrefix", required = false) offenderLocationPrefix: String?,
-    @Parameter(description = "Location id") @RequestParam(value = "locationId", required = false) locationId: Long?
+    )
+    @RequestParam(value = "offenderLocationPrefix", required = false)
+    offenderLocationPrefix: String?,
+    @Parameter(description = "Location id")
+    @RequestParam(value = "locationId", required = false)
+    locationId: Long?
   ): List<AppointmentSearchDto> =
     appointmentService.getAppointments(agencyId, date, timeSlot, offenderLocationPrefix, locationId)
 }

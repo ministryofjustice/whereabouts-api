@@ -22,7 +22,7 @@ import java.time.temporal.ChronoUnit
 
 class CourtIntegrationTest(
   @Autowired val videoLinkBookingRepository: VideoLinkBookingRepository,
-  @Autowired val jdbcTemplate: JdbcTemplate,
+  @Autowired val jdbcTemplate: JdbcTemplate
 ) : IntegrationTest() {
 
   @MockBean
@@ -77,6 +77,7 @@ class CourtIntegrationTest(
       .jsonPath("$.email").hasJsonPath()
       .jsonPath("$.email").isEqualTo("test@test.gov.uk")
   }
+
   @Test
   fun `return 404 court email when email not exist`() {
     webTestClient.get()
@@ -108,7 +109,7 @@ class CourtIntegrationTest(
       eventSubType = "VLB",
       agencyId = "WWI",
       eventLocationId = 9,
-      comment = "any comment",
+      comment = "any comment"
     )
 
     private val postPrisonAppointment = PrisonAppointment(
@@ -141,7 +142,6 @@ class CourtIntegrationTest(
 
     @Test
     fun `should get booking`() {
-
       val videoLinkBookingId = videoLinkBookingRepository.save(makeVideoLinkBooking()).id!!
 
       prisonApiMockServer.stubGetPrisonAppointment(
@@ -194,7 +194,6 @@ class CourtIntegrationTest(
 
     @Test
     fun `should get booking when only main appointment exists`() {
-
       val videoLinkBookingId = videoLinkBookingRepository.save(makeVideoLinkBooking()).id!!
 
       prisonApiMockServer.stubGetPrisonAppointment(
@@ -229,7 +228,6 @@ class CourtIntegrationTest(
 
     @Test
     fun `should not find booking when only pre and post appointments exist`() {
-
       val videoLinkBookingId = videoLinkBookingRepository.save(makeVideoLinkBooking()).id!!
 
       prisonApiMockServer.stubGetPrisonAppointment(
@@ -356,7 +354,6 @@ class CourtIntegrationTest(
         )
     }
     fun makeSomeBookings() {
-
       jdbcTemplate.update(
         """INSERT INTO video_link_booking (id, offender_booking_id, court_name, court_id, made_by_the_court,
                                        created_by_username, prison_id, comment)
@@ -493,7 +490,6 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
 
     @Test
     fun `Returns 204 when successfully deleting a booking`() {
-
       val preAppointmentId: Long = 2
       val mainAppointmentId: Long = 3
       val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
@@ -588,7 +584,6 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
 
     @Test
     fun `Rejects invalid end time`() {
-
       webTestClient.put()
         .uri("/court/video-link-bookings/1")
         .bodyValue(

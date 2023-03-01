@@ -43,7 +43,7 @@ class AgencyController(
           mediaType = "application/json",
           schema = Schema(implementation = ErrorResponse::class)
         )
-      ],
+      ]
     ),
     ApiResponse(
       responseCode = "404",
@@ -54,7 +54,7 @@ class AgencyController(
           mediaType = "application/json",
           schema = Schema(implementation = ErrorResponse::class)
         )
-      ],
+      ]
     ),
     ApiResponse(
       responseCode = "500",
@@ -65,14 +65,16 @@ class AgencyController(
           mediaType = "application/json",
           schema = Schema(implementation = ErrorResponse::class)
         )
-      ],
+      ]
     )
   )
   fun getAvailableLocationGroups(
     @Parameter(
       description = "The prison",
       required = true
-    ) @PathVariable("agencyId") agencyId: String
+    )
+    @PathVariable("agencyId")
+    agencyId: String
   ): List<LocationGroup> =
     locationGroupService.getLocationGroupsForAgency(agencyId)
 
@@ -85,16 +87,16 @@ class AgencyController(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK",
+        description = "OK"
       ),
       ApiResponse(responseCode = "400", description = "Invalid request."),
       ApiResponse(
         responseCode = "404",
-        description = "Requested resource not found.",
+        description = "Requested resource not found."
       ),
       ApiResponse(
         responseCode = "500",
-        description = "Unrecoverable error occurred whilst processing request.",
+        description = "Unrecoverable error occurred whilst processing request."
       )
     ]
   )
@@ -102,7 +104,9 @@ class AgencyController(
     @Parameter(
       description = "The prison",
       required = true
-    ) @PathVariable("agencyId") agencyId: String
+    )
+    @PathVariable("agencyId")
+    agencyId: String
   ): WhereaboutsConfig =
     WhereaboutsConfig(whereaboutsEnabledService.isEnabled(agencyId))
 }

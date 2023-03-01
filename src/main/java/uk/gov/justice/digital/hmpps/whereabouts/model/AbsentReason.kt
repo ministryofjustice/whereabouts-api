@@ -28,7 +28,7 @@ enum class AbsentReason(val label: String, val eventOutcome: String) {
       RefusedIncentiveLevelWarning,
       SessionCancelled,
       UnacceptableAbsence,
-      UnacceptableAbsenceIncentiveLevelWarning,
+      UnacceptableAbsenceIncentiveLevelWarning
     )
 
     val iepTriggers = setOf(RefusedIncentiveLevelWarning, UnacceptableAbsenceIncentiveLevelWarning)
@@ -38,7 +38,7 @@ enum class AbsentReason(val label: String, val eventOutcome: String) {
       RefusedIncentiveLevelWarning,
       SessionCancelled,
       UnacceptableAbsence,
-      UnacceptableAbsenceIncentiveLevelWarning,
+      UnacceptableAbsenceIncentiveLevelWarning
     )
   }
 }

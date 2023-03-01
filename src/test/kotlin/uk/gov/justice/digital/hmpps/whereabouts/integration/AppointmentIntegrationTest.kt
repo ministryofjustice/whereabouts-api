@@ -123,7 +123,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
             "locationId" to 1,
             "bookingId" to 2,
             "startTime" to START_TIME,
-            "endTime" to END_TIME,
+            "endTime" to END_TIME
           ),
           mapOf(
             "appointmentEventId" to 2,
@@ -131,7 +131,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
             "locationId" to 1,
             "bookingId" to 2,
             "startTime" to START_TIME,
-            "endTime" to END_TIME,
+            "endTime" to END_TIME
           ),
           mapOf(
             "appointmentEventId" to 3,
@@ -139,7 +139,7 @@ class AppointmentIntegrationTest : IntegrationTest() {
             "locationId" to 1,
             "bookingId" to 2,
             "startTime" to START_TIME,
-            "endTime" to END_TIME,
+            "endTime" to END_TIME
           )
         )
       )
@@ -196,14 +196,13 @@ class AppointmentIntegrationTest : IntegrationTest() {
       repeatPeriod: RepeatPeriod? = null,
       count: Long? = null
     ): Map<String, Any> {
-
       val appointmentMap = mutableMapOf<String, Any>(
         "locationId" to locationId,
         "startTime" to startTime,
         "endTime" to endTime,
         "bookingId" to bookingId,
         "comment" to comment,
-        "appointmentType" to appointmentType,
+        "appointmentType" to appointmentType
       )
 
       repeatPeriod?.let { appointmentMap.set("repeat", mapOf("repeatPeriod" to repeatPeriod, "count" to count)) }
@@ -242,7 +241,8 @@ class AppointmentIntegrationTest : IntegrationTest() {
       whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
         Optional.of(
           RecurringAppointment(
-            1, relatedAppointments = mutableListOf(RelatedAppointment(1), RelatedAppointment(2)),
+            1,
+            relatedAppointments = mutableListOf(RelatedAppointment(1), RelatedAppointment(2)),
             repeatPeriod = RepeatPeriod.DAILY,
             count = 1,
             startTime = LocalDateTime.of(2021, 1, 21, 0, 0, 0)
@@ -267,7 +267,8 @@ class AppointmentIntegrationTest : IntegrationTest() {
       whenever(recurringAppointmentRepository.findById(any())).thenReturn(
         Optional.of(
           RecurringAppointment(
-            100, relatedAppointments = mutableListOf(RelatedAppointment(1), RelatedAppointment(2)),
+            100,
+            relatedAppointments = mutableListOf(RelatedAppointment(1), RelatedAppointment(2)),
             repeatPeriod = RepeatPeriod.DAILY,
             count = 1,
             startTime = LocalDateTime.of(2021, 1, 21, 0, 0, 0)

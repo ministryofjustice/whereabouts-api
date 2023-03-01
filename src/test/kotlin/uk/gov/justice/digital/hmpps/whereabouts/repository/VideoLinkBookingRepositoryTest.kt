@@ -54,7 +54,6 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `should persist a booking (main only)`() {
-
     val theBooking = VideoLinkBooking(
       offenderBookingId = 1,
       courtName = "A Court",
@@ -86,7 +85,6 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `should persist a booking (main, pre and post)`() {
-
     val theBooking = VideoLinkBooking(
       offenderBookingId = 1,
       courtName = "A Court",
@@ -122,7 +120,6 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `Deleting a booking by id should delete its appointments`() {
-
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_BOOKING")).isEqualTo(0)
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
 
@@ -150,7 +147,6 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `Deleting a booking should delete its appointments`() {
-
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_BOOKING")).isEqualTo(0)
     assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "VIDEO_LINK_APPOINTMENT")).isEqualTo(0)
 
@@ -302,7 +298,6 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `Removing appointments from a booking should delete the appointments`() {
-
     val id = repository.save(
       VideoLinkBooking(offenderBookingId = 1, courtName = "A Court", madeByTheCourt = true, prisonId = prisonId).apply {
         addMainAppointment(4, 20L, startDateTime, endDateTime)
@@ -328,7 +323,6 @@ class VideoLinkBookingRepositoryTest(
 
   @Test
   fun `Replacing appointments should delete old and persist new`() {
-
     val id = repository.save(
       VideoLinkBooking(
         offenderBookingId = 1,

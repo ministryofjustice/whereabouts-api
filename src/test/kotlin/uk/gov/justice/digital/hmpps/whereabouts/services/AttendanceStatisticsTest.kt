@@ -23,6 +23,7 @@ class AttendanceStatisticsTest {
   companion object {
     @JvmStatic
     private fun getPaidReasons() = AbsentReason.paidReasons
+
     @JvmStatic
     private fun getUnpaidReasons() = AbsentReason.unpaidReasons
   }
@@ -266,9 +267,14 @@ class AttendanceStatisticsTest {
       val stats = service.getStats(prisonId, null, from, to)
 
       verify(prisonApiService).getScheduleActivityCounts(
-        prisonId, from, to, setOf(TimePeriod.AM, TimePeriod.PM),
+        prisonId,
+        from,
+        to,
+        setOf(TimePeriod.AM, TimePeriod.PM),
         mapOf(
-          1L to 1, 2L to 1, 3L to 1
+          1L to 1,
+          2L to 1,
+          3L to 1
         )
       )
     }

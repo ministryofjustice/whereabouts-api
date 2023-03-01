@@ -84,7 +84,6 @@ class AttendanceService(
     toDate: LocalDate?,
     period: TimePeriod?
   ): Set<AttendanceDto> {
-
     val periods = if (period == null) setOf(TimePeriod.AM, TimePeriod.PM) else setOf(period)
     val endDate = toDate ?: fromDate
 
@@ -140,11 +139,15 @@ class AttendanceService(
 
     val changedFrom = if (attendance.attended) {
       AttendanceChangeValues.Attended
-    } else AttendanceChangeValues.valueOf(attendance.absentReason.toString())
+    } else {
+      AttendanceChangeValues.valueOf(attendance.absentReason.toString())
+    }
 
     val changedTo = if (newAttendanceDetails.absentReason != null) {
       AttendanceChangeValues.valueOf(newAttendanceDetails.absentReason.toString())
-    } else AttendanceChangeValues.Attended
+    } else {
+      AttendanceChangeValues.Attended
+    }
 
     attendance.comments = newAttendanceDetails.comments
     attendance.attended = newAttendanceDetails.attended
@@ -218,7 +221,7 @@ class AttendanceService(
   fun getPrisonersUnaccountedFor(
     prisonId: String,
     date: LocalDate,
-    period: TimePeriod,
+    period: TimePeriod
   ): List<PrisonerScheduleDto> {
     // grab all scheduled activities
     val scheduledActivities = prisonApiService.getScheduledActivities(prisonId, date, period)
@@ -270,7 +273,6 @@ class AttendanceService(
     toDate: LocalDate?,
     period: TimePeriod?
   ): List<AbsenceDto> {
-
     val periods = period?.let { setOf(it) } ?: setOf(TimePeriod.PM, TimePeriod.AM)
     val endDate = toDate ?: fromDate
 
@@ -280,7 +282,9 @@ class AttendanceService(
 
     val offenderDetails = if (attendanceMap.isNotEmpty()) {
       prisonApiService.getScheduleActivityOffenderData(prisonId, attendanceMap.keys)
-    } else emptyList()
+    } else {
+      emptyList()
+    }
 
     return offenderDetails.map { toAbsenceDto2(it, attendanceMap[it.eventId]!!) }
   }
@@ -306,8 +310,9 @@ class AttendanceService(
     val changes =
       if (toDateTime == null) {
         attendanceChangesRepository.findAttendanceChangeByCreateDateTime(fromDateTime)
-      } else
+      } else {
         attendanceChangesRepository.findAttendanceChangeByCreateDateTimeBetween(fromDateTime, toDateTime)
+      }
 
     return changes
       .map {
@@ -370,7 +375,7 @@ class AttendanceService(
           activity = it.activity,
           activityDescription = it.description,
           location = it.prisonId,
-          comments = it.comment,
+          comments = it.comment
         )
       }
 

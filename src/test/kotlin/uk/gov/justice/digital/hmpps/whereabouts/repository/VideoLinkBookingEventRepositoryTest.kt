@@ -56,7 +56,7 @@ class VideoLinkBookingEventRepositoryTest(
     postLocationId = 30L,
     postStartTime = LocalDateTime.of(2021, 3, 1, 10, 0),
     postEndTime = LocalDateTime.of(2021, 3, 1, 11, 0),
-    postNomisAppointmentId = 31L,
+    postNomisAppointmentId = 31L
   )
 
   @BeforeEach
@@ -137,7 +137,7 @@ class VideoLinkBookingEventRepositoryTest(
         postLocationId = 30L,
         postStartTime = LocalDateTime.of(2021, 3, 1, 10, 0),
         postEndTime = LocalDateTime.of(2021, 3, 1, 11, 0),
-        postNomisAppointmentId = 31L,
+        postNomisAppointmentId = 31L
       )
     }
 
@@ -145,12 +145,16 @@ class VideoLinkBookingEventRepositoryTest(
     fun `Can find bookings started on a specific day`() {
       repository.save(
         newEvent(
-          videoLinkBookingId = 1, eventType = CREATE, mainStartTime = referenceDay.atStartOfDay().minusSeconds(1)
+          videoLinkBookingId = 1,
+          eventType = CREATE,
+          mainStartTime = referenceDay.atStartOfDay().minusSeconds(1)
         )
       )
       repository.save(
         newEvent(
-          videoLinkBookingId = 2, eventType = CREATE, mainStartTime = referenceDay.atStartOfDay()
+          videoLinkBookingId = 2,
+          eventType = CREATE,
+          mainStartTime = referenceDay.atStartOfDay()
         )
       )
       repository.save(
@@ -162,7 +166,9 @@ class VideoLinkBookingEventRepositoryTest(
       )
       repository.save(
         newEvent(
-          videoLinkBookingId = 4, eventType = CREATE, mainStartTime = referenceDay.plusDays(1).atStartOfDay()
+          videoLinkBookingId = 4,
+          eventType = CREATE,
+          mainStartTime = referenceDay.plusDays(1).atStartOfDay()
         )
       )
 
@@ -172,7 +178,8 @@ class VideoLinkBookingEventRepositoryTest(
 
       assertThat(
         repository.findByStartTimeBetween(
-          referenceDay, referenceDay
+          referenceDay,
+          referenceDay
         )
       ).extracting(VideoLinkBookingEvent::videoLinkBookingId).containsExactly(tuple(2L), tuple(3L))
     }
@@ -181,12 +188,16 @@ class VideoLinkBookingEventRepositoryTest(
     fun `Can find bookings started between two dates`() {
       repository.save(
         newEvent(
-          videoLinkBookingId = 1, eventType = CREATE, mainStartTime = referenceDay.atStartOfDay().minusSeconds(1)
+          videoLinkBookingId = 1,
+          eventType = CREATE,
+          mainStartTime = referenceDay.atStartOfDay().minusSeconds(1)
         )
       )
       repository.save(
         newEvent(
-          videoLinkBookingId = 2, eventType = CREATE, mainStartTime = referenceDay.atStartOfDay()
+          videoLinkBookingId = 2,
+          eventType = CREATE,
+          mainStartTime = referenceDay.atStartOfDay()
         )
       )
       repository.save(
@@ -198,7 +209,9 @@ class VideoLinkBookingEventRepositoryTest(
       )
       repository.save(
         newEvent(
-          videoLinkBookingId = 4, eventType = CREATE, mainStartTime = referenceDay.plusDays(1).atStartOfDay()
+          videoLinkBookingId = 4,
+          eventType = CREATE,
+          mainStartTime = referenceDay.plusDays(1).atStartOfDay()
         )
       )
 
@@ -208,7 +221,8 @@ class VideoLinkBookingEventRepositoryTest(
 
       assertThat(
         repository.findByStartTimeBetween(
-          referenceDay, referenceDay.plusDays(1)
+          referenceDay,
+          referenceDay.plusDays(1)
         )
       ).extracting(VideoLinkBookingEvent::videoLinkBookingId).containsExactly(tuple(2L), tuple(3L), tuple(4L))
     }
@@ -217,22 +231,30 @@ class VideoLinkBookingEventRepositoryTest(
     fun `Only find single booking that main start time in time range and has been updated multiple times`() {
       repository.save(
         newEvent(
-          videoLinkBookingId = 1, eventType = CREATE, mainStartTime = referenceDay.atStartOfDay()
+          videoLinkBookingId = 1,
+          eventType = CREATE,
+          mainStartTime = referenceDay.atStartOfDay()
         )
       )
       repository.save(
         newEvent(
-          videoLinkBookingId = 1, eventType = UPDATE, mainStartTime = referenceDay.atStartOfDay().plusMinutes(30)
+          videoLinkBookingId = 1,
+          eventType = UPDATE,
+          mainStartTime = referenceDay.atStartOfDay().plusMinutes(30)
         )
       )
       repository.save(
         newEvent(
-          videoLinkBookingId = 1, eventType = UPDATE, mainStartTime = referenceDay.atStartOfDay().plusHours(1)
+          videoLinkBookingId = 1,
+          eventType = UPDATE,
+          mainStartTime = referenceDay.atStartOfDay().plusHours(1)
         )
       )
       repository.save(
         newEvent(
-          videoLinkBookingId = 1, eventType = UPDATE, mainStartTime = referenceDay.atStartOfDay().plusMinutes(32)
+          videoLinkBookingId = 1,
+          eventType = UPDATE,
+          mainStartTime = referenceDay.atStartOfDay().plusMinutes(32)
         )
       )
 
@@ -242,7 +264,8 @@ class VideoLinkBookingEventRepositoryTest(
 
       assertThat(
         repository.findByStartTimeBetween(
-          referenceDay, referenceDay
+          referenceDay,
+          referenceDay
         )
       ).extracting(VideoLinkBookingEvent::videoLinkBookingId, VideoLinkBookingEvent::mainStartTime)
         .containsExactly(tuple(1L, referenceDay.atStartOfDay().plusMinutes(32)))
@@ -252,12 +275,16 @@ class VideoLinkBookingEventRepositoryTest(
     fun `Can find booking that has had its main start time updated to be included in between 2 dates`() {
       repository.save(
         newEvent(
-          videoLinkBookingId = 1, eventType = CREATE, mainStartTime = referenceDay.atStartOfDay().minusSeconds(1)
+          videoLinkBookingId = 1,
+          eventType = CREATE,
+          mainStartTime = referenceDay.atStartOfDay().minusSeconds(1)
         )
       )
       repository.save(
         newEvent(
-          videoLinkBookingId = 1, eventType = UPDATE, mainStartTime = referenceDay.atStartOfDay()
+          videoLinkBookingId = 1,
+          eventType = UPDATE,
+          mainStartTime = referenceDay.atStartOfDay()
         )
       )
 
@@ -267,22 +294,26 @@ class VideoLinkBookingEventRepositoryTest(
 
       assertThat(
         repository.findByStartTimeBetween(
-          referenceDay, referenceDay
+          referenceDay,
+          referenceDay
         )
       ).extracting(VideoLinkBookingEvent::videoLinkBookingId).containsExactly(tuple(1L))
     }
 
     @Test
     fun `Does not return booking that has had its main start time updated to be excluded in between 2 dates`() {
-
       repository.save(
         newEvent(
-          videoLinkBookingId = 1, eventType = CREATE, mainStartTime = referenceDay.atStartOfDay()
+          videoLinkBookingId = 1,
+          eventType = CREATE,
+          mainStartTime = referenceDay.atStartOfDay()
         )
       )
       repository.save(
         newEvent(
-          videoLinkBookingId = 1, eventType = UPDATE, mainStartTime = referenceDay.atStartOfDay().minusSeconds(1)
+          videoLinkBookingId = 1,
+          eventType = UPDATE,
+          mainStartTime = referenceDay.atStartOfDay().minusSeconds(1)
         )
       )
 
@@ -295,16 +326,17 @@ class VideoLinkBookingEventRepositoryTest(
 
     @Test
     fun `Does not return deleted bookings that previously had its main start time between 2 dates`() {
-
       repository.save(
         newEvent(
-          videoLinkBookingId = 1, eventType = CREATE, mainStartTime = referenceDay.atStartOfDay()
+          videoLinkBookingId = 1,
+          eventType = CREATE,
+          mainStartTime = referenceDay.atStartOfDay()
         )
       )
       repository.save(
         newEvent(
           videoLinkBookingId = 1,
-          eventType = DELETE,
+          eventType = DELETE
         )
       )
 

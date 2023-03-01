@@ -17,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 class DocumentationIntegrationTest {
   @Autowired
   lateinit var testRestTemplate: TestRestTemplate
+
   @Autowired
   lateinit var mapper: ObjectMapper
 

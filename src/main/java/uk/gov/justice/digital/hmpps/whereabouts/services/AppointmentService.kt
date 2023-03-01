@@ -54,7 +54,6 @@ class AppointmentService(
     offenderLocationPrefix: String?,
     locationId: Long?
   ): List<AppointmentSearchDto> {
-
     val appointmentsFromPrisonApi =
       prisonApiService.getScheduledAppointments(agencyId, date, timeSlot, locationId)
 
@@ -69,7 +68,6 @@ class AppointmentService(
     offenderLocationPrefix: String?,
     appointmentsFromPrisonApi: List<ScheduledAppointmentSearchDto>
   ): LocationFilter {
-
     if (offenderLocationPrefix == null) return NoOpFilter()
 
     val offenderNos = appointmentsFromPrisonApi.map { a -> a.offenderNo }.toSet()

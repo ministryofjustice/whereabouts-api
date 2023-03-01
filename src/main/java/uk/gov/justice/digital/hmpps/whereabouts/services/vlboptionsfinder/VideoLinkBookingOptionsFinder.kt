@@ -118,8 +118,9 @@ class VideoLinkBookingOptionsFinder(
 
     val preferredOption = VideoLinkBookingOption.from(specification)
 
-    if (optionIsBookable(preferredOption, timelinesByLocationId))
+    if (optionIsBookable(preferredOption, timelinesByLocationId)) {
       return VideoLinkBookingOptions(matched = true, alternatives = emptyList())
+    }
 
     val alternatives = optionsGenerator
       .getOptionsInPreferredOrder(preferredOption)
@@ -148,12 +149,13 @@ class VideoLinkBookingOptionsFinder(
         .mapValues { Timeline(it.value) }
 
     private fun toEvents(appointment: ScheduledAppointmentSearchDto) =
-      if (appointment.endTime == null)
+      if (appointment.endTime == null) {
         emptyList()
-      else
+      } else {
         listOf(
           StartEvent(appointment.startTime.toLocalTime()),
           EndEvent(appointment.endTime.toLocalTime())
         )
+      }
   }
 }

@@ -44,7 +44,6 @@ class VideoLinkBookingRoomsControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `get all video link rooms`() {
-
       whenever(locationService.getVideoLinkRoomsForPrison("MDI")).thenReturn(locations)
 
       mockMvc.perform(

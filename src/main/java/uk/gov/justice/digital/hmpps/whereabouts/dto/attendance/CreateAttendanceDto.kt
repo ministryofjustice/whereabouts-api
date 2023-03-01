@@ -52,5 +52,5 @@ data class CreateAttendanceDto(
   val eventDate: LocalDate? = null,
 
   @ApiModelProperty(value = "Comments about non attendance. This also gets used for the IEP warning text ")
-  val comments: @Size(max = 240) String? = null,
+  val comments: @Size(max = 240) String? = null
 )

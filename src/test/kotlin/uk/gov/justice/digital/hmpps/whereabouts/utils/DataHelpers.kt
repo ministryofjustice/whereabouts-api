@@ -64,7 +64,7 @@ class DataHelpers {
       locationId: Long = 10L,
       hearingType: HearingType = HearingType.MAIN,
       startDateTime: LocalDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-      endDateTime: LocalDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
+      endDateTime: LocalDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
     ): VideoLinkAppointment =
       VideoLinkAppointment(
         videoLinkBooking = videoLinkBooking,
@@ -172,7 +172,7 @@ class DataHelpers {
       agencyLocationId: String = "WWI",
       eventDatetime: String = "2022-01-01T11:00:00",
       scheduledStartTime: String = "2022-01-01T11:00",
-      scheduledEndTime: String = "2022-01-01T12:00",
+      scheduledEndTime: String = "2022-01-01T12:00"
     ) = AppointmentChangedEventMessage(
       bookingId = bookingId,
       scheduleEventId = scheduleEventId,
@@ -180,7 +180,7 @@ class DataHelpers {
       agencyLocationId = agencyLocationId,
       eventDatetime = eventDatetime,
       scheduledStartTime = scheduledStartTime,
-      scheduledEndTime = scheduledEndTime,
+      scheduledEndTime = scheduledEndTime
     )
   }
 }

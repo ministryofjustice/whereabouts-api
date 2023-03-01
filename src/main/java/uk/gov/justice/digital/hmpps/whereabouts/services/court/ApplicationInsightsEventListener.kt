@@ -16,7 +16,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEvent
 @Component
 class ApplicationInsightsEventListener(
   private val authenticationFacade: AuthenticationFacade,
-  private val telemetryClient: TelemetryClient,
+  private val telemetryClient: TelemetryClient
 ) : VideoLinkBookingEventListener {
   override fun bookingCreated(
     booking: VideoLinkBooking,
@@ -30,7 +30,7 @@ class ApplicationInsightsEventListener(
       "courtId" to specification.courtId,
       "user" to authenticationFacade.currentUsername,
       "agencyId" to booking.prisonId,
-      "madeByTheCourt" to specification.madeByTheCourt.toString(),
+      "madeByTheCourt" to specification.madeByTheCourt.toString()
     )
 
     booking.appointments[MAIN]?.also { properties.putAll(appointmentDetail(it, specification.main)) }
@@ -50,7 +50,7 @@ class ApplicationInsightsEventListener(
       "bookingId" to booking.offenderBookingId.toString(),
       "courtId" to specification.courtId,
       "agencyId" to booking.prisonId,
-      "user" to authenticationFacade.currentUsername,
+      "user" to authenticationFacade.currentUsername
     )
 
     booking.appointments[MAIN]?.also { properties.putAll(appointmentDetail(it, specification.main)) }
@@ -74,7 +74,7 @@ class ApplicationInsightsEventListener(
       "current_startDate" to currentAppointment.startDateTime.toString(),
       "current_endDate" to currentAppointment.endDateTime.toString(),
       "update_startDate" to updatedAppointment.scheduledStartTime,
-      "update_endDate" to updatedAppointment.scheduledEndTime,
+      "update_endDate" to updatedAppointment.scheduledEndTime
     )
 
     telemetryClient.trackEvent("VideoLinkAppointmentUpdated", properties, null)
@@ -86,7 +86,7 @@ class ApplicationInsightsEventListener(
       "bookingId" to booking.offenderBookingId.toString(),
       "court" to booking.courtName,
       "courtId" to booking.courtId,
-      "user" to authenticationFacade.currentUsername,
+      "user" to authenticationFacade.currentUsername
     )
 
     booking.appointments.values.forEach { properties.putAll(appointmentDetail(it)) }
@@ -102,7 +102,7 @@ class ApplicationInsightsEventListener(
       "${prefix}AppointmentId" to appointment.appointmentId.toString(),
       "${prefix}Id" to appointment.id.toString(),
       "${prefix}Start" to specification.startTime.toString(),
-      "${prefix}End" to specification.endTime.toString(),
+      "${prefix}End" to specification.endTime.toString()
     )
   }
 
@@ -110,7 +110,7 @@ class ApplicationInsightsEventListener(
     val prefix = appointment.hearingType.name.lowercase()
     return mapOf(
       "${prefix}AppointmentId" to appointment.appointmentId.toString(),
-      "${prefix}Id" to appointment.id.toString(),
+      "${prefix}Id" to appointment.id.toString()
     )
   }
 }

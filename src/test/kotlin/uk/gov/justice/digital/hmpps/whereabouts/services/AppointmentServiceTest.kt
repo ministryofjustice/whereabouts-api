@@ -253,7 +253,8 @@ class AppointmentServiceTest {
       verify(prisonApiService).getOffenderDetailsFromOffenderNos(
         eq(
           setOf(
-            offenderNo1, offenderNo2
+            offenderNo1,
+            offenderNo2
           )
         )
       )
@@ -313,9 +314,23 @@ class AppointmentServiceTest {
       val appointmentDetails = appointmentService.getAppointment(1)
 
       assertThat(appointmentDetails.appointment).extracting(
-        "id", "agencyId", "locationId", "appointmentTypeCode", "offenderNo", "startTime", "endTime", "comment"
+        "id",
+        "agencyId",
+        "locationId",
+        "appointmentTypeCode",
+        "offenderNo",
+        "startTime",
+        "endTime",
+        "comment"
       ).contains(
-        1L, AGENCY_ID, EVENT_LOCATION_ID, "INTERV", OFFENDER_NO, START_TIME, END_TIME, "test"
+        1L,
+        AGENCY_ID,
+        EVENT_LOCATION_ID,
+        "INTERV",
+        OFFENDER_NO,
+        START_TIME,
+        END_TIME,
+        "test"
       )
     }
 
@@ -323,7 +338,10 @@ class AppointmentServiceTest {
     fun `transform into video link booking`() {
       whenever(
         videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
-          any(), eq(HearingType.MAIN), isNull(), isNull()
+          any(),
+          eq(HearingType.MAIN),
+          isNull(),
+          isNull()
         )
       ).thenReturn(
         listOf(DataHelpers.makeVideoLinkBooking(1L, offenderBookingId = BOOKING_ID))
@@ -332,21 +350,46 @@ class AppointmentServiceTest {
       val appointmentDetails = appointmentService.getAppointment(1)
 
       assertThat(appointmentDetails.appointment).extracting(
-        "id", "agencyId", "locationId", "appointmentTypeCode", "offenderNo", "startTime", "endTime", "createUserId"
+        "id",
+        "agencyId",
+        "locationId",
+        "appointmentTypeCode",
+        "offenderNo",
+        "startTime",
+        "endTime",
+        "createUserId"
       ).contains(1L, AGENCY_ID, EVENT_LOCATION_ID, "INTERV", OFFENDER_NO, START_TIME, END_TIME, "SA")
 
       assertThat(appointmentDetails.videoLinkBooking?.id).isEqualTo(1L)
 
       assertThat(appointmentDetails.videoLinkBooking?.main).extracting(
-        "id", "bookingId", "appointmentId", "court", "hearingType", "createdByUsername", "madeByTheCourt"
+        "id",
+        "bookingId",
+        "appointmentId",
+        "court",
+        "hearingType",
+        "createdByUsername",
+        "madeByTheCourt"
       ).contains(1L, BOOKING_ID, 1L, "Court name", HearingType.MAIN, "SA", true)
 
       assertThat(appointmentDetails.videoLinkBooking?.pre).extracting(
-        "id", "bookingId", "appointmentId", "court", "hearingType", "createdByUsername", "madeByTheCourt"
+        "id",
+        "bookingId",
+        "appointmentId",
+        "court",
+        "hearingType",
+        "createdByUsername",
+        "madeByTheCourt"
       ).contains(2L, BOOKING_ID, 2L, "Court name", HearingType.PRE, "SA", true)
 
       assertThat(appointmentDetails.videoLinkBooking?.post).extracting(
-        "id", "bookingId", "appointmentId", "court", "hearingType", "createdByUsername", "madeByTheCourt"
+        "id",
+        "bookingId",
+        "appointmentId",
+        "court",
+        "hearingType",
+        "createdByUsername",
+        "madeByTheCourt"
       ).contains(3L, BOOKING_ID, 3L, "Court name", HearingType.POST, "SA", true)
     }
 
@@ -355,7 +398,10 @@ class AppointmentServiceTest {
       whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
         Optional.of(
           RecurringAppointment(
-            id = 1, repeatPeriod = RepeatPeriod.FORTNIGHTLY, count = 1, startTime = START_TIME
+            id = 1,
+            repeatPeriod = RepeatPeriod.FORTNIGHTLY,
+            count = 1,
+            startTime = START_TIME
           )
         )
       )
@@ -398,7 +444,10 @@ class AppointmentServiceTest {
 
       whenever(
         videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
-          any(), eq(HearingType.MAIN), isNull(), isNull()
+          any(),
+          eq(HearingType.MAIN),
+          isNull(),
+          isNull()
         )
       ).thenReturn(
         listOf(DataHelpers.makeVideoLinkBooking(4L))
@@ -439,7 +488,7 @@ class AppointmentServiceTest {
           createAppointmentDetails.copy(appointmentEventId = 1),
           createAppointmentDetails.copy(appointmentEventId = 2),
           createAppointmentDetails.copy(appointmentEventId = 3),
-          createAppointmentDetails.copy(appointmentEventId = 4),
+          createAppointmentDetails.copy(appointmentEventId = 4)
         )
       )
     }
@@ -448,13 +497,17 @@ class AppointmentServiceTest {
     fun `calls prison API to create a new appointment`() {
       appointmentService.createAppointment(
         DataHelpers.makeCreateAppointmentSpecification(
-          bookingId = BOOKING_ID, startTime = START_TIME, endTime = END_TIME
+          bookingId = BOOKING_ID,
+          startTime = START_TIME,
+          endTime = END_TIME
         )
       )
 
       verify(prisonApiServiceAuditable).createAppointments(
         DataHelpers.makeCreatePrisonAppointment(
-          bookingId = BOOKING_ID, startTime = START_TIME, endTime = END_TIME
+          bookingId = BOOKING_ID,
+          startTime = START_TIME,
+          endTime = END_TIME
         )
       )
     }
@@ -463,13 +516,19 @@ class AppointmentServiceTest {
     fun `calls prison API to create a set of repeatable appointments`() {
       appointmentService.createAppointment(
         DataHelpers.makeCreateAppointmentSpecification(
-          bookingId = BOOKING_ID, startTime = START_TIME, endTime = END_TIME, repeat = Repeat(RepeatPeriod.DAILY, 1)
+          bookingId = BOOKING_ID,
+          startTime = START_TIME,
+          endTime = END_TIME,
+          repeat = Repeat(RepeatPeriod.DAILY, 1)
         )
       )
 
       verify(prisonApiServiceAuditable).createAppointments(
         DataHelpers.makeCreatePrisonAppointment(
-          bookingId = BOOKING_ID, startTime = START_TIME, endTime = END_TIME, repeat = Repeat(RepeatPeriod.DAILY, 1)
+          bookingId = BOOKING_ID,
+          startTime = START_TIME,
+          endTime = END_TIME,
+          repeat = Repeat(RepeatPeriod.DAILY, 1)
         )
       )
     }
@@ -478,15 +537,23 @@ class AppointmentServiceTest {
     fun `should save the recurring appointment data`() {
       appointmentService.createAppointment(
         DataHelpers.makeCreateAppointmentSpecification(
-          bookingId = BOOKING_ID, startTime = START_TIME, endTime = END_TIME, repeat = Repeat(RepeatPeriod.DAILY, 4)
+          bookingId = BOOKING_ID,
+          startTime = START_TIME,
+          endTime = END_TIME,
+          repeat = Repeat(RepeatPeriod.DAILY, 4)
         )
       )
 
       verify(recurringAppointmentRepository).save(
         RecurringAppointment(
-          repeatPeriod = RepeatPeriod.DAILY, count = 4, startTime = START_TIME,
+          repeatPeriod = RepeatPeriod.DAILY,
+          count = 4,
+          startTime = START_TIME,
           relatedAppointments = mutableListOf(
-            RelatedAppointment(1), RelatedAppointment(2), RelatedAppointment(3), RelatedAppointment(4)
+            RelatedAppointment(1),
+            RelatedAppointment(2),
+            RelatedAppointment(3),
+            RelatedAppointment(4)
           )
         )
       )
@@ -496,7 +563,10 @@ class AppointmentServiceTest {
     fun `should fire an event when a recurring appointment has been created`() {
       appointmentService.createAppointment(
         DataHelpers.makeCreateAppointmentSpecification(
-          bookingId = BOOKING_ID, startTime = START_TIME, endTime = END_TIME, repeat = Repeat(RepeatPeriod.DAILY, 1)
+          bookingId = BOOKING_ID,
+          startTime = START_TIME,
+          endTime = END_TIME,
+          repeat = Repeat(RepeatPeriod.DAILY, 1)
         )
       )
 
@@ -518,7 +588,12 @@ class AppointmentServiceTest {
       val created = appointmentService.createAppointment(DataHelpers.makeCreateAppointmentSpecification())
 
       assertThat(created).extracting(
-        "bookingId", "locationId", "startTime", "endTime", "appointmentType", "appointmentEventId"
+        "bookingId",
+        "locationId",
+        "startTime",
+        "endTime",
+        "appointmentType",
+        "appointmentEventId"
       ).contains(
         Tuple.tuple(1L, 2L, START_TIME, END_TIME, "INST", 1L),
         Tuple.tuple(1L, 2L, START_TIME, END_TIME, "INST", 2L),
@@ -555,7 +630,10 @@ class AppointmentServiceTest {
     fun `should delete video link booking`() {
       whenever(
         videoLinkBookingRepository.findByAppointmentIdsAndHearingType(
-          any(), eq(HearingType.MAIN), isNull(), isNull()
+          any(),
+          eq(HearingType.MAIN),
+          isNull(),
+          isNull()
         )
       ).thenReturn(
         listOf(DataHelpers.makeVideoLinkBooking(2L))
@@ -570,7 +648,6 @@ class AppointmentServiceTest {
 
     @Test
     fun `should delete the single appointment of a sequence of recurring appointments when requested`() {
-
       val relatedAppointments = mutableListOf(RelatedAppointment(2L), RelatedAppointment(3L))
       whenever(prisonApiService.getPrisonAppointment(3L)).thenReturn(DataHelpers.makePrisonAppointment())
       whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(
@@ -595,7 +672,6 @@ class AppointmentServiceTest {
 
     @Test
     fun `should delete all recurring appointments in a sequence when the only remaining appointment is deleted`() {
-
       val relatedAppointments = mutableListOf(RelatedAppointment(3L))
       whenever(prisonApiService.getPrisonAppointment(3L)).thenReturn(DataHelpers.makePrisonAppointment())
       whenever(recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(any())).thenReturn(

@@ -49,7 +49,6 @@ class VideoLinkBookingOptionsServiceTest {
 
   @Test
   fun `It filters ScheduledAppointmentDtos from prisonApiService`() {
-
     every {
       videoLinkBookingOptionsFinder.findOptions(any(), any())
     } returns VideoLinkBookingOptions(
@@ -64,7 +63,7 @@ class VideoLinkBookingOptionsServiceTest {
         appt1_location1,
         appt2_location1,
         // appt3 excluded because endTime is null
-        appt3_location1_no_end_time,
+        appt3_location1_no_end_time
       )
 
     val specification = VideoLinkBookingSearchSpecification(
@@ -94,7 +93,6 @@ class VideoLinkBookingOptionsServiceTest {
 
   @Test
   fun `The appointments for an excluded booking are removed from the set of appointments for a location`() {
-
     // The returned value doesn't matter here.
     every {
       videoLinkBookingOptionsFinder.findOptions(any(), any())
@@ -138,7 +136,6 @@ class VideoLinkBookingOptionsServiceTest {
 
   @Test
   fun `It filters ScheduledAppointmentDtos from prisonApiService for the spec's main, pre and post appointments`() {
-
     every {
       videoLinkBookingOptionsFinder.findOptions(any(), any())
     } returns VideoLinkBookingOptions(

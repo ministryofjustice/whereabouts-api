@@ -34,17 +34,17 @@ class VideoLinkBookingUpdateSpecificationTest {
       pre = VideoLinkAppointmentSpecification(
         startTime = LocalDateTime.of(2021, 1, 1, 8, 45),
         endTime = LocalDateTime.of(2021, 1, 1, 9, 0),
-        locationId = 1L,
+        locationId = 1L
       ),
       main = VideoLinkAppointmentSpecification(
         startTime = LocalDateTime.of(2021, 1, 1, 9, 0),
         endTime = LocalDateTime.of(2021, 1, 1, 9, 30),
-        locationId = 2L,
+        locationId = 2L
       ),
       post = VideoLinkAppointmentSpecification(
         startTime = LocalDateTime.of(2021, 1, 1, 9, 30),
         endTime = LocalDateTime.of(2021, 1, 1, 9, 45),
-        locationId = 3L,
+        locationId = 3L
       )
     )
   }

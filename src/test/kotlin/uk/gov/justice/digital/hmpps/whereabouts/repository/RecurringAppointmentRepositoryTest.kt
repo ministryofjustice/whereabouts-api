@@ -24,10 +24,12 @@ class RecurringAppointmentRepositoryTest {
     val startTime = LocalDateTime.of(2021, 1, 21, 0, 0, 0)
     val recurringAppointmentBookingId = entityManager.persistAndFlush(
       RecurringAppointment(
-        repeatPeriod = RepeatPeriod.FORTNIGHTLY, count = 1,
+        repeatPeriod = RepeatPeriod.FORTNIGHTLY,
+        count = 1,
         startTime = startTime,
         relatedAppointments = mutableListOf(
-          RelatedAppointment(2), RelatedAppointment(3)
+          RelatedAppointment(2),
+          RelatedAppointment(3)
         )
       )
     ).id

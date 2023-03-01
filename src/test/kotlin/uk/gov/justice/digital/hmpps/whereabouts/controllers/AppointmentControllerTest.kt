@@ -207,7 +207,7 @@ class AppointmentControllerTest : TestController() {
         "endTime" to endTime,
         "bookingId" to bookingId,
         "comment" to comment,
-        "appointmentType" to appointmentType,
+        "appointmentType" to appointmentType
       )
 
       repeatPeriod?.let { fields.set("repeat", mapOf("repeatPeriod" to repeatPeriod, "count" to count)) }

@@ -29,7 +29,7 @@ class AbsentReasonsController {
     iepTriggers.toList(),
     absentSubReasonTriggers,
     paidSubReasons.toSubReasonDto(),
-    unpaidSubReasons.toSubReasonDto(),
+    unpaidSubReasons.toSubReasonDto()
   )
 }
 

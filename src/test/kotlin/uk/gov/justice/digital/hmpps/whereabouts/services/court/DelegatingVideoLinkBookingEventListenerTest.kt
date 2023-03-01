@@ -28,7 +28,7 @@ class DelegatingVideoLinkBookingEventListenerTest {
     listener = DelegatingVideoLinkBookingEventListener(
       eventStoreListener,
       applicationInsightsEventListener,
-      courtService,
+      courtService
     )
   }
 

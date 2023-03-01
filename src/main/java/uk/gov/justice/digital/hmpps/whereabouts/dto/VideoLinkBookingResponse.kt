@@ -21,7 +21,7 @@ data class VideoLinkBookingResponse(
   @ApiModelProperty(
     value = "The name of the court that requires the appointment. May be a place-holder",
     example = "York Crown Court",
-    required = true,
+    required = true
   )
   val court: String?,
 

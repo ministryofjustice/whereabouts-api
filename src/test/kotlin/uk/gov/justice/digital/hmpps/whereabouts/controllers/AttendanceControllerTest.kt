@@ -256,7 +256,7 @@ class AttendanceControllerTest : TestController() {
           objectMapper.writeValueAsString(
             mapOf(
               "attended" to true,
-              "paid" to true,
+              "paid" to true
             )
           )
         )

@@ -35,7 +35,7 @@ class AttendancesControllerTest : TestController() {
         comments = "Test comment",
         location = MOORLAND,
         activity = "a",
-        activityDescription = "d",
+        activityDescription = "d"
       )
     )
   )

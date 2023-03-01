@@ -17,7 +17,6 @@ import java.time.Month
 import java.util.stream.Stream
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-
 class VideoLinkBookingOptionsFinderTest {
 
   private val finder = VideoLinkBookingOptionsFinder(tenUntilFourInQuarterHoursGenerator, 3)
@@ -135,7 +134,7 @@ class VideoLinkBookingOptionsFinderTest {
         specification(
           pre = from(10, 50).until(11, 0).inRoom(Room2),
           main = from(11, 0).until(11, 30).inRoom(Room1),
-          post = from(11, 30).until(11, 40).inRoom(Room3),
+          post = from(11, 30).until(11, 40).inRoom(Room3)
         ),
         emptySchedule(),
         true,
@@ -147,7 +146,7 @@ class VideoLinkBookingOptionsFinderTest {
         specification(
           pre = from(10, 50).until(11, 0).inRoom(Room2),
           main = from(11, 0).until(11, 30).inRoom(Room1),
-          post = from(11, 30).until(11, 40).inRoom(Room3),
+          post = from(11, 30).until(11, 40).inRoom(Room3)
         ),
         roomOccupiedAllDay(Room2),
         false,
@@ -159,7 +158,7 @@ class VideoLinkBookingOptionsFinderTest {
         specification(
           pre = from(10, 50).until(11, 0).inRoom(Room2),
           main = from(11, 0).until(11, 30).inRoom(Room1),
-          post = from(11, 30).until(11, 40).inRoom(Room3),
+          post = from(11, 30).until(11, 40).inRoom(Room3)
         ),
         roomOccupiedAllDay(Room3),
         false,
@@ -171,7 +170,7 @@ class VideoLinkBookingOptionsFinderTest {
         specification(
           pre = from(11, 45).until(12, 0).inRoom(Room2),
           main = from(12, 0).until(12, 30).inRoom(Room1),
-          post = from(12, 30).until(12, 45).inRoom(Room3),
+          post = from(12, 30).until(12, 45).inRoom(Room3)
         ),
         schedule(
           room(Room2).from(11, 45).until(12, 0)
@@ -181,18 +180,18 @@ class VideoLinkBookingOptionsFinderTest {
           option(
             pre = from(11, 15).until(11, 30).inRoom(Room2),
             main = from(11, 30).until(12, 0).inRoom(Room1),
-            post = from(12, 0).until(12, 15).inRoom(Room3),
+            post = from(12, 0).until(12, 15).inRoom(Room3)
           ),
           option(
             pre = from(11, 30).until(11, 45).inRoom(Room2),
             main = from(11, 45).until(12, 15).inRoom(Room1),
-            post = from(12, 15).until(12, 30).inRoom(Room3),
+            post = from(12, 15).until(12, 30).inRoom(Room3)
           ),
           option(
             pre = from(12, 0).until(12, 15).inRoom(Room2),
             main = from(12, 15).until(12, 45).inRoom(Room1),
-            post = from(12, 45).until(13, 0).inRoom(Room3),
-          ),
+            post = from(12, 45).until(13, 0).inRoom(Room3)
+          )
         )
       ),
 
@@ -201,7 +200,7 @@ class VideoLinkBookingOptionsFinderTest {
         specification(
           pre = from(11, 45).until(12, 0).inRoom(Room2),
           main = from(12, 0).until(12, 30).inRoom(Room1),
-          post = from(12, 30).until(12, 45).inRoom(Room3),
+          post = from(12, 30).until(12, 45).inRoom(Room3)
         ),
         schedule(
           room(Room3).from(12, 30).until(12, 45)
@@ -211,18 +210,18 @@ class VideoLinkBookingOptionsFinderTest {
           option(
             pre = from(11, 15).until(11, 30).inRoom(Room2),
             main = from(11, 30).until(12, 0).inRoom(Room1),
-            post = from(12, 0).until(12, 15).inRoom(Room3),
+            post = from(12, 0).until(12, 15).inRoom(Room3)
           ),
           option(
             pre = from(11, 30).until(11, 45).inRoom(Room2),
             main = from(11, 45).until(12, 15).inRoom(Room1),
-            post = from(12, 15).until(12, 30).inRoom(Room3),
+            post = from(12, 15).until(12, 30).inRoom(Room3)
           ),
           option(
             pre = from(12, 0).until(12, 15).inRoom(Room2),
             main = from(12, 15).until(12, 45).inRoom(Room1),
-            post = from(12, 45).until(13, 0).inRoom(Room3),
-          ),
+            post = from(12, 45).until(13, 0).inRoom(Room3)
+          )
         )
       ),
 
@@ -231,7 +230,7 @@ class VideoLinkBookingOptionsFinderTest {
         specification(
           pre = from(11, 45).until(12, 0).inRoom(Room2),
           main = from(12, 0).until(12, 30).inRoom(Room1),
-          post = from(12, 30).until(12, 45).inRoom(Room3),
+          post = from(12, 30).until(12, 45).inRoom(Room3)
         ),
         schedule(
           room(Room2).from(startOfDay).until(11, 45),
@@ -252,30 +251,30 @@ class VideoLinkBookingOptionsFinderTest {
         specification(
           pre = from(11, 45).until(12, 0).inRoom(Room2),
           main = from(12, 0).until(12, 30).inRoom(Room1),
-          post = from(12, 30).until(12, 45).inRoom(Room3),
+          post = from(12, 30).until(12, 45).inRoom(Room3)
         ),
         schedule(
           room(Room2).from(10, 15).until(12, 0),
           room(Room1).from(12, 0).until(14, 0),
-          room(Room3).from(14, 45).until(15, 45),
+          room(Room3).from(14, 45).until(15, 45)
         ),
         false,
         expectedOptions(
           option(
             pre = from(10, 0).until(10, 15).inRoom(Room2),
             main = from(10, 15).until(10, 45).inRoom(Room1),
-            post = from(10, 45).until(11, 0).inRoom(Room3),
+            post = from(10, 45).until(11, 0).inRoom(Room3)
           ),
           option(
             pre = from(13, 45).until(14, 0).inRoom(Room2),
             main = from(14, 0).until(14, 30).inRoom(Room1),
-            post = from(14, 30).until(14, 45).inRoom(Room3),
+            post = from(14, 30).until(14, 45).inRoom(Room3)
           ),
           option(
             pre = from(15, 0).until(15, 15).inRoom(Room2),
             main = from(15, 15).until(15, 45).inRoom(Room1),
-            post = from(15, 45).until(16, 0).inRoom(Room3),
-          ),
+            post = from(15, 45).until(16, 0).inRoom(Room3)
+          )
         )
       ),
 
@@ -284,24 +283,24 @@ class VideoLinkBookingOptionsFinderTest {
         specification(
           pre = from(11, 45).until(12, 0).inRoom(Room2),
           main = from(12, 0).until(12, 30).inRoom(Room1),
-          post = from(12, 30).until(12, 45).inRoom(Room3),
+          post = from(12, 30).until(12, 45).inRoom(Room3)
         ),
         schedule(
           room(Room2).from(10, 15).until(12, 0),
           room(Room1).from(12, 0).until(14, 0),
-          room(Room3).from(14, 45).until(16, 0),
+          room(Room3).from(14, 45).until(16, 0)
         ),
         false,
         expectedOptions(
           option(
             pre = from(10, 0).until(10, 15).inRoom(Room2),
             main = from(10, 15).until(10, 45).inRoom(Room1),
-            post = from(10, 45).until(11, 0).inRoom(Room3),
+            post = from(10, 45).until(11, 0).inRoom(Room3)
           ),
           option(
             pre = from(13, 45).until(14, 0).inRoom(Room2),
             main = from(14, 0).until(14, 30).inRoom(Room1),
-            post = from(14, 30).until(14, 45).inRoom(Room3),
+            post = from(14, 30).until(14, 45).inRoom(Room3)
           )
         )
       ),
@@ -315,7 +314,7 @@ class VideoLinkBookingOptionsFinderTest {
         schedule(
           room(Room2).from(10, 15).until(12, 0),
           room(Room1).from(12, 0).until(14, 0),
-          room(Room1).from(14, 30).until(endOfDay),
+          room(Room1).from(14, 30).until(endOfDay)
         ),
         false,
         expectedOptions(
@@ -334,17 +333,17 @@ class VideoLinkBookingOptionsFinderTest {
         "main and post appointments in different rooms. Rooms occupation prevents match. Only 1 alternative available.",
         specification(
           main = from(12, 0).until(12, 30).inRoom(Room1),
-          post = from(12, 30).until(12, 45).inRoom(Room3),
+          post = from(12, 30).until(12, 45).inRoom(Room3)
         ),
         schedule(
           room(Room1).from(startOfDay).until(14, 0),
-          room(Room3).from(14, 45).until(16, 0),
+          room(Room3).from(14, 45).until(16, 0)
         ),
         false,
         expectedOptions(
           option(
             main = from(14, 0).until(14, 30).inRoom(Room1),
-            post = from(14, 30).until(14, 45).inRoom(Room3),
+            post = from(14, 30).until(14, 45).inRoom(Room3)
           )
         )
       ),
@@ -364,7 +363,7 @@ class VideoLinkBookingOptionsFinderTest {
         ),
         true,
         noOptionsExpected()
-      ),
+      )
     )
 
   companion object {

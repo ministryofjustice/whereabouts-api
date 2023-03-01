@@ -378,7 +378,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
     whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(any(), any(), any(), any()))
       .thenReturn(
         setOf(
-          attendance.toBuilder().bookingId(1).eventId(2).build(),
+          attendance.toBuilder().bookingId(1).eventId(2).build()
         )
       )
 

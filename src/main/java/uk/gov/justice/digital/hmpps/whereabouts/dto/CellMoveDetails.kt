@@ -18,5 +18,5 @@ data class CellMoveDetails(
     value = "Cell move reason comment ",
     example = "The prisoner has been moved for administrative purposes"
   )
-  val commentText: String,
+  val commentText: String
 )

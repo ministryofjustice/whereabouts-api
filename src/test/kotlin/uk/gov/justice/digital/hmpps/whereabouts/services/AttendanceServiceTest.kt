@@ -81,7 +81,7 @@ class AttendanceServiceTest {
       comments = "Test comment",
       location = MOORLAND,
       activity = "a",
-      activityDescription = "d",
+      activityDescription = "d"
     )
 
   private val service = AttendanceService(
@@ -106,7 +106,6 @@ class AttendanceServiceTest {
 
   @Test
   fun `should find attendance given some criteria`() {
-
     val now = LocalDateTime.now()
 
     whenever(
@@ -327,13 +326,12 @@ class AttendanceServiceTest {
 
   @Test
   fun `should create an attendance record`() {
-
     service.createAttendance(
       testAttendanceDto.copy(
         paid = true,
         attended = true,
         absentReason = null,
-        absentSubReason = null,
+        absentSubReason = null
       )
     )
 
@@ -439,7 +437,6 @@ class AttendanceServiceTest {
 
   @Test
   fun `should throw an AttendanceExistsException when attendance already created`() {
-
     whenever(
       attendanceRepository.findByPrisonIdAndBookingIdAndEventIdAndEventDateAndPeriod(
         "LEI",
@@ -486,7 +483,6 @@ class AttendanceServiceTest {
 
   @Test
   fun `should update select fields only`() {
-
     whenever(attendanceRepository.findById(1)).thenReturn(
       Optional.of(
         Attendance
@@ -536,7 +532,6 @@ class AttendanceServiceTest {
 
   @Test
   fun `should go from unpaid none attendance to paid attendance `() {
-
     whenever(iepWarningService.handleIEPWarningScenarios(any(), any())).thenReturn(Optional.empty())
 
     whenever(attendanceRepository.findById(1)).thenReturn(
@@ -729,7 +724,6 @@ class AttendanceServiceTest {
 
   @Test
   fun `should remove previous comment when no longer required`() {
-
     val attendanceEntity = Attendance.builder()
       .bookingId(1)
       .eventLocationId(1)
@@ -857,7 +851,7 @@ class AttendanceServiceTest {
           scheduleDto.copy(bookingId = 1, eventId = 2, offenderNo = "MATCH1"),
           scheduleDto.copy(bookingId = 2, eventId = 2, offenderNo = "MATCH2"),
           scheduleDto.copy(bookingId = 3, eventId = 1, offenderNo = "MATCH3"),
-          scheduleDto.copy(bookingId = 3, eventId = 2, offenderNo = "NO_MATCH"),
+          scheduleDto.copy(bookingId = 3, eventId = 2, offenderNo = "NO_MATCH")
         )
       )
       whenever(attendanceRepository.findByPrisonIdAndPeriodAndEventDateBetween(any(), any(), any(), any()))
@@ -865,7 +859,7 @@ class AttendanceServiceTest {
           setOf(
             attendance.toBuilder().bookingId(1).eventId(2).build(),
             attendance.toBuilder().bookingId(3).eventId(1).build(),
-            attendance.toBuilder().bookingId(2).eventId(2).build(),
+            attendance.toBuilder().bookingId(2).eventId(2).build()
           )
         )
 
@@ -1006,7 +1000,7 @@ class AttendanceServiceTest {
             .absentReason(AbsentReason.Refused).build(),
           Attendance.builder().bookingId(1).eventId(3).attended(false).paid(false).prisonId(prison)
             .period(TimePeriod.AM)
-            .absentReason(AbsentReason.RestDay).build(),
+            .absentReason(AbsentReason.RestDay).build()
         )
       )
 
@@ -1463,7 +1457,7 @@ class AttendanceServiceTest {
           createOffenderAttendance(eventDate = "2021-08-01", outcome = "UNACAB"),
           createOffenderAttendance(eventDate = "2021-08-01", outcome = "ATT"),
           createOffenderAttendance(eventDate = "2021-08-01", outcome = ""),
-          createOffenderAttendance(eventDate = "2021-05-01", outcome = null),
+          createOffenderAttendance(eventDate = "2021-05-01", outcome = null)
         )
       )
     )
@@ -1604,7 +1598,7 @@ class AttendanceServiceTest {
     excluded = false,
     timeSlot = TimePeriod.AM,
     locationCode = "some loc code",
-    suspended = false,
+    suspended = false
   )
 
   private val attendance = Attendance.builder()

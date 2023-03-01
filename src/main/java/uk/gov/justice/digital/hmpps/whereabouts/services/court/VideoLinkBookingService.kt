@@ -67,7 +67,7 @@ class VideoLinkBookingService(
       courtId = getCourtId(specification),
       madeByTheCourt = specification.madeByTheCourt,
       prisonId = mainEvent.agencyId,
-      comment = specification.comment,
+      comment = specification.comment
     )
     videoLinkBooking.addAppointments(mainEvent, preEvent, postEvent)
 
@@ -216,7 +216,6 @@ class VideoLinkBookingService(
   }
 
   private fun deletePrisonAppointmentsForBooking(booking: VideoLinkBooking) {
-
     val appointmentsToDelete = booking.appointments.values.sortedBy { it.appointmentId }
       .map { it.appointmentId }
     if (appointmentsToDelete.isNotEmpty()) {
@@ -229,7 +228,6 @@ class VideoLinkBookingService(
     searchDetails: VideoLinkBookingSearchDetails,
     date: LocalDate
   ): List<VideoLinkBookingResponse> {
-
     val videoLinkAppointments =
       videoLinkAppointmentRepository.findAllByStartDateTimeBetweenAndHearingTypeIsAndVideoLinkBookingCourtIdIsAndVideoLinkBookingPrisonIdIn(
         date.atTime(LocalTime.MIN),
@@ -290,8 +288,9 @@ class VideoLinkBookingService(
   }
 
   private fun VideoLinkBookingSpecification.validate() {
-    if ((court.isNullOrBlank()) && (courtId.isNullOrBlank()))
+    if ((court.isNullOrBlank()) && (courtId.isNullOrBlank())) {
       throw ValidationException("One of court or courtId must be specified")
+    }
 
     (this as VideoLinkAppointmentsSpecification).validate()
   }

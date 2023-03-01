@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 class EventStoreListener(
   val repository: VideoLinkBookingEventRepository,
   val clock: Clock,
-  private val authenticationFacade: AuthenticationFacade,
+  private val authenticationFacade: AuthenticationFacade
 ) : VideoLinkBookingEventListener {
   override fun bookingCreated(
     booking: VideoLinkBooking,

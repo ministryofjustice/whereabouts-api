@@ -41,7 +41,7 @@ class OptionsGeneratorTest {
       mainOnlyReference.copyStartingAt(LocalTime.of(9, 15)),
       mainOnlyReference.copyStartingAt(LocalTime.of(9, 30)),
       mainOnlyReference.copyStartingAt(LocalTime.of(9, 45)),
-      mainOnlyReference.copyStartingAt(LocalTime.of(10, 0)),
+      mainOnlyReference.copyStartingAt(LocalTime.of(10, 0))
     )
   }
 
@@ -59,7 +59,7 @@ class OptionsGeneratorTest {
       mainOnlyReference.copyStartingAt(LocalTime.of(9, 45)),
       mainOnlyReference.copyStartingAt(LocalTime.of(9, 30)),
       mainOnlyReference.copyStartingAt(LocalTime.of(9, 15)),
-      mainOnlyReference.copyStartingAt(LocalTime.of(9, 0)),
+      mainOnlyReference.copyStartingAt(LocalTime.of(9, 0))
     )
   }
 
@@ -77,7 +77,7 @@ class OptionsGeneratorTest {
       mainOnlyReference.copyStartingAt(LocalTime.of(9, 30)),
       mainOnlyReference.copyStartingAt(LocalTime.of(9, 0)),
       mainOnlyReference.copyStartingAt(LocalTime.of(9, 45)),
-      mainOnlyReference.copyStartingAt(LocalTime.of(10, 0)),
+      mainOnlyReference.copyStartingAt(LocalTime.of(10, 0))
     )
   }
 }

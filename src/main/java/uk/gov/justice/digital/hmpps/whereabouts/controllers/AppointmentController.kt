@@ -45,7 +45,7 @@ class AppointmentController(private val appointmentService: AppointmentService) 
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       ),
       ApiResponse(
@@ -57,7 +57,7 @@ class AppointmentController(private val appointmentService: AppointmentService) 
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       )
     ]
@@ -74,7 +74,7 @@ class AppointmentController(private val appointmentService: AppointmentService) 
     value = [
       ApiResponse(
         responseCode = "400",
-        description = "Bad request",
+        description = "Bad request"
       ),
       ApiResponse(
         responseCode = "500",
@@ -85,7 +85,7 @@ class AppointmentController(private val appointmentService: AppointmentService) 
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
       )
     ]
   )
@@ -108,7 +108,7 @@ class AppointmentController(private val appointmentService: AppointmentService) 
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       ),
       ApiResponse(
@@ -120,7 +120,7 @@ class AppointmentController(private val appointmentService: AppointmentService) 
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       )
     ]
@@ -145,7 +145,7 @@ class AppointmentController(private val appointmentService: AppointmentService) 
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       ),
       ApiResponse(
@@ -157,12 +157,14 @@ class AppointmentController(private val appointmentService: AppointmentService) 
             mediaType = "application/json",
             schema = Schema(implementation = ErrorResponse::class)
           )
-        ],
+        ]
 
       )
     ]
   )
   fun deleteRecurringAppointmentSequence(
-    @Parameter(description = "The id of the recurring appointment sequence.") @PathVariable(value = "id") id: Long
+    @Parameter(description = "The id of the recurring appointment sequence.")
+    @PathVariable(value = "id")
+    id: Long
   ) = appointmentService.deleteRecurringAppointmentSequence(id)
 }

@@ -14,7 +14,7 @@ enum class RepeatPeriod {
   DAILY,
   WEEKDAYS,
   MONTHLY,
-  FORTNIGHTLY,
+  FORTNIGHTLY
 }
 
 @Entity(name = "RECURRING_APPOINTMENT")

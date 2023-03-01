@@ -48,7 +48,7 @@ class InstrumentedVideoLinkBookingOptionsService(
       mapOf(
         "${prefix}LocationId" to locationAndInterval.locationId.toString(),
         "${prefix}Start" to locationAndInterval.interval.start.toString(),
-        "${prefix}End" to locationAndInterval.interval.end.toString(),
+        "${prefix}End" to locationAndInterval.interval.end.toString()
       )
   }
 }

@@ -27,7 +27,7 @@ class VideoLinkBookingEventServiceTest {
     service = VideoLinkBookingEventService(
       videoLinkBookingEventRepository,
       eventToCsvConverter,
-      courtsService,
+      courtsService
     )
   }
 
@@ -35,7 +35,6 @@ class VideoLinkBookingEventServiceTest {
   inner class `find by timestamp between` {
     @Test
     fun `Should include court name in csv object when courtId is present`() {
-
       val eventStream = Stream.of(
         VideoLinkBookingEvent(
           courtId = "EYI",
@@ -58,7 +57,6 @@ class VideoLinkBookingEventServiceTest {
 
     @Test
     fun `Should return court when courtId is not present`() {
-
       val court = "Elmley"
 
       val eventStream = Stream.of(
@@ -81,7 +79,6 @@ class VideoLinkBookingEventServiceTest {
 
     @Test
     fun `Should not return court when court is not present`() {
-
       val eventStream = Stream.of(
         VideoLinkBookingEvent(
           courtId = "EYI",
@@ -103,7 +100,6 @@ class VideoLinkBookingEventServiceTest {
 
     @Test
     fun `Should not return court when both courtId and court are not present`() {
-
       val eventStream = Stream.of(
         VideoLinkBookingEvent(
           eventType = VideoLinkBookingEventType.CREATE,
@@ -126,7 +122,6 @@ class VideoLinkBookingEventServiceTest {
   inner class `find by start date between` {
     @Test
     fun `Should include court name in csv object when courtId is present`() {
-
       val eventStream = Stream.of(
         VideoLinkBookingEvent(
           courtId = "EYI",
@@ -149,7 +144,6 @@ class VideoLinkBookingEventServiceTest {
 
     @Test
     fun `Should return court when courtId is not present`() {
-
       val court = "Elmley"
 
       val eventStream = Stream.of(
@@ -172,7 +166,6 @@ class VideoLinkBookingEventServiceTest {
 
     @Test
     fun `Should not return court when court is not present`() {
-
       val eventStream = Stream.of(
         VideoLinkBookingEvent(
           courtId = "EYI",
@@ -194,7 +187,6 @@ class VideoLinkBookingEventServiceTest {
 
     @Test
     fun `Should not return court when both courtId and court are not present`() {
-
       val eventStream = Stream.of(
         VideoLinkBookingEvent(
           eventType = VideoLinkBookingEventType.CREATE,

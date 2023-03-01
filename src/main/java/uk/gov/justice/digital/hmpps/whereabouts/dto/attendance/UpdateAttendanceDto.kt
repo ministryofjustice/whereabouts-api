@@ -22,5 +22,6 @@ data class UpdateAttendanceDto(
   val absentSubReason: AbsentSubReason? = null,
 
   @ApiModelProperty(value = "Comments about non attendance. This also gets used for the IEP warning text ")
-  val comments: @Size(max = 240) String? = null
+  @Size(max = 240)
+  val comments: String? = null
 )

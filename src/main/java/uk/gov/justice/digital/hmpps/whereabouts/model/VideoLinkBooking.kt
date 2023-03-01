@@ -25,7 +25,7 @@ class VideoLinkBooking(
   var courtId: String? = null,
   val madeByTheCourt: Boolean? = true,
   var prisonId: String,
-  var comment: String? = null,
+  var comment: String? = null
 
 ) : BaseEntity(id) {
   @OneToMany(
@@ -49,7 +49,7 @@ class VideoLinkBooking(
       locationId = locationId,
       hearingType = PRE,
       startDateTime = startDateTime,
-      endDateTime = endDateTime,
+      endDateTime = endDateTime
     )
   )
 
@@ -62,7 +62,7 @@ class VideoLinkBooking(
       locationId = locationId,
       hearingType = MAIN,
       startDateTime = startDateTime,
-      endDateTime = endDateTime,
+      endDateTime = endDateTime
     )
   )
 
@@ -75,7 +75,7 @@ class VideoLinkBooking(
       locationId = locationId,
       hearingType = POST,
       startDateTime = startDateTime,
-      endDateTime = endDateTime,
+      endDateTime = endDateTime
     )
   )
 
