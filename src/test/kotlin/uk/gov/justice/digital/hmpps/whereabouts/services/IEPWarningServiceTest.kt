@@ -35,8 +35,8 @@ class IEPWarningServiceTest {
         anyString(),
         anyString(),
         anyString(),
-        any(LocalDateTime::class.java)
-      )
+        any(LocalDateTime::class.java),
+      ),
     )
       .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
@@ -50,7 +50,7 @@ class IEPWarningServiceTest {
         eq("NEG"),
         eq("IEP_WARN"),
         eq("Refused to attend - incentive level warning - test comment"),
-        eq(date.atStartOfDay())
+        eq(date.atStartOfDay()),
       )
   }
 
@@ -64,8 +64,8 @@ class IEPWarningServiceTest {
         anyString(),
         anyString(),
         anyString(),
-        any(LocalDateTime::class.java)
-      )
+        any(LocalDateTime::class.java),
+      ),
     )
       .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
 
@@ -79,7 +79,7 @@ class IEPWarningServiceTest {
         eq("NEG"),
         eq("IEP_WARN"),
         eq("Refused to attend - incentive level warning - External moves. test comment"),
-        eq(date.atStartOfDay())
+        eq(date.atStartOfDay()),
       )
   }
 
@@ -101,7 +101,7 @@ class IEPWarningServiceTest {
       attended = false,
       paid = false,
       absentReason = AbsentReason.UnacceptableAbsenceIncentiveLevelWarning,
-      comments = "Unacceptable absence - No show."
+      comments = "Unacceptable absence - No show.",
     )
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
@@ -118,8 +118,8 @@ class IEPWarningServiceTest {
         anyString(),
         anyString(),
         anyString(),
-        any(LocalDateTime::class.java)
-      )
+        any(LocalDateTime::class.java),
+      ),
     )
       .thenReturn(CaseNoteDto.builder().caseNoteId(1).build())
     whenever(prisonApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
@@ -137,7 +137,7 @@ class IEPWarningServiceTest {
       attended = false,
       paid = false,
       absentReason = AbsentReason.RefusedIncentiveLevelWarning,
-      comments = "Refused!"
+      comments = "Refused!",
     )
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
@@ -148,7 +148,7 @@ class IEPWarningServiceTest {
       anyString(),
       anyString(),
       anyString(),
-      any(LocalDateTime::class.java)
+      any(LocalDateTime::class.java),
     )
   }
 
@@ -171,7 +171,7 @@ class IEPWarningServiceTest {
       attended = false,
       paid = true,
       absentReason = AbsentReason.NotRequired,
-      comments = "not required to work today"
+      comments = "not required to work today",
     )
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
@@ -194,7 +194,7 @@ class IEPWarningServiceTest {
       attended = false,
       comments = "test",
       absentReason = AbsentReason.Refused,
-      paid = true
+      paid = true,
     )
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
@@ -205,7 +205,7 @@ class IEPWarningServiceTest {
       anyString(),
       anyString(),
       anyString(),
-      any(LocalDateTime::class.java)
+      any(LocalDateTime::class.java),
     )
   }
 
@@ -225,7 +225,7 @@ class IEPWarningServiceTest {
       attended = false,
       absentReason = AbsentReason.NotRequired,
       comments = "test",
-      paid = true
+      paid = true,
     )
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
@@ -236,7 +236,7 @@ class IEPWarningServiceTest {
       anyString(),
       anyString(),
       anyString(),
-      any(LocalDateTime::class.java)
+      any(LocalDateTime::class.java),
     )
   }
 
@@ -258,7 +258,7 @@ class IEPWarningServiceTest {
       attended = false,
       absentReason = AbsentReason.Refused,
       comments = "Never turned up",
-      paid = false
+      paid = false,
     )
 
     service.handleIEPWarningScenarios(attendance, updateAttendance)
@@ -269,7 +269,7 @@ class IEPWarningServiceTest {
       anyString(),
       anyString(),
       anyString(),
-      any(LocalDateTime::class.java)
+      any(LocalDateTime::class.java),
     )
   }
 

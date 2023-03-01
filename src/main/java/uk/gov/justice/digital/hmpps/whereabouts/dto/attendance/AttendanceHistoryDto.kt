@@ -22,7 +22,7 @@ data class AttendanceHistoryDto(
 
   @ApiModelProperty(
     value = "Any activity outcome captured (n.b. for outcomes captured via Whereabouts, this is also the Case note text)",
-    example = "Healthcare issue - speak to SO"
+    example = "Healthcare issue - speak to SO",
   )
-  val comments: String? = null
+  val comments: String? = null,
 )

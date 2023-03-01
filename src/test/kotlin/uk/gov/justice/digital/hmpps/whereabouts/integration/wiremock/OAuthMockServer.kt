@@ -15,8 +15,8 @@ class OAuthMockServer : WireMockServer(8090) {
         .willReturn(
           WireMock.aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-            .withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
-        )
+            .withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer"))),
+        ),
     )
   }
 }

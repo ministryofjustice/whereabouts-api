@@ -20,7 +20,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 
 @WebMvcTest(
   VideoLinkBookingRoomsController::class,
-  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class]
+  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class],
 )
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)
 class VideoLinkBookingRoomsControllerTest : TestController() {
@@ -29,12 +29,12 @@ class VideoLinkBookingRoomsControllerTest : TestController() {
 
   private val location1 = LocationIdAndDescription(
     locationId = 1,
-    description = "Video Room A"
+    description = "Video Room A",
   )
 
   private val location2 = LocationIdAndDescription(
     locationId = 2,
-    description = "Video Room B"
+    description = "Video Room B",
   )
 
   val locations: List<LocationIdAndDescription> = listOf(location1, location2)
@@ -48,7 +48,7 @@ class VideoLinkBookingRoomsControllerTest : TestController() {
 
       mockMvc.perform(
         get("/video-link-rooms/MDI")
-          .contentType(MediaType.APPLICATION_JSON)
+          .contentType(MediaType.APPLICATION_JSON),
       )
         .andExpect(status().isOk)
         .andExpect(jsonPath("[0].locationId").value(1))

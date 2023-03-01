@@ -14,7 +14,7 @@ import java.util.Properties
 class LocationService(
   private val prisonApiService: PrisonApiService,
   @Qualifier("locationGroupServiceSelector") private val locationGroupService: LocationGroupService,
-  @Qualifier("whereaboutsGroups") private val groupsProperties: Properties
+  @Qualifier("whereaboutsGroups") private val groupsProperties: Properties,
 ) {
 
   fun getVideoLinkRoomsForPrison(agencyId: String): List<LocationIdAndDescription> =
@@ -61,6 +61,6 @@ class LocationService(
       currentOccupancy = this.noOfOccupants,
       operationalCapacity = this.capacity,
       internalLocationCode = "",
-      locationPrefix = this.description
+      locationPrefix = this.description,
     )
 }

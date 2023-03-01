@@ -19,8 +19,8 @@ class VideoLinkAppointmentTest {
         locationId = locationId,
         startDateTime = startDateTime,
         endDateTime = endDateTime,
-        videoLinkBooking = DataHelpers.makeVideoLinkBooking(id = 1L)
-      ).toString()
+        videoLinkBooking = DataHelpers.makeVideoLinkBooking(id = 1L),
+      ).toString(),
     ).isEqualTo("VideoLinkAppointment(id = null, appointmentId = 1, locationId = 10, startDateTime = 2022-01-01T10:00, endDateTime = 2022-01-01T11:00, hearingType = MAIN)")
   }
 

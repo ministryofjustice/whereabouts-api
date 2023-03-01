@@ -9,5 +9,5 @@ data class VideoLinkBookingSearchDetails(
   val courtId: String,
 
   @ApiModelProperty(value = "prison ids", example = "LII, MDI", required = true)
-  val prisonIds: List<String>
+  val prisonIds: List<String>,
 )

@@ -41,5 +41,5 @@ data class VideoLinkBookingEvent(
   val postNomisAppointmentId: Long? = null,
   val postLocationId: Long? = null,
   val postStartTime: LocalDateTime? = null,
-  val postEndTime: LocalDateTime? = null
+  val postEndTime: LocalDateTime? = null,
 )

@@ -18,11 +18,11 @@ class VideoLinkBookingEventController(val service: VideoLinkBookingEventService)
 
   @GetMapping(
     path = ["video-link-booking-events"],
-    produces = ["text/csv"]
+    produces = ["text/csv"],
   )
   @Operation(
     summary = "Video Link Booking Events",
-    description = "Return details of Video Link Booking Events (Create, Update, Delete) in CSV format. Restrict the response to events occurring within 'days' of start-date."
+    description = "Return details of Video Link Booking Events (Create, Update, Delete) in CSV format. Restrict the response to events occurring within 'days' of start-date.",
   )
   fun getVideoLinkBookingEvents(
     @RequestParam(name = "start-date", required = true)
@@ -32,7 +32,7 @@ class VideoLinkBookingEventController(val service: VideoLinkBookingEventService)
 
     @RequestParam(name = "days")
     @Parameter(description = "Return details of events occurring within this number of days of start-date")
-    days: Long?
+    days: Long?,
   ) =
     service.getEventsAsCSV(startDate, days ?: 7L)
 }

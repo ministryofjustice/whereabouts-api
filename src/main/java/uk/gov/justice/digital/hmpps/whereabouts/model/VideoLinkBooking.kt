@@ -25,14 +25,14 @@ class VideoLinkBooking(
   var courtId: String? = null,
   val madeByTheCourt: Boolean? = true,
   var prisonId: String,
-  var comment: String? = null
+  var comment: String? = null,
 
 ) : BaseEntity(id) {
   @OneToMany(
     mappedBy = "videoLinkBooking",
     fetch = FetchType.EAGER,
     cascade = [CascadeType.PERSIST, CascadeType.REMOVE],
-    orphanRemoval = true
+    orphanRemoval = true,
   )
   @MapKey(name = "hearingType")
   val appointments: MutableMap<HearingType, VideoLinkAppointment> = mutableMapOf()
@@ -49,8 +49,8 @@ class VideoLinkBooking(
       locationId = locationId,
       hearingType = PRE,
       startDateTime = startDateTime,
-      endDateTime = endDateTime
-    )
+      endDateTime = endDateTime,
+    ),
   )
 
   fun addMainAppointment(appointmentId: Long, locationId: Long, startDateTime: LocalDateTime, endDateTime: LocalDateTime, id: Long? = null) = appointments.put(
@@ -62,8 +62,8 @@ class VideoLinkBooking(
       locationId = locationId,
       hearingType = MAIN,
       startDateTime = startDateTime,
-      endDateTime = endDateTime
-    )
+      endDateTime = endDateTime,
+    ),
   )
 
   fun addPostAppointment(appointmentId: Long, locationId: Long, startDateTime: LocalDateTime, endDateTime: LocalDateTime, id: Long? = null) = appointments.put(
@@ -75,8 +75,8 @@ class VideoLinkBooking(
       locationId = locationId,
       hearingType = POST,
       startDateTime = startDateTime,
-      endDateTime = endDateTime
-    )
+      endDateTime = endDateTime,
+    ),
   )
 
   override fun toString(): String =
@@ -89,7 +89,7 @@ class VideoLinkBooking(
     courtId,
     madeByTheCourt,
     prisonId,
-    comment
+    comment,
   ).also {
     it.appointments.putAll(appointments)
     it.createdByUsername = createdByUsername

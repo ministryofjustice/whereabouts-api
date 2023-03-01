@@ -35,8 +35,8 @@ class CellMoveIntegrationTest : IntegrationTest() {
           "offenderNo" to SOME_OFFENDER_NO,
           "internalLocationDescriptionDestination" to SOME_INTERNAL_LOCATION_DESCRIPTION,
           "cellMoveReasonCode" to SOME_REASON_CODE,
-          "commentText" to SOME_TEXT
-        )
+          "commentText" to SOME_TEXT,
+        ),
       )
       .headers(setHeaders())
       .exchange()
@@ -46,8 +46,8 @@ class CellMoveIntegrationTest : IntegrationTest() {
 
     prisonApiMockServer.verify(
       putRequestedFor(
-        urlEqualTo("/api/bookings/$SOME_BOOKING_ID/living-unit/$SOME_INTERNAL_LOCATION_DESCRIPTION?reasonCode=$SOME_REASON_CODE")
-      )
+        urlEqualTo("/api/bookings/$SOME_BOOKING_ID/living-unit/$SOME_INTERNAL_LOCATION_DESCRIPTION?reasonCode=$SOME_REASON_CODE"),
+      ),
     )
   }
 
@@ -63,8 +63,8 @@ class CellMoveIntegrationTest : IntegrationTest() {
           "offenderNo" to SOME_OFFENDER_NO,
           "internalLocationDescriptionDestination" to SOME_INTERNAL_LOCATION_DESCRIPTION,
           "cellMoveReasonCode" to SOME_REASON_CODE,
-          "commentText" to SOME_TEXT
-        )
+          "commentText" to SOME_TEXT,
+        ),
       )
       .headers(setHeaders())
       .exchange()
@@ -72,7 +72,7 @@ class CellMoveIntegrationTest : IntegrationTest() {
 
     caseNotesMockServer.verify(
       postRequestedFor(
-        urlEqualTo("/case-notes/$SOME_OFFENDER_NO")
+        urlEqualTo("/case-notes/$SOME_OFFENDER_NO"),
       ).withRequestBody(
         equalToJson(
           objectMapper.writeValueAsString(
@@ -80,11 +80,11 @@ class CellMoveIntegrationTest : IntegrationTest() {
               "type" to "MOVED_CELL",
               "subType" to "ADM",
               "occurrenceDateTime" to "2020-10-03T20:00",
-              "text" to SOME_TEXT
-            )
-          )
-        )
-      )
+              "text" to SOME_TEXT,
+            ),
+          ),
+        ),
+      ),
     )
   }
 
@@ -100,8 +100,8 @@ class CellMoveIntegrationTest : IntegrationTest() {
           "offenderNo" to SOME_OFFENDER_NO,
           "internalLocationDescriptionDestination" to SOME_INTERNAL_LOCATION_DESCRIPTION,
           "cellMoveReasonCode" to SOME_REASON_CODE,
-          "commentText" to SOME_TEXT
-        )
+          "commentText" to SOME_TEXT,
+        ),
       )
       .headers(setHeaders())
       .exchange()
@@ -122,7 +122,7 @@ class CellMoveIntegrationTest : IntegrationTest() {
       agencyId = SOME_AGENCY_ID,
       assignedLivingUnitId = SOME_ASSIGNMENT_LIVING_UNIT_ID,
       internalLocationDescription = SOME_INTERNAL_LOCATION_DESCRIPTION,
-      bedAssignmentHistorySequence = SOME_BED_ASSIGNMENT_SEQUENCE
+      bedAssignmentHistorySequence = SOME_BED_ASSIGNMENT_SEQUENCE,
     )
     caseNotesMockServer.stubCreateCaseNote(SOME_OFFENDER_NO, SOME_CASE_NOTE_ID)
   }

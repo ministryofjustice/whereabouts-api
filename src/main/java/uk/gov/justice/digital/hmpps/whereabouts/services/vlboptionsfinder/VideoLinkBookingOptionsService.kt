@@ -12,7 +12,7 @@ interface IVideoLinkBookingOptionsService {
 class VideoLinkBookingOptionsService(
   private val prisonApiService: PrisonApiService,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
-  private val videoLinkBookingOptionsFinder: VideoLinkBookingOptionsFinder
+  private val videoLinkBookingOptionsFinder: VideoLinkBookingOptionsFinder,
 ) : IVideoLinkBookingOptionsService {
   override fun findVideoLinkBookingOptions(specification: VideoLinkBookingSearchSpecification): VideoLinkBookingOptions {
     val excludedAppointmentIds =
@@ -21,7 +21,7 @@ class VideoLinkBookingOptionsService(
     val locationIds = listOfNotNull(
       specification.preAppointment?.locationId,
       specification.mainAppointment.locationId,
-      specification.postAppointment?.locationId
+      specification.postAppointment?.locationId,
     ).distinct()
 
     val scheduledAppointments = locationIds

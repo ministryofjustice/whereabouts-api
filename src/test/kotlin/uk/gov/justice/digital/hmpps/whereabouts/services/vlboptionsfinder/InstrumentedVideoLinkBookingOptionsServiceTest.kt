@@ -34,9 +34,9 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
         VideoLinkBookingOption(
           pre = LocationAndInterval(1L, Interval(LocalTime.of(12, 0), LocalTime.of(12, 30))),
           main = LocationAndInterval(2L, Interval(LocalTime.of(12, 30), LocalTime.of(13, 0))),
-          post = LocationAndInterval(3L, Interval(LocalTime.of(13, 0), LocalTime.of(13, 30)))
-        )
-      )
+          post = LocationAndInterval(3L, Interval(LocalTime.of(13, 0), LocalTime.of(13, 30))),
+        ),
+      ),
     )
 
     every { delegate.findVideoLinkBookingOptions(any()) } returns expectedResult
@@ -48,8 +48,8 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
         preAppointment = LocationAndInterval(1L, Interval(LocalTime.of(9, 30), LocalTime.of(10, 0))),
         mainAppointment = LocationAndInterval(2L, Interval(LocalTime.of(10, 0), LocalTime.of(10, 30))),
         postAppointment = LocationAndInterval(3L, Interval(LocalTime.of(10, 30), LocalTime.of(11, 0))),
-        vlbIdToExclude = 10L
-      )
+        vlbIdToExclude = 10L,
+      ),
     )
 
     assertThat(result).isEqualTo(expectedResult)
@@ -73,9 +73,9 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
           "mainEnd" to "10:30",
           "postLocationId" to "3",
           "postStart" to "10:30",
-          "postEnd" to "11:00"
+          "postEnd" to "11:00",
         ),
-        null
+        null,
       )
     }
   }
@@ -90,8 +90,8 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
       VideoLinkBookingSearchSpecification(
         agencyId = "WWI",
         date = LocalDate.of(2020, 6, 1),
-        mainAppointment = LocationAndInterval(2L, Interval(LocalTime.of(10, 0), LocalTime.of(10, 30)))
-      )
+        mainAppointment = LocationAndInterval(2L, Interval(LocalTime.of(10, 0), LocalTime.of(10, 30))),
+      ),
     )
 
     assertThat(result).isEqualTo(expectedResult)
@@ -109,9 +109,9 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
           "alternativeMainStartTimes" to "",
           "mainLocationId" to "2",
           "mainStart" to "10:00",
-          "mainEnd" to "10:30"
+          "mainEnd" to "10:30",
         ),
-        null
+        null,
       )
     }
   }
@@ -122,8 +122,8 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
       matched = false,
       alternatives = listOf(
         VideoLinkBookingOption(main = LocationAndInterval(2L, Interval(LocalTime.of(12, 30), LocalTime.of(13, 0)))),
-        VideoLinkBookingOption(main = LocationAndInterval(2L, Interval(LocalTime.of(13, 30), LocalTime.of(14, 0))))
-      )
+        VideoLinkBookingOption(main = LocationAndInterval(2L, Interval(LocalTime.of(13, 30), LocalTime.of(14, 0)))),
+      ),
     )
 
     every { delegate.findVideoLinkBookingOptions(any()) } returns expectedResult
@@ -132,8 +132,8 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
       VideoLinkBookingSearchSpecification(
         agencyId = "WWI",
         date = LocalDate.of(2020, 6, 1),
-        mainAppointment = LocationAndInterval(2L, Interval(LocalTime.of(10, 0), LocalTime.of(10, 30)))
-      )
+        mainAppointment = LocationAndInterval(2L, Interval(LocalTime.of(10, 0), LocalTime.of(10, 30))),
+      ),
     )
 
     assertThat(result).isEqualTo(expectedResult)
@@ -151,9 +151,9 @@ class InstrumentedVideoLinkBookingOptionsServiceTest {
           "alternativeMainStartTimes" to "12:30,13:30",
           "mainLocationId" to "2",
           "mainStart" to "10:00",
-          "mainEnd" to "10:30"
+          "mainEnd" to "10:30",
         ),
-        null
+        null,
       )
     }
   }

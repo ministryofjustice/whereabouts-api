@@ -16,7 +16,7 @@ data class CellMoveDetails(
   @ApiModelProperty(
     required = true,
     value = "Cell move reason comment ",
-    example = "The prisoner has been moved for administrative purposes"
+    example = "The prisoner has been moved for administrative purposes",
   )
-  val commentText: String
+  val commentText: String,
 )

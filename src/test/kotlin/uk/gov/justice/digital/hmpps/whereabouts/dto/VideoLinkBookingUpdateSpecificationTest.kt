@@ -17,14 +17,14 @@ class VideoLinkBookingUpdateSpecificationTest {
   @Test
   fun `absent pre and post is valid`() {
     Assertions.assertThat(
-      validator.validate(validObject.copy(pre = null, post = null))
+      validator.validate(validObject.copy(pre = null, post = null)),
     ).isEmpty()
   }
 
   @Test
   fun `zero length courtId is invalid`() {
     Assertions.assertThat(
-      validator.validate(validObject.copy(courtId = ""))
+      validator.validate(validObject.copy(courtId = "")),
     ).hasSize(1)
   }
 
@@ -34,18 +34,18 @@ class VideoLinkBookingUpdateSpecificationTest {
       pre = VideoLinkAppointmentSpecification(
         startTime = LocalDateTime.of(2021, 1, 1, 8, 45),
         endTime = LocalDateTime.of(2021, 1, 1, 9, 0),
-        locationId = 1L
+        locationId = 1L,
       ),
       main = VideoLinkAppointmentSpecification(
         startTime = LocalDateTime.of(2021, 1, 1, 9, 0),
         endTime = LocalDateTime.of(2021, 1, 1, 9, 30),
-        locationId = 2L
+        locationId = 2L,
       ),
       post = VideoLinkAppointmentSpecification(
         startTime = LocalDateTime.of(2021, 1, 1, 9, 30),
         endTime = LocalDateTime.of(2021, 1, 1, 9, 45),
-        locationId = 3L
-      )
+        locationId = 3L,
+      ),
     )
   }
 }

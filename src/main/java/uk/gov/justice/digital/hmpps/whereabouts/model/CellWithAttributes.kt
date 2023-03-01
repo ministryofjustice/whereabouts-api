@@ -21,5 +21,5 @@ data class CellWithAttributes(
   @ApiModelProperty(value = "User-friendly location description.", example = "RES-HB1-ALE")
   val userDescription: String? = null,
   @ApiModelProperty(value = "List of attributes for the cell.", example = "Listener cell")
-  val attributes: List<CellAttribute> = listOf()
+  val attributes: List<CellAttribute> = listOf(),
 )

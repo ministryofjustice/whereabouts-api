@@ -18,8 +18,8 @@ interface VideoLinkBookingEventRepository : JpaRepository<VideoLinkBookingEvent,
     value = [
       QueryHint(name = HINT_FETCH_SIZE, value = "" + Integer.MAX_VALUE),
       QueryHint(name = HINT_CACHEABLE, value = "false"),
-      QueryHint(name = HINT_READONLY, value = "true")
-    ]
+      QueryHint(name = HINT_READONLY, value = "true"),
+    ],
   )
   fun findByTimestampBetweenOrderByEventId(start: LocalDateTime, end: LocalDateTime): Stream<VideoLinkBookingEvent>
 
@@ -37,28 +37,28 @@ interface VideoLinkBookingEventRepository : JpaRepository<VideoLinkBookingEvent,
       and vlbe.main_start_time between :start and :end
       and vlbe.event_type != 'DELETE'
     order by vlbe.main_start_time asc
-    """
+    """,
   )
   fun findEventsByBookingTime(
     @Param("start") start: LocalDateTime,
-    @Param("end") end: LocalDateTime
+    @Param("end") end: LocalDateTime,
   ): Stream<VideoLinkBookingEvent>
 }
 
 fun VideoLinkBookingEventRepository.findByDatesBetween(
   start: LocalDate,
-  end: LocalDate
+  end: LocalDate,
 ): Stream<VideoLinkBookingEvent> = findByTimestampBetweenOrderByEventId(
   start.atStartOfDay(),
-  end.atEndOfDay()
+  end.atEndOfDay(),
 )
 
 fun VideoLinkBookingEventRepository.findByStartTimeBetween(
   start: LocalDate,
-  end: LocalDate
+  end: LocalDate,
 ): Stream<VideoLinkBookingEvent> = findEventsByBookingTime(
   start.atStartOfDay(),
-  end.atEndOfDay()
+  end.atEndOfDay(),
 )
 
 private fun LocalDate.atEndOfDay() = this.plusDays(1).atStartOfDay().minusSeconds(1)

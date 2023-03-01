@@ -38,7 +38,7 @@ class LocationGroupFromElite2ServiceTest {
       locationPrefix = description,
       operationalCapacity = 0,
       userDescription = "",
-      internalLocationCode = ""
+      internalLocationCode = "",
     )
   }
 }

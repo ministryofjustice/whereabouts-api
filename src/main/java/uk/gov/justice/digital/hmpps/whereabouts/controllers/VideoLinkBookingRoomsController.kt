@@ -15,22 +15,22 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.LocationService
 @Tag(name = "video-link-booking-rooms")
 @RestController
 class VideoLinkBookingRoomsController(
-  private val locationService: LocationService
+  private val locationService: LocationService,
 
 ) {
 
   @GetMapping(
     path = ["/video-link-rooms/{agencyId}"],
-    produces = [MediaType.APPLICATION_JSON_VALUE]
+    produces = [MediaType.APPLICATION_JSON_VALUE],
   )
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     description = "List of all the Video Link Booking rooms in the prison.",
-    summary = "getVideoLinkBookingRooms"
+    summary = "getVideoLinkBookingRooms",
   )
   fun getVideoLinkBookingRooms(
     @Parameter(description = "The prison", required = true)
     @PathVariable("agencyId")
-    agencyId: String
+    agencyId: String,
   ): List<LocationIdAndDescription> = locationService.getVideoLinkRoomsForPrison(agencyId)
 }

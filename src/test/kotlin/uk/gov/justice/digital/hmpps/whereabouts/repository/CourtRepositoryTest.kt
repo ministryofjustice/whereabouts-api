@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class CourtRepositoryTest(
   @Autowired
-  val courtRepository: CourtRepository
+  val courtRepository: CourtRepository,
 ) {
 
   @Test

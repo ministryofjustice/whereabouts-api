@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter
 
 @WebMvcTest(
   AttendancesController::class,
-  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class]
+  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class],
 )
 class AttendancesControllerTest : TestController() {
   private val OFFENDER_NO = "A1234AB"
@@ -35,9 +35,9 @@ class AttendancesControllerTest : TestController() {
         comments = "Test comment",
         location = MOORLAND,
         activity = "a",
-        activityDescription = "d"
-      )
-    )
+        activityDescription = "d",
+      ),
+    ),
   )
 
   @MockBean
@@ -51,15 +51,15 @@ class AttendancesControllerTest : TestController() {
         AttendanceSummary(
           acceptableAbsence = 6,
           unacceptableAbsence = 4,
-          total = 23
-        )
+          total = 23,
+        ),
       )
 
     mockMvc
       .perform(
         MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absence-count")
           .param("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
-          .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE)),
       )
       .andExpect(MockMvcResultMatchers.status().isOk)
       .andExpect(MockMvcResultMatchers.jsonPath("$.acceptableAbsence").value(6))
@@ -82,7 +82,7 @@ class AttendancesControllerTest : TestController() {
           .param("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .param("page", "0")
-          .param("size", "10")
+          .param("size", "10"),
       )
       .andExpect(MockMvcResultMatchers.status().isOk)
       .andExpect(MockMvcResultMatchers.jsonPath("content", Matchers.hasSize<Array<Any>>(1)))
@@ -97,12 +97,12 @@ class AttendancesControllerTest : TestController() {
       .perform(
         MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absences")
           .param("offenderNo", OFFENDER_NO)
-          .param("toDate", END.format((DateTimeFormatter.ISO_LOCAL_DATE)))
+          .param("toDate", END.format((DateTimeFormatter.ISO_LOCAL_DATE))),
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest)
       .andExpect(
         MockMvcResultMatchers.jsonPath("developerMessage")
-          .value("Required request parameter 'fromDate' for method parameter type LocalDate is not present")
+          .value("Required request parameter 'fromDate' for method parameter type LocalDate is not present"),
       )
   }
 
@@ -112,12 +112,12 @@ class AttendancesControllerTest : TestController() {
     mockMvc
       .perform(
         MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absence-count")
-          .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE)),
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest)
       .andExpect(
         MockMvcResultMatchers.jsonPath("developerMessage")
-          .value("Required request parameter 'fromDate' for method parameter type LocalDate is not present")
+          .value("Required request parameter 'fromDate' for method parameter type LocalDate is not present"),
       )
   }
 }

@@ -41,9 +41,9 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
           "main" to mapOf(
             "locationId" to 2,
             "startTime" to "2020-12-01T09:00",
-            "endTime" to "2020-12-01T09:30"
-          )
-        )
+            "endTime" to "2020-12-01T09:30",
+          ),
+        ),
       )
       .exchange()
       .expectStatus()
@@ -83,8 +83,8 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
           jwtAuthHelper.createJwt(
             subject = "ITAG_USER",
             roles = listOf("ROLE_VIDEO_LINK_COURT_USER"),
-            clientId = "elite2apiclient"
-          )
+            clientId = "elite2apiclient",
+          ),
         )
       }
       .exchange()
@@ -131,7 +131,7 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
         i,
         i,
         bookingTime,
-        bookingTime.plusMinutes(30)
+        bookingTime.plusMinutes(30),
       )
     }
   }

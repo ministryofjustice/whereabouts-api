@@ -20,7 +20,7 @@ import java.time.LocalDate
 data class PaidReasons(
   val approvedCourse: Int?,
   val notRequired: Int?,
-  val acceptableAbsence: Int?
+  val acceptableAbsence: Int?,
 ) {
   val acceptableAbsenceDescription = AcceptableAbsence.labelWithAddedWarning
   val approvedCourseDescription = ApprovedCourse.labelWithAddedWarning
@@ -35,7 +35,7 @@ data class UnpaidReasons(
   val refusedIncentiveLevelWarning: Int?,
   val sessionCancelled: Int?,
   val unacceptableAbsence: Int?,
-  val unacceptableAbsenceIncentiveLevelWarning: Int?
+  val unacceptableAbsenceIncentiveLevelWarning: Int?,
 ) {
   val refusedDescription = Refused.labelWithAddedWarning
   val refusedIncentiveLevelWarningDescription = RefusedIncentiveLevelWarning.labelWithAddedWarning
@@ -52,13 +52,13 @@ data class Stats(
   val paidReasons: PaidReasons?,
   val unpaidReasons: UnpaidReasons?,
   val suspended: Int,
-  val attended: Int
+  val attended: Int,
 )
 
 @Service
 class AttendanceStatistics(
   private val attendanceRepository: AttendanceRepository,
-  private val prisonApiService: PrisonApiService
+  private val prisonApiService: PrisonApiService,
 ) {
   fun getStats(prisonId: String, period: TimePeriod?, from: LocalDate, to: LocalDate): Stats {
     val periods = period?.let { setOf(it) } ?: setOf(TimePeriod.PM, TimePeriod.AM)
@@ -80,7 +80,7 @@ class AttendanceStatistics(
       paidReasons = PaidReasons(
         acceptableAbsence = paidCounts[AcceptableAbsence],
         approvedCourse = paidCounts[ApprovedCourse],
-        notRequired = paidCounts[NotRequired]
+        notRequired = paidCounts[NotRequired],
       ),
       unpaidReasons = UnpaidReasons(
         refused = unpaidCounts[Refused],
@@ -89,10 +89,10 @@ class AttendanceStatistics(
         unacceptableAbsence = unpaidCounts[UnacceptableAbsence],
         unacceptableAbsenceIncentiveLevelWarning = unpaidCounts[UnacceptableAbsenceIncentiveLevelWarning],
         restDay = unpaidCounts[RestDay],
-        restInCellOrSick = unpaidCounts[RestInCellOrSick]
+        restInCellOrSick = unpaidCounts[RestInCellOrSick],
       ),
       suspended = counts.suspended,
-      attended = attendances.count { it.attended }
+      attended = attendances.count { it.attended },
     )
   }
 }

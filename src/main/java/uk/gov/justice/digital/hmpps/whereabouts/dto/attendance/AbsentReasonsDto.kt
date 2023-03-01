@@ -14,13 +14,13 @@ data class AbsentReasonsDto(
   @ApiModelProperty(
     value = "List of reasons that trigger IEP Warnings",
     example = "[\"UnacceptableAbsence\"]",
-    position = 3
+    position = 3,
   )
   val triggersIEPWarning: List<AbsentReason>,
 
   @ApiModelProperty(
     value = "List of reasons that trigger an absence sub reason",
-    example = "[\"UnacceptableAbsence\"]"
+    example = "[\"UnacceptableAbsence\"]",
   )
   val triggersAbsentSubReason: List<AbsentReason>,
 
@@ -28,7 +28,7 @@ data class AbsentReasonsDto(
   val paidSubReasons: List<AbsentSubReasonDto>,
 
   @ApiModelProperty(value = "List of unpaid absence sub reasons")
-  val unpaidSubReasons: List<AbsentSubReasonDto>
+  val unpaidSubReasons: List<AbsentSubReasonDto>,
 )
 
 data class AbsentReasonDto(val code: AbsentReason, val name: String)

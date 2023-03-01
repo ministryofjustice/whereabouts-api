@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 enum class HearingType {
   MAIN,
   PRE,
-  POST
+  POST,
 }
 
 @Entity
@@ -31,7 +31,7 @@ class VideoLinkAppointment(
   var endDateTime: LocalDateTime,
 
   @Enumerated(EnumType.STRING)
-  val hearingType: HearingType
+  val hearingType: HearingType,
 ) : BaseEntity(id) {
   override fun toString(): String = "VideoLinkAppointment(id = $id, appointmentId = $appointmentId, locationId = $locationId, startDateTime = $startDateTime, endDateTime = $endDateTime, hearingType = $hearingType)"
 

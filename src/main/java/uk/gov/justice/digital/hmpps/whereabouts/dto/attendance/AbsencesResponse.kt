@@ -8,5 +8,5 @@ data class AbsencesResponse(
   @ApiModelProperty(value = "Description of absence reason", example = "Refused to attend - incentive level warning added")
   val description: String,
   @ApiModelProperty(value = "List of absences")
-  val absences: List<AbsenceDto>
+  val absences: List<AbsenceDto>,
 )

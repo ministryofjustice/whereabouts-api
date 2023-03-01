@@ -65,7 +65,7 @@ class AttendanceChangesRepositoryTest {
     val change = AttendanceChange(
       attendance = attendance,
       changedFrom = AttendanceChangeValues.Refused,
-      changedTo = AttendanceChangeValues.NotRequired
+      changedTo = AttendanceChangeValues.NotRequired,
     )
 
     val id = attendanceChangesRepository.save(change).id!!

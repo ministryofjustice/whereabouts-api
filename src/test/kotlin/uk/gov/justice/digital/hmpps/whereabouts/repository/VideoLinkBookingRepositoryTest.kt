@@ -30,7 +30,7 @@ const val USERNAME = "username1"
 @Transactional
 class VideoLinkBookingRepositoryTest(
   @Autowired val repository: VideoLinkBookingRepository,
-  @Autowired val jdbcTemplate: JdbcTemplate
+  @Autowired val jdbcTemplate: JdbcTemplate,
 ) {
   @MockBean
   lateinit var authenticationFacade: AuthenticationFacade
@@ -59,7 +59,7 @@ class VideoLinkBookingRepositoryTest(
       courtName = "A Court",
       courtId = "TSTCRT",
       madeByTheCourt = true,
-      prisonId = prisonId
+      prisonId = prisonId,
     ).apply {
       addMainAppointment(2, 20L, startDateTime, endDateTime)
     }
@@ -89,7 +89,7 @@ class VideoLinkBookingRepositoryTest(
       offenderBookingId = 1,
       courtName = "A Court",
       madeByTheCourt = true,
-      prisonId = prisonId
+      prisonId = prisonId,
     ).apply {
       addMainAppointment(4, 20L, startDateTime, endDateTime)
       addPreAppointment(12, 20L, startDateTime, endDateTime)
@@ -128,7 +128,7 @@ class VideoLinkBookingRepositoryTest(
         addMainAppointment(4, 20L, startDateTime, endDateTime)
         addPreAppointment(12, 20L, startDateTime, endDateTime)
         addPostAppointment(22, 20L, startDateTime, endDateTime)
-      }
+      },
     ).id!!
     TestTransaction.flagForCommit()
     TestTransaction.end()
@@ -155,7 +155,7 @@ class VideoLinkBookingRepositoryTest(
         addMainAppointment(4, 20L, startDateTime, endDateTime)
         addPreAppointment(12, 20L, startDateTime, endDateTime)
         addPostAppointment(22, 20L, startDateTime, endDateTime)
-      }
+      },
     ).id!!
     TestTransaction.flagForCommit()
     TestTransaction.end()
@@ -206,29 +206,29 @@ class VideoLinkBookingRepositoryTest(
       VideoLinkBooking(
         offenderBookingId = 1L,
         courtName = "C1",
-        prisonId = prisonId
-      ).apply { addMainAppointment(100L, 20L, startDateTime, endDateTime) }
+        prisonId = prisonId,
+      ).apply { addMainAppointment(100L, 20L, startDateTime, endDateTime) },
     )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 2L,
         courtName = "C2",
-        prisonId = prisonId
-      ).apply { addMainAppointment(101L, 20L, startDateTime, endDateTime) }
+        prisonId = prisonId,
+      ).apply { addMainAppointment(101L, 20L, startDateTime, endDateTime) },
     )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 3L,
         courtName = "C1",
-        prisonId = prisonId
-      ).apply { addMainAppointment(102L, 20L, startDateTime, endDateTime) }
+        prisonId = prisonId,
+      ).apply { addMainAppointment(102L, 20L, startDateTime, endDateTime) },
     )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 4L,
         courtName = "C2",
-        prisonId = prisonId
-      ).apply { addMainAppointment(103L, 20L, startDateTime, endDateTime) }
+        prisonId = prisonId,
+      ).apply { addMainAppointment(103L, 20L, startDateTime, endDateTime) },
     )
 
     TestTransaction.flagForCommit()
@@ -254,29 +254,29 @@ class VideoLinkBookingRepositoryTest(
       VideoLinkBooking(
         offenderBookingId = 1L,
         courtId = "C1",
-        prisonId = prisonId
-      ).apply { addMainAppointment(100L, 20L, startDateTime, endDateTime) }
+        prisonId = prisonId,
+      ).apply { addMainAppointment(100L, 20L, startDateTime, endDateTime) },
     )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 2L,
         courtId = "C2",
-        prisonId = prisonId
-      ).apply { addMainAppointment(101L, 20L, startDateTime, endDateTime) }
+        prisonId = prisonId,
+      ).apply { addMainAppointment(101L, 20L, startDateTime, endDateTime) },
     )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 3L,
         courtId = "C1",
-        prisonId = prisonId
-      ).apply { addMainAppointment(102L, 20L, startDateTime, endDateTime) }
+        prisonId = prisonId,
+      ).apply { addMainAppointment(102L, 20L, startDateTime, endDateTime) },
     )
     repository.save(
       VideoLinkBooking(
         offenderBookingId = 4L,
         courtId = "C2",
-        prisonId = prisonId
-      ).apply { addMainAppointment(103L, 20L, startDateTime, endDateTime) }
+        prisonId = prisonId,
+      ).apply { addMainAppointment(103L, 20L, startDateTime, endDateTime) },
     )
 
     TestTransaction.flagForCommit()
@@ -303,7 +303,7 @@ class VideoLinkBookingRepositoryTest(
         addMainAppointment(4, 20L, startDateTime, endDateTime)
         addPreAppointment(12, 20L, startDateTime, endDateTime)
         addPostAppointment(22, 20L, startDateTime, endDateTime)
-      }
+      },
     ).id!!
 
     TestTransaction.flagForCommit()
@@ -328,12 +328,12 @@ class VideoLinkBookingRepositoryTest(
         offenderBookingId = 1,
         courtName = "A Court",
         madeByTheCourt = true,
-        prisonId = prisonId
+        prisonId = prisonId,
       ).apply {
         addMainAppointment(4, 20L, startDateTime, endDateTime)
         addPreAppointment(12, 20L, startDateTime, endDateTime)
         addPostAppointment(22, 20L, startDateTime, endDateTime)
-      }
+      },
     ).id!!
 
     TestTransaction.flagForCommit()
@@ -381,7 +381,7 @@ class VideoLinkBookingRepositoryTest(
         courtName = "Court",
         courtId = "TSTCRT",
         madeByTheCourt = true,
-        prisonId = prisonId
+        prisonId = prisonId,
       ).apply {
         addPreAppointment(it * 3 - 1, 20L, startDateTime, endDateTime)
         addMainAppointment(it * 3, 20L, startDateTime, endDateTime)

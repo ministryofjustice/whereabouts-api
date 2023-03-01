@@ -29,13 +29,13 @@ class RecurringAppointmentRepositoryTest {
         startTime = startTime,
         relatedAppointments = mutableListOf(
           RelatedAppointment(2),
-          RelatedAppointment(3)
-        )
-      )
+          RelatedAppointment(3),
+        ),
+      ),
     ).id
 
     val mainAppointment = recurringAppointmentRepository.findRecurringAppointmentByRelatedAppointmentsContains(
-      RelatedAppointment(3)
+      RelatedAppointment(3),
     ).orElseThrow()
 
     assertThat(mainAppointment)

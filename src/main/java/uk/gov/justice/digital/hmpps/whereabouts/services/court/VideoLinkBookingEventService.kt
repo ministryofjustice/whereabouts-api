@@ -12,7 +12,7 @@ import java.time.LocalDate
 class VideoLinkBookingEventService(
   val repository: VideoLinkBookingEventRepository,
   val csvConverter: EventToCsvConverter,
-  val courtsService: CourtService
+  val courtsService: CourtService,
 ) {
   @Transactional(readOnly = true)
   fun getEventsAsCSV(startDate: LocalDate, days: Long): String {

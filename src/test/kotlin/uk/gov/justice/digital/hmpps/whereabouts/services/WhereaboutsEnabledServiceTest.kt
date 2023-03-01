@@ -34,9 +34,9 @@ class WhereaboutsEnabledServiceTest {
         LocationGroup(
           "any name",
           "any key",
-          emptyList()
-        )
-      )
+          emptyList(),
+        ),
+      ),
     )
 
     assertThat(whereaboutsEnabledService.isEnabled("not enabled agency")).isTrue()
@@ -49,9 +49,9 @@ class WhereaboutsEnabledServiceTest {
         LocationGroup(
           "any name",
           "any key",
-          emptyList()
-        )
-      )
+          emptyList(),
+        ),
+      ),
     )
 
     assertThat(whereaboutsEnabledService.isEnabled("MDI")).isTrue()

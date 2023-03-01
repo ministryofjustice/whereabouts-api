@@ -19,7 +19,7 @@ class AttendanceServiceForAppScope {
     attendanceChangesRepository: AttendanceChangesRepository,
     iepWarningService: IEPWarningService,
     nomisEventOutcomeMapper: NomisEventOutcomeMapper,
-    telemetryClient: TelemetryClient
+    telemetryClient: TelemetryClient,
   ): AttendanceService {
     return AttendanceService(
       attendanceRepository,
@@ -27,7 +27,7 @@ class AttendanceServiceForAppScope {
       prisonApiService,
       iepWarningService,
       nomisEventOutcomeMapper,
-      telemetryClient
+      telemetryClient,
     )
   }
 }

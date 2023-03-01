@@ -26,7 +26,7 @@ class AttendanceStatisticsController(private val attendanceStatistics: Attendanc
   @GetMapping("{prison}/over-date-range")
   @Operation(
     description = "Request attendance statistics",
-    summary = "Request attendance statistics"
+    summary = "Request attendance statistics",
   )
   fun getAttendanceForEventLocation(
     @Parameter(description = "Prison id (LEI)")
@@ -37,17 +37,17 @@ class AttendanceStatisticsController(private val attendanceStatistics: Attendanc
     period: TimePeriod?,
     @Parameter(
       description = "From date of event in format YYYY-MM-DD",
-      required = true
+      required = true,
     )
     @RequestParam(name = "fromDate")
     @DateTimeFormat(iso = DATE)
     fromDate: LocalDate,
     @Parameter(
       description = "To date of event in format YYYY-MM-DD",
-      required = true
+      required = true,
     )
     @RequestParam(name = "toDate")
     @DateTimeFormat(iso = DATE)
-    toDate: LocalDate
+    toDate: LocalDate,
   ): Stats = attendanceStatistics.getStats(prisonId, period, fromDate, toDate)
 }

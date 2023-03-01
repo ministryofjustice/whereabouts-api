@@ -25,7 +25,7 @@ import java.time.LocalDate
 
 @WebMvcTest(
   AttendanceController::class,
-  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class]
+  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class],
 )
 class AttendanceControllerTest : TestController() {
   @MockBean
@@ -46,15 +46,15 @@ class AttendanceControllerTest : TestController() {
               "eventDate" to LocalDate.of(2010, 10, 10),
               "period" to TimePeriod.AM,
               "attended" to true,
-              "paid" to true
-            )
-          )
-        )
+              "paid" to true,
+            ),
+          ),
+        ),
     )
       .andDo(print())
       .andExpect(
         status()
-          .isBadRequest
+          .isBadRequest,
       )
   }
 
@@ -73,15 +73,15 @@ class AttendanceControllerTest : TestController() {
               "eventDate" to LocalDate.of(2010, 10, 10),
               "period" to TimePeriod.AM,
               "attended" to true,
-              "paid" to true
-            )
-          )
-        )
+              "paid" to true,
+            ),
+          ),
+        ),
     )
       .andDo(print())
       .andExpect(
         status()
-          .isBadRequest
+          .isBadRequest,
       )
   }
 
@@ -100,15 +100,15 @@ class AttendanceControllerTest : TestController() {
               "eventLocationId" to 1,
               "period" to TimePeriod.AM,
               "attended" to true,
-              "paid" to true
-            )
-          )
-        )
+              "paid" to true,
+            ),
+          ),
+        ),
     )
       .andDo(print())
       .andExpect(
         status()
-          .isBadRequest
+          .isBadRequest,
       )
   }
 
@@ -127,15 +127,15 @@ class AttendanceControllerTest : TestController() {
               "eventLocationId" to 1,
               "eventDate" to LocalDate.of(2019, 10, 10),
               "attended" to true,
-              "paid" to true
-            )
-          )
-        )
+              "paid" to true,
+            ),
+          ),
+        ),
     )
       .andDo(print())
       .andExpect(
         status()
-          .isBadRequest
+          .isBadRequest,
       )
   }
 
@@ -154,15 +154,15 @@ class AttendanceControllerTest : TestController() {
               "eventDate" to LocalDate.of(2010, 10, 10),
               "period" to TimePeriod.AM,
               "attended" to true,
-              "paid" to true
-            )
-          )
-        )
+              "paid" to true,
+            ),
+          ),
+        ),
     )
       .andDo(print())
       .andExpect(
         status()
-          .isBadRequest
+          .isBadRequest,
       )
   }
 
@@ -181,15 +181,15 @@ class AttendanceControllerTest : TestController() {
               "eventDate" to LocalDate.of(2010, 10, 10),
               "period" to TimePeriod.AM,
               "attended" to true,
-              "paid" to true
-            )
-          )
-        )
+              "paid" to true,
+            ),
+          ),
+        ),
     )
       .andDo(print())
       .andExpect(
         status()
-          .isBadRequest
+          .isBadRequest,
       )
   }
 
@@ -206,10 +206,10 @@ class AttendanceControllerTest : TestController() {
           objectMapper.writeValueAsString(
             mapOf(
               "attended" to true,
-              "paid" to true
-            )
-          )
-        )
+              "paid" to true,
+            ),
+          ),
+        ),
     )
       .andDo(print())
       .andExpect(status().isNotFound)
@@ -233,10 +233,10 @@ class AttendanceControllerTest : TestController() {
               "eventId" to 2,
               "eventLocationId" to 1,
               "period" to TimePeriod.AM,
-              "eventDate" to LocalDate.now().toString()
-            )
-          )
-        )
+              "eventDate" to LocalDate.now().toString(),
+            ),
+          ),
+        ),
     )
       .andDo(print())
       .andExpect(status().isConflict)
@@ -256,10 +256,10 @@ class AttendanceControllerTest : TestController() {
           objectMapper.writeValueAsString(
             mapOf(
               "attended" to true,
-              "paid" to true
-            )
-          )
-        )
+              "paid" to true,
+            ),
+          ),
+        ),
     )
       .andDo(print())
       .andExpect(status().isBadRequest)

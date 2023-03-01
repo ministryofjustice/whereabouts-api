@@ -9,5 +9,5 @@ data class OffenderAttendance(
   val prisonId: String? = null,
   val activity: String? = null,
   val description: String? = null,
-  val comment: String? = null
+  val comment: String? = null,
 )

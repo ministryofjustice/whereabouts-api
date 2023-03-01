@@ -9,5 +9,5 @@ data class LocationIdAndDescription(
   val locationId: Long,
 
   @ApiModelProperty(value = "The NOMIS description of the location", example = "VCC Room 16")
-  val description: String
+  val description: String,
 )

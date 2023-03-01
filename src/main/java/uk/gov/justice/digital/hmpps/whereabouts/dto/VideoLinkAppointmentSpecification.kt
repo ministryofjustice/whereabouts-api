@@ -16,5 +16,5 @@ data class VideoLinkAppointmentSpecification(
   val startTime: LocalDateTime,
 
   @ApiModelProperty(value = "Finish Time of the appointment. ISO-8601 date-time format", example = "2020-12-23T09:00:00", required = true)
-  val endTime: LocalDateTime
+  val endTime: LocalDateTime,
 )

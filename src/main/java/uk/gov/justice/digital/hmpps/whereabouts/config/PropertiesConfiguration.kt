@@ -12,7 +12,7 @@ import java.io.IOException
 @Configuration
 open class PropertiesConfiguration(
   @Value("classpath:whereabouts/patterns/*.properties") private val resources: Array<Resource>,
-  @Value("classpath:whereabouts/enabled.properties") private val enabled: Resource
+  @Value("classpath:whereabouts/enabled.properties") private val enabled: Resource,
 ) {
 
   @Bean

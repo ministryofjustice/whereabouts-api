@@ -14,7 +14,7 @@ class TimelineTest {
     fun `Can build a timeline from no events`() {
       givenTheseEvents()
         .expectTheseEmptyPeriods(
-          period(LocalTime.MIN, LocalTime.MAX)
+          period(LocalTime.MIN, LocalTime.MAX),
         )
     }
 
@@ -22,11 +22,11 @@ class TimelineTest {
     fun `Can build a timeline from a pair of events`() {
       givenTheseEvents(
         start(9, 0),
-        end(10, 0)
+        end(10, 0),
 
       ).expectTheseEmptyPeriods(
         period(LocalTime.MIN, hm(9, 0)),
-        period(hm(10, 0), LocalTime.MAX)
+        period(hm(10, 0), LocalTime.MAX),
       )
     }
 
@@ -38,12 +38,12 @@ class TimelineTest {
         start(11, 0),
         end(12, 0),
         start(16, 0),
-        end(17, 0)
+        end(17, 0),
       ).expectTheseEmptyPeriods(
         period(LocalTime.MIN, hm(9, 0)),
         period(hm(10, 0), hm(11, 0)),
         period(hm(12, 0), hm(16, 0)),
-        period(hm(17, 0), LocalTime.MAX)
+        period(hm(17, 0), LocalTime.MAX),
       )
     }
 
@@ -55,10 +55,10 @@ class TimelineTest {
         start(10, 0),
         end(11, 0),
         start(11, 0),
-        end(12, 0)
+        end(12, 0),
       ).expectTheseEmptyPeriods(
         period(LocalTime.MIN, hm(9, 0)),
-        period(hm(12, 0), LocalTime.MAX)
+        period(hm(12, 0), LocalTime.MAX),
       )
     }
 
@@ -68,10 +68,10 @@ class TimelineTest {
         start(9, 0),
         end(10, 0),
         start(9, 15),
-        end(9, 45)
+        end(9, 45),
       ).expectTheseEmptyPeriods(
         period(LocalTime.MIN, hm(9, 0)),
-        period(hm(10, 0), LocalTime.MAX)
+        period(hm(10, 0), LocalTime.MAX),
       )
     }
 
@@ -81,10 +81,10 @@ class TimelineTest {
         start(9, 0),
         end(10, 0),
         start(9, 15),
-        end(10, 15)
+        end(10, 15),
       ).expectTheseEmptyPeriods(
         period(LocalTime.MIN, hm(9, 0)),
-        period(hm(10, 15), LocalTime.MAX)
+        period(hm(10, 15), LocalTime.MAX),
       )
     }
 
@@ -94,10 +94,10 @@ class TimelineTest {
         start(9, 0),
         end(10, 0),
         start(9, 0),
-        end(10, 0)
+        end(10, 0),
       ).expectTheseEmptyPeriods(
         period(LocalTime.MIN, hm(9, 0)),
-        period(hm(10, 0), LocalTime.MAX)
+        period(hm(10, 0), LocalTime.MAX),
       )
     }
 
@@ -107,10 +107,10 @@ class TimelineTest {
         start(9, 0),
         end(10, 0),
         start(9, 30),
-        end(10, 0)
+        end(10, 0),
       ).expectTheseEmptyPeriods(
         period(LocalTime.MIN, hm(9, 0)),
-        period(hm(10, 0), LocalTime.MAX)
+        period(hm(10, 0), LocalTime.MAX),
       )
     }
 
@@ -120,10 +120,10 @@ class TimelineTest {
         start(9, 0),
         end(9, 30),
         start(9, 0),
-        end(10, 0)
+        end(10, 0),
       ).expectTheseEmptyPeriods(
         period(LocalTime.MIN, hm(9, 0)),
-        period(hm(10, 0), LocalTime.MAX)
+        period(hm(10, 0), LocalTime.MAX),
       )
     }
 
@@ -135,12 +135,12 @@ class TimelineTest {
           start(9, 0), end(10, 0),
           start(9, 30), end(10, 0),
           start(9, 30), end(10, 30),
-          start(10, 30), end(11, 0)
-        )
+          start(10, 30), end(11, 0),
+        ),
       ).emptyPeriods()
       assertThat(emptyPeriods).containsExactly(
         period(LocalTime.MIN, hm(9, 0)),
-        period(hm(11, 0), LocalTime.MAX)
+        period(hm(11, 0), LocalTime.MAX),
       )
     }
   }
@@ -158,7 +158,7 @@ class TimelineTest {
     fun `free time is free`() {
       givenTheseEvents(
         start(9, 0),
-        end(10, 0)
+        end(10, 0),
       )
         .thisPeriodCanBeBooked(LocalTime.MIN, hm(9, 0))
         .thisPeriodCanBeBooked(hm(10, 0), LocalTime.MAX)
@@ -168,7 +168,7 @@ class TimelineTest {
     fun `A period fully within occupied time is unavailable`() {
       givenTheseEvents(
         start(9, 0),
-        end(10, 0)
+        end(10, 0),
       )
         .thisPeriodCannotBeBooked(hm(9, 15), hm(9, 45))
     }
@@ -177,7 +177,7 @@ class TimelineTest {
     fun `A period that overlaps  occupied time is unavailable`() {
       givenTheseEvents(
         start(9, 0),
-        end(10, 0)
+        end(10, 0),
       ).thisPeriodCannotBeBooked(hm(8, 45), hm(9, 15))
     }
 
@@ -193,7 +193,7 @@ class TimelineTest {
         start(9, 0),
         end(10, 0),
         start(11, 0),
-        end(12, 0)
+        end(12, 0),
       ).thisPeriodCannotBeBooked(hm(8, 45), hm(12, 15))
     }
   }

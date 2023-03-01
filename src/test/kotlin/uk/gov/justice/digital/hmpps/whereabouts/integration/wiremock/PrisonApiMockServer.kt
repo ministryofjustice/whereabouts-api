@@ -32,8 +32,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
       put(urlPathEqualTo(updateAttendanceUrl))
         .willReturn(
           aResponse()
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -44,8 +44,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
       put(urlPathEqualTo(updateAttendanceUrl))
         .willReturn(
           aResponse()
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -56,8 +56,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
       delete(urlPathEqualTo(deleteAppointmentUrl))
         .willReturn(
           aResponse()
-            .withStatus(status)
-        )
+            .withStatus(status),
+        ),
     )
   }
 
@@ -67,15 +67,15 @@ class PrisonApiMockServer : WireMockServer(8999) {
     stubFor(
       put(urlPathEqualTo(updateAppointmentUrl))
         .willReturn(
-          aResponse().withStatus(status)
-        )
+          aResponse().withStatus(status),
+        ),
     )
   }
 
   fun stubGetScheduledActivities(
     prisonId: String = "MDI",
     date: LocalDate = LocalDate.now(),
-    period: TimePeriod = TimePeriod.AM
+    period: TimePeriod = TimePeriod.AM,
   ) {
     stubFor(
       get(urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period"))
@@ -86,12 +86,12 @@ class PrisonApiMockServer : WireMockServer(8999) {
               gson.toJson(
                 listOf(
                   mapOf("bookingId" to 1L, "eventId" to 2L, "offenderNo" to "A123B"),
-                  mapOf("bookingId" to 2L, "eventId" to 3L, "offenderNo" to "B123C")
-                )
-              )
+                  mapOf("bookingId" to 2L, "eventId" to 3L, "offenderNo" to "B123C"),
+                ),
+              ),
             )
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -116,7 +116,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     "offenderNo" to offenderNo,
                     "firstName" to "BRUNO",
                     "lastName" to "BEYETTE",
-                    "createUserId" to "ASMITH"
+                    "createUserId" to "ASMITH",
                   ),
                   mapOf(
                     "id" to 2L,
@@ -130,20 +130,20 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     "offenderNo" to "B2345BB",
                     "firstName" to "BILL",
                     "lastName" to "BENN",
-                    "createUserId" to "BSMITH"
-                  )
-                )
-              )
+                    "createUserId" to "BSMITH",
+                  ),
+                ),
+              ),
             )
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
   fun stubGetScheduledAppointmentsByAgencyDateAndLocationId(
     agencyId: String,
     offenderNo: String = "A1234AA",
-    locationId: Long
+    locationId: Long,
   ) {
     stubFor(
       get(urlEqualTo("/api/schedules/$agencyId/appointments?date=2020-12-25&locationId=$locationId"))
@@ -165,7 +165,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     "offenderNo" to offenderNo,
                     "firstName" to "BRUNO",
                     "lastName" to "BEYETTE",
-                    "createUserId" to "ASMITH"
+                    "createUserId" to "ASMITH",
                   ),
                   mapOf(
                     "id" to 2L,
@@ -179,13 +179,13 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     "offenderNo" to "B2345BB",
                     "firstName" to "BILL",
                     "lastName" to "BENN",
-                    "createUserId" to "BSMITH"
-                  )
-                )
-              )
+                    "createUserId" to "BSMITH",
+                  ),
+                ),
+              ),
             )
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -198,17 +198,17 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withBody(
               gson.toJson(
                 listOf(
-                  mapOf("bookingId" to 1L, "eventId" to 1L)
-                )
-              )
+                  mapOf("bookingId" to 1L, "eventId" to 1L),
+                ),
+              ),
             )
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
   fun stubScheduleActivityCount(
-    prisonId: String = "MDI"
+    prisonId: String = "MDI",
   ) {
     stubFor(
       post(urlPathEqualTo("/api/schedules/$prisonId/count-activities"))
@@ -217,11 +217,11 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withHeader("Content-Type", "application/json")
             .withBody(
               gson.toJson(
-                mapOf("total" to 13L, "suspended" to 2L, "notRecorded" to 5L)
-              )
+                mapOf("total" to 13L, "suspended" to 2L, "notRecorded" to 5L),
+              ),
             )
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -231,7 +231,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
     toDate: LocalDate = LocalDate.now(),
     outcome: String? = null,
     page: String? = "0",
-    size: String? = "10000"
+    size: String? = "10000",
   ) {
     val outcomeParam = if (outcome != null) "&outcome=$outcome" else ""
     val testUrl =
@@ -254,10 +254,10 @@ class PrisonApiMockServer : WireMockServer(8999) {
 ], 
 "pageable":{"pageNumber":0,"pageSize":10000},
 "totalPages": 1
-}"""
+}""",
             )
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -267,7 +267,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
     toDate: LocalDate = LocalDate.now(),
     outcome: String? = null,
     page: String? = "0",
-    size: String? = "10000"
+    size: String? = "10000",
   ) {
     val outcomeParam = if (outcome != null) "&outcome=$outcome" else ""
     val testUrl =
@@ -283,10 +283,10 @@ class PrisonApiMockServer : WireMockServer(8999) {
 "content":[],
 "pageable":{"pageNumber":0,"pageSize":10000},
 "totalPages": 0
-}"""
+}""",
             )
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -297,8 +297,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(mapOf("offenderNo" to offenderNo)))
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -320,13 +320,13 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     "agencyId" to "MDI",
                     "dateOfBirth" to "2000-01-01",
                     "assignedLivingUnitId" to 44L,
-                    "assignedLivingUnitDesc" to offenderLocationDescription
-                  )
-                )
-              )
+                    "assignedLivingUnitDesc" to offenderLocationDescription,
+                  ),
+                ),
+              ),
             )
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -339,12 +339,12 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withBody(
               gson.toJson(
                 listOf(
-                  LocationGroup(key = "A", name = "Block A")
-                )
-              )
+                  LocationGroup(key = "A", name = "Block A"),
+                ),
+              ),
             )
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -361,12 +361,12 @@ class PrisonApiMockServer : WireMockServer(8999) {
                   null,
                   "Resource with id [$agencyId] not found",
                   "Resource with id [$agencyId] not found",
-                  null
-                )
-              )
+                  null,
+                ),
+              ),
             )
-            .withStatus(404)
-        )
+            .withStatus(404),
+        ),
     )
   }
 
@@ -377,8 +377,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(locations))
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -390,11 +390,11 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withHeader("Content-Type", "application/json")
             .withBody(
               gson.toJson(
-                ErrorResponse(500, null, "Server error", "Server error", null)
-              )
+                ErrorResponse(500, null, "Server error", "Server error", null),
+              ),
             )
-            .withStatus(500)
-        )
+            .withStatus(500),
+        ),
     )
   }
 
@@ -405,8 +405,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
           aResponse()
             .withHeader("Content-type", "application/json")
             .withBody(gson.toJson(locations.map { it.toMap() }))
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -417,8 +417,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
           aResponse()
             .withHeader("Content-type", "application/json")
             .withBody(gson.toJson(cells.map { it.toMap() }))
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -429,8 +429,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
           aResponse()
             .withHeader("Content-type", "application/json")
             .withBody(gson.toJson(cells.map { it.toMap() }))
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -444,7 +444,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
       "locationPrefix" to this.locationPrefix,
       "locationType" to this.locationType,
       "operationalCapacity" to "${this.operationalCapacity}",
-      "internalLocationCode" to this.internalLocationCode
+      "internalLocationCode" to this.internalLocationCode,
     )
     if (this.userDescription != null) locationMap["userDescription"] = this.userDescription as String
     if (this.locationUsage != null) locationMap["locationUsage"] = this.locationUsage as String
@@ -459,7 +459,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
       "userDescription" to this.userDescription,
       "noOfOccupants" to "${this.noOfOccupants}",
       "capacity" to "${this.capacity}",
-      "attributes" to listOf<CellAttribute>()
+      "attributes" to listOf<CellAttribute>(),
     )
     return cellMap.toMap()
   }
@@ -478,13 +478,13 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     null,
                     "Locations of type [$locationType] in agency [$agencyId] not found",
                     "Locations of type [$locationType] in agency [$agencyId] not found",
-                    null
-                  )
-                )
-              )
+                    null,
+                  ),
+                ),
+              ),
             )
-            .withStatus(404)
-        )
+            .withStatus(404),
+        ),
     )
   }
 
@@ -497,12 +497,12 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withBody(
               gson.toJson(
                 listOf(
-                  ErrorResponse(500, null, "Server error", "Server error", null)
-                )
-              )
+                  ErrorResponse(500, null, "Server error", "Server error", null),
+                ),
+              ),
             )
-            .withStatus(500)
-        )
+            .withStatus(500),
+        ),
     )
   }
 
@@ -519,12 +519,12 @@ class PrisonApiMockServer : WireMockServer(8999) {
                   agencyId = "WWI",
                   eventLocationId = 10L,
                   startTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-                  endTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
-                )
-              )
+                  endTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
+                ),
+              ),
             )
-            .withStatus(201)
-        )
+            .withStatus(201),
+        ),
     )
   }
 
@@ -535,10 +535,10 @@ class PrisonApiMockServer : WireMockServer(8999) {
           aResponse()
             .withHeader("Content-type", "application/json")
             .withBody(
-              gson.toJson(response)
+              gson.toJson(response),
             )
-            .withStatus(201)
-        )
+            .withStatus(201),
+        ),
     )
   }
 
@@ -547,7 +547,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
     internalLocationDescription: String,
     assignedLivingUnitId: Long,
     agencyId: String,
-    bedAssignmentHistorySequence: Int
+    bedAssignmentHistorySequence: Int,
   ) {
     stubFor(
       put(urlPathEqualTo("/api/bookings/$bookingId/living-unit/$internalLocationDescription"))
@@ -561,12 +561,12 @@ class PrisonApiMockServer : WireMockServer(8999) {
                   "agencyId" to agencyId,
                   "assignedLivingUnitDesc" to internalLocationDescription,
                   "assignedLivingUnitId" to assignedLivingUnitId,
-                  "bedAssignmentHistorySequence" to bedAssignmentHistorySequence
-                )
-              )
+                  "bedAssignmentHistorySequence" to bedAssignmentHistorySequence,
+                ),
+              ),
             )
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
 
@@ -577,8 +577,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(responseJson)
-            .withStatus(200)
-        )
+            .withStatus(200),
+        ),
     )
   }
   fun stubGetPrisonAppointment404(appointmentId: Long) {
@@ -587,8 +587,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(404)
-        )
+            .withStatus(404),
+        ),
     )
   }
 
@@ -605,11 +605,11 @@ class PrisonApiMockServer : WireMockServer(8999) {
                   "locationId" to locationId,
                   "description" to "Location for id $locationId",
                   "locationType" to locationType,
-                  "agencyId" to "WWI"
-                )
-              )
-            )
-        )
+                  "agencyId" to "WWI",
+                ),
+              ),
+            ),
+        ),
     )
   }
 
@@ -621,8 +621,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
         .withRequestBody(equalToJson(gson.toJson(appointmentIds)))
         .willReturn(
           aResponse()
-            .withStatus(204)
-        )
+            .withStatus(204),
+        ),
     )
   }
 
@@ -633,8 +633,8 @@ class PrisonApiMockServer : WireMockServer(8999) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withStatus(httpStatus)
-            .withBody(json)
-        )
+            .withBody(json),
+        ),
     )
   }
 }

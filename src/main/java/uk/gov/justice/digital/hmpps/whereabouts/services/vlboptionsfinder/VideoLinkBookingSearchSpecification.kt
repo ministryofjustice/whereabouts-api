@@ -27,7 +27,7 @@ data class VideoLinkBookingSearchSpecification(
 
   @ApiModelProperty(
     value = "When checking that the appointment locations and intervals are free, or when searching for alternatives treat appointments for this video link booking as free",
-    example = "[1,3,5]"
+    example = "[1,3,5]",
   )
-  val vlbIdToExclude: Long? = null
+  val vlbIdToExclude: Long? = null,
 )

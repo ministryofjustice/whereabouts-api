@@ -13,7 +13,7 @@ import java.util.Optional
 @Service
 class IEPWarningService(
   private val caseNotesService: CaseNotesService,
-  private val prisonApiService: PrisonApiService
+  private val prisonApiService: PrisonApiService,
 ) {
   private companion object {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -54,7 +54,7 @@ class IEPWarningService(
       newAttendanceDetails.absentReason,
       newAttendanceDetails.absentSubReason,
       newAttendanceDetails.comments,
-      attendance.eventDate
+      attendance.eventDate,
     )
   }
 
@@ -64,7 +64,7 @@ class IEPWarningService(
     reason: AbsentReason?,
     subReason: AbsentSubReason?,
     text: String?,
-    eventDate: LocalDate
+    eventDate: LocalDate,
   ): Optional<Long> {
     if (caseNoteId == null && reason != null && AbsentReason.iepTriggers.contains(reason)) {
       val offenderNo = prisonApiService.getOffenderNoFromBookingId(bookingId)
@@ -74,7 +74,7 @@ class IEPWarningService(
         "NEG", // "Negative Behaviour"
         "IEP_WARN", // "IEP Warning",
         modifiedTextWithReason,
-        eventDate.atStartOfDay()
+        eventDate.atStartOfDay(),
       )
 
       log.info("IEP Warning created for bookingId {}", bookingId)

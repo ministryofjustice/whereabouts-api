@@ -27,7 +27,7 @@ class VideoLinkBookingEventServiceTest {
     service = VideoLinkBookingEventService(
       videoLinkBookingEventRepository,
       eventToCsvConverter,
-      courtsService
+      courtsService,
     )
   }
 
@@ -40,12 +40,12 @@ class VideoLinkBookingEventServiceTest {
           courtId = "EYI",
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findByTimestampBetweenOrderByEventId(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
       whenever(courtsService.getCourtNameForCourtId("EYI")).thenReturn("Elmley")
 
@@ -64,12 +64,12 @@ class VideoLinkBookingEventServiceTest {
           court = court,
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findByTimestampBetweenOrderByEventId(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
 
       val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
@@ -84,12 +84,12 @@ class VideoLinkBookingEventServiceTest {
           courtId = "EYI",
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findByTimestampBetweenOrderByEventId(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
       whenever(courtsService.getCourtNameForCourtId("EYI")).thenReturn(null)
 
@@ -104,12 +104,12 @@ class VideoLinkBookingEventServiceTest {
         VideoLinkBookingEvent(
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findByTimestampBetweenOrderByEventId(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
 
       val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
@@ -127,12 +127,12 @@ class VideoLinkBookingEventServiceTest {
           courtId = "EYI",
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findEventsByBookingTime(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
       whenever(courtsService.getCourtNameForCourtId("EYI")).thenReturn("Elmley")
 
@@ -151,12 +151,12 @@ class VideoLinkBookingEventServiceTest {
           court = court,
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findEventsByBookingTime(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
 
       val events = service.getBookingsByStartDateAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
@@ -171,12 +171,12 @@ class VideoLinkBookingEventServiceTest {
           courtId = "EYI",
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findEventsByBookingTime(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
       whenever(courtsService.getCourtNameForCourtId("EYI")).thenReturn(null)
 
@@ -191,12 +191,12 @@ class VideoLinkBookingEventServiceTest {
         VideoLinkBookingEvent(
           eventType = VideoLinkBookingEventType.CREATE,
           timestamp = LocalDateTime.of(2021, Month.JUNE, 15, 3, 15),
-          videoLinkBookingId = 2L
-        )
+          videoLinkBookingId = 2L,
+        ),
       )
 
       whenever(videoLinkBookingEventRepository.findEventsByBookingTime(any(), any())).thenReturn(
-        eventStream
+        eventStream,
       )
 
       val events = service.getBookingsByStartDateAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)

@@ -13,11 +13,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEvent
 class DelegatingVideoLinkBookingEventListener(
   val eventStoreListener: EventStoreListener,
   val applicationInsightsEventListener: ApplicationInsightsEventListener,
-  val courtService: CourtService
+  val courtService: CourtService,
 ) : VideoLinkBookingEventListener {
   override fun bookingCreated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingSpecification
+    specification: VideoLinkBookingSpecification,
 
   ) {
     eventStoreListener.bookingCreated(booking, specification)
@@ -26,7 +26,7 @@ class DelegatingVideoLinkBookingEventListener(
 
   override fun bookingUpdated(
     booking: VideoLinkBooking,
-    specification: VideoLinkBookingUpdateSpecification
+    specification: VideoLinkBookingUpdateSpecification,
 
   ) {
     val copy = copyWithCourtName(booking)

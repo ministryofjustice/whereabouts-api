@@ -9,7 +9,7 @@ import java.util.function.Predicate
 @Service("locationGroupServiceSelector")
 class LocationGroupServiceSelector(
   @Qualifier("defaultLocationGroupService") private val defaultService: LocationGroupService,
-  @Qualifier("overrideLocationGroupService") private val overrideService: LocationGroupService
+  @Qualifier("overrideLocationGroupService") private val overrideService: LocationGroupService,
 ) : LocationGroupService {
 
   override fun getLocationGroupsForAgency(agencyId: String): List<LocationGroup> {

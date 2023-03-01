@@ -8,13 +8,13 @@ import java.time.LocalDateTime
 @ApiModel(description = "Attendances response")
 data class AttendancesResponse(
   @ApiModelProperty(value = "Set of attendances")
-  var attendances: Set<AttendanceDto>? = null
+  var attendances: Set<AttendanceDto>? = null,
 )
 
 @ApiModel(description = "Attendance changes")
 data class AttendanceChangesResponse(
   @ApiModelProperty(value = "Set of changes")
-  var changes: Set<AttendanceChangeDto>? = null
+  var changes: Set<AttendanceChangeDto>? = null,
 )
 
 @ApiModel("Attendance change")
@@ -38,5 +38,5 @@ data class AttendanceChangeDto(
   @ApiModelProperty("Changed by username")
   val changedBy: String?,
   @ApiModelProperty("Id of the prison example", example = "MDI")
-  val prisonId: String?
+  val prisonId: String?,
 )

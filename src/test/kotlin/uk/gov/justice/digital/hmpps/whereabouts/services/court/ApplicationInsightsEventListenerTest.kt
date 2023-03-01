@@ -52,9 +52,9 @@ class ApplicationInsightsEventListenerTest {
         "postAppointmentId" to "14",
         "postId" to "140",
         "postStart" to startTime.plusMinutes(120).toString(),
-        "postEnd" to startTime.plusMinutes(150).toString()
+        "postEnd" to startTime.plusMinutes(150).toString(),
       ),
-      null
+      null,
     )
   }
 
@@ -81,9 +81,9 @@ class ApplicationInsightsEventListenerTest {
         "postAppointmentId" to "14",
         "postId" to "140",
         "postStart" to startTime.plusMinutes(120).toString(),
-        "postEnd" to startTime.plusMinutes(150).toString()
+        "postEnd" to startTime.plusMinutes(150).toString(),
       ),
-      null
+      null,
     )
   }
 
@@ -104,9 +104,9 @@ class ApplicationInsightsEventListenerTest {
         "mainAppointmentId" to "13",
         "mainId" to "130",
         "postAppointmentId" to "14",
-        "postId" to "140"
+        "postId" to "140",
       ),
-      null
+      null,
     )
   }
 
@@ -125,9 +125,9 @@ class ApplicationInsightsEventListenerTest {
         "current_startDate" to "2022-01-01T10:00",
         "current_endDate" to "2022-01-01T11:00",
         "update_startDate" to "2022-01-01T11:00",
-        "update_endDate" to "2022-01-01T12:00"
+        "update_endDate" to "2022-01-01T12:00",
       ),
-      null
+      null,
     )
   }
 }

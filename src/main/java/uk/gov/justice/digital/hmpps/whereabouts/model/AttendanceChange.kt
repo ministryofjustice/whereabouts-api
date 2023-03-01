@@ -35,5 +35,5 @@ data class AttendanceChange(
   var createDateTime: LocalDateTime? = null,
   @CreatedBy
   @Column(name = "CREATE_USER_ID", nullable = false)
-  var createUserId: String? = null
+  var createUserId: String? = null,
 )

@@ -10,7 +10,7 @@ import org.hibernate.Hibernate
 open class BaseEntity(
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  val id: Long? = null
+  val id: Long? = null,
 ) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

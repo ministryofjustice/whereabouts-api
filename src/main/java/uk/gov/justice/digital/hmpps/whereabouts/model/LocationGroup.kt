@@ -15,7 +15,7 @@ data class LocationGroup(
   @ApiModelProperty(
     required = true,
     value = "The child groups of this group",
-    example = "[{\"name\": \"Landing A/1\", \"key\":\"1\"}, {\"name\": \"Landing A/2\", \"key\": \"2\"}]"
+    example = "[{\"name\": \"Landing A/1\", \"key\":\"1\"}, {\"name\": \"Landing A/2\", \"key\": \"2\"}]",
   )
-  val children: List<LocationGroup> = listOf()
+  val children: List<LocationGroup> = listOf(),
 )

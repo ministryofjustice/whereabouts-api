@@ -38,8 +38,8 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
           .eventDate(fromDate)
           .eventId(1)
           .eventLocationId(1)
-          .build()
-      )
+          .build(),
+      ),
     )
 
     webTestClient.get()
@@ -51,10 +51,10 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
     prisonApiMockServer.verify(
       postRequestedFor(
         urlEqualTo(
-          "/api/schedules/$prisonId/count-activities?fromDate=$fromDate&toDate=$toDate&timeSlots=$period"
-        )
+          "/api/schedules/$prisonId/count-activities?fromDate=$fromDate&toDate=$toDate&timeSlots=$period",
+        ),
       )
-        .withRequestBody(equalToJson("""{"1":1}"""))
+        .withRequestBody(equalToJson("""{"1":1}""")),
     )
   }
 
@@ -71,13 +71,13 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
     prisonApiMockServer.verify(
       postRequestedFor(
         urlPathEqualTo(
-          "/api/schedules/$prisonId/count-activities"
-        )
+          "/api/schedules/$prisonId/count-activities",
+        ),
       )
         .withQueryParam("fromDate", EqualToPattern(fromDate.toString()))
         .withQueryParam("toDate", EqualToPattern(toDate.toString()))
         .withQueryParam("timeSlots", EqualToPattern("AM"))
-        .withQueryParam("timeSlots", EqualToPattern("PM"))
+        .withQueryParam("timeSlots", EqualToPattern("PM")),
     )
   }
 
@@ -96,8 +96,8 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
           .eventDate(fromDate)
           .eventId(1)
           .eventLocationId(1)
-          .build()
-      )
+          .build(),
+      ),
     )
 
     webTestClient.get()

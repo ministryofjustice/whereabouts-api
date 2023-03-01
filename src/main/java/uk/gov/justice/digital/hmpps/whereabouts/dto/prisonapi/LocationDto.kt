@@ -11,5 +11,5 @@ data class LocationDto(
   val internalLocationCode: String?,
   val userDescription: String?,
   val locationUsage: String?,
-  val operationalCapacity: Long?
+  val operationalCapacity: Long?,
 )

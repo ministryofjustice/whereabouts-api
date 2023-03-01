@@ -19,7 +19,7 @@ data class CreateBookingAppointment(
   val comment: String? = null,
   val startTime: String,
   val endTime: String,
-  val repeat: Repeat? = null
+  val repeat: Repeat? = null,
 )
 
 @ApiModel(description = "The data required to create an appointment")
@@ -33,21 +33,21 @@ data class CreateAppointmentSpecification(
   @ApiModelProperty(value = "Additional information")
   val comment: String? = null,
   @ApiModelProperty(
-    value = "The date and time the appointment is scheduled for"
+    value = "The date and time the appointment is scheduled for",
   )
   val startTime: LocalDateTime,
   @ApiModelProperty(
-    value = "The estimated date time the appointment will end"
+    value = "The estimated date time the appointment will end",
   )
   val endTime: LocalDateTime? = null,
   @ApiModelProperty(value = "Describes how many times this appointment is to be repeated")
-  val repeat: Repeat? = null
+  val repeat: Repeat? = null,
 )
 
 data class CreatePrisonAppointment(
   val appointmentDefaults: AppointmentDefaults,
   val appointments: List<Appointment>,
-  val repeat: Repeat?
+  val repeat: Repeat?,
 )
 
 data class AppointmentDefaults(
@@ -55,14 +55,14 @@ data class AppointmentDefaults(
   val comment: String? = null,
   val startTime: LocalDateTime,
   val endTime: LocalDateTime?,
-  val locationId: Long
+  val locationId: Long,
 )
 
 data class Appointment(
   val bookingId: Long,
   val comment: String? = null,
   val startTime: LocalDateTime,
-  val endTime: LocalDateTime?
+  val endTime: LocalDateTime?,
 )
 
 @ApiModel(description = "Describes how many times this appointment is to be repeated")
@@ -71,11 +71,11 @@ data class Repeat(
     required = true,
     value = "Repeat period",
     example = "Daily",
-    allowableValues = "Weekly,Daily,Weekday,Monthly,Fortnightly"
+    allowableValues = "Weekly,Daily,Weekday,Monthly,Fortnightly",
   )
   val repeatPeriod: RepeatPeriod,
   @ApiModelProperty(required = true, value = "Specifies the amount of times the repeat period will be applied")
-  val count: Long
+  val count: Long,
 )
 
 @ApiModel(description = "The data related to a single appointment.")
@@ -97,7 +97,7 @@ data class AppointmentDto(
   @ApiModelProperty(required = false, value = "Created by user id")
   val createUserId: String? = null,
   @ApiModelProperty(required = false, value = "Additional information regarding the appointment")
-  val comment: String? = null
+  val comment: String? = null,
 
 )
 
@@ -126,7 +126,7 @@ data class AppointmentSearchDto(
   @ApiModelProperty(required = false, value = "When the appointment is scheduled to end")
   val endTime: LocalDateTime?,
   @ApiModelProperty(required = true, value = "The name of the user who created this appointment", example = "ASMITH")
-  val createUserId: String
+  val createUserId: String,
 )
 
 @ApiModel(description = "Video link appointment booking")
@@ -138,7 +138,7 @@ data class VideoLinkBookingDto(
   @ApiModelProperty(required = false, value = "Pre appointment")
   val pre: VideoLinkAppointmentDto? = null,
   @ApiModelProperty(required = false, value = "Post appointment")
-  val post: VideoLinkAppointmentDto? = null
+  val post: VideoLinkAppointmentDto? = null,
 )
 
 @ApiModel(description = "Video link appointment details")
@@ -156,13 +156,13 @@ data class VideoLinkAppointmentDto(
 
   @ApiModelProperty(
     value = "The name of the court that requires the appointment",
-    example = "York Crown Court"
+    example = "York Crown Court",
   )
   val court: String,
 
   @ApiModelProperty(
     value = "The identifier of the court that requires the appointment. If present this will be one of the identifier values from the courts register service.",
-    example = "CMBGMC"
+    example = "CMBGMC",
   )
   val courtId: String?,
 
@@ -177,7 +177,7 @@ data class VideoLinkAppointmentDto(
   @ApiModelProperty(value = "When the appointment is scheduled to end", example = "2020-12-24T10:00")
   val endTime: LocalDateTime? = null,
   @ApiModelProperty(value = "The location id of where the appointment will take place")
-  val locationId: Long? = null
+  val locationId: Long? = null,
 )
 
 @ApiModel(description = "Recurring appointment")
@@ -188,13 +188,13 @@ data class RecurringAppointmentDto(
     required = true,
     value = "Repeat period",
     example = "Daily",
-    allowableValues = "Weekly,Daily,Weekday,Monthly,Fortnightly"
+    allowableValues = "Weekly,Daily,Weekday,Monthly,Fortnightly",
   )
   val repeatPeriod: RepeatPeriod,
   @ApiModelProperty(required = true, value = "Specifies the amount of times the repeat period will be applied")
   val count: Long,
   @ApiModelProperty(value = "The start time of the first appointment in the sequence", example = "2020-12-23T10:00")
-  val startTime: LocalDateTime
+  val startTime: LocalDateTime,
 )
 
 @ApiModel(description = "Appointment details, linking video link bookings and recurring appointments")
@@ -204,7 +204,7 @@ data class AppointmentDetailsDto(
   @ApiModelProperty(required = false, value = "Video link booking details")
   val videoLinkBooking: VideoLinkBookingDto? = null,
   @ApiModelProperty(required = false, value = "Recurring appointment details")
-  val recurring: RecurringAppointmentDto? = null
+  val recurring: RecurringAppointmentDto? = null,
 )
 
 data class Event(
@@ -212,7 +212,7 @@ data class Event(
   val agencyId: String,
   val eventLocationId: Long,
   val startTime: LocalDateTime,
-  val endTime: LocalDateTime
+  val endTime: LocalDateTime,
 )
 
 @ApiModel(description = "The details of an appointment that has just been created")
@@ -222,7 +222,7 @@ data class CreatedAppointmentDetailsDto(
   @ApiModelProperty(
     required = true,
     value = "The Booking id of the offender for whom the appointment was created.",
-    example = "123456"
+    example = "123456",
   )
   val bookingId: Long,
   @ApiModelProperty(value = "The start time of the appointment.", example = "2018-12-31T23:50")
@@ -233,7 +233,7 @@ data class CreatedAppointmentDetailsDto(
   val appointmentType: String,
   @ApiModelProperty(
     value = "The identifier of the appointments' Location. The location must be situated in the requestor's case load.",
-    example = "25"
+    example = "25",
   )
-  val locationId: Long
+  val locationId: Long,
 )

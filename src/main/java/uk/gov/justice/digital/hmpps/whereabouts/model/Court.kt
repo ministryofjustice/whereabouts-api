@@ -19,7 +19,7 @@ class Court(
   val name: String,
 
   @ApiModelProperty(value = "Court email address.")
-  val email: String? = null
+  val email: String? = null,
 ) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

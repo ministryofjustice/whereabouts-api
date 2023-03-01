@@ -29,7 +29,7 @@ import java.time.LocalDateTime
 
 @WebMvcTest(
   AppointmentController::class,
-  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class]
+  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class],
 )
 class AppointmentControllerTest : TestController() {
 
@@ -82,7 +82,7 @@ class AppointmentControllerTest : TestController() {
       mockMvc.perform(
         post("/appointment")
           .contentType(MediaType.APPLICATION_JSON)
-          .content(getCreateAppointmentSpecificationAsJson(startTime = startTime, endTime = endTime))
+          .content(getCreateAppointmentSpecificationAsJson(startTime = startTime, endTime = endTime)),
       )
         .andDo(print())
         .andExpect(status().isCreated)
@@ -94,8 +94,8 @@ class AppointmentControllerTest : TestController() {
           endTime = endTime,
           bookingId = 1,
           comment = "test",
-          appointmentType = "ABC"
-        )
+          appointmentType = "ABC",
+        ),
       )
     }
 
@@ -113,9 +113,9 @@ class AppointmentControllerTest : TestController() {
               startTime = startTime,
               endTime = endTime,
               repeatPeriod = RepeatPeriod.DAILY,
-              count = 1
-            )
-          )
+              count = 1,
+            ),
+          ),
       )
         .andDo(print())
         .andExpect(status().isCreated)
@@ -128,8 +128,8 @@ class AppointmentControllerTest : TestController() {
           bookingId = 1,
           comment = "test",
           appointmentType = "ABC",
-          repeat = Repeat(RepeatPeriod.DAILY, 1)
-        )
+          repeat = Repeat(RepeatPeriod.DAILY, 1),
+        ),
       )
     }
 
@@ -141,7 +141,7 @@ class AppointmentControllerTest : TestController() {
       mockMvc.perform(
         post("/appointment")
           .contentType(MediaType.APPLICATION_JSON)
-          .content(getCreateAppointmentSpecificationAsJson())
+          .content(getCreateAppointmentSpecificationAsJson()),
       )
         .andDo(print())
         .andExpect(status().is5xxServerError)
@@ -157,7 +157,7 @@ class AppointmentControllerTest : TestController() {
       mockMvc.perform(
         post("/appointment")
           .contentType(MediaType.APPLICATION_JSON)
-          .content(getCreateAppointmentSpecificationAsJson())
+          .content(getCreateAppointmentSpecificationAsJson()),
       )
         .andDo(print())
         .andExpect(status().isForbidden)
@@ -173,7 +173,7 @@ class AppointmentControllerTest : TestController() {
       mockMvc.perform(
         post("/appointment")
           .contentType(MediaType.APPLICATION_JSON)
-          .content(getCreateAppointmentSpecificationAsJson())
+          .content(getCreateAppointmentSpecificationAsJson()),
       )
         .andDo(print())
         .andExpect(status().isUnauthorized)
@@ -185,7 +185,7 @@ class AppointmentControllerTest : TestController() {
       mockMvc.perform(
         post("/appointment")
           .contentType(MediaType.APPLICATION_JSON)
-          .content("")
+          .content(""),
       )
         .andDo(print())
         .andExpect(status().isBadRequest)
@@ -199,7 +199,7 @@ class AppointmentControllerTest : TestController() {
       comment: String = "test",
       appointmentType: String = "ABC",
       repeatPeriod: RepeatPeriod? = null,
-      count: Long? = null
+      count: Long? = null,
     ): String {
       val fields = mutableMapOf<String, Any>(
         "locationId" to locationId,
@@ -207,7 +207,7 @@ class AppointmentControllerTest : TestController() {
         "endTime" to endTime,
         "bookingId" to bookingId,
         "comment" to comment,
-        "appointmentType" to appointmentType
+        "appointmentType" to appointmentType,
       )
 
       repeatPeriod?.let { fields.set("repeat", mapOf("repeatPeriod" to repeatPeriod, "count" to count)) }
@@ -223,7 +223,7 @@ class AppointmentControllerTest : TestController() {
     fun `should delete an appointment`() {
       mockMvc.perform(
         delete("/appointment/$APPOINTMENT_ID")
-          .contentType(MediaType.APPLICATION_JSON)
+          .contentType(MediaType.APPLICATION_JSON),
       )
         .andDo(print())
         .andExpect(status().isOk)
@@ -236,7 +236,7 @@ class AppointmentControllerTest : TestController() {
     fun `should delete a single appointment in a set of recurring appointments`() {
       mockMvc.perform(
         delete("/appointment/$APPOINTMENT_ID")
-          .contentType(MediaType.APPLICATION_JSON)
+          .contentType(MediaType.APPLICATION_JSON),
       )
         .andDo(print())
         .andExpect(status().isOk)
@@ -252,7 +252,7 @@ class AppointmentControllerTest : TestController() {
     fun `should delete the whole sequence of recurring appointments`() {
       mockMvc.perform(
         delete("/appointment/recurring/$RECURRING_APPOINTMENT_SEQUENCE_ID")
-          .contentType(MediaType.APPLICATION_JSON)
+          .contentType(MediaType.APPLICATION_JSON),
       )
         .andDo(print())
         .andExpect(status().isOk)

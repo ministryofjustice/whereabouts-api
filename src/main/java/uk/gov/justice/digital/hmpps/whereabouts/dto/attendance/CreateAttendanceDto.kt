@@ -53,5 +53,5 @@ data class CreateAttendanceDto(
 
   @ApiModelProperty(value = "Comments about non attendance. This also gets used for the IEP warning text ")
   @Size(max = 240)
-  val comments: String? = null
+  val comments: String? = null,
 )

@@ -10,5 +10,5 @@ data class AttendanceSummary(
   @ApiModelProperty(value = "Number of unacceptable absences in period")
   var unacceptableAbsence: Int = 0,
   @ApiModelProperty(value = "Total number of attendances in period (which have an outcome)")
-  var total: Int = 0
+  var total: Int = 0,
 )

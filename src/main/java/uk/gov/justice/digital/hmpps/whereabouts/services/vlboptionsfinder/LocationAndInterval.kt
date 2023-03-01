@@ -10,9 +10,9 @@ data class LocationAndInterval(
 
   @ApiModelProperty(value = "If present find the locations that can be used for the pre interval.", required = false)
   @field:ValidInterval
-  val interval: Interval
+  val interval: Interval,
 ) {
   fun shift(duration: Duration): LocationAndInterval = copy(
-    interval = Interval(interval.start.plus(duration), interval.end.plus(duration))
+    interval = Interval(interval.start.plus(duration), interval.end.plus(duration)),
   )
 }

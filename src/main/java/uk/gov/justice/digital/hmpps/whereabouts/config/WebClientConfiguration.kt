@@ -27,7 +27,7 @@ class WebClientConfiguration(
   @Value("\${elite2.api.uri.root}") private val prisonApiRootUri: String,
   @Value("\${elite2api.endpoint.url}") private val prisonApiHealthRootUri: String,
   @Value("\${casenotes.endpoint.url}") private val caseNotesRootUri: String,
-  @Value("\${oauth.endpoint.url}") private val oauthRootUri: String
+  @Value("\${oauth.endpoint.url}") private val oauthRootUri: String,
 ) {
   @Bean
   fun prisonApiHealthWebClient(builder: WebClient.Builder): WebClient {
@@ -74,12 +74,12 @@ class WebClientConfiguration(
   fun elite2WebClient(
     clientRegistrationRepository: ClientRegistrationRepository,
     authorizedClientRepository: OAuth2AuthorizedClientRepository,
-    builder: WebClient.Builder
+    builder: WebClient.Builder,
   ): WebClient {
     return getOAuthWebClient(
       authorizedClientManager(clientRegistrationRepository, authorizedClientRepository),
       builder,
-      prisonApiRootUri
+      prisonApiRootUri,
     )
   }
 
@@ -88,19 +88,19 @@ class WebClientConfiguration(
   fun caseNoteWebClient(
     clientRegistrationRepository: ClientRegistrationRepository,
     authorizedClientRepository: OAuth2AuthorizedClientRepository,
-    builder: WebClient.Builder
+    builder: WebClient.Builder,
   ): WebClient {
     return getOAuthWebClient(
       authorizedClientManager(clientRegistrationRepository, authorizedClientRepository),
       builder,
-      caseNotesRootUri
+      caseNotesRootUri,
     )
   }
 
   @Bean
   fun authorizedClientManagerAppScope(
     clientRegistrationRepository: ClientRegistrationRepository?,
-    oAuth2AuthorizedClientService: OAuth2AuthorizedClientService?
+    oAuth2AuthorizedClientService: OAuth2AuthorizedClientService?,
   ): OAuth2AuthorizedClientManager {
     val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder().clientCredentials().build()
     val authorizedClientManager =
@@ -112,7 +112,7 @@ class WebClientConfiguration(
   @Bean
   fun elite2WebClientAppScope(
     @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: OAuth2AuthorizedClientManager,
-    builder: WebClient.Builder
+    builder: WebClient.Builder,
   ): WebClient {
     return getOAuthWebClient(authorizedClientManager, builder, prisonApiRootUri)
   }
@@ -120,7 +120,7 @@ class WebClientConfiguration(
   @Bean
   fun caseNoteWebClientAppScope(
     @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: OAuth2AuthorizedClientManager,
-    builder: WebClient.Builder
+    builder: WebClient.Builder,
   ): WebClient {
     return getOAuthWebClient(authorizedClientManager, builder, caseNotesRootUri)
   }
@@ -128,7 +128,7 @@ class WebClientConfiguration(
   private fun getOAuthWebClient(
     authorizedClientManager: OAuth2AuthorizedClientManager,
     builder: WebClient.Builder,
-    rootUri: String
+    rootUri: String,
   ): WebClient {
     val oauth2Client = ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
     oauth2Client.setDefaultClientRegistrationId("elite2-api")
@@ -139,7 +139,7 @@ class WebClientConfiguration(
 
   private fun authorizedClientManager(
     clientRegistrationRepository: ClientRegistrationRepository,
-    authorizedClientRepository: OAuth2AuthorizedClientRepository
+    authorizedClientRepository: OAuth2AuthorizedClientRepository,
   ): OAuth2AuthorizedClientManager {
     val defaultClientCredentialsTokenResponseClient = DefaultClientCredentialsTokenResponseClient()
     val authentication = UserContext.getAuthentication()
@@ -153,7 +153,7 @@ class WebClientConfiguration(
     val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
       .clientCredentials { clientCredentialsGrantBuilder: OAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilder ->
         clientCredentialsGrantBuilder.accessTokenResponseClient(
-          defaultClientCredentialsTokenResponseClient
+          defaultClientCredentialsTokenResponseClient,
         )
       }
       .build()

@@ -42,9 +42,9 @@ class CellMoveController {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
 
       ), ApiResponse(
         responseCode = "500",
@@ -53,16 +53,16 @@ class CellMoveController {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
 
-      )
-    ]
+      ),
+    ],
   )
   fun makeCellMove(
     @RequestBody @Valid
-    cellMoveDetails: CellMoveDetails
+    cellMoveDetails: CellMoveDetails,
   ): CellMoveResponse =
     CellMoveResponse(cellMoveResult = cellMoveService.makeCellMove(cellMoveDetails))
 
@@ -78,9 +78,9 @@ class CellMoveController {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
 
       ), ApiResponse(
         responseCode = "500",
@@ -89,16 +89,16 @@ class CellMoveController {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
 
-      )
-    ]
+      ),
+    ],
   )
   fun getCellMoveReason(
     @PathVariable(name = "bookingId") bookingId: Long,
-    @PathVariable(name = "bedAssignmentId") bedAssignmentId: Int
+    @PathVariable(name = "bedAssignmentId") bedAssignmentId: Int,
   ): CellMoveReasonResponse {
     val cellMoveReason = cellMoveService.getCellMoveReason(bookingId, bedAssignmentId)
     return CellMoveReasonResponse(cellMoveReason = cellMoveReason)

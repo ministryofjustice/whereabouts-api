@@ -10,8 +10,8 @@ class LocationAndIntervalTest {
     1,
     Interval(
       LocalTime.of(9, 0),
-      LocalTime.of(10, 0)
-    )
+      LocalTime.of(10, 0),
+    ),
   )
 
   @Test
@@ -24,11 +24,11 @@ class LocationAndIntervalTest {
     assertThat(locationAndInterval.shift(Duration.ofHours(1)))
       .extracting(
         "interval.start",
-        "interval.end"
+        "interval.end",
       )
       .containsExactly(
         LocalTime.of(10, 0),
-        LocalTime.of(11, 0)
+        LocalTime.of(11, 0),
       )
   }
 }

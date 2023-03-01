@@ -19,8 +19,8 @@ class CaseNotesMockServer : WireMockServer(8093) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(gson.toJson(CaseNoteDto.builder().caseNoteId(caseNoteId).build()))
-            .withStatus(201)
-        )
+            .withStatus(201),
+        ),
     )
   }
 
@@ -31,8 +31,8 @@ class CaseNotesMockServer : WireMockServer(8093) {
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withStatus(201)
-        )
+            .withStatus(201),
+        ),
     )
   }
 }

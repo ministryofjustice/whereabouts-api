@@ -14,7 +14,7 @@ enum class RepeatPeriod {
   DAILY,
   WEEKDAYS,
   MONTHLY,
-  FORTNIGHTLY
+  FORTNIGHTLY,
 }
 
 @Entity(name = "RECURRING_APPOINTMENT")
@@ -29,11 +29,11 @@ data class RecurringAppointment(
 
   @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "RECURRING_APPOINTMENT_ID")
-  val relatedAppointments: MutableList<RelatedAppointment>? = null
+  val relatedAppointments: MutableList<RelatedAppointment>? = null,
 )
 
 @Entity(name = "APPOINTMENT")
 data class RelatedAppointment(
   @Id
-  val id: Long
+  val id: Long,
 )

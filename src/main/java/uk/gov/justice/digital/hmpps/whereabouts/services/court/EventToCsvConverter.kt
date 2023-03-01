@@ -45,7 +45,7 @@ class EventToCsvConverter {
           .addColumn("preEndTime")
           .addColumn("postStartTime")
           .addColumn("postEndTime")
-          .build()
+          .build(),
       ).with(JsonGenerator.Feature.IGNORE_UNKNOWN)
   }
 }

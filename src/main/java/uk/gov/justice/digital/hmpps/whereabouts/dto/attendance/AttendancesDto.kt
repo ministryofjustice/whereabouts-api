@@ -38,7 +38,7 @@ data class AttendancesDto(
   @ApiModelProperty(
     value = "Comment describing the offenders absence",
     example = "They had a medical appointment scheduled",
-    position = 9
+    position = 9,
   )
-  val comments: String? = null
+  val comments: String? = null,
 )

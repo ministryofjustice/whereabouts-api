@@ -13,5 +13,5 @@ data class PrisonAppointment(
   val startTime: LocalDateTime,
   @field:JsonProperty("eventSourceDesc")
   val comment: String?,
-  val createUserId: String? = null
+  val createUserId: String? = null,
 )

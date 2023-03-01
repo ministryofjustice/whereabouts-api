@@ -9,7 +9,7 @@ data class VideoLinkBookingUpdateSpecification(
   @ApiModelProperty(
     value = "The identifier of the court that requires the appointment.",
     example = "CMBGMC",
-    required = true
+    required = true,
   )
   @field:NotEmpty
   val courtId: String,
@@ -27,5 +27,5 @@ data class VideoLinkBookingUpdateSpecification(
 
   @ApiModelProperty(value = "Post-hearing appointment")
   @field:Valid
-  override val post: VideoLinkAppointmentSpecification? = null
+  override val post: VideoLinkAppointmentSpecification? = null,
 ) : VideoLinkAppointmentsSpecification

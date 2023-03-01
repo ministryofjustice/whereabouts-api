@@ -43,7 +43,7 @@ class VideoLinkBookingService(
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val clock: Clock,
-  private val videoLinkBookingEventListener: VideoLinkBookingEventListener
+  private val videoLinkBookingEventListener: VideoLinkBookingEventListener,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -67,7 +67,7 @@ class VideoLinkBookingService(
       courtId = getCourtId(specification),
       madeByTheCourt = specification.madeByTheCourt,
       prisonId = mainEvent.agencyId,
-      comment = specification.comment
+      comment = specification.comment,
     )
     videoLinkBooking.addAppointments(mainEvent, preEvent, postEvent)
 
@@ -81,7 +81,7 @@ class VideoLinkBookingService(
   @Transactional
   fun updateVideoLinkBooking(
     videoBookingId: Long,
-    specification: VideoLinkBookingUpdateSpecification
+    specification: VideoLinkBookingUpdateSpecification,
   ): VideoLinkBooking {
     specification.validate()
     val booking = videoLinkBookingRepository.findById(videoBookingId).orElseThrow {
@@ -132,7 +132,7 @@ class VideoLinkBookingService(
       court = courtService.chooseCourtName(appointment.videoLinkBooking),
       courtId = appointment.videoLinkBooking.courtId,
       createdByUsername = appointment.videoLinkBooking.createdByUsername,
-      madeByTheCourt = appointment.videoLinkBooking.madeByTheCourt
+      madeByTheCourt = appointment.videoLinkBooking.madeByTheCourt,
     )
 
   private fun getCourtId(specification: VideoLinkBookingSpecification) =
@@ -140,7 +140,7 @@ class VideoLinkBookingService(
 
   private fun createPrisonAppointments(
     offenderBookingId: Long,
-    specification: VideoLinkAppointmentsSpecification
+    specification: VideoLinkAppointmentsSpecification,
   ): Triple<Event, Event?, Event?> {
     val comment = specification.comment
 
@@ -153,7 +153,7 @@ class VideoLinkBookingService(
   private fun savePrisonAppointment(
     bookingId: Long,
     comment: String?,
-    appointmentSpec: VideoLinkAppointmentSpecification
+    appointmentSpec: VideoLinkAppointmentSpecification,
   ): Event = prisonApiServiceAuditable.postAppointment(
     bookingId,
     CreateBookingAppointment(
@@ -161,9 +161,9 @@ class VideoLinkBookingService(
       locationId = appointmentSpec.locationId!!,
       startTime = appointmentSpec.startTime.toString(),
       endTime = appointmentSpec.endTime.toString(),
-      comment = comment
+      comment = comment,
     ),
-    EventPropagation.DENY
+    EventPropagation.DENY,
   )
 
   @Transactional(readOnly = true)
@@ -187,7 +187,7 @@ class VideoLinkBookingService(
       comment = mainEvent.comment,
       pre = events[PRE]?.let { toLocationTimeslot(it) },
       main = toLocationTimeslot(mainEvent),
-      post = events[POST]?.let { toLocationTimeslot(it) }
+      post = events[POST]?.let { toLocationTimeslot(it) },
     )
   }
 
@@ -195,7 +195,7 @@ class VideoLinkBookingService(
     VideoLinkBookingResponse.LocationTimeslot(
       locationId = it.eventLocationId,
       startTime = it.startTime,
-      endTime = it.endTime!!
+      endTime = it.endTime!!,
     )
 
   @Transactional
@@ -226,7 +226,7 @@ class VideoLinkBookingService(
   @Transactional(readOnly = true)
   fun getVideoLinkBookingsBySearchDetails(
     searchDetails: VideoLinkBookingSearchDetails,
-    date: LocalDate
+    date: LocalDate,
   ): List<VideoLinkBookingResponse> {
     val videoLinkAppointments =
       videoLinkAppointmentRepository.findAllByStartDateTimeBetweenAndHearingTypeIsAndVideoLinkBookingCourtIdIsAndVideoLinkBookingPrisonIdIn(
@@ -234,7 +234,7 @@ class VideoLinkBookingService(
         date.atTime(LocalTime.MAX),
         MAIN,
         searchDetails.courtId,
-        searchDetails.prisonIds
+        searchDetails.prisonIds,
       )
 
     return videoLinkAppointments.map {
@@ -246,7 +246,7 @@ class VideoLinkBookingService(
         courtId = it.videoLinkBooking.courtId,
         main = toVideoLinkAppointmentDto(it.videoLinkBooking.appointments[MAIN])!!,
         pre = toVideoLinkAppointmentDto(it.videoLinkBooking.appointments[PRE]),
-        post = toVideoLinkAppointmentDto(it.videoLinkBooking.appointments[POST])
+        post = toVideoLinkAppointmentDto(it.videoLinkBooking.appointments[POST]),
       )
     }
   }
@@ -259,7 +259,7 @@ class VideoLinkBookingService(
       prisonApiService.updateAppointmentComment(
         it.appointmentId,
         comment,
-        EventPropagation.DENY
+        EventPropagation.DENY,
       )
     }
   }
@@ -268,7 +268,7 @@ class VideoLinkBookingService(
       VideoLinkBookingResponse.LocationTimeslot(
         locationId = it.locationId,
         startTime = it.startDateTime,
-        endTime = it.endDateTime
+        endTime = it.endDateTime,
       )
     }
 
@@ -277,7 +277,7 @@ class VideoLinkBookingService(
       VideoLinkBookingResponse.LocationTimeslot(
         locationId = it.locationId,
         startTime = it.startTime,
-        endTime = it.endTime!!
+        endTime = it.endTime!!,
       )
     }
 

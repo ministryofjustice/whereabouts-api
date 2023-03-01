@@ -11,5 +11,6 @@ enum class AttendanceChangeValues {
   NotRequired,
   Refused,
   RefusedIncentiveLevelWarning,
-  Attended;
+  Attended,
+  ;
 }

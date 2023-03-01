@@ -33,7 +33,7 @@ data class Location(
 
   @ApiModelProperty(
     value = "Location prefix. Defines search prefix that will constrain search to this location and its subordinate locations.",
-    example = "RES-HB1-ALE"
+    example = "RES-HB1-ALE",
   )
   val locationPrefix: String,
 
@@ -43,5 +43,5 @@ data class Location(
   @ApiModelProperty(value = "User-friendly location description.", example = "RES-HB1-ALE")
   val userDescription: String? = null,
 
-  val internalLocationCode: String = ""
+  val internalLocationCode: String = "",
 )

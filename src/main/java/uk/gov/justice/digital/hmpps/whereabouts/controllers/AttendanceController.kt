@@ -33,7 +33,7 @@ class AttendanceController(private val attendanceService: AttendanceService) {
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(
     summary = "Create new attendance",
-    description = "Stores new attendance record, posts attendance details back up to PNOMIS. IEP warnings are triggered when certain absence reasons are used."
+    description = "Stores new attendance record, posts attendance details back up to PNOMIS. IEP warnings are triggered when certain absence reasons are used.",
   )
   @ApiResponses(
     value = [
@@ -44,9 +44,9 @@ class AttendanceController(private val attendanceService: AttendanceService) {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -55,9 +55,9 @@ class AttendanceController(private val attendanceService: AttendanceService) {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "406",
@@ -66,9 +66,9 @@ class AttendanceController(private val attendanceService: AttendanceService) {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "500",
@@ -77,24 +77,24 @@ class AttendanceController(private val attendanceService: AttendanceService) {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
 
-      )
-    ]
+      ),
+    ],
   )
   fun postAttendance(
     @Parameter(description = "Attendance details", required = true)
     @RequestBody
     @Valid
-    attendance: CreateAttendanceDto
+    attendance: CreateAttendanceDto,
   ): AttendanceDto = attendanceService.createAttendance(attendance)
 
   @PutMapping(path = ["/{id}"], consumes = [MediaType.APPLICATION_JSON_VALUE])
   @Operation(
     summary = "Updates existing attendance information",
-    description = "Updates the attendance record, posts attendance details back up to PNOMIS. IEP warnings are triggered when certain absence reasons are used."
+    description = "Updates the attendance record, posts attendance details back up to PNOMIS. IEP warnings are triggered when certain absence reasons are used.",
   )
   @ApiResponses(
     value = [
@@ -105,9 +105,9 @@ class AttendanceController(private val attendanceService: AttendanceService) {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
 
       ),
       ApiResponse(responseCode = "404", description = "Requested resource not found."),
@@ -118,17 +118,17 @@ class AttendanceController(private val attendanceService: AttendanceService) {
         [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
 
-      )
-    ]
+      ),
+    ],
   )
   fun putAttendance(
     @PathVariable("id") id: Long,
     @RequestBody @Valid
-    attendance: UpdateAttendanceDto
+    attendance: UpdateAttendanceDto,
   ): ResponseEntity<Any> {
     attendanceService.updateAttendance(id, attendance)
     return ResponseEntity.noContent().build()

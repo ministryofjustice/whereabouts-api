@@ -59,8 +59,8 @@ class EventStoreListenerTest {
         postLocationId = createSpecification.post!!.locationId,
         postNomisAppointmentId = booking.appointments[POST]!!.appointmentId,
         postStartTime = createSpecification.post!!.startTime,
-        postEndTime = createSpecification.post!!.endTime
-      )
+        postEndTime = createSpecification.post!!.endTime,
+      ),
     )
   }
 
@@ -90,8 +90,8 @@ class EventStoreListenerTest {
         postLocationId = updateSpecification.post!!.locationId,
         postNomisAppointmentId = booking.appointments[POST]!!.appointmentId,
         postStartTime = updateSpecification.post!!.startTime,
-        postEndTime = updateSpecification.post!!.endTime
-      )
+        postEndTime = updateSpecification.post!!.endTime,
+      ),
     )
   }
 
@@ -107,8 +107,8 @@ class EventStoreListenerTest {
         madeByTheCourt = booking.madeByTheCourt,
         videoLinkBookingId = booking.id!!,
         court = booking.courtName,
-        courtId = booking.courtId
-      )
+        courtId = booking.courtId,
+      ),
     )
   }
 }

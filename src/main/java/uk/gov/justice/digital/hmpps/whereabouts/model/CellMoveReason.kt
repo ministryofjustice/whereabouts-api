@@ -21,7 +21,7 @@ data class CellMoveReason(
   @Column(name = "BED_ASSIGNMENT_SEQUENCE", nullable = false, updatable = false)
   val bedAssignmentsSequence: Int,
   @Column(name = "CASE_NOTE_ID", nullable = false, updatable = false)
-  val caseNoteId: Long
+  val caseNoteId: Long,
 )
 
 @Entity
@@ -32,5 +32,5 @@ data class CellMoveReasonPK(
   var bookingId: Long,
   @Id
   @Column(name = "BED_ASSIGNMENT_SEQUENCE")
-  var bedAssignmentsSequence: Int
+  var bedAssignmentsSequence: Int,
 ) : Serializable

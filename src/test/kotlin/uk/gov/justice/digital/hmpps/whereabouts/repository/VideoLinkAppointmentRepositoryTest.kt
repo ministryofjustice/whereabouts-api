@@ -40,7 +40,7 @@ class VideoLinkAppointmentRepositoryTest {
     videoLinkBookingRepository.save(
       VideoLinkBooking(offenderBookingId = 2, courtName = "York", prisonId = prisonId).apply {
         addMainAppointment(1, 20L, startDateTime, endDateTime)
-      }
+      },
     )
 
     videoLinkBookingRepository.save(
@@ -49,11 +49,11 @@ class VideoLinkAppointmentRepositoryTest {
         courtName = null,
         courtId = "TSTCRT",
         madeByTheCourt = false,
-        prisonId = prisonId
+        prisonId = prisonId,
       ).apply {
         addMainAppointment(3, 20L, startDateTime, endDateTime)
         createdByUsername = "username2"
-      }
+      },
     )
 
     TestTransaction.flagForCommit()

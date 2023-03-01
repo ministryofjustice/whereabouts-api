@@ -28,14 +28,14 @@ class DelegatingVideoLinkBookingEventListenerTest {
     listener = DelegatingVideoLinkBookingEventListener(
       eventStoreListener,
       applicationInsightsEventListener,
-      courtService
+      courtService,
     )
   }
 
   val main = VideoLinkAppointmentSpecification(
     locationId = 2L,
     startTime = LocalDateTime.of(2020, 1, 1, 13, 0),
-    endTime = LocalDateTime.of(2020, 1, 1, 13, 30)
+    endTime = LocalDateTime.of(2020, 1, 1, 13, 30),
   )
 
   val specification =
@@ -48,7 +48,7 @@ class DelegatingVideoLinkBookingEventListenerTest {
     locationId = 20L,
     videoLinkBooking = DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = 1L, prisonId = "WWI"),
     startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-    endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+    endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
   )
 
   val booking = DataHelpers.makeVideoLinkBooking(
@@ -56,7 +56,7 @@ class DelegatingVideoLinkBookingEventListenerTest {
     offenderBookingId = 12345L,
     courtId = "EYI",
     madeByTheCourt = true,
-    prisonId = "WWI"
+    prisonId = "WWI",
   ).also {
     it.createdByUsername = "Smith"
     it.appointments.put(HearingType.MAIN, appointment)

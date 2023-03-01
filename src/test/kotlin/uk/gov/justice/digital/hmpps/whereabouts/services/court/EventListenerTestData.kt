@@ -17,28 +17,28 @@ class EventListenerTestData private constructor() {
       courtName = "York Crown Court",
       courtId = "TSTCRT",
       madeByTheCourt = true,
-      prisonId = "WWI"
+      prisonId = "WWI",
     ).apply {
       addPreAppointment(
         appointmentId = 12L,
         id = 120L,
         locationId = 20L,
         startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-        endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+        endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
       )
       addMainAppointment(
         appointmentId = 13L,
         id = 130L,
         locationId = 20L,
         startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-        endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+        endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
       )
       addPostAppointment(
         appointmentId = 14L,
         id = 140L,
         locationId = 20L,
         startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-        endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+        endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
       )
     }
 
@@ -51,18 +51,18 @@ class EventListenerTestData private constructor() {
       pre = VideoLinkAppointmentSpecification(
         locationId = 2L,
         startTime = startTime,
-        endTime = startTime.plusMinutes(30)
+        endTime = startTime.plusMinutes(30),
       ),
       main = VideoLinkAppointmentSpecification(
         locationId = 2L,
         startTime = startTime.plusMinutes(60),
-        endTime = startTime.plusMinutes(90)
+        endTime = startTime.plusMinutes(90),
       ),
       post = VideoLinkAppointmentSpecification(
         locationId = 2L,
         startTime = startTime.plusMinutes(120),
-        endTime = startTime.plusMinutes(150)
-      )
+        endTime = startTime.plusMinutes(150),
+      ),
     )
 
     val updateSpecification = VideoLinkBookingUpdateSpecification(
@@ -71,18 +71,18 @@ class EventListenerTestData private constructor() {
       pre = VideoLinkAppointmentSpecification(
         locationId = 2L,
         startTime = startTime,
-        endTime = startTime.plusMinutes(30)
+        endTime = startTime.plusMinutes(30),
       ),
       main = VideoLinkAppointmentSpecification(
         locationId = 2L,
         startTime = startTime.plusMinutes(60),
-        endTime = startTime.plusMinutes(90)
+        endTime = startTime.plusMinutes(90),
       ),
       post = VideoLinkAppointmentSpecification(
         locationId = 2L,
         startTime = startTime.plusMinutes(120),
-        endTime = startTime.plusMinutes(150)
-      )
+        endTime = startTime.plusMinutes(150),
+      ),
     )
   }
 }

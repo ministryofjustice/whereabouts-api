@@ -143,8 +143,8 @@ class AttendanceRepositoryTest {
       setOf(
         attendanceLastMonth,
         attendanceLastYear,
-        attendanceToday
-      )
+        attendanceToday,
+      ),
     )
 
     TestTransaction.flagForCommit()
@@ -156,7 +156,7 @@ class AttendanceRepositoryTest {
         "LEI",
         TimePeriod.AM,
         LocalDate.now().minusMonths(2),
-        LocalDate.now()
+        LocalDate.now(),
       )
 
     assertThat(results).extracting("eventId").contains(2L, 1L)
@@ -221,8 +221,8 @@ class AttendanceRepositoryTest {
         attendanceLastMonth,
         attendanceLastYear,
         attendanceToday,
-        attendanceED
-      )
+        attendanceED,
+      ),
     )
 
     TestTransaction.flagForCommit()
@@ -234,7 +234,7 @@ class AttendanceRepositoryTest {
         "LEI",
         LocalDate.now().minusMonths(2),
         LocalDate.now(),
-        setOf(TimePeriod.AM, TimePeriod.PM)
+        setOf(TimePeriod.AM, TimePeriod.PM),
       )
 
     assertThat(results).extracting("eventId").containsExactly(2L, 1L)
@@ -276,7 +276,7 @@ class AttendanceRepositoryTest {
         .attended(false)
         .paid(true)
         .absentReason(AbsentReason.SessionCancelled)
-        .build()
+        .build(),
     )
 
     attendanceRepository.saveAll(attendances)
@@ -290,7 +290,7 @@ class AttendanceRepositoryTest {
         LocalDate.now(),
         LocalDate.now().plusMonths(12),
         setOf(TimePeriod.AM),
-        AbsentReason.Refused
+        AbsentReason.Refused,
       )
 
     assertThat(result).extracting("bookingId", "eventId")
@@ -354,7 +354,7 @@ class AttendanceRepositoryTest {
         .attended(false)
         .paid(true)
         .absentReason(AbsentReason.SessionCancelled)
-        .build()
+        .build(),
 
     )
 
@@ -369,7 +369,7 @@ class AttendanceRepositoryTest {
         setOf(1, 2),
         LocalDate.now(),
         LocalDate.now().plusMonths(12),
-        setOf(TimePeriod.AM, TimePeriod.PM)
+        setOf(TimePeriod.AM, TimePeriod.PM),
       )
 
     assertThat(result).extracting("bookingId", "eventId")
