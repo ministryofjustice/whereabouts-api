@@ -26,6 +26,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingEventService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
@@ -60,6 +61,7 @@ class VideoLinkBookingControllerTest : TestController() {
     comment = "any comment",
     court = "Test Court",
     courtId = "TSTCRT",
+    courtHearingType = CourtHearingType.APPEAL,
     pre = VideoLinkBookingResponse.LocationTimeslot(
       locationId = 10,
       startTime = LocalDateTime.of(2020, 2, 7, 12, 0),
@@ -352,6 +354,7 @@ class VideoLinkBookingControllerTest : TestController() {
         .andExpect(jsonPath("$.bookingId").value(100))
         .andExpect(jsonPath("$.comment").value("any comment"))
         .andExpect(jsonPath("$.court").value("Test Court"))
+        .andExpect(jsonPath("$.courtHearingType.description").value("Appeal"))
         .andExpect(jsonPath("$.pre.locationId").value(10))
         .andExpect(jsonPath("$.pre.startTime").value("2020-02-07T12:00:00"))
         .andExpect(jsonPath("$.pre.endTime").value("2020-02-07T13:00:00"))

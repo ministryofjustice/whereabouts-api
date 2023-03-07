@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
+import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDateTime
 
@@ -16,6 +17,7 @@ class EventListenerTestData private constructor() {
       offenderBookingId = -1L,
       courtName = "York Crown Court",
       courtId = "TSTCRT",
+      courtHearingType = CourtHearingType.APPEAL,
       madeByTheCourt = true,
       prisonId = "WWI",
     ).apply {
@@ -46,6 +48,7 @@ class EventListenerTestData private constructor() {
       bookingId = 1L,
       court = "York Crown Court",
       courtId = "TSTCRT",
+      courtHearingType = CourtHearingType.APPEAL,
       comment = "Comment",
       madeByTheCourt = true,
       pre = VideoLinkAppointmentSpecification(

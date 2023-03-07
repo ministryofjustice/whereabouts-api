@@ -23,6 +23,7 @@ class VideoLinkBooking(
   val offenderBookingId: Long,
   var courtName: String? = null,
   var courtId: String? = null,
+  var courtHearingType: CourtHearingType? = null,
   val madeByTheCourt: Boolean? = true,
   var prisonId: String,
   var comment: String? = null,
@@ -80,13 +81,14 @@ class VideoLinkBooking(
   )
 
   override fun toString(): String =
-    "VideoLinkBooking(id = $id, offenderBookingId = $offenderBookingId, courtName = $courtName, courtId = $courtId, madeByTheCourt = $madeByTheCourt, prisonId = $prisonId, comment = $comment)"
+    "VideoLinkBooking(id = $id, offenderBookingId = $offenderBookingId, courtName = $courtName, courtId = $courtId, courtHearingType = $courtHearingType, madeByTheCourt = $madeByTheCourt, prisonId = $prisonId, comment = $comment)"
 
   fun copy(): VideoLinkBooking = VideoLinkBooking(
     id,
     offenderBookingId,
     courtName,
     courtId,
+    courtHearingType,
     madeByTheCourt,
     prisonId,
     comment,

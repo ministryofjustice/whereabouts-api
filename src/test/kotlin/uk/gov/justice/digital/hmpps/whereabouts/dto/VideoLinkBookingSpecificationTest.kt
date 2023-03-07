@@ -4,6 +4,7 @@ import jakarta.validation.Validation
 import jakarta.validation.Validator
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
 import java.time.LocalDateTime
 
 class VideoLinkBookingSpecificationTest {
@@ -24,6 +25,7 @@ class VideoLinkBookingSpecificationTest {
       bookingId = 10L,
       court = "The Court",
       courtId = null,
+      courtHearingType = CourtHearingType.APPEAL,
       madeByTheCourt = false,
       main = VideoLinkAppointmentSpecification(
         startTime = LocalDateTime.of(2021, 1, 1, 9, 0),
