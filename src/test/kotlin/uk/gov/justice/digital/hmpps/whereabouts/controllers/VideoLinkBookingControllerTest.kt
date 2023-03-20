@@ -355,6 +355,7 @@ class VideoLinkBookingControllerTest : TestController() {
         .andExpect(jsonPath("$.comment").value("any comment"))
         .andExpect(jsonPath("$.court").value("Test Court"))
         .andExpect(jsonPath("$.courtHearingType.description").value("Appeal"))
+        .andExpect(jsonPath("$.courtHearingType.name").value("APPEAL"))
         .andExpect(jsonPath("$.pre.locationId").value(10))
         .andExpect(jsonPath("$.pre.startTime").value("2020-02-07T12:00:00"))
         .andExpect(jsonPath("$.pre.endTime").value("2020-02-07T13:00:00"))

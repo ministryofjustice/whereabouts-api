@@ -14,6 +14,7 @@ import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.test.jdbc.JdbcTestUtils
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
+import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
@@ -59,6 +60,7 @@ class VideoLinkBookingRepositoryTest(
       courtName = "A Court",
       courtId = "TSTCRT",
       madeByTheCourt = true,
+      courtHearingType = CourtHearingType.APPEAL,
       prisonId = prisonId,
     ).apply {
       addMainAppointment(2, 20L, startDateTime, endDateTime)
@@ -75,8 +77,8 @@ class VideoLinkBookingRepositoryTest(
     val persistentBooking = repository.getById(id)
 
     assertThat(persistentBooking)
-      .extracting("offenderBookingId", "courtName", "courtId", "madeByTheCourt")
-      .containsExactly(1L, "A Court", "TSTCRT", true)
+      .extracting("offenderBookingId", "courtName", "courtId", "madeByTheCourt", "courtHearingType")
+      .containsExactly(1L, "A Court", "TSTCRT", true, CourtHearingType.APPEAL)
 
     assertThat(persistentBooking.appointments).isEqualTo(theBooking.appointments)
 

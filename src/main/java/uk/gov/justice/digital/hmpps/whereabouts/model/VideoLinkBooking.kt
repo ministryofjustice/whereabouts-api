@@ -3,6 +3,8 @@ package uk.gov.justice.digital.hmpps.whereabouts.model
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.MapKey
 import jakarta.persistence.OneToMany
@@ -23,6 +25,7 @@ class VideoLinkBooking(
   val offenderBookingId: Long,
   var courtName: String? = null,
   var courtId: String? = null,
+  @Enumerated(EnumType.STRING)
   var courtHearingType: CourtHearingType? = null,
   val madeByTheCourt: Boolean? = true,
   var prisonId: String,
