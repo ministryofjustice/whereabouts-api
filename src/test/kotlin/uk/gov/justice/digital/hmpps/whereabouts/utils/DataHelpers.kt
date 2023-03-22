@@ -5,6 +5,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDefaults
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatePrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
+import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
@@ -22,6 +23,7 @@ class DataHelpers {
       madeByTheCourt: Boolean? = true,
       courtName: String? = "Court name",
       courtId: String? = "TSTCRT",
+      courtHearingType: CourtHearingType? = CourtHearingType.APPEAL,
       prisonId: String = "WWI",
       comment: String? = "",
     ): VideoLinkBooking =
@@ -31,6 +33,7 @@ class DataHelpers {
         courtName = courtName,
         prisonId = prisonId,
         courtId = courtId,
+        courtHearingType = courtHearingType,
         madeByTheCourt = madeByTheCourt,
         comment = comment,
       ).apply {

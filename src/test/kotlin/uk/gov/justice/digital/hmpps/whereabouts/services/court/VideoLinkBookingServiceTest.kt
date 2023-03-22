@@ -26,6 +26,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecif
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.Court
+import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
@@ -77,6 +78,7 @@ class VideoLinkBookingServiceTest {
       offenderBookingId = 3L,
       courtName = COURT_NAME,
       courtId = null,
+      courtHearingType = COURT_HEARING_TYPE,
       madeByTheCourt = true,
       prisonId = "WWI",
     )
@@ -147,6 +149,7 @@ class VideoLinkBookingServiceTest {
       offenderBookingId = 3L,
       courtName = COURT_NAME,
       courtId = COURT_ID,
+      courtHearingType = COURT_HEARING_TYPE,
       madeByTheCourt = false,
       prisonId = "WWI",
     )
@@ -216,6 +219,7 @@ class VideoLinkBookingServiceTest {
         offenderBookingId = 1L,
         courtName = COURT_NAME,
         courtId = COURT_ID,
+        courtHearingType = COURT_HEARING_TYPE,
         prisonId = "WWI",
       ).apply { addMainAppointment(mainAppointmentId, 10L, startDateTime, endDateTime) }
 
@@ -223,6 +227,7 @@ class VideoLinkBookingServiceTest {
         bookingId = 1L,
         court = COURT_NAME,
         courtId = COURT_ID,
+        courtHearingType = COURT_HEARING_TYPE,
         comment = "Comment",
         madeByTheCourt = true,
         main = VideoLinkAppointmentSpecification(
@@ -276,6 +281,7 @@ class VideoLinkBookingServiceTest {
             bookingId = 1L,
             court = null,
             courtId = null,
+            courtHearingType = COURT_HEARING_TYPE,
             comment = "Comment",
             madeByTheCourt = true,
             main = VideoLinkAppointmentSpecification(
@@ -296,6 +302,7 @@ class VideoLinkBookingServiceTest {
             bookingId = 1L,
             court = COURT_NAME,
             courtId = null,
+            courtHearingType = COURT_HEARING_TYPE,
             comment = "Comment",
             madeByTheCourt = true,
             main = VideoLinkAppointmentSpecification(
@@ -316,6 +323,7 @@ class VideoLinkBookingServiceTest {
             bookingId = 1L,
             court = COURT_NAME,
             courtId = null,
+            courtHearingType = COURT_HEARING_TYPE,
             comment = "Comment",
             madeByTheCourt = true,
             main = VideoLinkAppointmentSpecification(
@@ -336,6 +344,7 @@ class VideoLinkBookingServiceTest {
             bookingId = 1L,
             court = COURT_NAME,
             courtId = null,
+            courtHearingType = COURT_HEARING_TYPE,
             comment = "Comment",
             madeByTheCourt = true,
             pre = VideoLinkAppointmentSpecification(
@@ -361,6 +370,7 @@ class VideoLinkBookingServiceTest {
             bookingId = 1L,
             court = COURT_NAME,
             courtId = null,
+            courtHearingType = COURT_HEARING_TYPE,
             comment = "Comment",
             madeByTheCourt = true,
             pre = VideoLinkAppointmentSpecification(
@@ -386,6 +396,7 @@ class VideoLinkBookingServiceTest {
             bookingId = 1L,
             court = COURT_NAME,
             courtId = null,
+            courtHearingType = COURT_HEARING_TYPE,
             comment = "Comment",
             madeByTheCourt = true,
             post = VideoLinkAppointmentSpecification(
@@ -411,6 +422,7 @@ class VideoLinkBookingServiceTest {
             bookingId = 1L,
             court = COURT_NAME,
             courtId = null,
+            courtHearingType = COURT_HEARING_TYPE,
             comment = "Comment",
             madeByTheCourt = true,
             post = VideoLinkAppointmentSpecification(
@@ -438,6 +450,7 @@ class VideoLinkBookingServiceTest {
             bookingId = 1L,
             court = COURT_NAME,
             courtId = null,
+            courtHearingType = COURT_HEARING_TYPE,
             comment = "Comment",
             madeByTheCourt = true,
             main = VideoLinkAppointmentSpecification(
@@ -460,6 +473,7 @@ class VideoLinkBookingServiceTest {
           offenderBookingId = 1L,
           courtName = COURT_NAME,
           courtId = COURT_ID,
+          courtHearingType = COURT_HEARING_TYPE,
           madeByTheCourt = false,
           prisonId = "WWI",
         ).apply {
@@ -563,6 +577,7 @@ class VideoLinkBookingServiceTest {
           bookingId = offenderBookingId,
           court = COURT_NAME,
           courtId = COURT_ID,
+          courtHearingType = COURT_HEARING_TYPE,
           comment = "Comment",
           madeByTheCourt = false,
           pre = VideoLinkAppointmentSpecification(
@@ -903,7 +918,7 @@ class VideoLinkBookingServiceTest {
       }
 
     @Test
-    fun `Wen there is no video link booking it throws an exception`() {
+    fun `When there is no video link booking it throws an exception`() {
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.empty())
       Assertions.assertThrows(EntityNotFoundException::class.java) {
         service.deleteVideoLinkBooking(videoLinkBooking.id!!)
@@ -939,6 +954,7 @@ class VideoLinkBookingServiceTest {
         offenderBookingId = 1,
         courtName = COURT_NAME,
         courtId = COURT_ID,
+        courtHearingType = COURT_HEARING_TYPE,
         id = 100,
         prisonId = "WRI",
       ).apply {
@@ -1022,6 +1038,7 @@ class VideoLinkBookingServiceTest {
           agencyId = "WWI",
           court = COURT_NAME,
           courtId = COURT_ID,
+          courtHearingType = COURT_HEARING_TYPE,
           comment = "any comment",
           pre = VideoLinkBookingResponse.LocationTimeslot(
             locationId = preAppointment.eventLocationId,
@@ -1056,6 +1073,7 @@ class VideoLinkBookingServiceTest {
           agencyId = "WWI",
           court = COURT_NAME,
           courtId = COURT_ID,
+          courtHearingType = COURT_HEARING_TYPE,
           comment = "any comment",
           main = VideoLinkBookingResponse.LocationTimeslot(
             locationId = mainAppointment.eventLocationId,
@@ -1163,6 +1181,7 @@ class VideoLinkBookingServiceTest {
   companion object {
     const val COURT_NAME = "York Crown Court"
     const val COURT_ID = "YRKCC"
+    val COURT_HEARING_TYPE = CourtHearingType.APPEAL
     const val VLB_APPOINTMENT_TYPE = "VLB"
     const val AGENCY_WANDSWORTH = "WWI"
 

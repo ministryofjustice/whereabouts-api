@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.dto
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
+import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
 import java.time.LocalDateTime
 
 @ApiModel(description = "Video Link Booking details")
@@ -24,6 +25,13 @@ data class VideoLinkBookingResponse(
     required = true,
   )
   val court: String?,
+
+  @ApiModelProperty(
+    value = "The type of the court hearing",
+    example = "APPEAL",
+    required = false,
+  )
+  val courtHearingType: CourtHearingType?,
 
   @ApiModelProperty(
     value = "The identifier for the court that requires the appointment. If present this will be one of the identifier values from the courts register service.",

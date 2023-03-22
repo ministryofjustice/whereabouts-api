@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotNull
+import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
 
 @ApiModel(description = "Video Link Booking details")
 data class VideoLinkBookingSpecification(
@@ -27,6 +28,13 @@ data class VideoLinkBookingSpecification(
     notes = "One of court or courtId must contain a value.  courtId takes precedence over court.",
   )
   val courtId: String?,
+
+  @ApiModelProperty(
+    value = "The type of the court hearing.",
+    example = "APPEAL",
+    required = false,
+  )
+  val courtHearingType: CourtHearingType?,
 
   @ApiModelProperty(value = "Booking placed by the court", required = true)
   @NotNull
