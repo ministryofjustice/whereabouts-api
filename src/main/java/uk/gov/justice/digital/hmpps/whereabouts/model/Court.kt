@@ -18,7 +18,9 @@ class Court(
   )
   val id: String,
   /*
-  The pattern how to generate court ID
+  The pattern how to generate court ID if you can't find relevant id here
+  https://court-register.hmpps.service.justice.gov.uk/courts
+
   We have a bit of a convention of having the suffix based on the type of court:
   MC -> Magistrates court
   CC -> crown courts
