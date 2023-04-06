@@ -12,8 +12,21 @@ import org.hibernate.Hibernate
 @ApiModel(description = "Video Link Booking related information for a court")
 class Court(
   @Id
-  @ApiModelProperty(required = true, value = "The court identifier. Unique. Defined by courts registry.")
+  @ApiModelProperty(
+    required = true,
+    value = "The court identifier. Unique. Defined by courts registry or self generated.",
+  )
   val id: String,
+  /*
+  The pattern how to generate court ID
+  We have a bit of a convention of having the suffix based on the type of court:
+  MC -> Magistrates court
+  CC -> crown courts
+  CT -> county courts
+  justice centres are contain multiple types but we've gone with a convention of MC
+  Each location tends to have its own prefix: Workington -> WRK
+  So Workington Crown Court would be WRKCC
+*/
 
   @ApiModelProperty(value = "A name for the court.")
   val name: String,
