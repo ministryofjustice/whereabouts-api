@@ -14,13 +14,6 @@ generic-service:
     OAUTH_ENDPOINT_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
     CASENOTES_ENDPOINT_URL: "https://dev.offender-case-notes.service.justice.gov.uk"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
-    HMPPS_SQS_USE_WEB_TOKEN: "true"
-
-  namespace_secrets:
-    whereabouts-api-sqs-instance-output:
-      HMPPS_SQS_QUEUES_WHEREABOUTS_QUEUE_NAME: "sqs_wb_name"
-    whereabouts-api-sqs-dl-instance-output:
-      HMPPS_SQS_QUEUES_WHEREABOUTS_DLQ_NAME: "sqs_wb_name"
 
   allowlist:
     office: "217.33.148.210/32"
