@@ -12,6 +12,16 @@ generic-service:
     CASENOTES_ENDPOINT_URL: "https://offender-case-notes.service.justice.gov.uk"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
 
+  namespace_secrets:
+    whereabouts-api-sqs-instance-output:
+      HMPPS_SQS_QUEUES_WHEREABOUTS_QUEUE_ACCESS_KEY_ID: "access_key_id"
+      HMPPS_SQS_QUEUES_WHEREABOUTS_QUEUE_SECRET_ACCESS_KEY: "secret_access_key"
+      HMPPS_SQS_QUEUES_WHEREABOUTS_QUEUE_NAME: "sqs_wb_name"
+    whereabouts-api-sqs-dl-instance-output:
+      HMPPS_SQS_QUEUES_WHEREABOUTS_DLQ_ACCESS_KEY_ID: "access_key_id"
+      HMPPS_SQS_QUEUES_WHEREABOUTS_DLQ_SECRET_ACCESS_KEY: "secret_access_key"
+      HMPPS_SQS_QUEUES_WHEREABOUTS_DLQ_NAME: "sqs_wb_name"
+
   postgresDatabaseRestore:
     enabled: true
     namespace_secrets:

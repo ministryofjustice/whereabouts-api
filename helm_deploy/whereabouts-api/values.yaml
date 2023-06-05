@@ -44,14 +44,6 @@ generic-service:
       DATABASE_PASSWORD: "database_password"
       DATABASE_NAME: "database_name"
       DATABASE_ENDPOINT: "rds_instance_endpoint"
-    whereabouts-api-sqs-instance-output:
-      HMPPS_SQS_QUEUES_WHEREABOUTS_QUEUE_ACCESS_KEY_ID: "access_key_id"
-      HMPPS_SQS_QUEUES_WHEREABOUTS_QUEUE_SECRET_ACCESS_KEY: "secret_access_key"
-      HMPPS_SQS_QUEUES_WHEREABOUTS_QUEUE_NAME: "sqs_wb_name"
-    whereabouts-api-sqs-dl-instance-output:
-      HMPPS_SQS_QUEUES_WHEREABOUTS_DLQ_ACCESS_KEY_ID: "access_key_id"
-      HMPPS_SQS_QUEUES_WHEREABOUTS_DLQ_SECRET_ACCESS_KEY: "secret_access_key"
-      HMPPS_SQS_QUEUES_WHEREABOUTS_DLQ_NAME: "sqs_wb_name"
 
   allowlist:
       office: "217.33.148.210/32"
