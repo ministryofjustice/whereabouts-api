@@ -33,6 +33,7 @@ generic-service:
     SERVER_PORT: "8080"
     APPLICATIONINSIGHTS_CONNECTION_STRING: "InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.json
+    HMPPS_SQS_USE_WEB_TOKEN: "true"
 
   namespace_secrets:
     whereabouts-api:
@@ -44,6 +45,10 @@ generic-service:
       DATABASE_PASSWORD: "database_password"
       DATABASE_NAME: "database_name"
       DATABASE_ENDPOINT: "rds_instance_endpoint"
+    whereabouts-api-sqs-instance-output:
+      HMPPS_SQS_QUEUES_WHEREABOUTS_QUEUE_NAME: "sqs_wb_name"
+    whereabouts-api-sqs-dl-instance-output:
+      HMPPS_SQS_QUEUES_WHEREABOUTS_DLQ_NAME: "sqs_wb_name"
 
   allowlist:
       office: "217.33.148.210/32"
