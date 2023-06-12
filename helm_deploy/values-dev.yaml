@@ -7,8 +7,6 @@ generic-service:
   ingress:
     host: whereabouts-api-dev.service.justice.gov.uk
 
-  serviceAccountName: whereabouts-api-dev
-
   env:
     ELITE2API_ENDPOINT_URL: "https://api-dev.prison.service.justice.gov.uk"
     OAUTH_ENDPOINT_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
