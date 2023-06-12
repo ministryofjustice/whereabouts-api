@@ -4,6 +4,8 @@ generic-service:
 
   replicaCount: 4
 
+  serviceAccountName: whereabouts-api
+
   image:
     repository: quay.io/hmpps/whereabouts-api
     tag: app_version    # override at deployment time
