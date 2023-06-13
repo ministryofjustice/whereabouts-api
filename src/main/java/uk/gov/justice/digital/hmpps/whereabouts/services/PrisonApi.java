@@ -194,7 +194,7 @@ public abstract class PrisonApi {
 
         try {
             return webClient.get()
-                    .uri("/agencies/{agencyId}/locations/groups", agencyId)
+                    .uri("/agencies/{agencyId}/locations/groups?certifiedOnly=false", agencyId)
                     .retrieve()
                     .bodyToMono(responseType)
                     .block();
