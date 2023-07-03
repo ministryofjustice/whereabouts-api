@@ -42,7 +42,7 @@ dependencies {
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
   implementation("com.google.code.gson:gson")
-  implementation("com.google.guava:guava")
+  implementation("com.google.guava:guava:32.0.1-jre")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
