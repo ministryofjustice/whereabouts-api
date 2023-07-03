@@ -17,13 +17,13 @@ repositories {
 }
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.28")
+  annotationProcessor("org.projectlombok:lombok")
 
-  compileOnly("org.projectlombok:lombok:1.18.28")
+  compileOnly("org.projectlombok:lombok")
 
-  runtimeOnly("com.h2database:h2:2.1.214")
-  runtimeOnly("org.flywaydb:flyway-core:9.20.0")
-  runtimeOnly("org.postgresql:postgresql:42.6.0")
+  runtimeOnly("com.h2database:h2")
+  runtimeOnly("org.flywaydb:flyway-core")
+  runtimeOnly("org.postgresql:postgresql")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-cache")
@@ -52,7 +52,7 @@ dependencies {
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.38.0")
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("io.mockk:mockk:1.13.5")
-  testCompileOnly("org.projectlombok:lombok:1.18.28")
+  testCompileOnly("org.projectlombok:lombok")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.27.0")
