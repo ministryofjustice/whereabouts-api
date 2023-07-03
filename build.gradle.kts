@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.2"
   kotlin("plugin.spring") version "1.8.22"
   kotlin("plugin.jpa") version "1.8.22"
 }
@@ -22,7 +22,7 @@ dependencies {
   compileOnly("org.projectlombok:lombok:1.18.28")
 
   runtimeOnly("com.h2database:h2:2.1.214")
-  runtimeOnly("org.flywaydb:flyway-core:9.19.4")
+  runtimeOnly("org.flywaydb:flyway-core:9.20.0")
   runtimeOnly("org.postgresql:postgresql:42.6.0")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -31,7 +31,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.0.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.0.1")
 
   implementation("io.swagger:swagger-annotations:1.6.11")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
