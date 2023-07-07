@@ -2,8 +2,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.2"
-  kotlin("plugin.spring") version "1.8.22"
-  kotlin("plugin.jpa") version "1.8.22"
+  kotlin("plugin.spring") version "1.9.0"
+  kotlin("plugin.jpa") version "1.9.0"
 }
 
 configurations {
@@ -42,7 +42,7 @@ dependencies {
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
   implementation("com.google.code.gson:gson")
-  implementation("com.google.guava:guava:32.0.1-jre")
+  implementation("com.google.guava:guava:32.1.1-jre")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -55,7 +55,7 @@ dependencies {
   testCompileOnly("org.projectlombok:lombok")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.27.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.28.0")
 }
 
 /**
