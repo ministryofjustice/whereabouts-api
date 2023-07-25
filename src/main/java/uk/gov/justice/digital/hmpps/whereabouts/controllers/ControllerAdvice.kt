@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceExists
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceLocked
+import uk.gov.justice.digital.hmpps.whereabouts.services.DatabaseRowLockedException
 import uk.gov.justice.digital.hmpps.whereabouts.services.InvalidCourtLocation
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 
@@ -27,7 +28,7 @@ class ControllerAdvice {
   fun handleException(e: RestClientResponseException): ResponseEntity<ByteArray> {
     log.error("Unexpected exception {}", e.message)
     return ResponseEntity
-      .status(e.rawStatusCode)
+      .status(e.statusCode.value())
       .body(e.responseBodyAsByteArray)
   }
 
@@ -213,6 +214,20 @@ class ControllerAdvice {
           .builder()
           .status(HttpStatus.NOT_FOUND.value())
           .developerMessage(e.message)
+          .build(),
+      )
+  }
+
+  @ExceptionHandler(DatabaseRowLockedException::class)
+  fun handleDatabaseRowLockedException(e: DatabaseRowLockedException): ResponseEntity<ErrorResponse> {
+    log.debug("Locked (423) returned with message {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.LOCKED)
+      .body(
+        ErrorResponse
+          .builder()
+          .userMessage(e.message)
+          .status(HttpStatus.LOCKED.value())
           .build(),
       )
   }

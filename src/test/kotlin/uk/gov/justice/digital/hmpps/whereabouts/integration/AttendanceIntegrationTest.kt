@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CreateAttendanceDto
@@ -13,7 +14,9 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentSubReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
+import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -21,6 +24,14 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
   @Autowired
   lateinit var attendanceRepository: AttendanceRepository
+  @Autowired
+  lateinit var attendanceChangesRepository: AttendanceChangesRepository
+
+  @AfterEach
+  fun cleanUp() {
+    attendanceChangesRepository.deleteAll()
+    attendanceRepository.deleteAll()
+  }
 
   @Test
   fun `unacceptable absences details is unauthorised when no auth token provided`() {
@@ -48,7 +59,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
   fun `should make an elite api request to update an offenders attendance`() {
     val bookingId = getNextBookingId()
     val activityId = 2L
-    val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
+    val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance?lockTimeout=true"
 
     prisonApiMockServer.stubUpdateAttendance(bookingId)
 
@@ -92,7 +103,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
     val bookingId = getNextBookingId()
     val offenderNo = "AB1234G"
     val comments = "Test comment"
-    val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
+    val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance?lockTimeout=true"
 
     prisonApiMockServer.stubUpdateAttendance(bookingId)
     caseNotesMockServer.stubCreateCaseNote(offenderNo)
@@ -148,30 +159,57 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
     prisonApiMockServer.stubUpdateAttendance(bookingId)
 
-    val persistedAttendance = attendanceRepository.save(
-      Attendance.builder()
-        .absentReason(AbsentReason.Refused)
-        .absentSubReason(AbsentSubReason.ExternalMoves)
-        .bookingId(bookingId)
-        .comments("Refused to turn up")
-        .attended(false)
-        .paid(false)
-        .createDateTime(LocalDateTime.now())
-        .eventDate(LocalDate.now())
-        .eventId(2)
-        .prisonId("LEI")
-        .period(TimePeriod.AM)
-        .eventLocationId(2)
-        .build(),
-    )
+    val persistedAttendance = createAttendance(bookingId)
 
-    webTestClient.put()
+    webTestClient
+      .mutate().responseTimeout(Duration.ofMinutes(20)).build()
+      .put()
       .uri("/attendance/${persistedAttendance.id}")
       .bodyValue(UpdateAttendanceDto(attended = true, paid = true))
       .headers(setHeaders())
       .exchange()
       .expectStatus()
       .isNoContent
+  }
+
+  @Test
+  fun `update attendance with unexpected error`() {
+    val bookingId = getNextBookingId()
+
+    prisonApiMockServer.stubUpdateAttendance(bookingId, 2, 400)
+
+    val persistedAttendance = createAttendance(bookingId)
+
+    webTestClient
+      .mutate().responseTimeout(Duration.ofMinutes(20)).build()
+      .put()
+      .uri("/attendance/${persistedAttendance.id}")
+      .bodyValue(UpdateAttendanceDto(attended = true, paid = true))
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus()
+      .is5xxServerError
+      .expectBody()
+      .jsonPath("$.developerMessage").isEqualTo("400 Bad Request from PUT http://localhost:8999/api/bookings/6/activities/2/attendance?lockTimeout=true")
+  }
+
+  @Test
+  fun `update attendance should return correct lock error`() {
+    val bookingId = getNextBookingId()
+
+    prisonApiMockServer.stubUpdateAttendance(bookingId, 2, 423)
+
+    val persistedAttendance = createAttendance(bookingId)
+
+    webTestClient
+      .mutate().responseTimeout(Duration.ofMinutes(20)).build()
+      .put()
+      .uri("/attendance/${persistedAttendance.id}")
+      .bodyValue(UpdateAttendanceDto(attended = true, paid = true))
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus()
+      .isEqualTo(423)
   }
 
   @Test
@@ -183,7 +221,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
     prisonApiMockServer.stubUpdateAttendance(bookingId)
     caseNotesMockServer.stubCaseNoteAmendment(offenderNo)
-    prisonApiMockServer.stubGetBooking(offenderNo)
+    prisonApiMockServer.stubGetBooking(offenderNo, bookingId)
 
     val savedAttendance = attendanceRepository.save(
       Attendance.builder()
@@ -267,4 +305,22 @@ class AttendanceIntegrationTest : IntegrationTest() {
       .expectStatus()
       .isCreated
   }
+
+  private fun createAttendance(bookingId: Long) = attendanceRepository.save(
+    Attendance.builder()
+      .bookingId(bookingId)
+      .paid(false)
+      .attended(false)
+      .absentReason(AbsentReason.Refused)
+      .absentSubReason(AbsentSubReason.ExternalMoves)
+      .comments("Refused to turn up")
+      .eventDate(LocalDate.now())
+      .eventId(2)
+      .eventLocationId(2)
+      .prisonId("LEI")
+      .period(TimePeriod.AM)
+      .createDateTime(LocalDateTime.now())
+      .createUserId("user")
+      .build(),
+  )
 }
