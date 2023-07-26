@@ -25,14 +25,14 @@ import java.time.LocalDateTime
 class PrisonApiMockServer : WireMockServer(8999) {
   private val gson = getGson()
 
-  fun stubUpdateAttendance(bookingId: Long = 1L, activityId: Long = 2L) {
-    val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance"
+  fun stubUpdateAttendance(bookingId: Long = 1L, activityId: Long = 2L, status: Int = 201) {
+    val updateAttendanceUrl = "/api/bookings/$bookingId/activities/$activityId/attendance?lockTimeout=true"
 
     stubFor(
-      put(urlPathEqualTo(updateAttendanceUrl))
+      put(urlEqualTo(updateAttendanceUrl))
         .willReturn(
           aResponse()
-            .withStatus(200),
+            .withStatus(status),
         ),
     )
   }
@@ -44,7 +44,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
       put(urlPathEqualTo(updateAttendanceUrl))
         .willReturn(
           aResponse()
-            .withStatus(200),
+            .withStatus(201),
         ),
     )
   }
@@ -578,16 +578,6 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withHeader("Content-Type", "application/json")
             .withBody(responseJson)
             .withStatus(200),
-        ),
-    )
-  }
-  fun stubGetPrisonAppointment404(appointmentId: Long) {
-    stubFor(
-      get(urlPathEqualTo("/api/appointments/$appointmentId"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withStatus(404),
         ),
     )
   }

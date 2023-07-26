@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +29,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.PrisonerScheduleDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ScheduledEventDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto;
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
@@ -36,7 +36,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 
-import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -73,11 +72,15 @@ public abstract class PrisonApi {
 
     public void putAttendance(final Long bookingId, final long activityId, final EventOutcome eventOutcome) {
         webClient.put()
-                .uri("/bookings/{bookingId}/activities/{activityId}/attendance", bookingId, activityId)
-                .bodyValue(eventOutcome)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
+            .uri("/bookings/{bookingId}/activities/{activityId}/attendance?lockTimeout=true", bookingId, activityId)
+            .bodyValue(eventOutcome)
+            .retrieve()
+            .bodyToMono(String.class)
+            .onErrorResume(
+                WebClientResponseException.class,
+                e -> Mono.error(e.getStatusCode().value() == 423 ? new DatabaseRowLockedException() : e)
+            )
+            .block();
     }
 
     public void putAttendanceForMultipleBookings(final Set<BookingActivity> bookingActivities, final EventOutcome eventOutcome) {
@@ -229,7 +232,7 @@ public abstract class PrisonApi {
      *
      * @param agencyId     'WWI' etc.
      * @param locationType 'APP', 'CELL'
-     * @return set of matching locations.
+     * @return list of matching locations.
      */
     public List<Location> getAgencyLocationsForTypeUnrestricted(final String agencyId, final String locationType) {
         final var responseType = new ParameterizedTypeReference<List<Location>>() {
