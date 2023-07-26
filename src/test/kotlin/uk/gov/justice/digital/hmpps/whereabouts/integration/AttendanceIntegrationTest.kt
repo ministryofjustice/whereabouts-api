@@ -16,7 +16,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceChangesRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
-import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -162,9 +161,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
     val persistedAttendance = createAttendance(bookingId)
 
-    webTestClient
-      .mutate().responseTimeout(Duration.ofMinutes(20)).build()
-      .put()
+    webTestClient.put()
       .uri("/attendance/${persistedAttendance.id}")
       .bodyValue(UpdateAttendanceDto(attended = true, paid = true))
       .headers(setHeaders())
@@ -181,9 +178,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
     val persistedAttendance = createAttendance(bookingId)
 
-    webTestClient
-      .mutate().responseTimeout(Duration.ofMinutes(20)).build()
-      .put()
+    webTestClient.put()
       .uri("/attendance/${persistedAttendance.id}")
       .bodyValue(UpdateAttendanceDto(attended = true, paid = true))
       .headers(setHeaders())
@@ -202,9 +197,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
     val persistedAttendance = createAttendance(bookingId)
 
-    webTestClient
-      .mutate().responseTimeout(Duration.ofMinutes(20)).build()
-      .put()
+    webTestClient.put()
       .uri("/attendance/${persistedAttendance.id}")
       .bodyValue(UpdateAttendanceDto(attended = true, paid = true))
       .headers(setHeaders())
@@ -254,9 +247,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       paid = true,
     )
 
-    webTestClient
-      .mutate().responseTimeout(Duration.ofMinutes(20)).build()
-      .put()
+    webTestClient.put()
       .uri("/attendance/${savedAttendance.id}")
       .bodyValue(attendance)
       .headers(setHeaders())
