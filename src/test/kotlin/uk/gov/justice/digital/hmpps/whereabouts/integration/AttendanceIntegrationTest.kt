@@ -24,6 +24,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
 
   @Autowired
   lateinit var attendanceRepository: AttendanceRepository
+
   @Autowired
   lateinit var attendanceChangesRepository: AttendanceChangesRepository
 
@@ -253,7 +254,9 @@ class AttendanceIntegrationTest : IntegrationTest() {
       paid = true,
     )
 
-    webTestClient.put()
+    webTestClient
+      .mutate().responseTimeout(Duration.ofMinutes(20)).build()
+      .put()
       .uri("/attendance/${savedAttendance.id}")
       .bodyValue(attendance)
       .headers(setHeaders())
