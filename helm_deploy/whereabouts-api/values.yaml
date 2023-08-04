@@ -5,6 +5,7 @@ generic-service:
   replicaCount: 4
 
   serviceAccountName: whereabouts-api
+  productId: DPS024
 
   image:
     repository: quay.io/hmpps/whereabouts-api
