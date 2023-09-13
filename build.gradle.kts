@@ -87,4 +87,11 @@ tasks {
       jvmTarget = "19"
     }
   }
+
+  test {
+    minHeapSize = "512m"
+    maxHeapSize = "1024m"
+    jvmArgs = listOf("-XX:MaxPermSize=512m")
+    jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
+  }
 }
