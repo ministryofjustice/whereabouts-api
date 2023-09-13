@@ -22,8 +22,8 @@ dependencies {
   compileOnly("org.projectlombok:lombok")
 
   compileOnly("com.h2database:h2")
-  runtimeOnly("org.flywaydb:flyway-core")
-  runtimeOnly("org.postgresql:postgresql")
+  compileOnly("org.flywaydb:flyway-core")
+  compileOnly("org.postgresql:postgresql")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-cache")
