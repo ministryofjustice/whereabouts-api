@@ -87,4 +87,10 @@ tasks {
       jvmTarget = "19"
     }
   }
+
+  test {
+    minHeapSize = "128m"
+    maxHeapSize = "512m"
+    jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
+  }
 }
