@@ -21,7 +21,7 @@ dependencies {
 
   compileOnly("org.projectlombok:lombok")
 
-  runtimeOnly("com.h2database:h2")
+  compileOnly("com.h2database:h2")
   runtimeOnly("org.flywaydb:flyway-core")
   runtimeOnly("org.postgresql:postgresql")
 
