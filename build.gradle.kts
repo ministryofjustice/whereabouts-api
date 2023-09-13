@@ -89,8 +89,8 @@ tasks {
   }
 
   test {
-    minHeapSize = "512m"
-    maxHeapSize = "1024m"
+    minHeapSize = "128m"
+    maxHeapSize = "512m"
     jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
   }
 }
