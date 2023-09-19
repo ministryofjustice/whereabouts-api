@@ -252,6 +252,24 @@ public abstract class PrisonApi {
         }
     }
 
+    public List<Location> getAllLocationsInAgency(final String agencyId) {
+        final var responseType = new ParameterizedTypeReference<List<Location>>() {
+        };
+
+        try {
+            return webClient.get()
+                .uri("/agencies/{agencyId}/locations", agencyId)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
+        } catch (WebClientResponseException e) {
+            if (e.getStatusCode().equals(NOT_FOUND)) {
+                throw new EntityNotFoundException(String.format("Locations not found for agency %s", agencyId));
+            }
+            throw e;
+        }
+    }
+
     public List<CellWithAttributes> getCellsWithCapacity(final String agencyId, final String attribute) {
         final var responseType = new ParameterizedTypeReference<List<CellWithAttributes>>() {
         };
