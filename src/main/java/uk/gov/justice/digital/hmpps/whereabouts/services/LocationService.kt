@@ -23,6 +23,11 @@ class LocationService(
       .filter { it.locationType == "VIDE" }
       .map { LocationIdAndDescription(it.locationId, it.userDescription ?: it.description) }
 
+  fun getAllLocationsForPrison(agencyId: String): List<LocationIdAndDescription> =
+    prisonApiService
+      .getAllLocationsInAgency(agencyId)
+      .map { LocationIdAndDescription(it.locationId, it.userDescription ?: it.description) }
+
   fun getLocationPrefixFromGroup(agencyId: String, group: String): LocationPrefixDto {
     val agencyGroupKey = "${agencyId}_$group"
     val pattern = groupsProperties.getProperty(agencyGroupKey)
