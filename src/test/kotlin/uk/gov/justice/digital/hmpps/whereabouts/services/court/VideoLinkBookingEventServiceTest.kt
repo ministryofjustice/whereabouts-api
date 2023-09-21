@@ -11,7 +11,6 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventType
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingEventRepository
-import uk.gov.justice.digital.hmpps.whereabouts.services.LocationService
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month
@@ -21,7 +20,6 @@ class VideoLinkBookingEventServiceTest {
   private val videoLinkBookingEventRepository: VideoLinkBookingEventRepository = mock()
   private val eventToCsvConverter = EventToCsvConverter()
   private val courtsService: CourtService = mock()
-  private val locationService: LocationService = mock()
   private lateinit var service: VideoLinkBookingEventService
 
   @BeforeEach
@@ -30,7 +28,6 @@ class VideoLinkBookingEventServiceTest {
       videoLinkBookingEventRepository,
       eventToCsvConverter,
       courtsService,
-      locationService,
     )
   }
 
@@ -55,7 +52,7 @@ class VideoLinkBookingEventServiceTest {
       val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
 
       verify(courtsService).getCourtNameForCourtId("EYI")
-      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,Elmley,EYI,,,,,,,,,,")
+      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,Elmley,EYI,,,,,,,")
     }
 
     @Test
@@ -77,7 +74,7 @@ class VideoLinkBookingEventServiceTest {
 
       val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
 
-      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,Elmley,,,,,,,,,,,")
+      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,Elmley,,,,,,,,")
     }
 
     @Test
@@ -98,7 +95,7 @@ class VideoLinkBookingEventServiceTest {
 
       val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
 
-      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,,EYI,,,,,,,,,,")
+      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,,EYI,,,,,,,")
     }
 
     @Test
@@ -117,7 +114,7 @@ class VideoLinkBookingEventServiceTest {
 
       val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
 
-      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,,,,,,,,,,,,")
+      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,,,,,,,,,")
     }
   }
 
@@ -142,7 +139,7 @@ class VideoLinkBookingEventServiceTest {
       val events = service.getBookingsByStartDateAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
 
       verify(courtsService).getCourtNameForCourtId("EYI")
-      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,Elmley,EYI,,,,,,,,,,")
+      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,Elmley,EYI,,,,,,,")
     }
 
     @Test
@@ -164,7 +161,7 @@ class VideoLinkBookingEventServiceTest {
 
       val events = service.getBookingsByStartDateAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
 
-      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,Elmley,,,,,,,,,,,")
+      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,Elmley,,,,,,,,")
     }
 
     @Test
@@ -185,7 +182,7 @@ class VideoLinkBookingEventServiceTest {
 
       val events = service.getBookingsByStartDateAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
 
-      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,,EYI,,,,,,,,,,")
+      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,,EYI,,,,,,,")
     }
 
     @Test
@@ -204,7 +201,7 @@ class VideoLinkBookingEventServiceTest {
 
       val events = service.getBookingsByStartDateAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
 
-      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,,,,,,,,,,,,")
+      assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,,,,,,,,,,")
     }
   }
 }

@@ -2,17 +2,18 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventType
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventWithRoomNames
 import java.time.LocalDateTime
+import java.util.stream.Stream
 
 class EventToCsvConverterTest {
   val expectedHeader =
-    "eventId,timestamp,videoLinkBookingId,eventType,agencyId,court,courtId,madeByTheCourt,mainStartTime,mainEndTime,preStartTime,preEndTime,postStartTime,postEndTime,mainLocationName,preLocationName,postLocationName\n"
+    "eventId,timestamp,videoLinkBookingId,eventType,agencyId,court,courtId,madeByTheCourt,mainStartTime,mainEndTime,preStartTime,preEndTime,postStartTime,postEndTime\n"
   val exepectedRow =
-    "1000,2021-03-01T00:00:00,1,CREATE,MDI,\"Court with ,.\"\"' characters\",EYI,false,2021-03-01T09:00:00,2021-03-01T10:00:00,2021-03-01T08:00:00,2021-03-01T09:00:00,2021-03-01T10:00:00,2021-03-01T11:00:00,\"Room 0\",\"Room 1\",\"Room 10\"\n"
+    "1000,2021-03-01T00:00:00,1,CREATE,MDI,\"Court with ,.\"\"' characters\",EYI,false,2021-03-01T09:00:00,2021-03-01T10:00:00,2021-03-01T08:00:00,2021-03-01T09:00:00,2021-03-01T10:00:00,2021-03-01T11:00:00\n"
 
-  val event = VideoLinkBookingEventWithRoomNames(
+  val event = VideoLinkBookingEvent(
     eventId = 1000L,
     timestamp = LocalDateTime.of(2021, 3, 1, 0, 0),
     eventType = VideoLinkBookingEventType.CREATE,
@@ -36,21 +37,18 @@ class EventToCsvConverterTest {
     postStartTime = LocalDateTime.of(2021, 3, 1, 10, 0),
     postEndTime = LocalDateTime.of(2021, 3, 1, 11, 0),
     postNomisAppointmentId = 31L,
-    mainLocationName = "Room 0",
-    preLocationName = "Room 1",
-    postLocationName = "Room 10",
   )
 
   @Test
   fun convertEmptyList() {
     val converter = EventToCsvConverter()
-    assertThat(converter.toCsv(listOf())).isEqualTo(expectedHeader)
+    assertThat(converter.toCsv(Stream.of())).isEqualTo(expectedHeader)
   }
 
   @Test
   fun convertSingleEvent() {
     val converter = EventToCsvConverter()
-    assertThat(converter.toCsv(listOf(event))).isEqualTo(expectedHeader + exepectedRow)
+    assertThat(converter.toCsv(Stream.of(event))).isEqualTo(expectedHeader + exepectedRow)
   }
 
   @Test
@@ -58,11 +56,11 @@ class EventToCsvConverterTest {
     val converter = EventToCsvConverter()
     assertThat(
       converter.toCsv(
-        listOf<VideoLinkBookingEventWithRoomNames>(
+        Stream.of(
           event,
           event,
           event,
-          VideoLinkBookingEventWithRoomNames(
+          VideoLinkBookingEvent(
             eventType = VideoLinkBookingEventType.DELETE,
             timestamp = LocalDateTime.of(2021, 3, 1, 1, 1, 1, 1),
             videoLinkBookingId = 99L,
@@ -75,7 +73,7 @@ class EventToCsvConverterTest {
         exepectedRow +
         exepectedRow +
         exepectedRow +
-        ",\"2021-03-01T01:01:01.000000001\",99,DELETE,,,EYI,,,,,,,,,,\n",
+        ",\"2021-03-01T01:01:01.000000001\",99,DELETE,,,EYI,,,,,,,\n",
     )
   }
 }
