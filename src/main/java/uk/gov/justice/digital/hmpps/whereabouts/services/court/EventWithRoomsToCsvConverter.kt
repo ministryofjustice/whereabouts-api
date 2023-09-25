@@ -6,12 +6,12 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import org.springframework.stereotype.Component
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventWithRoomNames
 import java.io.StringWriter
 
 @Component
-class EventToCsvConverter {
-  fun toCsv(events: List<VideoLinkBookingEvent>): String {
+class EventWithRoomsToCsvConverter {
+  fun toCsv(events: List<VideoLinkBookingEventWithRoomNames>): String {
     val stringWriter = StringWriter()
     val sequenceWriter = csvWriter.writeValues(stringWriter)
     events.forEach { e ->
@@ -44,6 +44,9 @@ class EventToCsvConverter {
           .addColumn("preEndTime")
           .addColumn("postStartTime")
           .addColumn("postEndTime")
+          .addColumn("mainLocationName")
+          .addColumn("preLocationName")
+          .addColumn("postLocationName")
           .build(),
       ).with(JsonGenerator.Feature.IGNORE_UNKNOWN)
   }
