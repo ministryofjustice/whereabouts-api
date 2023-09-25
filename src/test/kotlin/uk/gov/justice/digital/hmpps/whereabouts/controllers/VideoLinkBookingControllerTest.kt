@@ -545,7 +545,7 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `happy flow`() {
-      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any())).thenReturn(",,,,,,,,\n")
+      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any(), any())).thenReturn(",,,,,,,,\n")
 
       mockMvc
         .perform(
@@ -563,7 +563,7 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `bad start-date`() {
-      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any())).thenReturn(",,,,,,,,\n")
+      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any(), any())).thenReturn(",,,,,,,,\n")
 
       mockMvc
         .perform(
@@ -577,7 +577,7 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `missing start-date`() {
-      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any())).thenReturn(",,,,,,,,\n")
+      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any(), any())).thenReturn(",,,,,,,,\n")
 
       mockMvc
         .perform(
@@ -590,7 +590,7 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `with days`() {
-      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any())).thenReturn(",,,,,,,,\n")
+      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any(), any())).thenReturn(",,,,,,,,\n")
 
       mockMvc
         .perform(
@@ -607,7 +607,7 @@ class VideoLinkBookingControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `bad days`() {
-      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any())).thenReturn(",,,,,,,,\n")
+      whenever(videoLinkBookingEventService.getBookingsByStartDateAsCSV(any(), any(), any())).thenReturn(",,,,,,,,\n")
 
       mockMvc
         .perform(

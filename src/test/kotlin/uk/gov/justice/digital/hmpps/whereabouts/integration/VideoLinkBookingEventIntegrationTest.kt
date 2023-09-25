@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.test.jdbc.JdbcTestUtils
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -96,6 +97,32 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
       }
   }
 
+  @Test
+  fun `With room names`() {
+    prisonApiMockServer.stubGetAllLocationsForPrison("MDI", getAllRooms())
+
+    val uri = "$baseUrl?start-date=${LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)}&room-names=true"
+    webTestClient.get()
+      .uri(uri)
+      .accept(MediaType("text", "csv"))
+      .headers {
+        it.setBearerAuth(
+          jwtAuthHelper.createJwt(
+            subject = "ITAG_USER",
+            roles = listOf("ROLE_VIDEO_LINK_COURT_USER"),
+            clientId = "elite2apiclient",
+          ),
+        )
+      }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody().consumeWith {
+        val csv = String(it.responseBody)
+        assertThat(csv).startsWith("eventId,timestamp,videoLinkBookingId,eventType,agencyId,court,courtId,madeByTheCourt,mainStartTime,mainEndTime,preStartTime,preEndTime,postStartTime,postEndTime,mainLocationName,preLocationName,postLocationName")
+        assertThat(csv).hasLineCount((bookingCount + 1).toInt())
+      }
+  }
+
   fun deleteAll() {
     JdbcTestUtils.deleteFromTables(jdbcTemplate, "VIDEO_LINK_BOOKING_EVENT")
   }
@@ -142,3 +169,26 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
     const val baseUrl = "/events/video-link-booking-events"
   }
 }
+private fun getAllRooms() =
+  listOf(
+    Location(
+      locationId = 1, locationType = "VIDE", description = "room-a",
+      locationUsage = "", agencyId = "MDI", parentLocationId = 123,
+      currentOccupancy = 2, locationPrefix = "", operationalCapacity = 10,
+      userDescription = "Room A", internalLocationCode = "",
+    ),
+
+    Location(
+      locationId = 2, locationType = "VIDE", description = "room-b",
+      locationUsage = "", agencyId = "MDI", parentLocationId = 123,
+      currentOccupancy = 2, locationPrefix = "", operationalCapacity = 10,
+      userDescription = null, internalLocationCode = "",
+    ),
+
+    Location(
+      locationId = 3, locationType = "MEETING", description = "Meeting room",
+      locationUsage = "", agencyId = "MDI", parentLocationId = 123,
+      currentOccupancy = 2, locationPrefix = "", operationalCapacity = 10,
+      userDescription = "", internalLocationCode = "",
+    ),
+  )

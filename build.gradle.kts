@@ -45,6 +45,8 @@ dependencies {
   implementation("com.google.guava:guava:32.1.1-jre")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
 

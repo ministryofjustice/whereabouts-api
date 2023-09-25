@@ -382,6 +382,18 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
+  fun stubGetAllLocationsForPrison(agencyId: String, locations: List<Location>) {
+    stubFor(
+      get(urlEqualTo("/api/agencies/$agencyId/locations"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(gson.toJson(locations))
+            .withStatus(200),
+        ),
+    )
+  }
+
   fun stubGetAgencyLocationGroupsServerError(agencyId: String) {
     stubFor(
       get(urlEqualTo("/api/agencies/$agencyId/locations/groups"))

@@ -231,6 +231,10 @@ class VideoLinkBookingController(
     @RequestParam(name = "days")
     @Parameter(description = "Return details of bookings occurring within this number of days of start-date")
     days: Long?,
+
+    @RequestParam(name = "room-names", required = false, defaultValue = "false")
+    @Parameter(description = "Include room names in CSV")
+    roomNames: Boolean,
   ) =
-    videoLinkBookingEventService.getBookingsByStartDateAsCSV(startDate, days ?: 7L)
+    videoLinkBookingEventService.getBookingsByStartDateAsCSV(startDate, days ?: 7L, roomNames)
 }
