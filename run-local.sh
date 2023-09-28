@@ -9,6 +9,9 @@ export SYSTEM_CLIENT_ID=$(kubectl -n whereabouts-api-dev get secrets whereabouts
 export SYSTEM_CLIENT_SECRET=$(kubectl -n whereabouts-api-dev get secrets whereabouts-api -o json  | jq -r '.data.SYSTEM_CLIENT_SECRET | @base64d')
 
 export OAUTH_ENDPOINT_URL=https://sign-in-dev.hmpps.service.justice.gov.uk/auth
+export ELITE2API_ENDPOINT_URL=https://prison-api-dev.prison.service.justice.gov.uk
+export CASENOTES_ENDPOINT_URL=https://dev.offender-case-notes.service.justice.gov.uk
+
 export SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json
 
 # Stop the back end containers
