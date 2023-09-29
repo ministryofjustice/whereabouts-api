@@ -5,8 +5,8 @@ set -e
 # Server port - avoid clash with prison-api
 export SERVER_PORT=8089
 
-export SYSTEM_CLIENT_ID=$(kubectl -n whereabouts-api-dev get secrets whereabouts-api -o json  | jq -r '.data.SYSTEM_CLIENT_ID | @base64d')
-export SYSTEM_CLIENT_SECRET=$(kubectl -n whereabouts-api-dev get secrets whereabouts-api -o json  | jq -r '.data.SYSTEM_CLIENT_SECRET | @base64d')
+export OAUTH_CLIENT_ID=$(kubectl -n whereabouts-api-dev get secrets whereabouts-api -o json  | jq -r '.data.SYSTEM_CLIENT_ID | @base64d')
+export OAUTH_CLIENT_SECRET=$(kubectl -n whereabouts-api-dev get secrets whereabouts-api -o json  | jq -r '.data.SYSTEM_CLIENT_SECRET | @base64d')
 
 export OAUTH_ENDPOINT_URL=https://sign-in-dev.hmpps.service.justice.gov.uk/auth
 export ELITE2API_ENDPOINT_URL=https://prison-api-dev.prison.service.justice.gov.uk
