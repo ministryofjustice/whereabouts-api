@@ -99,7 +99,7 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
 
   @Test
   fun `With room names`() {
-    prisonApiMockServer.stubGetAllLocationsForPrison("MDI", getAllRooms())
+    prisonApiMockServer.stubGetAgencyLocationsForTypeUnrestricted("MDI", "APP", getAllRooms())
 
     val uri = "$baseUrl?start-date=${LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)}&room-names=true"
     webTestClient.get()
