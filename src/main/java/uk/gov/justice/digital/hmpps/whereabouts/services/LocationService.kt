@@ -25,7 +25,7 @@ class LocationService(
 
   fun getAllLocationsForPrison(agencyId: String): List<LocationIdAndDescription> =
     prisonApiService
-      .getAllLocationsInAgency(agencyId)
+      .getAgencyLocationsForTypeUnrestricted(agencyId, "APP")
       .map { LocationIdAndDescription(it.locationId, it.userDescription ?: it.description) }
 
   fun getLocationPrefixFromGroup(agencyId: String, group: String): LocationPrefixDto {

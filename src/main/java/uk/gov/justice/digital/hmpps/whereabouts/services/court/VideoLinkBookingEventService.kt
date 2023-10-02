@@ -1,7 +1,5 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationIdAndDescription
@@ -57,12 +55,10 @@ class VideoLinkBookingEventService(
     return if (agencyId == null) listOf() else locationService.getAllLocationsForPrison(agencyId)
   }
 
-  private fun roomNamesMap(agencyIds: List<String?>): Map<Long, String> = runBlocking {
-    val roomNames = agencyIds.map {
-      async { getRoomsInLocation(it) }
-    }.map { it.await() }
-
-    roomNames.flatten().associateBy({ it.locationId }, { it.description })
+  private fun roomNamesMap(agencyIds: List<String?>): Map<Long, String> {
+    return agencyIds.map(::getRoomsInLocation)
+      .flatten()
+      .associateBy({ it.locationId }, { it.description })
   }
 
   private fun withRoomNames(event: VideoLinkBookingEvent, roomNames: Map<Long, String>): VideoLinkBookingEventWithRoomNames {
