@@ -58,6 +58,7 @@ class VideoLinkBookingEventService(
 
   private fun withRoomNames(event: VideoLinkBookingEvent, roomNames: Map<Long, String>): VideoLinkBookingEventWithRoomNames {
     return VideoLinkBookingEventWithRoomNames(
+      eventId = event.eventId,
       eventType = event.eventType,
       timestamp = event.timestamp,
       userId = event.userId,
