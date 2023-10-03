@@ -22,7 +22,6 @@ import java.util.stream.Stream
 class VideoLinkBookingEventServiceTest {
   private val videoLinkBookingEventRepository: VideoLinkBookingEventRepository = mock()
   private val eventToCsvConverter = EventToCsvConverter()
-  private val eventWithRoomsToCsvConverter = EventWithRoomsToCsvConverter()
   private val courtsService: CourtService = mock()
   private val locationService: LocationService = mock()
   private lateinit var service: VideoLinkBookingEventService
@@ -32,7 +31,6 @@ class VideoLinkBookingEventServiceTest {
     service = VideoLinkBookingEventService(
       videoLinkBookingEventRepository,
       eventToCsvConverter,
-      eventWithRoomsToCsvConverter,
       courtsService,
       locationService,
     )
@@ -175,7 +173,7 @@ class VideoLinkBookingEventServiceTest {
       whenever(locationService.getAllLocationsForPrison("MDI")).thenReturn(location1Stream)
       whenever(locationService.getAllLocationsForPrison("BXI")).thenReturn(location2Stream)
 
-      val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L, true)
+      val events = service.getEventsAsCSV(LocalDate.of(2021, Month.JUNE, 1), 7L)
 
       assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,MDI,Elmley,,,,,,,,,\"Room 101\",\"Room 102\",\"Room 103\"")
       assertThat(events).contains("2021-06-15T03:15:00,2,CREATE,BXI,Elmley,,,,,,,,,\"Video Room A\"")

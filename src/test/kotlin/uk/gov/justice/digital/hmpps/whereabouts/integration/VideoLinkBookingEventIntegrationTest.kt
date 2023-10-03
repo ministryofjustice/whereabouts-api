@@ -75,33 +75,9 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
 
   @Test
   fun `Happy flow`() {
-    val uri = "$baseUrl?start-date=${LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)}"
-    webTestClient.get()
-      .uri(uri)
-      .accept(MediaType("text", "csv"))
-      .headers {
-        it.setBearerAuth(
-          jwtAuthHelper.createJwt(
-            subject = "ITAG_USER",
-            roles = listOf("ROLE_VIDEO_LINK_COURT_USER"),
-            clientId = "elite2apiclient",
-          ),
-        )
-      }
-      .exchange()
-      .expectStatus().isOk
-      .expectBody().consumeWith {
-        val csv = String(it.responseBody)
-        assertThat(csv).startsWith("eventId,timestamp,videoLinkBookingId,eventType,agencyId,court,courtId,madeByTheCourt,mainStartTime,mainEndTime,preStartTime,preEndTime,postStartTime,postEndTime")
-        assertThat(csv).hasLineCount((bookingCount + 1).toInt())
-      }
-  }
-
-  @Test
-  fun `With room names`() {
     prisonApiMockServer.stubGetAgencyLocationsForTypeUnrestricted("MDI", "APP", getAllRooms())
 
-    val uri = "$baseUrl?start-date=${LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)}&room-names=true"
+    val uri = "$baseUrl?start-date=${LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)}"
     webTestClient.get()
       .uri(uri)
       .accept(MediaType("text", "csv"))
