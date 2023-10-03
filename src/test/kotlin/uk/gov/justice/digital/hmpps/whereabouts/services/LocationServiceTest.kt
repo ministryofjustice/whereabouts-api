@@ -105,7 +105,7 @@ class LocationServiceTest {
       operationalCapacity = 2, userDescription = "Video Room C", internalLocationCode = "Room 3",
     )
 
-    whenever(prisonApiService.getAllLocationsInAgency("MDI"))
+    whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted("MDI", "APP"))
       .thenReturn(listOf(location1, location2, location3))
 
     assertThat(locationService.getAllLocationsForPrison("MDI"))
@@ -132,7 +132,7 @@ class LocationServiceTest {
       operationalCapacity = 2, userDescription = "Video Room B", internalLocationCode = "Room 2",
     )
 
-    whenever(prisonApiService.getAllLocationsInAgency("MDI"))
+    whenever(prisonApiService.getAgencyLocationsForTypeUnrestricted("MDI", "APP"))
       .thenReturn(listOf(location1, location2))
 
     assertThat(locationService.getAllLocationsForPrison("MDI"))
