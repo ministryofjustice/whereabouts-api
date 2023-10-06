@@ -83,7 +83,7 @@ abstract class IntegrationTest {
   }
 
   internal fun setHeaders(contentType: MediaType = MediaType.APPLICATION_JSON): (HttpHeaders) -> Unit = {
-    it.setBearerAuth(jwtAuthHelper.createJwt(subject = "ITAG_USER", roles = listOf("ROLE_LICENCE_CA", "ROLE_KW_ADMIN", "MAINTAIN_WHEREABOUTS"), clientId = "elite2apiclient"))
+    it.setBearerAuth(jwtAuthHelper.createJwt(subject = "ITAG_USER", roles = listOf("ROLE_LICENCE_CA", "ROLE_KW_ADMIN", "ROLE_MAINTAIN_WHEREABOUTS"), clientId = "elite2apiclient"))
     it.contentType = contentType
   }
 
