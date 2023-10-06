@@ -85,7 +85,7 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
         it.setBearerAuth(
           jwtAuthHelper.createJwt(
             subject = "ITAG_USER",
-            roles = listOf("ROLE_VIDEO_LINK_COURT_USER"),
+            roles = listOf("ROLE_VIDEO_LINK_COURT_USER", "ROLE_MAINTAIN_WHEREABOUTS"),
             clientId = "elite2apiclient",
           ),
         )
