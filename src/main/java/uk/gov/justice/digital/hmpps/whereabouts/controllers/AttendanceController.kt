@@ -11,6 +11,7 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -27,6 +28,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
 @Tag(name = "attendance")
 @RestController
 @RequestMapping(value = ["attendance"], produces = [MediaType.APPLICATION_JSON_VALUE])
+@PreAuthorize("hasAnyRole('MAINTAIN_WHEREABOUTS')")
 class AttendanceController(private val attendanceService: AttendanceService) {
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])

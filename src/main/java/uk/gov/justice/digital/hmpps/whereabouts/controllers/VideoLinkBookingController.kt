@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -40,6 +41,7 @@ import java.time.LocalDate
 @Tag(name = "court")
 @RestController
 @RequestMapping(value = ["court"], produces = [MediaType.APPLICATION_JSON_VALUE])
+@PreAuthorize("hasAnyRole('MAINTAIN_WHEREABOUTS')")
 class VideoLinkBookingController(
   private val courtService: CourtService,
   private val videoLinkBookingService: VideoLinkBookingService,

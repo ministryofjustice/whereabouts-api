@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -22,6 +23,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.WhereaboutsEnabledServi
 @Tag(name = "agencies")
 @RestController
 @RequestMapping(value = ["agencies"], produces = [MediaType.APPLICATION_JSON_VALUE])
+@PreAuthorize("hasAnyRole('MAINTAIN_WHEREABOUTS')")
 class AgencyController(
   @Qualifier("locationGroupServiceSelector") private val locationGroupService: LocationGroupService,
   private val whereaboutsEnabledService: WhereaboutsEnabledService,

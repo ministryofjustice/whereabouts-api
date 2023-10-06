@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -26,6 +27,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentService
 @Tag(name = "appointment")
 @RestController
 @RequestMapping(value = ["appointment"], produces = [MediaType.APPLICATION_JSON_VALUE])
+@PreAuthorize("hasAnyRole('MAINTAIN_WHEREABOUTS')")
 class AppointmentController(private val appointmentService: AppointmentService) {
 
   @GetMapping(path = ["/{id}"])

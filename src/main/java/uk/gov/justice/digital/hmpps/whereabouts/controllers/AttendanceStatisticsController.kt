@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.format.annotation.DateTimeFormat.ISO.DATE
 import org.springframework.http.MediaType
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -21,6 +22,7 @@ import java.time.LocalDate
 @RestController
 @RequestMapping(value = ["attendance-statistics"], produces = [MediaType.APPLICATION_JSON_VALUE])
 @Slf4j
+@PreAuthorize("hasAnyRole('MAINTAIN_WHEREABOUTS')")
 class AttendanceStatisticsController(private val attendanceStatistics: AttendanceStatistics) {
 
   @GetMapping("{prison}/over-date-range")

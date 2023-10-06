@@ -13,6 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat.ISO.DATE
 import org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -38,6 +39,7 @@ import java.time.LocalDateTime
 @RestController
 @RequestMapping(value = ["attendances"], produces = [MediaType.APPLICATION_JSON_VALUE])
 @Slf4j
+@PreAuthorize("hasAnyRole('MAINTAIN_WHEREABOUTS')")
 class AttendancesController(private val attendanceService: AttendanceService) {
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])

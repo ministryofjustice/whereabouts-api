@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.format.annotation.DateTimeFormat.ISO.DATE
 import org.springframework.http.MediaType
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -21,6 +22,7 @@ import java.time.LocalDate
 @Tag(name = "events")
 @RestController
 @RequestMapping(value = ["events"], produces = [MediaType.APPLICATION_JSON_VALUE])
+@PreAuthorize("hasAnyRole('MAINTAIN_WHEREABOUTS')")
 class EventsController(
   private val prisonApiServiceAuditable: PrisonApiServiceAuditable,
 ) {
