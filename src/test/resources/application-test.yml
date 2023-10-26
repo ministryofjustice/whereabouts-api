@@ -27,6 +27,9 @@ spring:
       resourceserver:
         jwt:
           public-key-location: classpath:local-public-key.pub
+  h2:
+    console:
+      enabled: false
 
 hmpps.sqs:
   provider: localstack
