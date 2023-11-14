@@ -28,7 +28,7 @@ spring:
 
   h2:
     console:
-      enabled: true
+      enabled: false
 
   security:
     oauth2:
