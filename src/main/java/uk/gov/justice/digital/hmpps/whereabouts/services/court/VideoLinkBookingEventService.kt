@@ -1,7 +1,5 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services.court
 
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationIdAndDescription
@@ -19,33 +17,28 @@ import java.util.stream.Stream
 class VideoLinkBookingEventService(
   val repository: VideoLinkBookingEventRepository,
   val csvConverter: EventToCsvConverter,
-  val csvConverterWithRooms: EventWithRoomsToCsvConverter,
   val courtsService: CourtService,
   private val locationService: LocationService,
 ) {
   @Transactional(readOnly = true)
-  fun getEventsAsCSV(startDate: LocalDate, days: Long, roomNames: Boolean = false): String {
+  fun getEventsAsCSV(startDate: LocalDate, days: Long): String {
     var bookingEvents = repository.findByDatesBetween(startDate, startDate.plusDays(days))
-    return getBookingsAsCSV(bookingEvents, roomNames)
+    return getBookingsAsCSV(bookingEvents)
   }
 
   @Transactional(readOnly = true)
-  fun getBookingsByStartDateAsCSV(startDate: LocalDate, days: Long, roomNames: Boolean = false): String {
+  fun getBookingsByStartDateAsCSV(startDate: LocalDate, days: Long): String {
     var bookingEvents = repository.findByStartTimeBetween(startDate, startDate.plusDays(days))
-    return getBookingsAsCSV(bookingEvents, roomNames)
+    return getBookingsAsCSV(bookingEvents)
   }
 
-  private fun getBookingsAsCSV(bookingEventsStream: Stream<VideoLinkBookingEvent>, roomNames: Boolean = false): String {
+  private fun getBookingsAsCSV(bookingEventsStream: Stream<VideoLinkBookingEvent>): String {
     var bookingEvents = bookingEventsStream.collect(Collectors.toList())
     bookingEvents = bookingEvents.map(::withCourtName)
-    return if (roomNames) {
-      val agencyIds = bookingEvents.map { it.agencyId }.distinct()
-      val roomNames = roomNamesMap(agencyIds)
-      val bookingEventsWithRoomNames = bookingEvents.map { withRoomNames(it, roomNames) }
-      csvConverterWithRooms.toCsv(bookingEventsWithRoomNames)
-    } else {
-      csvConverter.toCsv(bookingEvents)
-    }
+    val agencyIds = bookingEvents.map { it.agencyId }.distinct()
+    val roomNames = roomNamesMap(agencyIds)
+    val bookingEventsWithRoomNames = bookingEvents.map { withRoomNames(it, roomNames) }
+    return csvConverter.toCsv(bookingEventsWithRoomNames)
   }
 
   private fun withCourtName(event: VideoLinkBookingEvent): VideoLinkBookingEvent {
@@ -57,16 +50,15 @@ class VideoLinkBookingEventService(
     return if (agencyId == null) listOf() else locationService.getAllLocationsForPrison(agencyId)
   }
 
-  private fun roomNamesMap(agencyIds: List<String?>): Map<Long, String> = runBlocking {
-    val roomNames = agencyIds.map {
-      async { getRoomsInLocation(it) }
-    }.map { it.await() }
-
-    roomNames.flatten().associateBy({ it.locationId }, { it.description })
+  private fun roomNamesMap(agencyIds: List<String?>): Map<Long, String> {
+    return agencyIds.map(::getRoomsInLocation)
+      .flatten()
+      .associateBy({ it.locationId }, { it.description })
   }
 
   private fun withRoomNames(event: VideoLinkBookingEvent, roomNames: Map<Long, String>): VideoLinkBookingEventWithRoomNames {
     return VideoLinkBookingEventWithRoomNames(
+      eventId = event.eventId,
       eventType = event.eventType,
       timestamp = event.timestamp,
       userId = event.userId,
