@@ -27,6 +27,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEvent
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
+import uk.gov.justice.digital.hmpps.whereabouts.services.ScheduleEventStatus
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import java.time.Clock
 import java.time.LocalDate
@@ -320,7 +321,7 @@ class VideoLinkBookingService(
   fun processNomisUpdate(appointmentChangedEventMessage: AppointmentChangedEventMessage) {
     val videoLinkAppointment =
       videoLinkAppointmentRepository.findOneByAppointmentId(appointmentChangedEventMessage.scheduleEventId) ?: return
-    if (appointmentChangedEventMessage.recordDeleted) {
+    if (appointmentChangedEventMessage.recordDeleted || appointmentChangedEventMessage.scheduleEventStatus == ScheduleEventStatus.CANC) {
       if (videoLinkAppointment.hearingType != MAIN) {
         videoLinkAppointment.videoLinkBooking.appointments.remove(videoLinkAppointment.hearingType)
         videoLinkBookingRepository.save(videoLinkAppointment.videoLinkBooking)
