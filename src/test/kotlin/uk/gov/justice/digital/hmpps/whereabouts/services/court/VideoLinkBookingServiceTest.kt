@@ -13,6 +13,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.isA
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
@@ -35,9 +36,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.eqByProps
 import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEventMessage
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
+import uk.gov.justice.digital.hmpps.whereabouts.services.ScheduleEventStatus
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import java.time.Clock
 import java.time.Instant
@@ -942,6 +945,174 @@ class VideoLinkBookingServiceTest {
   }
 
   @Nested
+  inner class ProcessNomisUpdate {
+    val service = service()
+
+    @Test
+    fun `Skip update when appointment not exist`() {
+      val appointmentChangedEventMessage = AppointmentChangedEventMessage(
+        scheduleEventId = 484209875,
+        agencyLocationId = "WWI",
+        bookingId = 1056979,
+        eventDatetime = "2022-10-06T09:34:40",
+        recordDeleted = false,
+        scheduleEventStatus = ScheduleEventStatus.SCH,
+        scheduledEndTime = "2022-10-06T15:00:00",
+        scheduledStartTime = "2022-10-06T11:00:00",
+      )
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(anyLong())).thenReturn(null)
+      service.processNomisUpdate(appointmentChangedEventMessage)
+      verify(videoLinkAppointmentRepository).findOneByAppointmentId(anyLong())
+      verify(videoLinkBookingRepository, never()).delete(any())
+    }
+
+    @Test
+    fun `Skip update and logs the event when appointment exist and recordDeleted flag is false`() {
+      val appointmentChangedEventMessage = AppointmentChangedEventMessage(
+        scheduleEventId = 484209875,
+        agencyLocationId = "WWI",
+        bookingId = 1056979,
+        eventDatetime = "2022-10-06T09:34:40",
+        recordDeleted = false,
+        scheduleEventStatus = ScheduleEventStatus.SCH,
+        scheduledEndTime = "2022-10-06T15:00:00",
+        scheduledStartTime = "2022-10-06T11:00:00",
+      )
+      val videoLinkAppointment = mock<VideoLinkAppointment>()
+
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(anyLong())).thenReturn(videoLinkAppointment)
+      service.processNomisUpdate(appointmentChangedEventMessage)
+      verify(videoLinkBookingEventListener).appointmentUpdatedInNomis(any(), any())
+      verify(videoLinkBookingRepository, never()).delete(any())
+    }
+
+    @Test
+    fun `delete single appointment when recordDeleted flag is true and appointment is not MAIN`() {
+      val appointmentChangedEventMessage = AppointmentChangedEventMessage(
+        scheduleEventId = 2,
+        agencyLocationId = "WWI",
+        bookingId = 1056979,
+        eventDatetime = "2022-10-06T09:34:40",
+        recordDeleted = true,
+        scheduleEventStatus = ScheduleEventStatus.SCH,
+        scheduledEndTime = "2022-10-06T15:00:00",
+        scheduledStartTime = "2022-10-06T11:00:00",
+      )
+      val videoLinkBooking = createVideoLinkBooking()
+
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(anyLong())).thenReturn(videoLinkBooking.appointments[HearingType.PRE])
+      service.processNomisUpdate(appointmentChangedEventMessage)
+      verify(videoLinkBookingRepository).save(any())
+      verify(videoLinkBookingRepository, never()).delete(any())
+    }
+
+    @Test
+    fun `delete PRE,POST,MAIN appointments when recordDeleted flag is true and appointment is MAIN`() {
+      val appointmentChangedEventMessage = AppointmentChangedEventMessage(
+        scheduleEventId = 1,
+        agencyLocationId = "WWI",
+        bookingId = 1056979,
+        eventDatetime = "2022-10-06T09:34:40",
+        recordDeleted = true,
+        scheduleEventStatus = ScheduleEventStatus.SCH,
+        scheduledEndTime = "2022-10-06T15:00:00",
+        scheduledStartTime = "2022-10-06T11:00:00",
+      )
+      val videoLinkBooking = createVideoLinkBooking()
+
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(anyLong())).thenReturn(videoLinkBooking.appointments[HearingType.MAIN])
+      service.processNomisUpdate(appointmentChangedEventMessage)
+      verify(videoLinkBookingRepository).delete(any())
+      verify(prisonApiService).deleteAppointments(listOf(3, 4, 5), EventPropagation.DENY)
+    }
+
+    @Test
+    fun `delete PRE,POST,MAIN appointments when recordDeleted flag is false and MAIN appointment scheduleEventStatus is CANC`() {
+      val appointmentChangedEventMessage = AppointmentChangedEventMessage(
+        scheduleEventId = 1,
+        agencyLocationId = "WWI",
+        bookingId = 1056979,
+        eventDatetime = "2022-10-06T09:34:40",
+        recordDeleted = false,
+        scheduleEventStatus = ScheduleEventStatus.CANC,
+        scheduledEndTime = "2022-10-06T15:00:00",
+        scheduledStartTime = "2022-10-06T11:00:00",
+      )
+      val videoLinkBooking = createVideoLinkBooking()
+
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(anyLong())).thenReturn(videoLinkBooking.appointments[HearingType.MAIN])
+      service.processNomisUpdate(appointmentChangedEventMessage)
+      verify(videoLinkBookingRepository).delete(any())
+      verify(prisonApiService).deleteAppointments(listOf(3, 4, 5), EventPropagation.DENY)
+    }
+
+    @Test
+    fun `delete PRE appointment when recordDeleted flag is false and PRE appointment scheduleEventStatus is CANC`() {
+      val appointmentChangedEventMessage = AppointmentChangedEventMessage(
+        scheduleEventId = 1,
+        agencyLocationId = "WWI",
+        bookingId = 1056979,
+        eventDatetime = "2022-10-06T09:34:40",
+        recordDeleted = false,
+        scheduleEventStatus = ScheduleEventStatus.CANC,
+        scheduledEndTime = "2022-10-06T15:00:00",
+        scheduledStartTime = "2022-10-06T11:00:00",
+      )
+      val videoLinkBooking = createVideoLinkBooking()
+
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(anyLong())).thenReturn(videoLinkBooking.appointments[HearingType.PRE])
+      service.processNomisUpdate(appointmentChangedEventMessage)
+      verify(videoLinkBookingRepository).save(any())
+      verify(videoLinkBookingRepository, never()).delete(any())
+      verify(prisonApiService, never()).deleteAppointments(any(), any())
+    }
+
+    private fun createVideoLinkBooking(): VideoLinkBooking {
+      val videoLinkBooking = VideoLinkBooking(
+        id = 21L,
+        offenderBookingId = 3L,
+        courtName = COURT_NAME,
+        courtId = null,
+        courtHearingType = COURT_HEARING_TYPE,
+        madeByTheCourt = true,
+        prisonId = "WWI",
+      )
+      val mainAppointment = VideoLinkAppointment(
+        id = 1,
+        appointmentId = 3,
+        locationId = 6,
+        hearingType = HearingType.MAIN,
+        startDateTime = startDateTime,
+        endDateTime = endDateTime,
+        videoLinkBooking = videoLinkBooking,
+      )
+      val preAppointment = VideoLinkAppointment(
+        id = 2,
+        appointmentId = 4,
+        locationId = 7,
+        hearingType = HearingType.PRE,
+        startDateTime = startDateTime,
+        endDateTime = endDateTime,
+        videoLinkBooking = videoLinkBooking,
+      )
+      val postAppointment = VideoLinkAppointment(
+        id = 3,
+        appointmentId = 5,
+        locationId = 8,
+        hearingType = HearingType.POST,
+        startDateTime = startDateTime,
+        endDateTime = endDateTime,
+        videoLinkBooking = videoLinkBooking,
+      )
+      videoLinkBooking.appointments[HearingType.PRE] = preAppointment
+      videoLinkBooking.appointments[HearingType.MAIN] = mainAppointment
+      videoLinkBooking.appointments[HearingType.POST] = postAppointment
+
+      return videoLinkBooking
+    }
+  }
+
+  @Nested
   inner class GetVideoLinkBooking {
     val service = service()
 
@@ -1216,6 +1387,7 @@ class VideoLinkBookingServiceTest {
           offenderNo = "A1234AA",
         )
       }
+
     fun videoLinkBookings(
       court: String?,
       courtId: String?,
