@@ -22,13 +22,14 @@ class SqsEventListener(
 
   @SqsListener("whereabouts", factory = "hmppsQueueContainerFactoryProxy")
   fun handleEvents(requestJson: String?) {
-    val (Message, MessageAttributes) = gson.fromJson<Message>(requestJson, Message::class.java)
-    val eventType = MessageAttributes.eventType.Value
+    log.info("Raw message {}", requestJson)
+    val (message, messageAttributes) = gson.fromJson(requestJson, Message::class.java)
+    val eventType = messageAttributes.eventType.Value
     log.info("Processing message of type {}", eventType)
 
     when (eventType) {
       "DATA_COMPLIANCE_DELETE-OFFENDER" -> {
-        val (offenderIdDisplay, offenders) = gson.fromJson(Message, DeleteOffenderEventMessage::class.java)
+        val (offenderIdDisplay, offenders) = gson.fromJson(message, DeleteOffenderEventMessage::class.java)
         val bookingIds = offenders.flatMap { offender -> offender.bookings.map { it.offenderBookId } }
 
         attendanceService.deleteAttendancesForOffenderDeleteEvent(
@@ -37,7 +38,7 @@ class SqsEventListener(
         )
       }
       "APPOINTMENT_CHANGED" -> {
-        val appointmentChangedEventMessage = gson.fromJson(Message, AppointmentChangedEventMessage::class.java)
+        val appointmentChangedEventMessage = gson.fromJson(message, AppointmentChangedEventMessage::class.java)
         videoLinkBookingService.processNomisUpdate(appointmentChangedEventMessage)
       }
     }
