@@ -11,6 +11,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEventMessage
+import uk.gov.justice.digital.hmpps.whereabouts.services.ScheduleEventStatus
 import java.time.LocalDateTime
 
 class DataHelpers {
@@ -176,6 +177,7 @@ class DataHelpers {
       eventDatetime: String = "2022-01-01T11:00:00",
       scheduledStartTime: String = "2022-01-01T11:00",
       scheduledEndTime: String = "2022-01-01T12:00",
+      scheduleEventStatus: ScheduleEventStatus = ScheduleEventStatus.SCH,
     ) = AppointmentChangedEventMessage(
       bookingId = bookingId,
       scheduleEventId = scheduleEventId,
@@ -184,6 +186,7 @@ class DataHelpers {
       eventDatetime = eventDatetime,
       scheduledStartTime = scheduledStartTime,
       scheduledEndTime = scheduledEndTime,
+      scheduleEventStatus = scheduleEventStatus,
     )
   }
 }
