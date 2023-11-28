@@ -37,6 +37,9 @@ hmpps.sqs:
     whereabouts:
       queueName: whereabouts_api_queue
       dlqName: whereabouts_api_dlq
+    domainevent:
+      queueName: domainevent_api_queue
+      dlqName: domainevent_api_dlq
 
 courts: Test Court 1,Test Court 2
 
