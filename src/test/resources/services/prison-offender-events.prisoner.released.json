@@ -1,0 +1,13 @@
+{
+  "Type": "Notification",
+  "MessageId": "message3",
+  "TopicArn": "arn:aws:sns:eu-west-2:000000000000:prison-offender-events.prisoner.released",
+  "Message": "{\"version\":1,\"eventType\":\"prison-offender-events.prisoner.released\",\"description\":\"A prisoner has been released from prison\",\"occurredAt\":\"2023-11-20T17:07:58Z\",\"publishedAt\":\"2023-11-20T17:08:58.676141735Z\",\"personReference\":{\"identifiers\":[{\"type\":\"NOMS\",\"value\":\"A7215DZ\"}]},\"additionalInformation\":{\"nomsNumber\":\"A7215DZ\",\"reason\":\"RELEASED\",\"details\":\"Movement reason code CR\",\"currentLocation\":\"OUTSIDE_PRISON\",\"prisonId\":\"SWI\",\"nomisMovementReasonCode\":\"CR\",\"currentPrisonStatus\":\"NOT_UNDER_PRISON_CARE\"}}",
+  "Timestamp": "2023-11-20T17:08:58.682Z",
+  "MessageAttributes": {
+    "eventType": {
+      "Type": "String",
+      "Value": "prison-offender-events.prisoner.released"
+    }
+  }
+}

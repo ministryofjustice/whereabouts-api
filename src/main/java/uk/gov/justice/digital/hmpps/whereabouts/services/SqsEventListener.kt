@@ -45,6 +45,11 @@ class SqsEventListener(
   }
 }
 
+@SqsListener("domainevent", factory = "hmppsQueueContainerFactoryProxy")
+fun handleDomainEvents(requestJson: String?) {
+  SqsEventListener.log.info("Raw domain event message: {}", requestJson)
+}
+
 data class Attribute(val Type: String, val Value: String)
 data class MessageAttributes(val eventType: Attribute)
 data class Booking(val offenderBookId: Long)
