@@ -14,6 +14,7 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.isA
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
@@ -26,6 +27,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecificatio
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.listeners.AdditionalInformation
+import uk.gov.justice.digital.hmpps.whereabouts.listeners.AppointmentChangedEventMessage
+import uk.gov.justice.digital.hmpps.whereabouts.listeners.Reason
+import uk.gov.justice.digital.hmpps.whereabouts.listeners.ReleasedOffenderEventMessage
+import uk.gov.justice.digital.hmpps.whereabouts.listeners.ScheduleEventStatus
 import uk.gov.justice.digital.hmpps.whereabouts.model.Court
 import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
@@ -36,12 +42,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.eqByProps
 import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
-import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEventMessage
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
-import uk.gov.justice.digital.hmpps.whereabouts.services.ScheduleEventStatus
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
+import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDateTime
@@ -1336,6 +1341,111 @@ class VideoLinkBookingServiceTest {
 
       verify(prisonApiService).updateAppointmentComment(11L, newComment, EventPropagation.DENY)
       verifyNoMoreInteractions(prisonApiService)
+    }
+  }
+
+  @Nested
+  inner class CancelVideoLinkBooking {
+    val service = service()
+
+    private val mainAppointmentId = 12L
+    private val preAppointmentId = 13L
+    private val postAppointmentId = 14L
+
+    private val videoLinkBooking =
+      VideoLinkBooking(offenderBookingId = 1, courtName = COURT_NAME, id = 100, prisonId = "WRI").apply {
+        addPreAppointment(
+          appointmentId = preAppointmentId,
+          id = 111,
+          locationId = 10L,
+          startDateTime = startDateTime,
+          endDateTime = endDateTime,
+        )
+        addMainAppointment(
+          appointmentId = mainAppointmentId,
+          id = 222,
+          locationId = 10L,
+          startDateTime = startDateTime,
+          endDateTime = endDateTime,
+        )
+        addPostAppointment(
+          appointmentId = postAppointmentId,
+          id = 333,
+          locationId = 10L,
+          startDateTime = startDateTime,
+          endDateTime = endDateTime,
+        )
+      }
+
+    @Test
+    fun `Should not delete BVL appointment if release reason is anything other than Released or Transferred`() {
+      val message = ReleasedOffenderEventMessage(
+        occurredAt = "2023-11-20T17:07:58Z",
+        additionalInformation = AdditionalInformation(
+          prisonId = "SWI",
+          nomsNumber = "A7215DZ",
+          reason = Reason.RELEASED_TO_HOSPITAL,
+        ),
+      )
+      service.deleteAppointments(message)
+      verify(videoLinkBookingRepository, never()).deleteById(any())
+      verify(videoLinkBookingEventListener, never()).bookingDeleted(any())
+    }
+
+    @Test
+    fun `Should delete BVL appointment when release reason is TRANSFERRED`() {
+      val message = ReleasedOffenderEventMessage(
+        occurredAt = "2023-11-20T17:07:58Z",
+        additionalInformation = AdditionalInformation(
+          prisonId = "SWI",
+          nomsNumber = "A7215DZ",
+          reason = Reason.TRANSFERRED,
+        ),
+      )
+
+      whenever(
+        videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
+          any(),
+          any(),
+          any(),
+          any(),
+        ),
+      )
+        .thenReturn(setOf(DataHelpers.makeVideoLinkAppointment()))
+
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
+
+      service.deleteAppointments(message)
+      verify(videoLinkBookingRepository, times(1)).deleteById(any())
+      verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
+    }
+
+    @Test
+    fun `Should delete BVL appointment when release reason is RELEASED`() {
+      val message = ReleasedOffenderEventMessage(
+        occurredAt = "2023-11-20T17:07:58Z",
+        additionalInformation = AdditionalInformation(
+          prisonId = "SWI",
+          nomsNumber = "A7215DZ",
+          reason = Reason.RELEASED,
+        ),
+      )
+
+      whenever(
+        videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
+          any(),
+          any(),
+          any(),
+          any(),
+        ),
+      )
+        .thenReturn(setOf(DataHelpers.makeVideoLinkAppointment()))
+
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
+
+      service.deleteAppointments(message)
+      verify(videoLinkBookingRepository, times(1)).deleteById(any())
+      verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
     }
   }
 

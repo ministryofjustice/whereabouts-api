@@ -17,4 +17,12 @@ interface VideoLinkAppointmentRepository : ReadOnlyRepository<VideoLinkAppointme
     courtId: String,
     prisonIds: List<String>,
   ): Set<VideoLinkAppointment>
+
+  fun
+  findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
+    hearingType: HearingType,
+    startDateTime: LocalDateTime,
+    offenderBookingId: Long,
+    prisonId: String,
+  ): Set<VideoLinkAppointment>
 }
