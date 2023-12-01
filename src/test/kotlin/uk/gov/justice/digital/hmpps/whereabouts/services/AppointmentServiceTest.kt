@@ -110,7 +110,7 @@ class AppointmentServiceTest {
           ),
         ),
       )
-      whenever(prisonApiService.getOffenderDetailsFromOffenderNos(any())).thenReturn(
+      whenever(prisonApiService.getOffenderDetailsFromOffenderNos(any(), any())).thenReturn(
         listOf(
           OffenderBooking(
             22L, "123", filteredOffenderNo, "A", "Name", "MDI", LocalDate.of(2000, 1, 2), 44L, filteredOffenderLocation,
@@ -257,6 +257,7 @@ class AppointmentServiceTest {
             offenderNo2,
           ),
         ),
+        eq(true),
       )
     }
   }

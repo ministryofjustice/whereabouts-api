@@ -71,7 +71,7 @@ class AppointmentService(
     if (offenderLocationPrefix == null) return NoOpFilter()
 
     val offenderNos = appointmentsFromPrisonApi.map { a -> a.offenderNo }.toSet()
-    val offenderBookingDetails = prisonApiService.getOffenderDetailsFromOffenderNos(offenderNos)
+    val offenderBookingDetails = prisonApiService.getOffenderDetailsFromOffenderNos(offenderNos, true)
     val offenderLocationDescriptionByOffenderNo =
       offenderBookingDetails.associate { b -> b.offenderNo to b.assignedLivingUnitDesc }
 
