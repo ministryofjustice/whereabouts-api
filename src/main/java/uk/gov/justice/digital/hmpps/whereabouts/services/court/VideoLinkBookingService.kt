@@ -344,17 +344,23 @@ class VideoLinkBookingService(
   fun deleteAppointments(releasedOffenderEventMessage: ReleasedOffenderEventMessage) {
     val reason = releasedOffenderEventMessage.additionalInformation.reason
     if (reason == Reason.TRANSFERRED || reason == Reason.RELEASED) {
-      val prisonerAppointments =
-        videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
-          hearingType = MAIN,
-          startDateTime = LocalDateTime.parse(
-            releasedOffenderEventMessage.occurredAt,
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"),
-          ),
-          offenderBookingId = 1,
-          prisonId = releasedOffenderEventMessage.additionalInformation.prisonId,
-        )
-      prisonerAppointments.forEach { this.deleteVideoLinkBooking(it.videoLinkBooking.id!!) }
+      val offenderBookings = prisonApiService.getOffenderDetailsFromOffenderNos(
+        listOf(releasedOffenderEventMessage.additionalInformation.nomsNumber),
+        false,
+      )
+      if (offenderBookings.isNotEmpty()) {
+        val prisonerAppointments =
+          videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
+            hearingType = MAIN,
+            startDateTime = LocalDateTime.parse(
+              releasedOffenderEventMessage.occurredAt,
+              DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+            ),
+            offenderBookingId = offenderBookings.first().bookingId,
+            prisonId = releasedOffenderEventMessage.additionalInformation.prisonId,
+          )
+        prisonerAppointments.forEach { this.deleteVideoLinkBooking(it.videoLinkBooking.id!!) }
+      }
     }
   }
 }

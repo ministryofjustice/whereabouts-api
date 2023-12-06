@@ -21,6 +21,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.data.domain.Sort
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
+import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
@@ -1393,6 +1394,36 @@ class VideoLinkBookingServiceTest {
     }
 
     @Test
+    fun `Should not delete BVL appointment if zero offender details returned by prisonApi`() {
+      val message = ReleasedOffenderEventMessage(
+        occurredAt = "2023-11-20T17:07:58Z",
+        additionalInformation = AdditionalInformation(
+          prisonId = "SWI",
+          nomsNumber = "A7215DZ",
+          reason = Reason.TRANSFERRED,
+        ),
+      )
+
+      whenever(prisonApiService.getOffenderDetailsFromOffenderNos(any(), any())).thenReturn(listOf())
+
+      whenever(
+        videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
+          any(),
+          any(),
+          any(),
+          any(),
+        ),
+      )
+        .thenReturn(setOf(DataHelpers.makeVideoLinkAppointment()))
+
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
+
+      service.deleteAppointments(message)
+      verify(videoLinkBookingRepository, never()).deleteById(any())
+      verify(videoLinkBookingEventListener, never()).bookingDeleted(any())
+    }
+
+    @Test
     fun `Should delete BVL appointment when release reason is TRANSFERRED`() {
       val message = ReleasedOffenderEventMessage(
         occurredAt = "2023-11-20T17:07:58Z",
@@ -1402,6 +1433,10 @@ class VideoLinkBookingServiceTest {
           reason = Reason.TRANSFERRED,
         ),
       )
+
+      val offenderBooking = mock<OffenderBooking>()
+      whenever(offenderBooking.bookingId).thenReturn(1)
+      whenever(prisonApiService.getOffenderDetailsFromOffenderNos(any(), any())).thenReturn(listOf(offenderBooking))
 
       whenever(
         videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
@@ -1440,6 +1475,10 @@ class VideoLinkBookingServiceTest {
         ),
       )
         .thenReturn(setOf(DataHelpers.makeVideoLinkAppointment()))
+
+      val offenderBooking = mock<OffenderBooking>()
+      whenever(offenderBooking.bookingId).thenReturn(1)
+      whenever(prisonApiService.getOffenderDetailsFromOffenderNos(any(), any())).thenReturn(listOf(offenderBooking))
 
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
 

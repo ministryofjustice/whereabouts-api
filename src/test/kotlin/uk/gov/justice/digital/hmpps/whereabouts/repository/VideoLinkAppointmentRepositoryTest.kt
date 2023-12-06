@@ -8,9 +8,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.config.AuditConfiguration
+import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.security.AuthenticationFacade
 import java.time.LocalDateTime
@@ -65,5 +67,20 @@ class VideoLinkAppointmentRepositoryTest {
 
     assertThat(appointments).extracting("appointmentId")
       .containsExactlyInAnyOrder(1L, 3L)
+  }
+
+  @Test
+  @Sql("classpath:repository/video-link-booking.sql")
+  @Sql("classpath:repository/video-link-appointment.sql")
+  fun `should return appointments for offender`() {
+    val appointments =
+      videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
+        HearingType.MAIN,
+        startDateTime = LocalDateTime.of(2023, 1, 3, 1, 0, 0),
+        offenderBookingId = 111111L,
+        prisonId = "HEI",
+      )
+
+    assertThat(appointments).extracting("appointmentId").containsExactlyInAnyOrder(1L)
   }
 }
