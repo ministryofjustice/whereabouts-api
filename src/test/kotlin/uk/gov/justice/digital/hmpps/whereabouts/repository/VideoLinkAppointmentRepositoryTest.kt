@@ -70,17 +70,16 @@ class VideoLinkAppointmentRepositoryTest {
   }
 
   @Test
-  @Sql("classpath:repository/video-link-booking.sql")
-  @Sql("classpath:repository/video-link-appointment.sql")
+  @Sql("classpath:repository/video-link-appointments-and-bookings.sql")
   fun `should return appointments for offender`() {
     val appointments =
       videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
         HearingType.MAIN,
-        startDateTime = LocalDateTime.of(2023, 1, 3, 1, 0, 0),
+        startDateTime = LocalDateTime.of(2023, 1, 2, 0, 59, 0),
         offenderBookingId = 111111L,
-        prisonId = "HEI",
+        prisonId = "BMI",
       )
 
-    assertThat(appointments).extracting("appointmentId").containsExactlyInAnyOrder(1L)
+    assertThat(appointments).extracting("appointmentId").containsExactlyInAnyOrder(2L)
   }
 }
