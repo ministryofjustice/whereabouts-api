@@ -44,7 +44,7 @@ dependencies {
   implementation("com.google.code.gson:gson")
   implementation("com.google.guava:guava:32.1.1-jre")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
-
+  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:1.32.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")

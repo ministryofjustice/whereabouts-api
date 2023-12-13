@@ -52,8 +52,7 @@ class VideoLinkBookingService(
 
   @Transactional(readOnly = true)
   fun getVideoLinkAppointments(appointmentIds: Set<Long>): List<VideoLinkAppointmentDto> =
-    videoLinkAppointmentRepository
-      .findVideoLinkAppointmentByAppointmentIdIn(appointmentIds)
+    videoLinkAppointmentRepository.findVideoLinkAppointmentByAppointmentIdIn(appointmentIds)
       .map { toVideoLinkAppointmentDto(it) }
 
   @Transactional
@@ -123,19 +122,18 @@ class VideoLinkBookingService(
     postEvent?.let { addPostAppointment(it.eventId, it.eventLocationId, it.startTime, it.endTime) }
   }
 
-  private fun toVideoLinkAppointmentDto(appointment: VideoLinkAppointment) =
-    VideoLinkAppointmentDto(
-      id = appointment.id!!,
-      bookingId = appointment.videoLinkBooking.offenderBookingId,
-      appointmentId = appointment.appointmentId,
-      videoLinkBookingId = appointment.videoLinkBooking.id!!,
-      mainAppointmentId = appointment.videoLinkBooking.appointments[MAIN]?.appointmentId,
-      hearingType = appointment.hearingType,
-      court = courtService.chooseCourtName(appointment.videoLinkBooking),
-      courtId = appointment.videoLinkBooking.courtId,
-      createdByUsername = appointment.videoLinkBooking.createdByUsername,
-      madeByTheCourt = appointment.videoLinkBooking.madeByTheCourt,
-    )
+  private fun toVideoLinkAppointmentDto(appointment: VideoLinkAppointment) = VideoLinkAppointmentDto(
+    id = appointment.id!!,
+    bookingId = appointment.videoLinkBooking.offenderBookingId,
+    appointmentId = appointment.appointmentId,
+    videoLinkBookingId = appointment.videoLinkBooking.id!!,
+    mainAppointmentId = appointment.videoLinkBooking.appointments[MAIN]?.appointmentId,
+    hearingType = appointment.hearingType,
+    court = courtService.chooseCourtName(appointment.videoLinkBooking),
+    courtId = appointment.videoLinkBooking.courtId,
+    createdByUsername = appointment.videoLinkBooking.createdByUsername,
+    madeByTheCourt = appointment.videoLinkBooking.madeByTheCourt,
+  )
 
   private fun getCourtId(specification: VideoLinkBookingSpecification) =
     specification.courtId ?: specification.court?.let { courtService.getCourtIdForCourtName(it) }
@@ -194,12 +192,11 @@ class VideoLinkBookingService(
     )
   }
 
-  private fun toLocationTimeslot(it: PrisonAppointment) =
-    VideoLinkBookingResponse.LocationTimeslot(
-      locationId = it.eventLocationId,
-      startTime = it.startTime,
-      endTime = it.endTime!!,
-    )
+  private fun toLocationTimeslot(it: PrisonAppointment) = VideoLinkBookingResponse.LocationTimeslot(
+    locationId = it.eventLocationId,
+    startTime = it.startTime,
+    endTime = it.endTime!!,
+  )
 
   @Transactional
   fun deleteVideoLinkBooking(videoBookingId: Long): VideoLinkBooking {
@@ -207,8 +204,7 @@ class VideoLinkBookingService(
       EntityNotFoundException("Video link booking with id $videoBookingId not found")
     }
 
-    val appointmentsToDelete = booking.appointments.values.sortedBy { it.appointmentId }
-      .map { it.appointmentId }
+    val appointmentsToDelete = booking.appointments.values.sortedBy { it.appointmentId }.map { it.appointmentId }
     if (appointmentsToDelete.isNotEmpty()) {
       prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
     }
@@ -219,8 +215,7 @@ class VideoLinkBookingService(
   }
 
   private fun deletePrisonAppointmentsForBooking(booking: VideoLinkBooking) {
-    val appointmentsToDelete = booking.appointments.values.sortedBy { it.appointmentId }
-      .map { it.appointmentId }
+    val appointmentsToDelete = booking.appointments.values.sortedBy { it.appointmentId }.map { it.appointmentId }
     if (appointmentsToDelete.isNotEmpty()) {
       prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
     }
@@ -267,14 +262,14 @@ class VideoLinkBookingService(
       )
     }
   }
-  private fun toVideoLinkAppointmentDto(videoLinkAppointment: VideoLinkAppointment?) =
-    videoLinkAppointment?.let {
-      VideoLinkBookingResponse.LocationTimeslot(
-        locationId = it.locationId,
-        startTime = it.startDateTime,
-        endTime = it.endDateTime,
-      )
-    }
+
+  private fun toVideoLinkAppointmentDto(videoLinkAppointment: VideoLinkAppointment?) = videoLinkAppointment?.let {
+    VideoLinkBookingResponse.LocationTimeslot(
+      locationId = it.locationId,
+      startTime = it.startDateTime,
+      endTime = it.endDateTime,
+    )
+  }
 
   private fun toVideoLinkAppointmentDto(scheduledAppointment: ScheduledAppointmentDto?) =
     scheduledAppointment?.takeIf { hasAnEndDate(it) }?.let {
@@ -321,18 +316,21 @@ class VideoLinkBookingService(
   fun processNomisUpdate(appointmentChangedEventMessage: AppointmentChangedEventMessage) {
     val videoLinkAppointment =
       videoLinkAppointmentRepository.findOneByAppointmentId(appointmentChangedEventMessage.scheduleEventId) ?: return
+    log.debug("Processing video link appointment: {}", videoLinkAppointment)
     if (appointmentChangedEventMessage.recordDeleted || appointmentChangedEventMessage.scheduleEventStatus == ScheduleEventStatus.CANC) {
       if (videoLinkAppointment.hearingType != MAIN) {
         videoLinkAppointment.videoLinkBooking.appointments.remove(videoLinkAppointment.hearingType)
         videoLinkBookingRepository.save(videoLinkAppointment.videoLinkBooking)
+        log.debug("appointment from video link booking {} deleted", videoLinkAppointment.videoLinkBooking)
       } else {
         videoLinkBookingRepository.delete(videoLinkAppointment.videoLinkBooking)
-        val appointmentsToDelete = videoLinkAppointment.videoLinkBooking.appointments.values
-          .sortedBy { it.appointmentId }
-          .filter { it.appointmentId != appointmentChangedEventMessage.scheduleEventId }
-          .map { it.appointmentId }
+        log.debug("Video link booking {} deleted", videoLinkAppointment.videoLinkBooking)
+        val appointmentsToDelete =
+          videoLinkAppointment.videoLinkBooking.appointments.values.sortedBy { it.appointmentId }
+            .filter { it.appointmentId != appointmentChangedEventMessage.scheduleEventId }.map { it.appointmentId }
         if (appointmentsToDelete.isNotEmpty()) {
           prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
+          log.debug("Video link booking {} deleted from nomis", videoLinkAppointment.videoLinkBooking.id)
         }
       }
     } else {

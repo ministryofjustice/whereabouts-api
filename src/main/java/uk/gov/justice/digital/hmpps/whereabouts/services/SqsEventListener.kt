@@ -2,6 +2,8 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.google.gson.Gson
 import io.awspring.cloud.sqs.annotation.SqsListener
+import io.opentelemetry.api.trace.SpanKind
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -21,27 +23,33 @@ class SqsEventListener(
   }
 
   @SqsListener("whereabouts", factory = "hmppsQueueContainerFactoryProxy")
+  @WithSpan(value = "hmpps_prisoner_event_queue", kind = SpanKind.SERVER)
   fun handleEvents(requestJson: String?) {
-    log.info("Raw message {}", requestJson)
-    val (message, messageAttributes) = gson.fromJson(requestJson, Message::class.java)
-    val eventType = messageAttributes.eventType.Value
-    log.info("Processing message of type {}", eventType)
+    try {
+      log.info("Raw message {}", requestJson)
+      val (message, messageAttributes) = gson.fromJson(requestJson, Message::class.java)
+      val eventType = messageAttributes.eventType.Value
+      log.info("Processing message of type {}", eventType)
 
-    when (eventType) {
-      "DATA_COMPLIANCE_DELETE-OFFENDER" -> {
-        val (offenderIdDisplay, offenders) = gson.fromJson(message, DeleteOffenderEventMessage::class.java)
-        val bookingIds = offenders.flatMap { offender -> offender.bookings.map { it.offenderBookId } }
+      when (eventType) {
+        "DATA_COMPLIANCE_DELETE-OFFENDER" -> {
+          val (offenderIdDisplay, offenders) = gson.fromJson(message, DeleteOffenderEventMessage::class.java)
+          val bookingIds = offenders.flatMap { offender -> offender.bookings.map { it.offenderBookId } }
 
-        attendanceService.deleteAttendancesForOffenderDeleteEvent(
-          offenderIdDisplay,
-          bookingIds,
-        )
+          attendanceService.deleteAttendancesForOffenderDeleteEvent(
+            offenderIdDisplay,
+            bookingIds,
+          )
+        }
+
+        "APPOINTMENT_CHANGED" -> {
+          val appointmentChangedEventMessage = gson.fromJson(message, AppointmentChangedEventMessage::class.java)
+          videoLinkBookingService.processNomisUpdate(appointmentChangedEventMessage)
+        }
       }
-
-      "APPOINTMENT_CHANGED" -> {
-        val appointmentChangedEventMessage = gson.fromJson(message, AppointmentChangedEventMessage::class.java)
-        videoLinkBookingService.processNomisUpdate(appointmentChangedEventMessage)
-      }
+    } catch (e: Exception) {
+      log.error("handleEvents() Unexpected error", e)
+      throw e
     }
   }
 }
