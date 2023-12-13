@@ -1388,7 +1388,7 @@ class VideoLinkBookingServiceTest {
           reason = Reason.RELEASED_TO_HOSPITAL,
         ),
       )
-      service.deleteAppointments(message)
+      service.deleteAppointmentWhenTransferredOrReleased(message)
       verify(videoLinkBookingRepository, never()).deleteById(any())
       verify(videoLinkBookingEventListener, never()).bookingDeleted(any())
     }
@@ -1418,7 +1418,7 @@ class VideoLinkBookingServiceTest {
 
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
 
-      service.deleteAppointments(message)
+      service.deleteAppointmentWhenTransferredOrReleased(message)
       verify(videoLinkBookingRepository, never()).deleteById(any())
       verify(videoLinkBookingEventListener, never()).bookingDeleted(any())
     }
@@ -1450,7 +1450,7 @@ class VideoLinkBookingServiceTest {
 
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
 
-      service.deleteAppointments(message)
+      service.deleteAppointmentWhenTransferredOrReleased(message)
       verify(videoLinkBookingRepository, times(1)).deleteById(any())
       verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
     }
@@ -1482,9 +1482,40 @@ class VideoLinkBookingServiceTest {
 
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
 
-      service.deleteAppointments(message)
+      service.deleteAppointmentWhenTransferredOrReleased(message)
       verify(videoLinkBookingRepository, times(1)).deleteById(any())
       verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
+    }
+
+    @Test
+    fun `Should not attempt to delete a non-existent appointment`() {
+      val message = ReleasedOffenderEventMessage(
+        occurredAt = "2023-11-20T17:07:58Z",
+        additionalInformation = AdditionalInformation(
+          prisonId = "SWI",
+          nomsNumber = "A7215DZ",
+          reason = Reason.RELEASED,
+        ),
+      )
+
+      whenever(
+        videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
+          any(),
+          any(),
+          any(),
+          any(),
+        ),
+      )
+        .thenReturn(setOf(DataHelpers.makeVideoLinkAppointment()))
+
+      val offenderBooking = mock<OffenderBooking>()
+      whenever(offenderBooking.bookingId).thenReturn(1)
+      whenever(prisonApiService.getOffenderDetailsFromOffenderNos(any(), any())).thenReturn(listOf(offenderBooking))
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.empty())
+
+      service.deleteAppointmentWhenTransferredOrReleased(message)
+
+      verify(videoLinkBookingRepository, never()).deleteById(any())
     }
   }
 

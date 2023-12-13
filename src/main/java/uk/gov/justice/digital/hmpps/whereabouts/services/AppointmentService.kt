@@ -152,7 +152,7 @@ class AppointmentService(
       ).orElse(null)
 
     if (recurringAppointment == null) {
-      prisonApiService.deleteAppointment(appointmentId, EventPropagation.ALLOW)
+      prisonApiService.deleteAppointment(appointmentId, PrisonApi.EventPropagation.ALLOW)
       return
     }
 
