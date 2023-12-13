@@ -29,7 +29,7 @@ class SqsOffenderEventListener(
     try {
       log.info("Raw message {}", requestJson)
       val (message, messageAttributes) = gson.fromJson(requestJson, Message::class.java)
-      val eventType = messageAttributes.eventType.Value
+      val eventType = messageAttributes.eventType.value
       log.info("Processing message of type {}", eventType)
 
       when (eventType) {
