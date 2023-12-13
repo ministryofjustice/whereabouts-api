@@ -9,7 +9,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEventMessage
 
 @Primary
-@Component()
+@Component
 class DelegatingVideoLinkBookingEventListener(
   val eventStoreListener: EventStoreListener,
   val applicationInsightsEventListener: ApplicationInsightsEventListener,
