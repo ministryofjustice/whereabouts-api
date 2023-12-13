@@ -325,16 +325,16 @@ class VideoLinkBookingService(
       if (videoLinkAppointment.hearingType != MAIN) {
         videoLinkAppointment.videoLinkBooking.appointments.remove(videoLinkAppointment.hearingType)
         videoLinkBookingRepository.save(videoLinkAppointment.videoLinkBooking)
-        log.debug("appointment from video link booking {} deleted", videoLinkAppointment.videoLinkBooking)
+        log.debug("Appointment from video link booking deleted: {} ", videoLinkAppointment.videoLinkBooking)
       } else {
         videoLinkBookingRepository.delete(videoLinkAppointment.videoLinkBooking)
-        log.debug("Video link booking {} deleted", videoLinkAppointment.videoLinkBooking)
+        log.debug("Video link booking deleted: {}", videoLinkAppointment.videoLinkBooking)
         val appointmentsToDelete =
           videoLinkAppointment.videoLinkBooking.appointments.values.sortedBy { it.appointmentId }
             .filter { it.appointmentId != appointmentChangedEventMessage.scheduleEventId }.map { it.appointmentId }
         if (appointmentsToDelete.isNotEmpty()) {
           prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
-          log.debug("Video link booking {} deleted from nomis", videoLinkAppointment.videoLinkBooking.id)
+          log.debug("Video link booking deleted from Nomis: {} ", videoLinkAppointment.videoLinkBooking.id)
         }
       }
     } else {
