@@ -214,6 +214,7 @@ class VideoLinkBookingService(
 
     videoLinkBookingRepository.deleteById(booking.id!!)
     videoLinkBookingEventListener.bookingDeleted(booking)
+    log.info("Video link booking with id {} deleted", videoBookingId)
     return booking
   }
 
@@ -341,14 +342,16 @@ class VideoLinkBookingService(
     }
   }
 
-  fun deleteAppointments(releasedOffenderEventMessage: ReleasedOffenderEventMessage) {
+  fun deleteAppointmentWhenTransferredOrReleased(releasedOffenderEventMessage: ReleasedOffenderEventMessage) {
     val reason = releasedOffenderEventMessage.additionalInformation.reason
     if (reason == Reason.TRANSFERRED || reason == Reason.RELEASED) {
       val offenderBookings = prisonApiService.getOffenderDetailsFromOffenderNos(
         listOf(releasedOffenderEventMessage.additionalInformation.nomsNumber),
         false,
       )
+      log.debug("OffenderBookings: {}", offenderBookings)
       if (offenderBookings.isNotEmpty()) {
+        val offenderBookingId = offenderBookings.first().bookingId
         val prisonerAppointments =
           videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
             hearingType = MAIN,
@@ -356,10 +359,17 @@ class VideoLinkBookingService(
               releasedOffenderEventMessage.occurredAt,
               DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"),
             ),
-            offenderBookingId = offenderBookings.first().bookingId,
+            offenderBookingId = offenderBookingId,
             prisonId = releasedOffenderEventMessage.additionalInformation.prisonId,
           )
-        prisonerAppointments.forEach { this.deleteVideoLinkBooking(it.videoLinkBooking.id!!) }
+        log.info("Appointments count for bookingId:  {} {}", offenderBookingId, prisonerAppointments.size)
+        prisonerAppointments.forEach {
+          try {
+            this.deleteVideoLinkBooking(it.videoLinkBooking.id!!)
+          } catch (e: EntityNotFoundException) {
+            log.info("Video link appointment for offenderBookingId {} already deleted", offenderBookingId)
+          }
+        }
       }
     }
   }
