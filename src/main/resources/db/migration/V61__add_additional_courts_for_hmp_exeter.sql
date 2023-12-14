@@ -10,7 +10,7 @@ insert into enabled_court (id, name) values
 ('ENFLON', 'ENF - London'),
 ('REMPSR', 'Probation - Remote PSR Team (PPOC)'),
 ('CROYCC', 'Probation - CRO - Croydon CC (PPOC)'),
-('CROYCC', 'Probation - CRO - Croydon MC (PPOC)'),
+('CROYMC', 'Probation - CRO - Croydon MC (PPOC)'),
 ('ILONCC', 'Probation - SOU - Inner London CC (PPOC)'),
 ('SWRKCC', 'Probation - SOU - Southwark CC (PPOC)'),
 ('KENSCC', 'Probation - KAR - Kingston CC (PPOC)'),
