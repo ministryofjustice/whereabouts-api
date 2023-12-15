@@ -14,9 +14,9 @@ insert into enabled_court (id, name) values
 ('ILONCC', 'Probation - SOU - Inner London CC (PPOC)'),
 ('SWRKCC', 'Probation - SOU - Southwark CC (PPOC)'),
 ('KENSCC', 'Probation - KAR - Kingston CC (PPOC)'),
-('HFKCW', 'Probation - HFKCW - Westminster MC (PPOC)'),
+('WESTMC', 'Probation - HFKCW - Westminster MC (PPOC)'),
 ('WIMBMC', 'Probation - WAN - Wimbledon MC (PPOC)'),
 ('HARNGY', 'Probation - EAH - Haringey (PPOC)'),
 ('BARNET', 'Probation - BAR - Barnet (PPOC)'),
 ('HARROW', 'Probation - HRW - Harrow (PPOC)'),
-('WALFOR', 'Probation - RWF - Waltham Forest (PPOC)')
+('WALFOR', 'Probation - RWF - Waltham Forest (PPOC)');
