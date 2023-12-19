@@ -207,6 +207,7 @@ class VideoLinkBookingService(
     val appointmentsToDelete = booking.appointments.values.sortedBy { it.appointmentId }.map { it.appointmentId }
     if (appointmentsToDelete.isNotEmpty()) {
       prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
+      log.debug("Video link appointments deleted from Nomis: {}", appointmentsToDelete)
     }
 
     videoLinkBookingRepository.deleteById(booking.id!!)
@@ -319,18 +320,20 @@ class VideoLinkBookingService(
     log.debug("Processing video link appointment: {}", videoLinkAppointment)
     if (appointmentChangedEventMessage.recordDeleted || appointmentChangedEventMessage.scheduleEventStatus == ScheduleEventStatus.CANC) {
       if (videoLinkAppointment.hearingType != MAIN) {
-        videoLinkAppointment.videoLinkBooking.appointments.remove(videoLinkAppointment.hearingType)
-        videoLinkBookingRepository.save(videoLinkAppointment.videoLinkBooking)
-        log.debug("appointment from video link booking {} deleted", videoLinkAppointment.videoLinkBooking)
+        val vb = videoLinkAppointment.videoLinkBooking
+        vb.appointments.remove(videoLinkAppointment.hearingType)
+        videoLinkBookingRepository.save(vb)
+        videoLinkBookingEventListener.appointmentRemovedFromBooking(vb)
+        log.debug("Appointment from video link booking deleted: {}", vb)
       } else {
-        videoLinkBookingRepository.delete(videoLinkAppointment.videoLinkBooking)
-        log.debug("Video link booking {} deleted", videoLinkAppointment.videoLinkBooking)
-        val appointmentsToDelete =
-          videoLinkAppointment.videoLinkBooking.appointments.values.sortedBy { it.appointmentId }
-            .filter { it.appointmentId != appointmentChangedEventMessage.scheduleEventId }.map { it.appointmentId }
-        if (appointmentsToDelete.isNotEmpty()) {
-          prisonApiService.deleteAppointments(appointmentsToDelete, EventPropagation.DENY)
-          log.debug("Video link booking {} deleted from nomis", videoLinkAppointment.videoLinkBooking.id)
+        try {
+          this.deleteVideoLinkBooking(videoLinkAppointment.videoLinkBooking.id!!)
+        } catch (e: EntityNotFoundException) {
+          log.info(
+            "Video link appointment for offenderBookingId already deleted: {}",
+            videoLinkAppointment.videoLinkBooking.id,
+          )
+          return
         }
       }
     } else {

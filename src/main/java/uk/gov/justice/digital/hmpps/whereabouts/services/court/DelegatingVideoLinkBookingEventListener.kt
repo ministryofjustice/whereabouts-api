@@ -40,6 +40,12 @@ class DelegatingVideoLinkBookingEventListener(
     applicationInsightsEventListener.bookingDeleted(copy)
   }
 
+  override fun appointmentRemovedFromBooking(booking: VideoLinkBooking) {
+    val copy = copyWithCourtName(booking)
+    eventStoreListener.appointmentRemovedFromBooking(copy)
+    applicationInsightsEventListener.appointmentRemovedFromBooking(copy)
+  }
+
   override fun appointmentUpdatedInNomis(currentAppointment: VideoLinkAppointment, updatedAppointment: AppointmentChangedEventMessage) {
     applicationInsightsEventListener.appointmentUpdatedInNomis(currentAppointment, updatedAppointment)
   }

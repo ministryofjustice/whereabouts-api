@@ -64,6 +64,10 @@ class ApplicationInsightsEventListener(
     telemetryClient.trackEvent("VideoLinkBookingDeleted", telemetryProperties(booking), null)
   }
 
+  override fun appointmentRemovedFromBooking(booking: VideoLinkBooking) {
+    telemetryClient.trackEvent("VideoLinkAppointmentRemovedFromBooking", telemetryProperties(booking), null)
+  }
+
   override fun appointmentUpdatedInNomis(currentAppointment: VideoLinkAppointment, updatedAppointment: AppointmentChangedEventMessage) {
     val properties = mutableMapOf(
       "bookingId" to (currentAppointment.videoLinkBooking?.id.toString()),

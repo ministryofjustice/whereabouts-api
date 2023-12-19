@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -28,6 +29,7 @@ class AttendancesControllerTest : TestController() {
   private val START = LocalDate.of(2021, 3, 14)
   private val END = LocalDate.of(2021, 5, 24)
   private val MOORLAND = "HMP Moorland"
+
   private val testAttendanceHistoryDto = PageImpl(
     listOf(
       AttendanceHistoryDto(
@@ -38,6 +40,8 @@ class AttendancesControllerTest : TestController() {
         activityDescription = "d",
       ),
     ),
+    PageRequest.of(0, 10),
+    1,
   )
 
   @MockBean
