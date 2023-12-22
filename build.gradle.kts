@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.9.0"
-  kotlin("plugin.spring") version "1.9.20"
-  kotlin("plugin.jpa") version "1.9.20"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.11.0"
+  kotlin("plugin.spring") version "1.9.21"
+  kotlin("plugin.jpa") version "1.9.21"
 }
 
 configurations {
@@ -33,16 +33,16 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.1.1")
 
-  implementation("io.swagger:swagger-annotations:1.6.11")
+  implementation("io.swagger:swagger-annotations:1.6.12")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
 
   implementation("org.apache.commons:commons-lang3")
-  implementation("org.apache.commons:commons-text:1.10.0")
+  implementation("org.apache.commons:commons-text:1.11.0")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
   implementation("com.google.code.gson:gson")
-  implementation("com.google.guava:guava:32.1.1-jre")
+  implementation("com.google.guava:guava:32.1.3-jre")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:1.32.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
@@ -51,13 +51,13 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
 
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.0.0")
-  testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:3.0.1")
-  testImplementation("io.mockk:mockk:1.13.5")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
+  testImplementation("org.wiremock:wiremock-standalone:3.3.1")
+  testImplementation("io.mockk:mockk:1.13.8")
   testCompileOnly("org.projectlombok:lombok")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.32.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.33.0")
 }
 
 /**

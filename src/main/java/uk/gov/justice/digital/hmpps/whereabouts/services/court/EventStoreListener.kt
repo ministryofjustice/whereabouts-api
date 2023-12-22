@@ -85,6 +85,34 @@ class EventStoreListener(
     )
   }
 
+  override fun appointmentRemovedFromBooking(booking: VideoLinkBooking) {
+    repository.save(
+      VideoLinkBookingEvent(
+        eventType = VideoLinkBookingEventType.UPDATE,
+        timestamp = LocalDateTime.now(clock),
+        userId = authenticationFacade.currentUsername,
+        agencyId = booking.prisonId,
+        videoLinkBookingId = booking.id!!,
+        courtId = booking.courtId,
+        court = booking.courtName,
+        comment = booking.comment,
+        madeByTheCourt = booking.madeByTheCourt,
+        mainNomisAppointmentId = booking.appointments[MAIN]?.appointmentId,
+        mainLocationId = booking.appointments[MAIN]?.locationId,
+        mainStartTime = booking.appointments[MAIN]?.startDateTime,
+        mainEndTime = booking.appointments[MAIN]?.endDateTime,
+        preNomisAppointmentId = booking.appointments[PRE]?.appointmentId,
+        preLocationId = booking.appointments[PRE]?.locationId,
+        preStartTime = booking.appointments[PRE]?.startDateTime,
+        preEndTime = booking.appointments[PRE]?.endDateTime,
+        postLocationId = booking.appointments[POST]?.locationId,
+        postNomisAppointmentId = booking.appointments[POST]?.appointmentId,
+        postStartTime = booking.appointments[POST]?.startDateTime,
+        postEndTime = booking.appointments[POST]?.endDateTime,
+      ),
+    )
+  }
+
   override fun bookingDeleted(booking: VideoLinkBooking) {
     repository.save(
       VideoLinkBookingEvent(

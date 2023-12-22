@@ -1021,8 +1021,8 @@ class VideoLinkBookingServiceTest {
       val videoLinkBooking = createVideoLinkBooking()
 
       whenever(videoLinkAppointmentRepository.findOneByAppointmentId(anyLong())).thenReturn(videoLinkBooking.appointments[HearingType.MAIN])
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
       service.processNomisUpdate(appointmentChangedEventMessage)
-      verify(videoLinkBookingRepository).delete(any())
       verify(prisonApiService).deleteAppointments(listOf(3, 4, 5), EventPropagation.DENY)
     }
 
@@ -1041,8 +1041,8 @@ class VideoLinkBookingServiceTest {
       val videoLinkBooking = createVideoLinkBooking()
 
       whenever(videoLinkAppointmentRepository.findOneByAppointmentId(anyLong())).thenReturn(videoLinkBooking.appointments[HearingType.MAIN])
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
       service.processNomisUpdate(appointmentChangedEventMessage)
-      verify(videoLinkBookingRepository).delete(any())
       verify(prisonApiService).deleteAppointments(listOf(3, 4, 5), EventPropagation.DENY)
     }
 
