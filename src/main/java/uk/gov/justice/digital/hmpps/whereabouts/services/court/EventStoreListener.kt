@@ -109,6 +109,7 @@ class EventStoreListener(
         postNomisAppointmentId = booking.appointments[POST]?.appointmentId,
         postStartTime = booking.appointments[POST]?.startDateTime,
         postEndTime = booking.appointments[POST]?.endDateTime,
+        offenderBookingId = booking.offenderBookingId,
       ),
     )
   }
