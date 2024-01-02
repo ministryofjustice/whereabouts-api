@@ -91,3 +91,15 @@ video-link-booking:
     day-end: "18:00"
     step: "PT15M"
     max-alternatives: 3
+
+notify:
+  api:
+    key: api-key
+  enabled: false
+  templates:
+    prison:
+      released: 5e1cfe03-8f0b-4d2f-aaa4-9628b145d28f
+      transferred: 5fe80af4-1d1e-4c13-a524-dcca52bc7d0d
+    court:
+      released: d3d166be-b439-466e-bd81-7114183335d9
+      transferred: 8c015bef-466a-4e99-854e-3b4574ee35b5

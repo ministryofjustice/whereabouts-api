@@ -26,9 +26,18 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.UserContext
 class WebClientConfiguration(
   @Value("\${elite2.api.uri.root}") private val prisonApiRootUri: String,
   @Value("\${elite2api.endpoint.url}") private val prisonApiHealthRootUri: String,
+  @Value("\${prisonregister.endpoint.url}") private val prisonRegisterRootUri: String,
   @Value("\${casenotes.endpoint.url}") private val caseNotesRootUri: String,
   @Value("\${oauth.endpoint.url}") private val oauthRootUri: String,
 ) {
+
+  @Bean
+  fun prisonRegisterWebClient(builder: WebClient.Builder): WebClient {
+    return builder.baseUrl(prisonRegisterRootUri)
+      .filter(addAuthHeaderFilterFunction())
+      .build()
+  }
+
   @Bean
   fun prisonApiHealthWebClient(builder: WebClient.Builder): WebClient {
     return builder.baseUrl(prisonApiHealthRootUri)

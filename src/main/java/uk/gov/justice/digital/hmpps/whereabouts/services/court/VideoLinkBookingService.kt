@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
+import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsSpecification
@@ -22,11 +23,13 @@ import uk.gov.justice.digital.hmpps.whereabouts.listeners.ScheduleEventStatus
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
+import uk.gov.justice.digital.hmpps.whereabouts.model.NotifyRequest
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.NotifyService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
@@ -48,9 +51,12 @@ class VideoLinkBookingService(
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val clock: Clock,
   private val videoLinkBookingEventListener: VideoLinkBookingEventListener,
+  private val notifyService: NotifyService,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
+    val dateFormatter = DateTimeFormatter.ofPattern("dd MM yyyy")
+    val timeFormatter = DateTimeFormatter.ofPattern("hh mm")
   }
 
   @Transactional(readOnly = true)
@@ -351,7 +357,8 @@ class VideoLinkBookingService(
       )
       log.debug("OffenderBookings: {}", offenderBookings)
       if (offenderBookings.isNotEmpty()) {
-        val offenderBookingId = offenderBookings.first().bookingId
+        val activeOffenderBooking = offenderBookings.first()
+        val offenderBookingId = activeOffenderBooking.bookingId
         val prisonerAppointments =
           videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
             hearingType = MAIN,
@@ -366,11 +373,62 @@ class VideoLinkBookingService(
         prisonerAppointments.forEach {
           try {
             this.deleteVideoLinkBooking(it.videoLinkBooking.id!!)
+            var courtName = courtService.getCourtNameForCourtId(it.videoLinkBooking.courtId!!)
+            var courtEmail = courtService.getCourtEmailForCourtId(it.videoLinkBooking.courtId!!)
+            val emailData = getEmailData(activeOffenderBooking, it.videoLinkBooking)
+
+            if (reason == Reason.TRANSFERRED && courtEmail != null) {
+              notifyService.sendOffenderTransferredEmail(emailData, courtName!!, courtEmail!!)
+            } else if (reason == Reason.TRANSFERRED && courtEmail == null) {
+              notifyService.sendOffenderTransferredEmailToPrisonOnly(emailData)
+            } else if (reason == Reason.RELEASED && courtEmail != null) {
+              notifyService.sendOffenderReleasedEmail(emailData, courtName!!, courtEmail!!)
+            } else if (reason == Reason.RELEASED && courtEmail == null) {
+              notifyService.sendOffenderReleasedEmailToPrisonOnly(emailData)
+            }
           } catch (e: EntityNotFoundException) {
             log.info("Video link appointment for offenderBookingId {} already deleted", offenderBookingId)
           }
         }
       }
     }
+  }
+
+  private fun getEmailData(
+    activeOffenderBooking: OffenderBooking,
+    videoLinkBooking: VideoLinkBooking,
+  ): NotifyRequest {
+    return NotifyRequest(
+      firstName = activeOffenderBooking.firstName,
+      lastName = activeOffenderBooking.lastName,
+      dateOfBirth = activeOffenderBooking.dateOfBirth.format(dateFormatter),
+      offenderId = activeOffenderBooking.offenderNo,
+      videoLinkBookingId = videoLinkBooking.id.toString(),
+      mainAppointmentDate = startDateTimeToString(videoLinkBooking.appointments[MAIN], dateFormatter),
+      mainAppointmentStartTime = startDateTimeToString(videoLinkBooking.appointments[MAIN], timeFormatter),
+      mainAppointmentEndTime = endDateTimeToString(videoLinkBooking.appointments[MAIN], timeFormatter),
+      preHearingStartTime = startDateTimeToString(videoLinkBooking.appointments[PRE], timeFormatter),
+      preHearingEndTime = endDateTimeToString(videoLinkBooking.appointments[PRE], timeFormatter),
+      postHearingStartTime = startDateTimeToString(videoLinkBooking.appointments[POST], timeFormatter),
+      postHearingEndTime = endDateTimeToString(videoLinkBooking.appointments[POST], timeFormatter),
+      comments = videoLinkBooking.comment ?: "None entered",
+      prisonName = "need to get this via prisonRegister - will need to make new client",
+      prisonEmail = "need to get this via prisonRegister - will need to make new client",
+    )
+    // prison email : get from https://prison-register.hmpps.service.justice.gov.uk/secure/prisons/id/MDI/department/contact-details?departmentType=OFFENDER_MANAGEMENT_UNIT using VideoLinkBooking.prisonId
+  }
+
+  fun startDateTimeToString(videoLinkAppointment: VideoLinkAppointment?, formatter: DateTimeFormatter): String {
+    if (videoLinkAppointment != null) {
+      return videoLinkAppointment.startDateTime.format(formatter)
+    }
+    return "None requested"
+  }
+
+  fun endDateTimeToString(videoLinkAppointment: VideoLinkAppointment?, formatter: DateTimeFormatter): String {
+    if (videoLinkAppointment != null) {
+      return videoLinkAppointment.endDateTime.format(formatter)
+    }
+    return "None requested"
   }
 }
