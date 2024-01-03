@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.NotifyService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
@@ -24,6 +25,7 @@ class VideoLinkBookingServiceForAppScope {
     videoLinkBookingRepository: VideoLinkBookingRepository,
     clock: Clock,
     videoLinkBookingEventListener: VideoLinkBookingEventListener,
+    notifyService: NotifyService,
   ): VideoLinkBookingService {
     return VideoLinkBookingService(
       courtService,
@@ -33,6 +35,7 @@ class VideoLinkBookingServiceForAppScope {
       videoLinkBookingRepository,
       clock,
       videoLinkBookingEventListener,
+      notifyService,
     )
   }
 }

@@ -12,8 +12,10 @@ class NotifyService(
   @Value("\${notify.enabled}") private val enabled: Boolean,
   @Value("\${notify.templates.prison.transferred}") private val offenderTransferredPrisonTemplateId: String,
   @Value("\${notify.templates.court.transferred}") private val offenderTransferredCourtTemplateId: String,
+  @Value("\${notify.templates.prison.transferred-but-no-court-email}") private val offenderTransferredPrisonButNoCourtEmailTemplateId: String,
   @Value("\${notify.templates.prison.released}") private val offenderReleasedPrisonTemplateId: String,
   @Value("\${notify.templates.court.released}") private val offenderReleasedCourtTemplateId: String,
+  @Value("\${notify.templates.prison.released-but-no-court-email}") private val offenderReleasedPrisonButNoCourtEmailTemplateId: String,
   private val client: NotificationClient,
 ) {
 
