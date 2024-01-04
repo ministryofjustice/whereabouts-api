@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.11.0"
-  kotlin("plugin.spring") version "1.9.21"
-  kotlin("plugin.jpa") version "1.9.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.12.0"
+  kotlin("plugin.spring") version "1.9.22"
+  kotlin("plugin.jpa") version "1.9.22"
 }
 
 configurations {
@@ -34,7 +34,7 @@ dependencies {
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.1.1")
 
   implementation("io.swagger:swagger-annotations:1.6.12")
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 
   implementation("org.apache.commons:commons-lang3")
   implementation("org.apache.commons:commons-text:1.11.0")
@@ -55,8 +55,8 @@ dependencies {
   testImplementation("org.wiremock:wiremock-standalone:3.3.1")
   testImplementation("io.mockk:mockk:1.13.8")
   testCompileOnly("org.projectlombok:lombok")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.33.0")
 }
 
