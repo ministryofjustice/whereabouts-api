@@ -1,0 +1,11 @@
+insert into enabled_court (id, name) values
+('PRESPC', 'Probation - Preston CC (PPOC)'),
+('PRESPM', 'Probation - Preston MC (PPOC)'),
+('BURNPC', 'Probation - Burnley CC (PPOC)'),
+('BURNPM', 'Probation - Burnley MC (PPOC)'),
+('BLKBPP', 'Probation - Blackburn MC (PPOC)'),
+('BLKPPP', 'Probation - Blackpool MC (PPOC)'),
+('LANCPM', 'Probation - Lancaster MC (PPOC)'),
+('LANCNW', 'Probation - NW Lancashire (PPOC)'),
+('LANCEA', 'Probation - East Lancashire (PPOC)'),
+('LANCCE', 'Probation - Central Lancashire (PPOC)');
