@@ -10,5 +10,6 @@ interface VideoLinkBookingEventListener {
   fun bookingCreated(booking: VideoLinkBooking, specification: VideoLinkBookingSpecification)
   fun bookingUpdated(booking: VideoLinkBooking, specification: VideoLinkBookingUpdateSpecification)
   fun bookingDeleted(booking: VideoLinkBooking)
+  fun appointmentRemovedFromBooking(booking: VideoLinkBooking)
   fun appointmentUpdatedInNomis(currentAppointment: VideoLinkAppointment, updatedAppointment: AppointmentChangedEventMessage)
 }
