@@ -302,9 +302,9 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
-  fun stubGetOffenderBookings(offenderNo: String = "A1234AA", offenderLocationDescription: String = "MDI-1-2") {
+  fun stubGetOffenderBookings(offenderNo: String = "A1234AA", offenderLocationDescription: String = "MDI-1-2", isActive: Boolean) {
     stubFor(
-      post(urlEqualTo("/api/bookings/offenders"))
+      post(urlEqualTo("/api/bookings/offenders?activeOnly=$isActive"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")

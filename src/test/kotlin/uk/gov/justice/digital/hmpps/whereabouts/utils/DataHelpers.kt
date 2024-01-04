@@ -5,13 +5,13 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentDefaults
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatePrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
+import uk.gov.justice.digital.hmpps.whereabouts.listeners.AppointmentChangedEventMessage
+import uk.gov.justice.digital.hmpps.whereabouts.listeners.ScheduleEventStatus
 import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
-import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEventMessage
-import uk.gov.justice.digital.hmpps.whereabouts.services.ScheduleEventStatus
 import java.time.LocalDateTime
 
 class DataHelpers {

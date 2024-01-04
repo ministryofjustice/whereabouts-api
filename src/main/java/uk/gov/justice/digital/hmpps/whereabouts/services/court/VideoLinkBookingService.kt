@@ -15,6 +15,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSearchDetail
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentDto
+import uk.gov.justice.digital.hmpps.whereabouts.listeners.AppointmentChangedEventMessage
+import uk.gov.justice.digital.hmpps.whereabouts.listeners.Reason
+import uk.gov.justice.digital.hmpps.whereabouts.listeners.ReleasedOffenderEventMessage
+import uk.gov.justice.digital.hmpps.whereabouts.listeners.ScheduleEventStatus
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
@@ -23,16 +27,15 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
-import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentChangedEventMessage
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
-import uk.gov.justice.digital.hmpps.whereabouts.services.ScheduleEventStatus
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
 
@@ -212,6 +215,7 @@ class VideoLinkBookingService(
 
     videoLinkBookingRepository.deleteById(booking.id!!)
     videoLinkBookingEventListener.bookingDeleted(booking)
+    log.info("Video link booking with id {} deleted", videoBookingId)
     return booking
   }
 
@@ -338,6 +342,38 @@ class VideoLinkBookingService(
       }
     } else {
       videoLinkBookingEventListener.appointmentUpdatedInNomis(videoLinkAppointment, appointmentChangedEventMessage)
+    }
+  }
+
+  fun deleteAppointmentWhenTransferredOrReleased(releasedOffenderEventMessage: ReleasedOffenderEventMessage) {
+    val reason = releasedOffenderEventMessage.additionalInformation.reason
+    if (reason == Reason.TRANSFERRED || reason == Reason.RELEASED) {
+      val offenderBookings = prisonApiService.getOffenderDetailsFromOffenderNos(
+        listOf(releasedOffenderEventMessage.additionalInformation.nomsNumber),
+        false,
+      )
+      log.debug("OffenderBookings: {}", offenderBookings)
+      if (offenderBookings.isNotEmpty()) {
+        val offenderBookingId = offenderBookings.first().bookingId
+        val prisonerAppointments =
+          videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
+            hearingType = MAIN,
+            startDateTime = LocalDateTime.parse(
+              releasedOffenderEventMessage.occurredAt,
+              DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+            ),
+            offenderBookingId = offenderBookingId,
+            prisonId = releasedOffenderEventMessage.additionalInformation.prisonId,
+          )
+        log.info("Appointments count for bookingId:  {} {}", offenderBookingId, prisonerAppointments.size)
+        prisonerAppointments.forEach {
+          try {
+            this.deleteVideoLinkBooking(it.videoLinkBooking.id!!)
+          } catch (e: EntityNotFoundException) {
+            log.info("Video link appointment for offenderBookingId {} already deleted", offenderBookingId)
+          }
+        }
+      }
     }
   }
 }

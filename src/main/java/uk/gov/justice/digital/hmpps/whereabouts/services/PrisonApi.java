@@ -148,12 +148,12 @@ public abstract class PrisonApi {
                 .block();
     }
 
-    public List<OffenderBooking> getOffenderDetailsFromOffenderNos(final Collection<String> offenderNos) {
+    public List<OffenderBooking> getOffenderDetailsFromOffenderNos(final Collection<String> offenderNos, boolean isActive) {
         final var responseType = new ParameterizedTypeReference<List<OffenderBooking>>() {
         };
 
         return webClient.post()
-                .uri("/bookings/offenders")
+                .uri("/bookings/offenders?activeOnly={isActive}", isActive)
                 .bodyValue(offenderNos)
                 .retrieve()
                 .bodyToMono(responseType)

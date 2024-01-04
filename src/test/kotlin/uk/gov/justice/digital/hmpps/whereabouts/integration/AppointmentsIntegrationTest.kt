@@ -8,7 +8,7 @@ class AppointmentsIntegrationTest : IntegrationTest() {
   @Test
   fun `getAppointments valid call with offenderLocationPrefix returns expected data`() {
     prisonApiMockServer.stubGetScheduledAppointmentsByAgencyAndDate("MDI", "A1234AA")
-    prisonApiMockServer.stubGetOffenderBookings("A1234AA", "MDI-1-2")
+    prisonApiMockServer.stubGetOffenderBookings("A1234AA", "MDI-1-2", true)
 
     webTestClient.get()
       .uri {

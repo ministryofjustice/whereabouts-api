@@ -1539,6 +1539,7 @@ class AttendanceServiceTest {
     whenever(
       prisonApiService.getOffenderDetailsFromOffenderNos(
         listOf(offenderNo),
+        true,
       ),
     ).thenReturn(
       listOf(

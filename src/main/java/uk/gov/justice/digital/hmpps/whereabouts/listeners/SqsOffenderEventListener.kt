@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.whereabouts.services
+package uk.gov.justice.digital.hmpps.whereabouts.listeners
 
 import com.google.gson.Gson
 import io.awspring.cloud.sqs.annotation.SqsListener
@@ -8,10 +8,11 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 
 @Service
-class SqsEventListener(
+class SqsOffenderEventListener(
   @Qualifier("attendanceServiceAppScope")
   private val attendanceService: AttendanceService,
   @Qualifier("videoLinkBookingServiceAppScope")
@@ -28,7 +29,7 @@ class SqsEventListener(
     try {
       log.info("Raw message {}", requestJson)
       val (message, messageAttributes) = gson.fromJson(requestJson, Message::class.java)
-      val eventType = messageAttributes.eventType.Value
+      val eventType = messageAttributes.eventType.value
       log.info("Processing message of type {}", eventType)
 
       when (eventType) {
@@ -52,30 +53,4 @@ class SqsEventListener(
       throw e
     }
   }
-}
-
-data class Attribute(val Type: String, val Value: String)
-data class MessageAttributes(val eventType: Attribute)
-data class Booking(val offenderBookId: Long)
-data class Offender(val offenderId: Long, val bookings: List<Booking>)
-data class DeleteOffenderEventMessage(val offenderIdDisplay: String, val offenders: List<Offender>)
-data class AppointmentChangedEventMessage(
-  val bookingId: Long,
-  val scheduleEventId: Long,
-  val scheduleEventStatus: ScheduleEventStatus,
-  val recordDeleted: Boolean,
-  val agencyLocationId: String,
-  val eventDatetime: String,
-  val scheduledStartTime: String,
-  val scheduledEndTime: String,
-)
-
-data class Message(
-  val Message: String,
-  val MessageAttributes: MessageAttributes,
-  val message: DeleteOffenderEventMessage,
-)
-
-enum class ScheduleEventStatus {
-  CANC, COMP, EXP, SCH
 }
