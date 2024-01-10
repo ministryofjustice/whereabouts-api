@@ -11,30 +11,27 @@ import uk.gov.service.notify.NotificationClientException
 class NotifyService(
   @Value("\${notify.enabled}") private val enabled: Boolean,
   @Value("\${notify.templates.prison.transferred}") private val offenderTransferredPrisonTemplateId: String,
-  @Value("\${notify.templates.court.transferred}") private val offenderTransferredCourtTemplateId: String,
-  @Value("\${notify.templates.prison.transferred-but-no-court-email}") private val offenderTransferredPrisonButNoCourtEmailTemplateId: String,
   @Value("\${notify.templates.prison.released}") private val offenderReleasedPrisonTemplateId: String,
-  @Value("\${notify.templates.court.released}") private val offenderReleasedCourtTemplateId: String,
+  @Value("\${notify.templates.prison.transferred-but-no-court-email}") private val offenderTransferredPrisonButNoCourtEmailTemplateId: String,
   @Value("\${notify.templates.prison.released-but-no-court-email}") private val offenderReleasedPrisonButNoCourtEmailTemplateId: String,
+  @Value("\${notify.templates.court.released}") private val offenderReleasedCourtTemplateId: String,
+  @Value("\${notify.templates.court.transferred}") private val offenderTransferredCourtTemplateId: String,
   private val client: NotificationClient,
 ) {
 
-  fun sendOffenderTransferredEmailToPrisonOnly(emailData: NotifyRequest) {
+  fun sendOffenderReleasedEmailToCourtAndPrison(notifyRequest: NotifyRequest, courtName: String, courtEmail: String) {
   }
 
-  fun sendOffenderReleasedEmail(emailData: NotifyRequest, courtName: String, courtEmail: String) {
-  }
+  fun sendOffenderTransferredEmailToPrisonOnly(notifyRequest: NotifyRequest) {}
 
-  fun sendOffenderReleasedEmailToPrisonOnly(emailData: NotifyRequest) {
-  }
-
-  fun sendOffenderTransferredEmail(
+  fun sendOffenderReleasedEmailToPrisonOnly(notifyRequest: NotifyRequest) {}
+  fun sendOffenderTransferredEmailToCourtAndPrison(
     notifyRequest: NotifyRequest,
     courtName: String,
     courtEmail: String,
   ) {
     if (enabled) {
-      val values: Map<String, String> = mapOf(
+      val values: Map<String, String?> = mapOf(
         "hearingLocation" to courtName,
         "prison" to notifyRequest.prisonName,
         "firstName" to notifyRequest.firstName,
@@ -79,7 +76,7 @@ class NotifyService(
     }
   }
 
-  private fun sendEmail(templateId: String, emailAddress: String, values: Map<String, Any>, reference: String?) {
+  private fun sendEmail(templateId: String, emailAddress: String, values: Map<String, String?>, reference: String?) {
     if (!enabled) {
       log.info("Notification disabled: Did not send notification to $emailAddress for $templateId ref $reference")
       return

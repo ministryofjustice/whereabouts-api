@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 
 @Component
 class PrisonRegisterClient(@Qualifier("prisonRegisterWebClient") private val webClient: WebClient) {
@@ -13,10 +14,9 @@ class PrisonRegisterClient(@Qualifier("prisonRegisterWebClient") private val web
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getPrisonEmailAddress(prisonId: String): DepartmentDto? {
-    val omu = "OFFENDER_MANAGEMENT_UNIT"
+  fun getPrisonEmailAddress(prisonId: String, departmentType: VideoLinkBookingService.DepartmentType): DepartmentDto? {
     return webClient.get()
-      .uri("/secure/prisons/id/$prisonId/department/contact-details?departmentType=$omu")
+      .uri("/secure/prisons/id/$prisonId/department/contact-details?departmentType=$departmentType")
       .retrieve()
       .bodyToMono(DepartmentDto::class.java)
       .block()
@@ -24,7 +24,7 @@ class PrisonRegisterClient(@Qualifier("prisonRegisterWebClient") private val web
 
   fun getPrisonDetails(prisonId: String): PrisonDetail? {
     return webClient.get()
-      .uri("/secure/prisons/id/$prisonId")
+      .uri("/prisons/id/$prisonId")
       .retrieve()
       .bodyToMono(PrisonDetail::class.java)
       .block()

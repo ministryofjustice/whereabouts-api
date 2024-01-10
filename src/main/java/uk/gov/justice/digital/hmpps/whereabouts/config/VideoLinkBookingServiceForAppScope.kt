@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepos
 import uk.gov.justice.digital.hmpps.whereabouts.services.NotifyService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonRegisterClient
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingEventListener
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
@@ -26,6 +27,7 @@ class VideoLinkBookingServiceForAppScope {
     clock: Clock,
     videoLinkBookingEventListener: VideoLinkBookingEventListener,
     notifyService: NotifyService,
+    prisonRegisterClient: PrisonRegisterClient,
   ): VideoLinkBookingService {
     return VideoLinkBookingService(
       courtService,
@@ -36,6 +38,7 @@ class VideoLinkBookingServiceForAppScope {
       clock,
       videoLinkBookingEventListener,
       notifyService,
+      prisonRegisterClient,
     )
   }
 }

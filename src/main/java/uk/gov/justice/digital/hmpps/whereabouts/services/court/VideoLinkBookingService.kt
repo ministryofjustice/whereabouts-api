@@ -33,6 +33,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.NotifyService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonRegisterClient
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import java.time.Clock
 import java.time.LocalDate
@@ -52,6 +53,7 @@ class VideoLinkBookingService(
   private val clock: Clock,
   private val videoLinkBookingEventListener: VideoLinkBookingEventListener,
   private val notifyService: NotifyService,
+  private val prisonRegisterClient: PrisonRegisterClient,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -376,30 +378,45 @@ class VideoLinkBookingService(
         prisonerAppointments.forEach {
           try {
             this.deleteVideoLinkBooking(it.videoLinkBooking.id!!)
-            var courtName = courtService.getCourtNameForCourtId(it.videoLinkBooking.courtId!!)
-            var courtEmail = courtService.getCourtEmailForCourtId(it.videoLinkBooking.courtId!!)
-            val emailData = getEmailData(activeOffenderBooking, it.videoLinkBooking)
-
-            if (reason == Reason.TRANSFERRED && courtEmail != null) {
-              notifyService.sendOffenderTransferredEmail(emailData, courtName!!, courtEmail!!)
-            } else if (reason == Reason.TRANSFERRED && courtEmail == null) {
-              notifyService.sendOffenderTransferredEmailToPrisonOnly(emailData)
-            } else if (reason == Reason.RELEASED && courtEmail != null) {
-              notifyService.sendOffenderReleasedEmail(emailData, courtName!!, courtEmail!!)
-            } else if (reason == Reason.RELEASED && courtEmail == null) {
-              notifyService.sendOffenderReleasedEmailToPrisonOnly(emailData)
-            }
           } catch (e: EntityNotFoundException) {
             log.info("Video link appointment for offenderBookingId {} already deleted", offenderBookingId)
+            return@forEach
+          }
+
+          var courtEmail = courtService.getCourtEmailForCourtId(it.videoLinkBooking.courtId)
+          var courtName =
+            courtService.getCourtNameForCourtId(it.videoLinkBooking.courtId) ?: it.videoLinkBooking.courtName ?: ""
+
+          val prisonEmail = getPrisonEmail(it.videoLinkBooking.prisonId)
+          val prisonName = getPrisonName(it.videoLinkBooking.prisonId)
+
+          if (prisonEmail == null || prisonName == null) {
+            log.info("Prison name or email address for {} not found", offenderBookingId)
+            return@forEach
+          }
+
+          val notifyRequestData =
+            getNotifyRequestData(activeOffenderBooking, it.videoLinkBooking, prisonEmail, prisonName)
+
+          if (reason == Reason.TRANSFERRED && courtEmail != null) {
+            notifyService.sendOffenderTransferredEmailToCourtAndPrison(notifyRequestData, courtName, courtEmail)
+          } else if (reason == Reason.TRANSFERRED && courtEmail == null) {
+            notifyService.sendOffenderTransferredEmailToPrisonOnly(notifyRequestData)
+          } else if (reason == Reason.RELEASED && courtEmail != null) {
+            notifyService.sendOffenderReleasedEmailToCourtAndPrison(notifyRequestData, courtName, courtEmail)
+          } else if (reason == Reason.RELEASED && courtEmail == null) {
+            notifyService.sendOffenderReleasedEmailToPrisonOnly(notifyRequestData)
           }
         }
       }
     }
   }
 
-  private fun getEmailData(
+  private fun getNotifyRequestData(
     activeOffenderBooking: OffenderBooking,
     videoLinkBooking: VideoLinkBooking,
+    prisonName: String,
+    prisonEmail: String,
   ): NotifyRequest {
     return NotifyRequest(
       firstName = activeOffenderBooking.firstName,
@@ -415,10 +432,9 @@ class VideoLinkBookingService(
       postHearingStartTime = startDateTimeToString(videoLinkBooking.appointments[POST], timeFormatter),
       postHearingEndTime = endDateTimeToString(videoLinkBooking.appointments[POST], timeFormatter),
       comments = videoLinkBooking.comment ?: "None entered",
-      prisonName = "need to get this via prisonRegister - will need to make new client",
-      prisonEmail = "need to get this via prisonRegister - will need to make new client",
+      prisonName = prisonName,
+      prisonEmail = prisonEmail,
     )
-    // prison email : get from https://prison-register.hmpps.service.justice.gov.uk/secure/prisons/id/MDI/department/contact-details?departmentType=OFFENDER_MANAGEMENT_UNIT using VideoLinkBooking.prisonId
   }
 
   fun startDateTimeToString(videoLinkAppointment: VideoLinkAppointment?, formatter: DateTimeFormatter): String {
@@ -433,5 +449,36 @@ class VideoLinkBookingService(
       return videoLinkAppointment.endDateTime.format(formatter)
     }
     return "None requested"
+  }
+
+  fun getPrisonEmail(prisonId: String): String? {
+    // email prison VCC's only not OMU's
+    try {
+      return prisonRegisterClient.getPrisonEmailAddress(
+        prisonId,
+        DepartmentType.VIDEOLINK_CONFERENCING_CENTRE,
+      )?.emailAddress
+    } catch (e: EntityNotFoundException) {
+      log.info(
+        "Could not get prison VCC email address for {} from prisonRegister. Exception message {}",
+        prisonId,
+        e.message,
+      )
+    }
+    return null
+  }
+
+  fun getPrisonName(prisonId: String): String? {
+    try {
+      return prisonRegisterClient.getPrisonDetails(prisonId)?.prisonName
+    } catch (e: EntityNotFoundException) {
+      log.info("Could not get prison name for {} from prisonRegister. Error message: {}", prisonId, e.message)
+    }
+    return null
+  }
+
+  enum class DepartmentType {
+    VIDEOLINK_CONFERENCING_CENTRE,
+    OFFENDER_MANAGEMENT_UNIT,
   }
 }

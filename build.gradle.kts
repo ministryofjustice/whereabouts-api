@@ -58,7 +58,7 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.33.0")
-  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:1.33.0")
+  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:1.32.0")
   // GOVUK Notify:
   implementation("uk.gov.service.notify:notifications-java-client:4.1.0-RELEASE")
 }
