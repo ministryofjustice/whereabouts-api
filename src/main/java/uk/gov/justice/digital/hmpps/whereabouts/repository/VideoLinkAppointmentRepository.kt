@@ -25,9 +25,4 @@ interface VideoLinkAppointmentRepository : ReadOnlyRepository<VideoLinkAppointme
     offenderBookingId: Long,
     prisonId: String,
   ): Set<VideoLinkAppointment>
-
-  fun findByHearingTypeIsAndVideoLinkBookingPrisonIdIs(
-    hearingType: HearingType,
-    videoLinkBookingId: Long,
-  ): VideoLinkAppointment
 }
