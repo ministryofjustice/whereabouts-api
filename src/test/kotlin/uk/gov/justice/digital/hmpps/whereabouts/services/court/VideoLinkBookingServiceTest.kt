@@ -1456,7 +1456,7 @@ class VideoLinkBookingServiceTest {
     }
 
     @Test
-    fun `Should not delete BVL appointment when release reason is TRANSFERRED but no court email address`() {
+    fun `Should delete BVL appointment when release reason is TRANSFERRED and email prison only`() {
       val message = ReleasedOffenderEventMessage(
         occurredAt = "2023-11-20T17:07:58Z",
         additionalInformation = AdditionalInformation(
@@ -1471,7 +1471,7 @@ class VideoLinkBookingServiceTest {
       service.deleteAppointmentWhenTransferredOrReleased(message)
       verify(videoLinkBookingRepository, times(1)).deleteById(any())
       verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
-      verify(notifyService, times(0)).sendOffenderTransferredEmailToCourtAndPrison(any(), any(), any())
+      verify(notifyService, never()).sendOffenderTransferredEmailToCourtAndPrison(any(), any(), any())
       verify(notifyService, times(1)).sendOffenderTransferredEmailToPrisonOnly(any())
     }
 
@@ -1494,7 +1494,7 @@ class VideoLinkBookingServiceTest {
     }
 
     @Test
-    fun `Should not delete BVL appointment when release reason is RELEASED but no court email address`() {
+    fun `Should delete BVL appointment when release reason is RELEASED and email prison only`() {
       val message = ReleasedOffenderEventMessage(
         occurredAt = "2023-11-20T17:07:58Z",
         additionalInformation = AdditionalInformation(
@@ -1504,16 +1504,6 @@ class VideoLinkBookingServiceTest {
         ),
       )
 
-      whenever(
-        videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
-          any(),
-          any(),
-          any(),
-          any(),
-        ),
-      )
-        .thenReturn(setOf(DataHelpers.makeVideoLinkAppointment()))
-
       whenever(courtService.getCourtEmailForCourtId(any())).thenReturn(null)
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
 
@@ -1521,6 +1511,7 @@ class VideoLinkBookingServiceTest {
       verify(videoLinkBookingRepository, times(1)).findById(1L)
       verify(videoLinkBookingRepository, times(1)).deleteById(100L)
       verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
+      verify(notifyService, never()).sendOffenderTransferredEmailToCourtAndPrison(any(), any(), any())
       verify(notifyService, times(1)).sendOffenderReleasedEmailToPrisonOnly(any())
     }
 
@@ -1534,16 +1525,6 @@ class VideoLinkBookingServiceTest {
           reason = Reason.RELEASED,
         ),
       )
-
-      whenever(
-        videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
-          any(),
-          any(),
-          any(),
-          any(),
-        ),
-      )
-        .thenReturn(setOf(DataHelpers.makeVideoLinkAppointment()))
 
       val offenderBooking = mock<OffenderBooking>()
       whenever(offenderBooking.bookingId).thenReturn(1)
