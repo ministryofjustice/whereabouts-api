@@ -57,8 +57,6 @@ class VideoLinkBookingService(
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
-    val dateFormatter = DateTimeFormatter.ofPattern("dd MM yyyy")
-    val timeFormatter = DateTimeFormatter.ofPattern("hh mm")
   }
 
   @Transactional(readOnly = true)
@@ -396,16 +394,20 @@ class VideoLinkBookingService(
           }
 
           val notifyRequestData =
-            getNotifyRequestData(activeOffenderBooking, it.videoLinkBooking, prisonEmail, prisonName)
+            getNotifyRequestData(activeOffenderBooking, it.videoLinkBooking, prisonName, courtName)
 
           if (reason == Reason.TRANSFERRED && courtEmail != null) {
-            notifyService.sendOffenderTransferredEmailToCourtAndPrison(notifyRequestData, courtName, courtEmail)
+            notifyService.sendOffenderTransferredEmailToCourtAndPrison(notifyRequestData, courtEmail, prisonEmail)
+            log.info("Email sent to courtName {} following BVL appointment deletion for bookingId {}", courtName, offenderBookingId)
           } else if (reason == Reason.TRANSFERRED && courtEmail == null) {
-            notifyService.sendOffenderTransferredEmailToPrisonOnly(notifyRequestData)
+            notifyService.sendOffenderTransferredEmailToPrisonOnly(notifyRequestData, prisonEmail)
+            log.info("Email for courtId {} not found when deleting BVL appointment for bookingId {}", it.videoLinkBooking.courtId, offenderBookingId)
           } else if (reason == Reason.RELEASED && courtEmail != null) {
-            notifyService.sendOffenderReleasedEmailToCourtAndPrison(notifyRequestData, courtName, courtEmail)
+            notifyService.sendOffenderReleasedEmailToCourtAndPrison(notifyRequestData, courtEmail, prisonEmail)
+            log.info("Email sent to courtName {} following BVL appointment deletion for bookingId {}", courtName, offenderBookingId)
           } else if (reason == Reason.RELEASED && courtEmail == null) {
-            notifyService.sendOffenderReleasedEmailToPrisonOnly(notifyRequestData)
+            notifyService.sendOffenderReleasedEmailToPrisonOnly(notifyRequestData, prisonEmail)
+            log.info("Email for prisonId {} not found when deleting BVL appointment for bookingId {}", it.videoLinkBooking.prisonId, offenderBookingId)
           }
         }
       }
@@ -416,39 +418,19 @@ class VideoLinkBookingService(
     activeOffenderBooking: OffenderBooking,
     videoLinkBooking: VideoLinkBooking,
     prisonName: String,
-    prisonEmail: String,
+    courtName: String,
   ): NotifyRequest {
     return NotifyRequest(
       firstName = activeOffenderBooking.firstName,
       lastName = activeOffenderBooking.lastName,
-      dateOfBirth = activeOffenderBooking.dateOfBirth.format(dateFormatter),
-      offenderId = activeOffenderBooking.offenderNo,
-      videoLinkBookingId = videoLinkBooking.id.toString(),
-      mainAppointmentDate = startDateTimeToString(videoLinkBooking.appointments[MAIN], dateFormatter),
-      mainAppointmentStartTime = startDateTimeToString(videoLinkBooking.appointments[MAIN], timeFormatter),
-      mainAppointmentEndTime = endDateTimeToString(videoLinkBooking.appointments[MAIN], timeFormatter),
-      preHearingStartTime = startDateTimeToString(videoLinkBooking.appointments[PRE], timeFormatter),
-      preHearingEndTime = endDateTimeToString(videoLinkBooking.appointments[PRE], timeFormatter),
-      postHearingStartTime = startDateTimeToString(videoLinkBooking.appointments[POST], timeFormatter),
-      postHearingEndTime = endDateTimeToString(videoLinkBooking.appointments[POST], timeFormatter),
+      dateOfBirth = activeOffenderBooking.dateOfBirth,
+      mainHearing = videoLinkBooking.appointments[MAIN]!!,
+      preHearing = videoLinkBooking.appointments[PRE],
+      postHearing = videoLinkBooking.appointments[POST],
       comments = videoLinkBooking.comment ?: "None entered",
       prisonName = prisonName,
-      prisonEmail = prisonEmail,
+      courtName = courtName,
     )
-  }
-
-  fun startDateTimeToString(videoLinkAppointment: VideoLinkAppointment?, formatter: DateTimeFormatter): String {
-    if (videoLinkAppointment != null) {
-      return videoLinkAppointment.startDateTime.format(formatter)
-    }
-    return "None requested"
-  }
-
-  fun endDateTimeToString(videoLinkAppointment: VideoLinkAppointment?, formatter: DateTimeFormatter): String {
-    if (videoLinkAppointment != null) {
-      return videoLinkAppointment.endDateTime.format(formatter)
-    }
-    return "None requested"
   }
 
   fun getPrisonEmail(prisonId: String): String? {
@@ -479,6 +461,5 @@ class VideoLinkBookingService(
 
   enum class DepartmentType {
     VIDEOLINK_CONFERENCING_CENTRE,
-    OFFENDER_MANAGEMENT_UNIT,
   }
 }

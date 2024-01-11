@@ -1357,6 +1357,8 @@ class VideoLinkBookingServiceTest {
       whenever(offenderBooking.offenderNo).thenReturn("A1234BC")
       whenever(offenderBooking.dateOfBirth).thenReturn(LocalDate.of(2000, 5, 1))
       whenever(prisonApiService.getOffenderDetailsFromOffenderNos(any(), any())).thenReturn(listOf(offenderBooking))
+
+      val videoLinkBooking = DataHelpers.makeVideoLinkBooking(id = 1)
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
       whenever(prisonRegisterClient.getPrisonDetails(any())).thenReturn(PrisonRegisterClient.PrisonDetail(prisonId = "MDI", prisonName = "Moorland"))
       whenever(prisonRegisterClient.getPrisonEmailAddress(any(), any())).thenReturn(PrisonRegisterClient.DepartmentDto(type = "1", emailAddress = "some-prison@email.com"))
@@ -1370,7 +1372,7 @@ class VideoLinkBookingServiceTest {
           any(),
         ),
       )
-        .thenReturn(setOf(DataHelpers.makeVideoLinkAppointment()))
+        .thenReturn(setOf(videoLinkBooking.appointments[HearingType.MAIN]!!))
 
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
     }
@@ -1472,7 +1474,7 @@ class VideoLinkBookingServiceTest {
       verify(videoLinkBookingRepository, times(1)).deleteById(any())
       verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
       verify(notifyService, never()).sendOffenderTransferredEmailToCourtAndPrison(any(), any(), any())
-      verify(notifyService, times(1)).sendOffenderTransferredEmailToPrisonOnly(any())
+      verify(notifyService, times(1)).sendOffenderTransferredEmailToPrisonOnly(any(), any())
     }
 
     @Test
@@ -1488,7 +1490,7 @@ class VideoLinkBookingServiceTest {
 
       service.deleteAppointmentWhenTransferredOrReleased(message)
       verify(videoLinkBookingRepository, times(1)).findById(1L)
-      verify(videoLinkBookingRepository, times(1)).deleteById(100L)
+      verify(videoLinkBookingRepository, times(1)).deleteById(any())
       verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
       verify(notifyService, times(1)).sendOffenderReleasedEmailToCourtAndPrison(any(), any(), any())
     }
@@ -1512,7 +1514,7 @@ class VideoLinkBookingServiceTest {
       verify(videoLinkBookingRepository, times(1)).deleteById(100L)
       verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
       verify(notifyService, never()).sendOffenderTransferredEmailToCourtAndPrison(any(), any(), any())
-      verify(notifyService, times(1)).sendOffenderReleasedEmailToPrisonOnly(any())
+      verify(notifyService, times(1)).sendOffenderReleasedEmailToPrisonOnly(any(), any())
     }
 
     @Test
