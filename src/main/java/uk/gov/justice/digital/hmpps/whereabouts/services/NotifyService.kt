@@ -26,8 +26,8 @@ class NotifyService(
   ) {
     if (enabled) {
       val values = notifyRequest.constructMapOfNotifyRequest()
-      sendEmail(offenderTransferredPrisonEmailTemplateId, prisonEmail, values, null)
       sendEmail(offenderTransferredCourtEmailTemplateId, courtEmail, values, null)
+      sendEmail(offenderTransferredPrisonEmailTemplateId, prisonEmail, values, null)
 
       log.info(
         "BVL appointment cancellation following offender transfer." +
