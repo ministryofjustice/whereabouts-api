@@ -10,12 +10,12 @@ import uk.gov.service.notify.NotificationClientException
 @Service
 class NotifyService(
   @Value("\${notify.enabled}") private val enabled: Boolean,
-  @Value("\${notify.templates.prison.transferred}") private val offenderTransferredPrisonTemplateId: String,
-  @Value("\${notify.templates.prison.released}") private val offenderReleasedPrisonTemplateId: String,
-  @Value("\${notify.templates.prison.transferred-but-no-court-email}") private val offenderTransferredPrisonButNoCourtEmailTemplateId: String,
-  @Value("\${notify.templates.prison.released-but-no-court-email}") private val offenderReleasedPrisonButNoCourtEmailTemplateId: String,
-  @Value("\${notify.templates.court.released}") private val offenderReleasedCourtTemplateId: String,
-  @Value("\${notify.templates.court.transferred}") private val offenderTransferredCourtTemplateId: String,
+  @Value("\${notify.templates.prison.transferred}") private val offenderTransferredPrisonEmailTemplateId: String,
+  @Value("\${notify.templates.court.transferred}") private val offenderTransferredCourtEmailTemplateId: String,
+  @Value("\${notify.templates.prison.transferred-but-no-court-email}") private val offenderTransferredPrisonEmailTemplateIdButNoCourtEmailTemplateId: String,
+  @Value("\${notify.templates.prison.released}") private val offenderReleasedPrisonEmailTemplateId: String,
+  @Value("\${notify.templates.court.released}") private val offenderReleasedCourtEmailTemplateId: String,
+  @Value("\${notify.templates.prison.released-but-no-court-email}") private val offenderReleasedPrisonEmailTemplateIdButNoCourtEmailTemplateId: String,
   private val client: NotificationClient,
 ) {
 
@@ -26,8 +26,8 @@ class NotifyService(
   ) {
     if (enabled) {
       val values = notifyRequest.constructMapOfNotifyRequest()
-      sendEmail(offenderTransferredPrisonTemplateId, prisonEmail, values, null)
-      sendEmail(offenderTransferredCourtTemplateId, courtEmail, values, null)
+      sendEmail(offenderTransferredPrisonEmailTemplateId, prisonEmail, values, null)
+      sendEmail(offenderTransferredCourtEmailTemplateId, courtEmail, values, null)
 
       log.info(
         "BVL appointment cancellation following offender transfer." +
@@ -41,7 +41,7 @@ class NotifyService(
   fun sendOffenderTransferredEmailToPrisonOnly(notifyRequest: NotifyRequest, prisonEmail: String) {
     if (enabled) {
       val values = notifyRequest.constructMapOfNotifyRequest()
-      sendEmail(offenderTransferredPrisonTemplateId, prisonEmail, values, null)
+      sendEmail(offenderTransferredPrisonEmailTemplateIdButNoCourtEmailTemplateId, prisonEmail, values, null)
 
       log.info(
         "BVL appointment cancellation following offender transfer." +
@@ -56,8 +56,8 @@ class NotifyService(
   fun sendOffenderReleasedEmailToCourtAndPrison(notifyRequest: NotifyRequest, courtEmail: String, prisonEmail: String) {
     if (enabled) {
       val values = notifyRequest.constructMapOfNotifyRequest()
-      sendEmail(offenderTransferredPrisonTemplateId, prisonEmail, values, null)
-      sendEmail(offenderTransferredCourtTemplateId, courtEmail, values, null)
+      sendEmail(offenderReleasedPrisonEmailTemplateId, prisonEmail, values, null)
+      sendEmail(offenderReleasedCourtEmailTemplateId, courtEmail, values, null)
 
       log.info(
         "BVL appointment cancellation following offender release." +
@@ -72,7 +72,7 @@ class NotifyService(
   fun sendOffenderReleasedEmailToPrisonOnly(notifyRequest: NotifyRequest, prisonEmail: String) {
     if (enabled) {
       val values = notifyRequest.constructMapOfNotifyRequest()
-      sendEmail(offenderTransferredPrisonTemplateId, prisonEmail, values, null)
+      sendEmail(offenderReleasedPrisonEmailTemplateIdButNoCourtEmailTemplateId, prisonEmail, values, null)
 
       log.info(
         "BVL appointment cancellation following offender release." +
@@ -84,9 +84,9 @@ class NotifyService(
     }
   }
 
-  private fun sendEmail(templateId: String, emailAddress: String, values: Map<String, String?>, reference: String?) {
+  fun sendEmail(templateId: String, emailAddress: String, values: Map<String, String?>, reference: String?) {
     if (!enabled) {
-      log.info("Notification disabled: Did not send notification to $emailAddress for $templateId ref $reference")
+      log.info("Notification disabled: Did not send notification to $emailAddress for templateId: $templateId ")
       return
     }
 

@@ -30,7 +30,7 @@ data class NotifyRequest(
   }
   private fun formatStartAndEndTime(videoLinkAppointment: VideoLinkAppointment?): String {
     if (videoLinkAppointment != null) {
-      return "${videoLinkAppointment.startDateTime.format(DateTimeFormatter.ISO_LOCAL_TIME)} to ${videoLinkAppointment.endDateTime.format(DateTimeFormatter.ISO_LOCAL_TIME)}"
+      return "${videoLinkAppointment.startDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))} to ${videoLinkAppointment.endDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))}"
     }
     return "None requested"
   }
