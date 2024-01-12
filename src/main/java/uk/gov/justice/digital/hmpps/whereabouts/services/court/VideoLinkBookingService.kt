@@ -427,7 +427,7 @@ class VideoLinkBookingService(
       mainHearing = videoLinkBooking.appointments[MAIN]!!,
       preHearing = videoLinkBooking.appointments[PRE],
       postHearing = videoLinkBooking.appointments[POST],
-      comments = videoLinkBooking.comment ?: "None entered",
+      comments = videoLinkBooking.comment,
       prisonName = prisonName,
       courtName = courtName,
     )

@@ -10,7 +10,7 @@ data class NotifyRequest(
   val mainHearing: VideoLinkAppointment,
   val preHearing: VideoLinkAppointment?,
   val postHearing: VideoLinkAppointment?,
-  val comments: String,
+  val comments: String?,
   val prisonName: String,
   val courtName: String,
 ) {
@@ -18,12 +18,12 @@ data class NotifyRequest(
     return mapOf(
       "firstName" to firstName,
       "lastName" to lastName,
-      "dateOfBirth" to dateOfBirth.format(DateTimeFormatter.ofPattern("dd MM yyyy")),
-      "date" to mainHearing.startDateTime.format(DateTimeFormatter.ofPattern("dd MM yyyy")),
+      "dateOfBirth" to dateOfBirth.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+      "date" to mainHearing.startDateTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
       "mainHearingStartAndEndTime" to formatStartAndEndTime(mainHearing),
       "preHearingStartAndEndTime" to formatStartAndEndTime(preHearing),
       "postHearingStartAndEndTime" to formatStartAndEndTime(postHearing),
-      "comments" to comments,
+      "comments" to (comments ?: "None entered"),
       "prison" to prisonName,
       "hearingLocation" to courtName,
     )
