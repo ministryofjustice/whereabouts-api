@@ -42,7 +42,10 @@ data class ReleasedOffenderEventMessage(
   val additionalInformation: AdditionalInformation,
 )
 enum class ScheduleEventStatus {
-  CANC, COMP, EXP, SCH
+  CANC,
+  COMP,
+  EXP,
+  SCH,
 }
 
 enum class Reason {

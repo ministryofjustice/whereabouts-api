@@ -71,8 +71,10 @@ class IEPWarningService(
       val modifiedTextWithReason = formatReasonAndComment(reason, subReason, text)
       val caseNote = caseNotesService.postCaseNote(
         offenderNo,
-        "NEG", // "Negative Behaviour"
-        "IEP_WARN", // "IEP Warning",
+        // "Negative Behaviour"
+        "NEG",
+        // "IEP Warning",
+        "IEP_WARN",
         modifiedTextWithReason,
         eventDate.atStartOfDay(),
       )

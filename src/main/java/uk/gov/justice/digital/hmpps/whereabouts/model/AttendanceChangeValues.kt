@@ -12,5 +12,4 @@ enum class AttendanceChangeValues {
   Refused,
   RefusedIncentiveLevelWarning,
   Attended,
-  ;
 }

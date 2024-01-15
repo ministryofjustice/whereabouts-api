@@ -29,7 +29,6 @@ class VideoLinkBookingEventController(val service: VideoLinkBookingEventService)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Parameter(description = "The earliest date for which to return event details.", required = true)
     startDate: LocalDate,
-
     @RequestParam(name = "days")
     @Parameter(description = "Return details of events occurring within this number of days of start-date")
     days: Long?,
