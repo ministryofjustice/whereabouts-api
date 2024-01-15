@@ -18,7 +18,6 @@ class DelegatingVideoLinkBookingEventListener(
   override fun bookingCreated(
     booking: VideoLinkBooking,
     specification: VideoLinkBookingSpecification,
-
   ) {
     eventStoreListener.bookingCreated(booking, specification)
     applicationInsightsEventListener.bookingCreated(booking, specification)
@@ -27,7 +26,6 @@ class DelegatingVideoLinkBookingEventListener(
   override fun bookingUpdated(
     booking: VideoLinkBooking,
     specification: VideoLinkBookingUpdateSpecification,
-
   ) {
     val copy = copyWithCourtName(booking)
     eventStoreListener.bookingUpdated(copy, specification)

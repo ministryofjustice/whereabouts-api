@@ -77,7 +77,7 @@ allOpen {
   annotations(
     "jakarta.persistence.Entity",
     "jakarta.persistence.MappedSuperclass",
-    "jakarta.persistence.Embeddable"
+    "jakarta.persistence.Embeddable",
   )
 }
 

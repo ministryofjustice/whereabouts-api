@@ -255,7 +255,8 @@ class AttendanceService(
 
     val eventOutcome = nomisEventOutcomeMapper.getEventOutcome(
       reason = attendancesDto.reason,
-      subReason = null, // for creating multiple attendances can only specify reasons where sub reason not required
+      // for creating multiple attendances can only specify reasons where sub reason not required
+      subReason = null,
       attended = attendancesDto.attended,
       paid = attendancesDto.paid,
       comment = attendancesDto.comments,
