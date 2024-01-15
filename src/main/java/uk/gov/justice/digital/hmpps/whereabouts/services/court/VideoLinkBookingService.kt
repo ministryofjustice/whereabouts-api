@@ -382,11 +382,16 @@ class VideoLinkBookingService(
             log.info("Video link appointment for offenderBookingId {} already deleted", offenderBookingId)
             return@forEach
           }
+          log.info(
+            "Getting information to send emails for {} ",
+            offenderBookingId,
+          )
 
           if (!enabled) {
             log.info(
               "Email notification is not enabled so emails not sent to either court/prison when offender " +
-                "with bookingId $offenderBookingId was transferred or released",
+                "with bookingId {} was transferred or released",
+              offenderBookingId,
             )
             return
           }
