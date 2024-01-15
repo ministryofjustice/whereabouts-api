@@ -15,6 +15,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
@@ -1360,8 +1361,18 @@ class VideoLinkBookingServiceTest {
 
       val videoLinkBooking = DataHelpers.makeVideoLinkBooking(id = 1)
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
-      whenever(prisonRegisterClient.getPrisonDetails(any())).thenReturn(PrisonRegisterClient.PrisonDetail(prisonId = "MDI", prisonName = "Moorland"))
-      whenever(prisonRegisterClient.getPrisonEmailAddress(any(), any())).thenReturn(PrisonRegisterClient.DepartmentDto(type = "1", emailAddress = "some-prison@email.com"))
+      whenever(prisonRegisterClient.getPrisonDetails(any())).thenReturn(
+        PrisonRegisterClient.PrisonDetail(
+          prisonId = "MDI",
+          prisonName = "Moorland",
+        ),
+      )
+      whenever(prisonRegisterClient.getPrisonEmailAddress(any(), any())).thenReturn(
+        PrisonRegisterClient.DepartmentDto(
+          type = "1",
+          emailAddress = "some-prison@email.com",
+        ),
+      )
       whenever(courtService.getCourtNameForCourtId(any())).thenReturn("some-court")
       whenever(courtService.getCourtEmailForCourtId(any())).thenReturn("court@mail.com")
       whenever(
@@ -1376,6 +1387,7 @@ class VideoLinkBookingServiceTest {
 
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
     }
+
     val service = service()
 
     private val mainAppointmentId = 12L
@@ -1534,12 +1546,20 @@ class VideoLinkBookingServiceTest {
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.empty())
 
       service.deleteAppointmentWhenTransferredOrReleased(message)
-
       verify(videoLinkBookingRepository, never()).deleteById(any())
+    }
+
+    @Test
+    fun `No email is sent when notify is not enabled`() {
+      service(false)
+      verifyNoInteractions(notifyService)
+      verifyNoInteractions(courtService)
+      verifyNoInteractions(prisonRegisterClient)
     }
   }
 
-  private fun service() = VideoLinkBookingService(
+  private fun service(enabled: Boolean = true) = VideoLinkBookingService(
+    enabled,
     courtService,
     prisonApiService,
     prisonApiServiceAuditable,

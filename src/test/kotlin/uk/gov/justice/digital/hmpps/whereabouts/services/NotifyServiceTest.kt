@@ -17,7 +17,6 @@ class NotifyServiceTest {
   val map = mapOf<String, String>()
 
   private val service = NotifyService(
-    enabled = true,
     "offenderTransferredPrisonEmailTemplateId",
     "offenderTransferredCourtEmailTemplateId",
     "offenderTransferredPrisonEmailTemplateIdButNoCourtEmailTemplateId",

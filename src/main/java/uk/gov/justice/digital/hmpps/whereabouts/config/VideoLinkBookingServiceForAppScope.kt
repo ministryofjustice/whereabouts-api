@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.config
 
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.client.WebClient
@@ -16,7 +17,9 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingS
 import java.time.Clock
 
 @Configuration
-class VideoLinkBookingServiceForAppScope {
+class VideoLinkBookingServiceForAppScope(
+  @Value("\${notify.enabled}") private val enabled: Boolean,
+) {
   @Bean(name = ["videoLinkBookingServiceAppScope"])
   fun getPrisonServiceForAppScope(
     courtService: CourtService,
@@ -30,6 +33,7 @@ class VideoLinkBookingServiceForAppScope {
     prisonRegisterClient: PrisonRegisterClient,
   ): VideoLinkBookingService {
     return VideoLinkBookingService(
+      enabled,
       courtService,
       PrisonApiService(webClient),
       prisonApiServiceAuditable,

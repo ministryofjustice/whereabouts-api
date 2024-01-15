@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 import jakarta.persistence.EntityNotFoundException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
@@ -45,6 +46,7 @@ const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
 
 @Service
 class VideoLinkBookingService(
+  @Value("\${notify.enabled}") private val enabled: Boolean,
   private val courtService: CourtService,
   private val prisonApiService: PrisonApiService,
   private val prisonApiServiceAuditable: PrisonApiServiceAuditable,
@@ -381,6 +383,14 @@ class VideoLinkBookingService(
             return@forEach
           }
 
+          if (!enabled) {
+            log.info(
+              "Email notification is not enabled so emails not sent to either court/prison when offender " +
+                "with bookingId $offenderBookingId was transferred or released",
+            )
+            return
+          }
+
           var courtEmail = courtService.getCourtEmailForCourtId(it.videoLinkBooking.courtId)
           var courtName =
             courtService.getCourtNameForCourtId(it.videoLinkBooking.courtId) ?: it.videoLinkBooking.courtName ?: ""
@@ -398,16 +408,32 @@ class VideoLinkBookingService(
 
           if (reason == Reason.TRANSFERRED && courtEmail != null) {
             notifyService.sendOffenderTransferredEmailToCourtAndPrison(notifyRequestData, courtEmail, prisonEmail)
-            log.info("Email sent to courtName {} following BVL appointment deletion for bookingId {}", courtName, offenderBookingId)
+            log.info(
+              "Email sent to courtName {} following BVL appointment deletion for bookingId {}",
+              courtName,
+              offenderBookingId,
+            )
           } else if (reason == Reason.TRANSFERRED && courtEmail == null) {
             notifyService.sendOffenderTransferredEmailToPrisonOnly(notifyRequestData, prisonEmail)
-            log.info("Email for courtId {} not found when deleting BVL appointment for bookingId {}", it.videoLinkBooking.courtId, offenderBookingId)
+            log.info(
+              "Email for courtId {} not found when deleting BVL appointment for bookingId {}",
+              it.videoLinkBooking.courtId,
+              offenderBookingId,
+            )
           } else if (reason == Reason.RELEASED && courtEmail != null) {
             notifyService.sendOffenderReleasedEmailToCourtAndPrison(notifyRequestData, courtEmail, prisonEmail)
-            log.info("Email sent to courtName {} following BVL appointment deletion for bookingId {}", courtName, offenderBookingId)
+            log.info(
+              "Email sent to courtName {} following BVL appointment deletion for bookingId {}",
+              courtName,
+              offenderBookingId,
+            )
           } else if (reason == Reason.RELEASED && courtEmail == null) {
             notifyService.sendOffenderReleasedEmailToPrisonOnly(notifyRequestData, prisonEmail)
-            log.info("Email for prisonId {} not found when deleting BVL appointment for bookingId {}", it.videoLinkBooking.prisonId, offenderBookingId)
+            log.info(
+              "Email for prisonId {} not found when deleting BVL appointment for bookingId {}",
+              it.videoLinkBooking.prisonId,
+              offenderBookingId,
+            )
           }
         }
       }
