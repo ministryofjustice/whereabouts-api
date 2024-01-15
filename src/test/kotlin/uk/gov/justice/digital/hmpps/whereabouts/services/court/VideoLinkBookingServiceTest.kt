@@ -11,14 +11,13 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
-import org.mockito.kotlin.isA
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
-import org.springframework.data.domain.Sort
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
@@ -33,42 +32,45 @@ import uk.gov.justice.digital.hmpps.whereabouts.listeners.AppointmentChangedEven
 import uk.gov.justice.digital.hmpps.whereabouts.listeners.Reason
 import uk.gov.justice.digital.hmpps.whereabouts.listeners.ReleasedOffenderEventMessage
 import uk.gov.justice.digital.hmpps.whereabouts.listeners.ScheduleEventStatus
-import uk.gov.justice.digital.hmpps.whereabouts.model.Court
 import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.model.eqByProps
-import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.NotifyService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonRegisterClient
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.Clock
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Optional
 
 class VideoLinkBookingServiceTest {
-  private val courtRepository: CourtRepository = mock()
-  private val courtService = CourtService(courtRepository)
+  private val courtService: CourtService = mock()
   private val prisonApiService: PrisonApiService = mock()
   private val prisonApiServiceAuditable: PrisonApiServiceAuditable = mock()
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
   private val videoLinkBookingEventListener: VideoLinkBookingEventListener = mock()
+  private val notifyService: NotifyService = mock()
+  private val prisonRegisterClient: PrisonRegisterClient = mock()
   private val clock: Clock = Clock.fixed(Instant.parse("2020-10-01T00:00:00Z"), ZoneId.of("UTC"))
   private val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
   private val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
 
   @BeforeEach
   fun initialiseCourtRepository() {
-    whenever(courtRepository.findAll(isA<Sort>())).thenReturn(listOf(Court(COURT_ID, COURT_NAME)))
+    whenever(courtService.chooseCourtName(any())).thenReturn("York Crown Court")
+    whenever(courtService.getCourtIdForCourtName(any())).thenReturn("YRKCC")
   }
 
   @Test
@@ -1347,6 +1349,45 @@ class VideoLinkBookingServiceTest {
 
   @Nested
   inner class CancelVideoLinkBooking {
+    @BeforeEach
+    fun initialise() {
+      val offenderBooking = mock<OffenderBooking>()
+      whenever(offenderBooking.bookingId).thenReturn(1)
+      whenever(offenderBooking.firstName).thenReturn("Jim")
+      whenever(offenderBooking.lastName).thenReturn("Smith")
+      whenever(offenderBooking.offenderNo).thenReturn("A1234BC")
+      whenever(offenderBooking.dateOfBirth).thenReturn(LocalDate.of(2000, 5, 1))
+      whenever(prisonApiService.getOffenderDetailsFromOffenderNos(any(), any())).thenReturn(listOf(offenderBooking))
+
+      val videoLinkBooking = DataHelpers.makeVideoLinkBooking(id = 1)
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
+      whenever(prisonRegisterClient.getPrisonDetails(any())).thenReturn(
+        PrisonRegisterClient.PrisonDetail(
+          prisonId = "MDI",
+          prisonName = "Moorland",
+        ),
+      )
+      whenever(prisonRegisterClient.getPrisonEmailAddress(any(), any())).thenReturn(
+        PrisonRegisterClient.DepartmentDto(
+          type = "1",
+          emailAddress = "some-prison@email.com",
+        ),
+      )
+      whenever(courtService.getCourtNameForCourtId(any())).thenReturn("some-court")
+      whenever(courtService.getCourtEmailForCourtId(any())).thenReturn("court@mail.com")
+      whenever(
+        videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
+          any(),
+          any(),
+          any(),
+          any(),
+        ),
+      )
+        .thenReturn(setOf(videoLinkBooking.appointments[HearingType.MAIN]!!))
+
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
+    }
+
     val service = service()
 
     private val mainAppointmentId = 12L
@@ -1406,25 +1447,13 @@ class VideoLinkBookingServiceTest {
 
       whenever(prisonApiService.getOffenderDetailsFromOffenderNos(any(), any())).thenReturn(listOf())
 
-      whenever(
-        videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
-          any(),
-          any(),
-          any(),
-          any(),
-        ),
-      )
-        .thenReturn(setOf(DataHelpers.makeVideoLinkAppointment()))
-
-      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
-
       service.deleteAppointmentWhenTransferredOrReleased(message)
       verify(videoLinkBookingRepository, never()).deleteById(any())
       verify(videoLinkBookingEventListener, never()).bookingDeleted(any())
     }
 
     @Test
-    fun `Should delete BVL appointment when release reason is TRANSFERRED`() {
+    fun `Should delete BVL appointment and send emails to court and prison when release reason is TRANSFERRED`() {
       val message = ReleasedOffenderEventMessage(
         occurredAt = "2023-11-20T17:07:58Z",
         additionalInformation = AdditionalInformation(
@@ -1434,29 +1463,34 @@ class VideoLinkBookingServiceTest {
         ),
       )
 
-      val offenderBooking = mock<OffenderBooking>()
-      whenever(offenderBooking.bookingId).thenReturn(1)
-      whenever(prisonApiService.getOffenderDetailsFromOffenderNos(any(), any())).thenReturn(listOf(offenderBooking))
+      service.deleteAppointmentWhenTransferredOrReleased(message)
+      verify(videoLinkBookingRepository, times(1)).deleteById(any())
+      verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
+      verify(notifyService, times(1)).sendOffenderTransferredEmailToCourtAndPrison(any(), any(), any())
+    }
 
-      whenever(
-        videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
-          any(),
-          any(),
-          any(),
-          any(),
+    @Test
+    fun `Should delete BVL appointment when release reason is TRANSFERRED and email prison only`() {
+      val message = ReleasedOffenderEventMessage(
+        occurredAt = "2023-11-20T17:07:58Z",
+        additionalInformation = AdditionalInformation(
+          prisonId = "SWI",
+          nomsNumber = "A7215DZ",
+          reason = Reason.TRANSFERRED,
         ),
       )
-        .thenReturn(setOf(DataHelpers.makeVideoLinkAppointment()))
 
-      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
+      whenever(courtService.getCourtEmailForCourtId(any())).thenReturn(null)
 
       service.deleteAppointmentWhenTransferredOrReleased(message)
       verify(videoLinkBookingRepository, times(1)).deleteById(any())
       verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
+      verify(notifyService, never()).sendOffenderTransferredEmailToCourtAndPrison(any(), any(), any())
+      verify(notifyService, times(1)).sendOffenderTransferredEmailToPrisonOnly(any(), any())
     }
 
     @Test
-    fun `Should delete BVL appointment when release reason is RELEASED`() {
+    fun `Should delete BVL appointment and send emails to court and prison when release reason is RELEASED`() {
       val message = ReleasedOffenderEventMessage(
         occurredAt = "2023-11-20T17:07:58Z",
         additionalInformation = AdditionalInformation(
@@ -1466,25 +1500,33 @@ class VideoLinkBookingServiceTest {
         ),
       )
 
-      whenever(
-        videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
-          any(),
-          any(),
-          any(),
-          any(),
+      service.deleteAppointmentWhenTransferredOrReleased(message)
+      verify(videoLinkBookingRepository, times(1)).findById(1L)
+      verify(videoLinkBookingRepository, times(1)).deleteById(any())
+      verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
+      verify(notifyService, times(1)).sendOffenderReleasedEmailToCourtAndPrison(any(), any(), any())
+    }
+
+    @Test
+    fun `Should delete BVL appointment when release reason is RELEASED and email prison only`() {
+      val message = ReleasedOffenderEventMessage(
+        occurredAt = "2023-11-20T17:07:58Z",
+        additionalInformation = AdditionalInformation(
+          prisonId = "SWI",
+          nomsNumber = "A7215DZ",
+          reason = Reason.RELEASED,
         ),
       )
-        .thenReturn(setOf(DataHelpers.makeVideoLinkAppointment()))
 
-      val offenderBooking = mock<OffenderBooking>()
-      whenever(offenderBooking.bookingId).thenReturn(1)
-      whenever(prisonApiService.getOffenderDetailsFromOffenderNos(any(), any())).thenReturn(listOf(offenderBooking))
-
+      whenever(courtService.getCourtEmailForCourtId(any())).thenReturn(null)
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
 
       service.deleteAppointmentWhenTransferredOrReleased(message)
-      verify(videoLinkBookingRepository, times(1)).deleteById(any())
+      verify(videoLinkBookingRepository, times(1)).findById(1L)
+      verify(videoLinkBookingRepository, times(1)).deleteById(100L)
       verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
+      verify(notifyService, never()).sendOffenderTransferredEmailToCourtAndPrison(any(), any(), any())
+      verify(notifyService, times(1)).sendOffenderReleasedEmailToPrisonOnly(any(), any())
     }
 
     @Test
@@ -1498,28 +1540,26 @@ class VideoLinkBookingServiceTest {
         ),
       )
 
-      whenever(
-        videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
-          any(),
-          any(),
-          any(),
-          any(),
-        ),
-      )
-        .thenReturn(setOf(DataHelpers.makeVideoLinkAppointment()))
-
       val offenderBooking = mock<OffenderBooking>()
       whenever(offenderBooking.bookingId).thenReturn(1)
       whenever(prisonApiService.getOffenderDetailsFromOffenderNos(any(), any())).thenReturn(listOf(offenderBooking))
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.empty())
 
       service.deleteAppointmentWhenTransferredOrReleased(message)
-
       verify(videoLinkBookingRepository, never()).deleteById(any())
+    }
+
+    @Test
+    fun `No email is sent when notify is not enabled`() {
+      service(false)
+      verifyNoInteractions(notifyService)
+      verifyNoInteractions(courtService)
+      verifyNoInteractions(prisonRegisterClient)
     }
   }
 
-  private fun service() = VideoLinkBookingService(
+  private fun service(enabled: Boolean = true) = VideoLinkBookingService(
+    enabled,
     courtService,
     prisonApiService,
     prisonApiServiceAuditable,
@@ -1527,6 +1567,8 @@ class VideoLinkBookingServiceTest {
     videoLinkBookingRepository,
     clock,
     videoLinkBookingEventListener,
+    notifyService,
+    prisonRegisterClient,
   )
 
   companion object {
