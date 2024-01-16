@@ -31,6 +31,7 @@ class VideoLinkBookingServiceForAppScope(
     videoLinkBookingEventListener: VideoLinkBookingEventListener,
     notifyService: NotifyService,
     prisonRegisterClient: PrisonRegisterClient,
+    @Qualifier("prisonRegisterClientAppScope") prisonRegisterWebClient: WebClient,
   ): VideoLinkBookingService {
     return VideoLinkBookingService(
       enabled,
@@ -42,7 +43,7 @@ class VideoLinkBookingServiceForAppScope(
       clock,
       videoLinkBookingEventListener,
       notifyService,
-      PrisonRegisterClient(webClient),
+      PrisonRegisterClient(prisonRegisterWebClient),
     )
   }
 }
