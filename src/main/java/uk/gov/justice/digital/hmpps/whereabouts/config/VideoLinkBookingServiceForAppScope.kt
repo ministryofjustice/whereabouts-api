@@ -42,7 +42,7 @@ class VideoLinkBookingServiceForAppScope(
       clock,
       videoLinkBookingEventListener,
       notifyService,
-      prisonRegisterClient,
+      PrisonRegisterClient(webClient),
     )
   }
 }

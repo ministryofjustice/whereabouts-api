@@ -11,7 +11,7 @@ elite2api:
   port: 8999
 
 prisonregister:
-  api.url: http://localhost:8094
+  endpoint.url: http://localhost:8094
 
 casenotes:
   endpoint.url: http://localhost:8093
