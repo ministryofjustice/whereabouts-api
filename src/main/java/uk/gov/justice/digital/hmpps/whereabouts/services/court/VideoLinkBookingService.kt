@@ -3,10 +3,12 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 import jakarta.persistence.EntityNotFoundException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
+import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentsSpecification
@@ -22,14 +24,17 @@ import uk.gov.justice.digital.hmpps.whereabouts.listeners.ScheduleEventStatus
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.MAIN
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.POST
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType.PRE
+import uk.gov.justice.digital.hmpps.whereabouts.model.NotifyRequest
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.NotifyService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiServiceAuditable
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonRegisterClient
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 import java.time.Clock
 import java.time.LocalDate
@@ -41,6 +46,7 @@ const val VIDEO_LINK_APPOINTMENT_TYPE = "VLB"
 
 @Service
 class VideoLinkBookingService(
+  @Value("\${notify.enabled}") private val enabled: Boolean,
   private val courtService: CourtService,
   private val prisonApiService: PrisonApiService,
   private val prisonApiServiceAuditable: PrisonApiServiceAuditable,
@@ -48,6 +54,8 @@ class VideoLinkBookingService(
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val clock: Clock,
   private val videoLinkBookingEventListener: VideoLinkBookingEventListener,
+  private val notifyService: NotifyService,
+  private val prisonRegisterClient: PrisonRegisterClient,
 ) {
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -354,7 +362,8 @@ class VideoLinkBookingService(
       )
       log.debug("OffenderBookings: {}", offenderBookings)
       if (offenderBookings.isNotEmpty()) {
-        val offenderBookingId = offenderBookings.first().bookingId
+        val activeOffenderBooking = offenderBookings.first()
+        val offenderBookingId = activeOffenderBooking.bookingId
         val prisonerAppointments =
           videoLinkAppointmentRepository.findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
             hearingType = MAIN,
@@ -371,9 +380,117 @@ class VideoLinkBookingService(
             this.deleteVideoLinkBooking(it.videoLinkBooking.id!!)
           } catch (e: EntityNotFoundException) {
             log.info("Video link appointment for offenderBookingId {} already deleted", offenderBookingId)
+            return@forEach
+          }
+          log.info(
+            "Getting information to send emails for {} ",
+            offenderBookingId,
+          )
+
+          if (!enabled) {
+            log.info(
+              "Email notification is not enabled so emails not sent to either court/prison when offender " +
+                "with bookingId {} was transferred or released",
+              offenderBookingId,
+            )
+            return
+          }
+
+          var courtEmail = courtService.getCourtEmailForCourtId(it.videoLinkBooking.courtId)
+          var courtName =
+            courtService.getCourtNameForCourtId(it.videoLinkBooking.courtId) ?: it.videoLinkBooking.courtName ?: ""
+
+          val prisonEmail = getPrisonEmail(it.videoLinkBooking.prisonId)
+          val prisonName = getPrisonName(it.videoLinkBooking.prisonId)
+
+          if (prisonEmail == null || prisonName == null) {
+            log.info("Prison name or email address for {} not found", offenderBookingId)
+            return@forEach
+          }
+
+          val notifyRequestData =
+            getNotifyRequestData(activeOffenderBooking, it.videoLinkBooking, prisonName, courtName)
+
+          if (reason == Reason.TRANSFERRED && courtEmail != null) {
+            notifyService.sendOffenderTransferredEmailToCourtAndPrison(notifyRequestData, courtEmail, prisonEmail)
+            log.info(
+              "Email sent to courtName {} following BVL appointment deletion for bookingId {}",
+              courtName,
+              offenderBookingId,
+            )
+          } else if (reason == Reason.TRANSFERRED && courtEmail == null) {
+            notifyService.sendOffenderTransferredEmailToPrisonOnly(notifyRequestData, prisonEmail)
+            log.info(
+              "Email for courtId {} not found when deleting BVL appointment for bookingId {}",
+              it.videoLinkBooking.courtId,
+              offenderBookingId,
+            )
+          } else if (reason == Reason.RELEASED && courtEmail != null) {
+            notifyService.sendOffenderReleasedEmailToCourtAndPrison(notifyRequestData, courtEmail, prisonEmail)
+            log.info(
+              "Email sent to courtName {} following BVL appointment deletion for bookingId {}",
+              courtName,
+              offenderBookingId,
+            )
+          } else if (reason == Reason.RELEASED && courtEmail == null) {
+            notifyService.sendOffenderReleasedEmailToPrisonOnly(notifyRequestData, prisonEmail)
+            log.info(
+              "Email for prisonId {} not found when deleting BVL appointment for bookingId {}",
+              it.videoLinkBooking.prisonId,
+              offenderBookingId,
+            )
           }
         }
       }
     }
+  }
+
+  private fun getNotifyRequestData(
+    activeOffenderBooking: OffenderBooking,
+    videoLinkBooking: VideoLinkBooking,
+    prisonName: String,
+    courtName: String,
+  ): NotifyRequest {
+    return NotifyRequest(
+      firstName = activeOffenderBooking.firstName,
+      lastName = activeOffenderBooking.lastName,
+      dateOfBirth = activeOffenderBooking.dateOfBirth,
+      mainHearing = videoLinkBooking.appointments[MAIN]!!,
+      preHearing = videoLinkBooking.appointments[PRE],
+      postHearing = videoLinkBooking.appointments[POST],
+      comments = videoLinkBooking.comment,
+      prisonName = prisonName,
+      courtName = courtName,
+    )
+  }
+
+  fun getPrisonEmail(prisonId: String): String? {
+    // email prison VCC's only not OMU's
+    try {
+      return prisonRegisterClient.getPrisonEmailAddress(
+        prisonId,
+        DepartmentType.VIDEOLINK_CONFERENCING_CENTRE,
+      )?.emailAddress
+    } catch (e: EntityNotFoundException) {
+      log.info(
+        "Could not get prison VCC email address for {} from prisonRegister. Exception message {}",
+        prisonId,
+        e.message,
+      )
+    }
+    return null
+  }
+
+  fun getPrisonName(prisonId: String): String? {
+    try {
+      return prisonRegisterClient.getPrisonDetails(prisonId)?.prisonName
+    } catch (e: EntityNotFoundException) {
+      log.info("Could not get prison name for {} from prisonRegister. Error message: {}", prisonId, e.message)
+    }
+    return null
+  }
+
+  enum class DepartmentType {
+    VIDEOLINK_CONFERENCING_CENTRE,
   }
 }

@@ -12,3 +12,6 @@ generic-service:
     OAUTH_ENDPOINT_URL: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth"
     CASENOTES_ENDPOINT_URL: "https://preprod.offender-case-notes.service.justice.gov.uk"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
+    NOTIFY_ENABLED: false
+    PRISONREGISTER_API_URL: "https://prison-register-preprod.hmpps.service.justice.gov.uk"
+

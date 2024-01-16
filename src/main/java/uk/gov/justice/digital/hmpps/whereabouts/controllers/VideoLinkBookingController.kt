@@ -121,7 +121,6 @@ class VideoLinkBookingController(
     @RequestBody
     @Valid
     searchDetails: VideoLinkBookingSearchDetails,
-
     @Parameter(description = "Return video link bookings for this date only. ISO-8601 date format")
     @PathVariable(name = "date")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -148,7 +147,6 @@ class VideoLinkBookingController(
     @PathVariable("videoBookingId")
     @NotNull
     videoBookingId: Long?,
-
     @RequestBody
     @Valid
     videoLinkBookingUpdateSpecification: VideoLinkBookingUpdateSpecification?,
@@ -185,7 +183,6 @@ class VideoLinkBookingController(
     @Parameter(description = "Video link booking id", required = true)
     @PathVariable("videoLinkBookingId")
     videoLinkBookingId: Long,
-
     @RequestBody(required = false)
     comment: String?,
   ): ResponseEntity<Void> {
@@ -227,7 +224,6 @@ class VideoLinkBookingController(
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Parameter(description = "The earliest booking start time for which to return bookings for.", required = true)
     startDate: LocalDate,
-
     @RequestParam(name = "days")
     @Parameter(description = "Return details of bookings occurring within this number of days of start-date")
     days: Long?,

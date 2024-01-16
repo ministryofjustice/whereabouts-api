@@ -26,8 +26,7 @@ class OptionsGenerator(
       .takeWhile { it.endsOnOrBefore(dayEnd) }
       .sortedBy { Duration.between(preferredOption.main.interval.start, it.main.interval.start).abs() }
 
-  companion
-  object {
+  companion object {
     fun durations(delta: Duration) = generateSequence(Duration.ZERO) { it.plus(delta) }
   }
 }
