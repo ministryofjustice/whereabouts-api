@@ -39,6 +39,14 @@ class WebClientConfiguration(
   }
 
   @Bean
+  fun prisonRegisterClientAppScope(
+    @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: OAuth2AuthorizedClientManager,
+    builder: WebClient.Builder,
+  ): WebClient {
+    return getOAuthWebClient(authorizedClientManager, builder, prisonRegisterRootUri)
+  }
+
+  @Bean
   fun prisonApiHealthWebClient(builder: WebClient.Builder): WebClient {
     return builder.baseUrl(prisonApiHealthRootUri)
       .filter(addAuthHeaderFilterFunction())
