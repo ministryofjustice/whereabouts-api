@@ -9,7 +9,7 @@ class CourtHearingTypeIntegrationTest : IntegrationTest() {
   @Test
   fun `Get All hearing types without user token`() {
     webTestClient.get()
-      .uri(baseUrl)
+      .uri(base_url)
       .exchange()
       .expectStatus()
       .isUnauthorized
@@ -18,7 +18,7 @@ class CourtHearingTypeIntegrationTest : IntegrationTest() {
   @Test
   fun `Get All hearing types`() {
     webTestClient.get()
-      .uri(baseUrl)
+      .uri(base_url)
       .headers {
         it.setBearerAuth(
           jwtAuthHelper.createJwt(
@@ -33,6 +33,6 @@ class CourtHearingTypeIntegrationTest : IntegrationTest() {
   }
 
   companion object {
-    const val baseUrl = "/court/hearing-type"
+    const val base_url = "/court/hearing-type"
   }
 }

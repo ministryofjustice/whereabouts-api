@@ -11,12 +11,47 @@ import uk.gov.service.notify.NotificationClientException
 class NotifyService(
   @Value("\${notify.templates.prison.transferred}") private val offenderTransferredPrisonEmailTemplateId: String,
   @Value("\${notify.templates.court.transferred}") private val offenderTransferredCourtEmailTemplateId: String,
-  @Value("\${notify.templates.prison.transferred-but-no-court-email}") private val offenderTransferredPrisonEmailTemplateIdButNoCourtEmailTemplateId: String,
+  @Value("\${notify.templates.prison.transferred-but-no-court-email}") private val offenderTransferredPrisonEmailButNoCourtEmailTemplateId: String,
   @Value("\${notify.templates.prison.released}") private val offenderReleasedPrisonEmailTemplateId: String,
   @Value("\${notify.templates.court.released}") private val offenderReleasedCourtEmailTemplateId: String,
-  @Value("\${notify.templates.prison.released-but-no-court-email}") private val offenderReleasedPrisonEmailTemplateIdButNoCourtEmailTemplateId: String,
+  @Value("\${notify.templates.prison.released-but-no-court-email}") private val offenderReleasedPrisonEmailButNoCourtEmailTemplateId: String,
+
+  @Value("\${notify.templates.appointment-canceled.prison}") private val appointmentCanceledPrisonEmailTemplateId: String,
+  @Value("\${notify.templates.appointment-canceled.court}") private val appointmentCanceledCourtEmailTemplateId: String,
+  @Value("\${notify.templates.appointment-canceled.no-court-email}") private val appointmentCanceledPrisonEmailButNoCourtEmailTemplateId: String,
   private val client: NotificationClient,
 ) {
+
+  fun sendAppointmentCanceledEmailToCourtAndPrison(
+    notifyRequest: NotifyRequest,
+    courtEmail: String,
+    prisonEmail: String,
+  ) {
+    val values = notifyRequest.constructMapOfNotifyRequest()
+    sendEmail(appointmentCanceledCourtEmailTemplateId, courtEmail, values, null)
+    sendEmail(appointmentCanceledPrisonEmailTemplateId, prisonEmail, values, null)
+
+    log.info(
+      "BVL appointment cancellation. " +
+        "Email sent to prison: $prisonEmail and court $courtEmail" +
+        "Offender name: ${values["firstName"]} ${values["lastName"]}, " +
+        "offender Noms number: ${values["offenderId"]}, " +
+        "BVL booking id: ${values["videoLinkBookingId"]} ",
+    )
+  }
+
+  fun sendAppointmentCanceledEmailToPrisonOnly(notifyRequest: NotifyRequest, prisonEmail: String) {
+    val values = notifyRequest.constructMapOfNotifyRequest()
+    sendEmail(appointmentCanceledPrisonEmailButNoCourtEmailTemplateId, prisonEmail, values, null)
+
+    log.info(
+      "BVL appointment cancellation. " +
+        "Email sent to prison: $prisonEmail" +
+        "Offender name: ${values["firstName"]} ${values["lastName"]}, " +
+        "offender Noms number: ${values["offenderId"]}, " +
+        "BVL booking id: ${values["videoLinkBookingId"]} ",
+    )
+  }
 
   fun sendOffenderTransferredEmailToCourtAndPrison(
     notifyRequest: NotifyRequest,
@@ -28,7 +63,7 @@ class NotifyService(
     sendEmail(offenderTransferredPrisonEmailTemplateId, prisonEmail, values, null)
 
     log.info(
-      "BVL appointment cancellation following offender transfer." +
+      "BVL appointment cancellation following offender transfer. " +
         "Email sent to prison: $prisonEmail and court $courtEmail" +
         "Offender name: ${values["firstName"]} ${values["lastName"]}, " +
         "offender Noms number: ${values["offenderId"]}, " +
@@ -37,10 +72,10 @@ class NotifyService(
   }
   fun sendOffenderTransferredEmailToPrisonOnly(notifyRequest: NotifyRequest, prisonEmail: String) {
     val values = notifyRequest.constructMapOfNotifyRequest()
-    sendEmail(offenderTransferredPrisonEmailTemplateIdButNoCourtEmailTemplateId, prisonEmail, values, null)
+    sendEmail(offenderTransferredPrisonEmailButNoCourtEmailTemplateId, prisonEmail, values, null)
 
     log.info(
-      "BVL appointment cancellation following offender transfer." +
+      "BVL appointment cancellation following offender transfer. " +
         "Email sent to prison: $prisonEmail" +
         "Offender name: ${values["firstName"]} ${values["lastName"]}, " +
         "offender Noms number: ${values["offenderId"]}, " +
@@ -54,7 +89,7 @@ class NotifyService(
     sendEmail(offenderReleasedCourtEmailTemplateId, courtEmail, values, null)
 
     log.info(
-      "BVL appointment cancellation following offender release." +
+      "BVL appointment cancellation following offender release. " +
         "Email sent to prison: $prisonEmail and court $courtEmail" +
         "Offender name: ${values["firstName"]} ${values["lastName"]}, " +
         "offender Noms number: ${values["offenderId"]}, " +
@@ -64,10 +99,10 @@ class NotifyService(
 
   fun sendOffenderReleasedEmailToPrisonOnly(notifyRequest: NotifyRequest, prisonEmail: String) {
     val values = notifyRequest.constructMapOfNotifyRequest()
-    sendEmail(offenderReleasedPrisonEmailTemplateIdButNoCourtEmailTemplateId, prisonEmail, values, null)
+    sendEmail(offenderReleasedPrisonEmailButNoCourtEmailTemplateId, prisonEmail, values, null)
 
     log.info(
-      "BVL appointment cancellation following offender release." +
+      "BVL appointment cancellation following offender release. " +
         "Email sent to prison: $prisonEmail" +
         "Offender name: ${values["firstName"]} ${values["lastName"]}, " +
         "offender Noms number: ${values["offenderId"]}, " +

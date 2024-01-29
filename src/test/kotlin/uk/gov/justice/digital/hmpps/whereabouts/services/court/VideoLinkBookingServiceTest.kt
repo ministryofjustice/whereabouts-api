@@ -972,6 +972,8 @@ class VideoLinkBookingServiceTest {
       service.processNomisUpdate(appointmentChangedEventMessage)
       verify(videoLinkAppointmentRepository).findOneByAppointmentId(anyLong())
       verify(videoLinkBookingRepository, never()).delete(any())
+      verify(notifyService, never()).sendAppointmentCanceledEmailToPrisonOnly(any(), any())
+      verify(notifyService, never()).sendAppointmentCanceledEmailToCourtAndPrison(any(), any(), any())
     }
 
     @Test
@@ -992,6 +994,8 @@ class VideoLinkBookingServiceTest {
       service.processNomisUpdate(appointmentChangedEventMessage)
       verify(videoLinkBookingEventListener).appointmentUpdatedInNomis(any(), any())
       verify(videoLinkBookingRepository, never()).delete(any())
+      verify(notifyService, never()).sendAppointmentCanceledEmailToPrisonOnly(any(), any())
+      verify(notifyService, never()).sendAppointmentCanceledEmailToCourtAndPrison(any(), any(), any())
     }
 
     @Test
@@ -1012,6 +1016,8 @@ class VideoLinkBookingServiceTest {
       service.processNomisUpdate(appointmentChangedEventMessage)
       verify(videoLinkBookingRepository).save(any())
       verify(videoLinkBookingRepository, never()).delete(any())
+      verify(notifyService, never()).sendAppointmentCanceledEmailToPrisonOnly(any(), any())
+      verify(notifyService, never()).sendAppointmentCanceledEmailToCourtAndPrison(any(), any(), any())
     }
 
     @Test
@@ -1032,6 +1038,8 @@ class VideoLinkBookingServiceTest {
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
       service.processNomisUpdate(appointmentChangedEventMessage)
       verify(prisonApiService).deleteAppointments(listOf(3, 4, 5), EventPropagation.DENY)
+      verify(notifyService).sendAppointmentCanceledEmailToPrisonOnly(any(), any())
+      verify(notifyService).sendAppointmentCanceledEmailToCourtAndPrison(any(), any(), any())
     }
 
     @Test
