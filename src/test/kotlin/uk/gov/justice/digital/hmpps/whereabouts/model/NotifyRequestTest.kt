@@ -7,111 +7,111 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 class NotifyRequestTest {
-  val LAST_NAME = "Last Name"
-  val FIRST_NAME = "First Name"
-  val DATE_OF_BIRTH = LocalDate.of(1977, 2, 1)
-  val COURT_NAME = "The Court"
-  val COMMENTS = "Comments"
-  val COURT_ID = "TC"
-  val COURT_HEARING_TYPE = CourtHearingType.APPEAL
-  val PRISON_ID = "WWI"
-  val PRISON_NAME = "Prison name"
-  val START_DATE_TIME = LocalDateTime.of(2022, 1, 1, 10, 12, 34)
-  val END_DATE_TIME = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
-  val END_AFTERNOON_DATE_TIME = LocalDateTime.of(2022, 1, 1, 14, 0, 0)
+  val lastName = "Last Name"
+  val firstName = "First Name"
+  val dateOfBirth = LocalDate.of(1977, 2, 1)
+  val courtName = "The Court"
+  val comments = "Comments"
+  val courtId = "TC"
+  val courtHearingType = CourtHearingType.APPEAL
+  val prisonId = "WWI"
+  val prisonName = "Prison name"
+  val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 12, 34)
+  val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+  val endAfternoonDateTime = LocalDateTime.of(2022, 1, 1, 14, 0, 0)
 
   var videoLinkBooking =
     DataHelpers.makeVideoLinkBooking(
       id = 1L,
-      courtName = COURT_NAME,
-      courtId = COURT_ID,
-      courtHearingType = COURT_HEARING_TYPE,
+      courtName = courtName,
+      courtId = courtId,
+      courtHearingType = courtHearingType,
       offenderBookingId = 1L,
-      prisonId = PRISON_ID,
+      prisonId = prisonId,
     ).apply {
-      addPreAppointment(1L, 10L, START_DATE_TIME, END_DATE_TIME)
-      addMainAppointment(2L, 20L, START_DATE_TIME, END_DATE_TIME)
-      addPostAppointment(3L, 30L, START_DATE_TIME, END_AFTERNOON_DATE_TIME)
+      addPreAppointment(1L, 10L, startDateTime, endDateTime)
+      addMainAppointment(2L, 20L, startDateTime, endDateTime)
+      addPostAppointment(3L, 30L, startDateTime, endAfternoonDateTime)
     }
 
   @Test
   fun `validate correct formatting when all appointments present`() {
     val request = NotifyRequest(
-      lastName = LAST_NAME,
-      firstName = FIRST_NAME,
-      dateOfBirth = DATE_OF_BIRTH,
+      lastName = lastName,
+      firstName = firstName,
+      dateOfBirth = dateOfBirth,
       mainHearing = videoLinkBooking.appointments[HearingType.MAIN]!!,
       postHearing = videoLinkBooking.appointments[HearingType.POST]!!,
       preHearing = videoLinkBooking.appointments[HearingType.PRE]!!,
-      comments = COMMENTS,
-      prisonName = PRISON_NAME,
-      courtName = COURT_NAME,
+      comments = comments,
+      prisonName = prisonName,
+      courtName = courtName,
     )
 
     val map = request.constructMapOfNotifyRequest()
-    Assertions.assertThat(map["firstName"]).isEqualTo(FIRST_NAME)
-    Assertions.assertThat(map["lastName"]).isEqualTo(LAST_NAME)
+    Assertions.assertThat(map["firstName"]).isEqualTo(firstName)
+    Assertions.assertThat(map["lastName"]).isEqualTo(lastName)
     Assertions.assertThat(map["dateOfBirth"]).isEqualTo("01/02/1977")
     Assertions.assertThat(map["date"]).isEqualTo("01/01/2022")
     Assertions.assertThat(map["mainHearingStartAndEndTime"]).isEqualTo("10:12 to 11:00")
     Assertions.assertThat(map["preHearingStartAndEndTime"]).isEqualTo("10:12 to 11:00")
     Assertions.assertThat(map["postHearingStartAndEndTime"]).isEqualTo("10:12 to 14:00")
-    Assertions.assertThat(map["comments"]).isEqualTo(COMMENTS)
-    Assertions.assertThat(map["prison"]).isEqualTo(PRISON_NAME)
-    Assertions.assertThat(map["hearingLocation"]).isEqualTo(COURT_NAME)
+    Assertions.assertThat(map["comments"]).isEqualTo(comments)
+    Assertions.assertThat(map["prison"]).isEqualTo(prisonName)
+    Assertions.assertThat(map["hearingLocation"]).isEqualTo(courtName)
   }
 
   @Test
   fun `validate correct formatting when post appointments not present`() {
     val request = NotifyRequest(
-      lastName = LAST_NAME,
-      firstName = FIRST_NAME,
-      dateOfBirth = DATE_OF_BIRTH,
+      lastName = lastName,
+      firstName = firstName,
+      dateOfBirth = dateOfBirth,
       mainHearing = videoLinkBooking.appointments[HearingType.MAIN]!!,
       postHearing = null,
       preHearing = videoLinkBooking.appointments[HearingType.PRE]!!,
-      comments = COMMENTS,
-      prisonName = PRISON_NAME,
-      courtName = COURT_NAME,
+      comments = comments,
+      prisonName = prisonName,
+      courtName = courtName,
     )
 
     val map = request.constructMapOfNotifyRequest()
-    Assertions.assertThat(map["firstName"]).isEqualTo(FIRST_NAME)
-    Assertions.assertThat(map["lastName"]).isEqualTo(LAST_NAME)
+    Assertions.assertThat(map["firstName"]).isEqualTo(firstName)
+    Assertions.assertThat(map["lastName"]).isEqualTo(lastName)
     Assertions.assertThat(map["dateOfBirth"]).isEqualTo("01/02/1977")
     Assertions.assertThat(map["date"]).isEqualTo("01/01/2022")
     Assertions.assertThat(map["mainHearingStartAndEndTime"]).isEqualTo("10:12 to 11:00")
     Assertions.assertThat(map["preHearingStartAndEndTime"]).isEqualTo("10:12 to 11:00")
     Assertions.assertThat(map["postHearingStartAndEndTime"]).isEqualTo("None requested")
-    Assertions.assertThat(map["comments"]).isEqualTo(COMMENTS)
-    Assertions.assertThat(map["prison"]).isEqualTo(PRISON_NAME)
-    Assertions.assertThat(map["hearingLocation"]).isEqualTo(COURT_NAME)
+    Assertions.assertThat(map["comments"]).isEqualTo(comments)
+    Assertions.assertThat(map["prison"]).isEqualTo(prisonName)
+    Assertions.assertThat(map["hearingLocation"]).isEqualTo(courtName)
   }
 
   @Test
   fun `validate correct formatting comment not present`() {
     val request = NotifyRequest(
-      lastName = LAST_NAME,
-      firstName = FIRST_NAME,
-      dateOfBirth = DATE_OF_BIRTH,
+      lastName = lastName,
+      firstName = firstName,
+      dateOfBirth = dateOfBirth,
       mainHearing = videoLinkBooking.appointments[HearingType.MAIN]!!,
       postHearing = videoLinkBooking.appointments[HearingType.POST]!!,
       preHearing = videoLinkBooking.appointments[HearingType.PRE]!!,
       comments = null,
-      prisonName = PRISON_NAME,
-      courtName = COURT_NAME,
+      prisonName = prisonName,
+      courtName = courtName,
     )
 
     val map = request.constructMapOfNotifyRequest()
-    Assertions.assertThat(map["firstName"]).isEqualTo(FIRST_NAME)
-    Assertions.assertThat(map["lastName"]).isEqualTo(LAST_NAME)
+    Assertions.assertThat(map["firstName"]).isEqualTo(firstName)
+    Assertions.assertThat(map["lastName"]).isEqualTo(lastName)
     Assertions.assertThat(map["dateOfBirth"]).isEqualTo("01/02/1977")
     Assertions.assertThat(map["date"]).isEqualTo("01/01/2022")
     Assertions.assertThat(map["mainHearingStartAndEndTime"]).isEqualTo("10:12 to 11:00")
     Assertions.assertThat(map["preHearingStartAndEndTime"]).isEqualTo("10:12 to 11:00")
     Assertions.assertThat(map["postHearingStartAndEndTime"]).isEqualTo("10:12 to 14:00")
     Assertions.assertThat(map["comments"]).isEqualTo("None entered")
-    Assertions.assertThat(map["prison"]).isEqualTo(PRISON_NAME)
-    Assertions.assertThat(map["hearingLocation"]).isEqualTo(COURT_NAME)
+    Assertions.assertThat(map["prison"]).isEqualTo(prisonName)
+    Assertions.assertThat(map["hearingLocation"]).isEqualTo(courtName)
   }
 }

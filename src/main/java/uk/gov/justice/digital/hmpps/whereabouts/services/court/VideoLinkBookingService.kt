@@ -340,6 +340,44 @@ class VideoLinkBookingService(
       } else {
         try {
           this.deleteVideoLinkBooking(videoLinkAppointment.videoLinkBooking.id!!)
+
+          if (!enabled) {
+            log.info(
+              "Email notification is not enabled so emails not sent to either court/prison when offender " +
+                "with bookingId {} was transferred or released",
+              videoLinkAppointment.videoLinkBooking.id,
+            )
+            return
+          }
+
+          var courtEmail = courtService.getCourtEmailForCourtId(videoLinkAppointment.videoLinkBooking.courtId)
+          var courtName =
+            courtService.getCourtNameForCourtId(videoLinkAppointment.videoLinkBooking.courtId)
+              ?: videoLinkAppointment.videoLinkBooking.courtName ?: ""
+
+          val prisonEmail = getPrisonEmail(videoLinkAppointment.videoLinkBooking.prisonId)
+          val prisonName = getPrisonName(videoLinkAppointment.videoLinkBooking.prisonId)
+
+          if (prisonEmail == null || prisonName == null) {
+            log.info("Prison name or email address for {} not found", videoLinkAppointment.videoLinkBooking.id)
+            return
+          }
+
+          val offenderBooking = prisonApiService.getOffenderBookingDetails(appointmentChangedEventMessage.bookingId)
+          val notifyRequestData =
+            getNotifyRequestData(offenderBooking, videoLinkAppointment.videoLinkBooking, prisonName, courtName)
+
+          if (courtEmail == null) {
+            notifyService.sendAppointmentCanceledEmailToPrisonOnly(notifyRequestData, prisonEmail)
+            log.info("Email about appointment cancellation send to prison {}", notifyRequestData.prisonName)
+          } else {
+            notifyService.sendAppointmentCanceledEmailToCourtAndPrison(notifyRequestData, courtEmail, prisonEmail)
+            log.info(
+              "Email about appointment cancellation send to prison: {} and court: {}",
+              notifyRequestData.prisonName,
+              notifyRequestData.courtName,
+            )
+          }
         } catch (e: EntityNotFoundException) {
           log.info(
             "Video link appointment for offenderBookingId already deleted: {}",

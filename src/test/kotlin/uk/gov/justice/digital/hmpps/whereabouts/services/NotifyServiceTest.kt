@@ -12,8 +12,8 @@ import uk.gov.service.notify.NotificationClient
 class NotifyServiceTest {
   private val notifyClient: NotificationClient = mock()
   private val notifyRequest: NotifyRequest = mock()
-  private val PRISON_EMAIL_ADDRESS = "some-prison@mail.com"
-  private val COURT_EMAIL_ADDRESS = "some-court@mail.com"
+  private val prisonEmailAddress = "some-prison@mail.com"
+  private val courtEmailAddress = "some-court@mail.com"
   val map = mapOf<String, String>()
 
   private val service = NotifyService(
@@ -23,6 +23,9 @@ class NotifyServiceTest {
     "offenderReleasedPrisonEmailTemplateId",
     "offenderReleasedCourtEmailTemplateId",
     "offenderReleasedPrisonEmailTemplateIdButNoCourtEmailTemplateId",
+    "appointmentCanceledPrisonEmailTemplateId",
+    "appointmentCanceledCourtEmailTemplateId",
+    "appointmentCanceledPrisonEmailButNoCourtEmailTemplateId",
     client = notifyClient,
   )
 
@@ -35,19 +38,19 @@ class NotifyServiceTest {
   fun `should send email to prison and court for offender transfer`() {
     service.sendOffenderTransferredEmailToCourtAndPrison(
       notifyRequest,
-      COURT_EMAIL_ADDRESS,
-      PRISON_EMAIL_ADDRESS,
+      courtEmailAddress,
+      prisonEmailAddress,
     )
 
     verify(notifyClient).sendEmail(
       eq("offenderTransferredCourtEmailTemplateId"),
-      eq(COURT_EMAIL_ADDRESS),
+      eq(courtEmailAddress),
       eq(map),
       eq(null),
     )
     verify(notifyClient).sendEmail(
       eq("offenderTransferredPrisonEmailTemplateId"),
-      eq(PRISON_EMAIL_ADDRESS),
+      eq(prisonEmailAddress),
       eq(map),
       eq(null),
     )
@@ -57,12 +60,12 @@ class NotifyServiceTest {
   fun `should send email only prison only for offender transfer`() {
     service.sendOffenderTransferredEmailToPrisonOnly(
       notifyRequest,
-      PRISON_EMAIL_ADDRESS,
+      prisonEmailAddress,
     )
 
     verify(notifyClient).sendEmail(
       eq("offenderTransferredPrisonEmailTemplateIdButNoCourtEmailTemplateId"),
-      eq(PRISON_EMAIL_ADDRESS),
+      eq(prisonEmailAddress),
       eq(map),
       eq(null),
     )
@@ -72,35 +75,72 @@ class NotifyServiceTest {
   fun `should send email to court and prison for offender release`() {
     service.sendOffenderReleasedEmailToCourtAndPrison(
       notifyRequest,
-      COURT_EMAIL_ADDRESS,
-      PRISON_EMAIL_ADDRESS,
+      courtEmailAddress,
+      prisonEmailAddress,
     )
 
     verify(notifyClient).sendEmail(
       eq("offenderReleasedCourtEmailTemplateId"),
-      eq(COURT_EMAIL_ADDRESS),
+      eq(courtEmailAddress),
       eq(map),
       eq(null),
     )
 
     verify(notifyClient).sendEmail(
       eq("offenderReleasedPrisonEmailTemplateId"),
-      eq(PRISON_EMAIL_ADDRESS),
+      eq(prisonEmailAddress),
       eq(map),
       eq(null),
     )
   }
 
   @Test
-  fun `should send email only prison only for offender release`() {
+  fun `should send email to prison only for offender release`() {
     service.sendOffenderReleasedEmailToPrisonOnly(
       notifyRequest,
-      PRISON_EMAIL_ADDRESS,
+      prisonEmailAddress,
     )
 
     verify(notifyClient).sendEmail(
       eq("offenderReleasedPrisonEmailTemplateIdButNoCourtEmailTemplateId"),
-      eq(PRISON_EMAIL_ADDRESS),
+      eq(prisonEmailAddress),
+      eq(map),
+      eq(null),
+    )
+  }
+
+  @Test
+  fun `should send email to prison and court when appointment changed`() {
+    service.sendAppointmentCanceledEmailToCourtAndPrison(
+      notifyRequest,
+      courtEmailAddress,
+      prisonEmailAddress,
+    )
+
+    verify(notifyClient).sendEmail(
+      eq("appointmentCanceledCourtEmailTemplateId"),
+      eq(courtEmailAddress),
+      eq(map),
+      eq(null),
+    )
+    verify(notifyClient).sendEmail(
+      eq("appointmentCanceledPrisonEmailTemplateId"),
+      eq(prisonEmailAddress),
+      eq(map),
+      eq(null),
+    )
+  }
+
+  @Test
+  fun `should send email to prison only when appointment changed and court email not found`() {
+    service.sendAppointmentCanceledEmailToPrisonOnly(
+      notifyRequest,
+      prisonEmailAddress,
+    )
+
+    verify(notifyClient).sendEmail(
+      eq("appointmentCanceledPrisonEmailButNoCourtEmailTemplateId"),
+      eq(prisonEmailAddress),
       eq(map),
       eq(null),
     )

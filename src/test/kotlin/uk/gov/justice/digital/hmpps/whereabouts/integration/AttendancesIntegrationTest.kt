@@ -460,17 +460,17 @@ class AttendancesIntegrationTest : IntegrationTest() {
   @Test
   fun `should return attendance summary for offender`() {
     val offenderNo = "A1234AX"
-    val START = LocalDate.of(2021, 3, 14)
-    val END = LocalDate.of(2021, 5, 24)
+    val startDate = LocalDate.of(2021, 3, 14)
+    val endDate = LocalDate.of(2021, 5, 24)
 
-    prisonApiMockServer.stubGetAttendanceForOffender(offenderNo, START, END)
+    prisonApiMockServer.stubGetAttendanceForOffender(offenderNo, startDate, endDate)
 
     webTestClient
       .get()
       .uri {
         it.path("/attendances/offender/$offenderNo/unacceptable-absence-count")
-          .queryParam("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
-          .queryParam("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .queryParam("fromDate", startDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .queryParam("toDate", endDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .build()
       }
       .headers(setHeaders())
@@ -485,17 +485,17 @@ class AttendancesIntegrationTest : IntegrationTest() {
   @Test
   fun `should handle empty attendance summary data for offender`() {
     val offenderNo = "A1234AX"
-    val START = LocalDate.of(2021, 3, 14)
-    val END = LocalDate.of(2021, 5, 24)
+    val startDate = LocalDate.of(2021, 3, 14)
+    val endDate = LocalDate.of(2021, 5, 24)
 
-    prisonApiMockServer.stubGetAttendanceForOffenderEmpty(offenderNo, START, END)
+    prisonApiMockServer.stubGetAttendanceForOffenderEmpty(offenderNo, startDate, endDate)
 
     webTestClient
       .get()
       .uri {
         it.path("/attendances/offender/$offenderNo/unacceptable-absence-count")
-          .queryParam("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
-          .queryParam("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .queryParam("fromDate", startDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .queryParam("toDate", endDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .build()
       }
       .headers(setHeaders())
@@ -510,17 +510,17 @@ class AttendancesIntegrationTest : IntegrationTest() {
   @Test
   fun `should return unacceptable absence details for offender`() {
     val offenderNo = "A1234AX"
-    val START = LocalDate.of(2021, 3, 14)
-    val END = LocalDate.of(2021, 5, 24)
+    val startDate = LocalDate.of(2021, 3, 14)
+    val endDate = LocalDate.of(2021, 5, 24)
 
-    prisonApiMockServer.stubGetAttendanceForOffender(offenderNo, START, END, "UNACAB", "0", "20")
+    prisonApiMockServer.stubGetAttendanceForOffender(offenderNo, startDate, endDate, "UNACAB", "0", "20")
 
     webTestClient
       .get()
       .uri {
         it.path("/attendances/offender/$offenderNo/unacceptable-absences")
-          .queryParam("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
-          .queryParam("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .queryParam("fromDate", startDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .queryParam("toDate", endDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .build()
       }
       .headers(setHeaders())
