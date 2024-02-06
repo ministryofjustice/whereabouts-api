@@ -258,7 +258,7 @@ public abstract class PrisonApi {
 
         try {
             return webClient.get()
-                .uri("api/bookings/{bookingId}", bookingId)
+                .uri("/bookings/{bookingId}", bookingId)
                 .retrieve()
                 .bodyToMono(responseType)
                 .block();
