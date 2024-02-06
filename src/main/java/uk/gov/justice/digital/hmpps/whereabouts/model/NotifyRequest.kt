@@ -13,6 +13,7 @@ data class NotifyRequest(
   val comments: String?,
   val prisonName: String,
   val courtName: String,
+  val offenderNo: String?,
 ) {
   fun constructMapOfNotifyRequest(): Map<String, String> {
     return mapOf(
@@ -26,11 +27,18 @@ data class NotifyRequest(
       "comments" to (comments ?: "None entered"),
       "prison" to prisonName,
       "hearingLocation" to courtName,
+      "offenderNo" to (offenderNo ?: ""),
+
     )
   }
+
   private fun formatStartAndEndTime(videoLinkAppointment: VideoLinkAppointment?): String {
     if (videoLinkAppointment != null) {
-      return "${videoLinkAppointment.startDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))} to ${videoLinkAppointment.endDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))}"
+      return "${videoLinkAppointment.startDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))} to ${
+        videoLinkAppointment.endDateTime.format(
+          DateTimeFormatter.ofPattern("HH:mm"),
+        )
+      }"
     }
     return "None requested"
   }
