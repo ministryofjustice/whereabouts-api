@@ -8,7 +8,7 @@ generic-service:
     host: whereabouts-api-preprod.service.justice.gov.uk
 
   env:
-    ELITE2API_ENDPOINT_URL: "https://api-preprod.prison.service.justice.gov.uk"
+    ELITE2API_ENDPOINT_URL: "https://prison-api-preprod.prison.service.justice.gov.uk"
     OAUTH_ENDPOINT_URL: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth"
     CASENOTES_ENDPOINT_URL: "https://preprod.offender-case-notes.service.justice.gov.uk"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
