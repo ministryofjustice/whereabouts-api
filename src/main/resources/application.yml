@@ -97,6 +97,10 @@ notify:
     key: api-key
   enabled: false
   templates:
+    appointment-canceled:
+      prison: 2dd7fe0d-9294-4cdf-9481-3b9ba84d4fc7
+      court: 17e7d51c-1a8d-4c5b-9a54-93336bebc872
+      no-court-email: 1967bab2-7d1f-4330-80a7-bb0fe8541a05
     prison:
       released: 5e1cfe03-8f0b-4d2f-aaa4-9628b145d28f
       released-but-no-court-email: a0edf532-e956-49ef-907a-80618ff2a7a3

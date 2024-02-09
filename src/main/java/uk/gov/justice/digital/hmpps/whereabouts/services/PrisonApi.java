@@ -85,16 +85,16 @@ public abstract class PrisonApi {
 
     public void putAttendanceForMultipleBookings(final Set<BookingActivity> bookingActivities, final EventOutcome eventOutcome) {
         webClient.put()
-                .uri("/bookings/activities/attendance")
-                .bodyValue(new EventOutcomesDto(
-                        eventOutcome.getEventOutcome(),
-                        eventOutcome.getPerformance(),
-                        eventOutcome.getOutcomeComment(),
-                        bookingActivities
-                ))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
+            .uri("/bookings/activities/attendance")
+            .bodyValue(new EventOutcomesDto(
+                eventOutcome.getEventOutcome(),
+                eventOutcome.getPerformance(),
+                eventOutcome.getOutcomeComment(),
+                bookingActivities
+            ))
+            .retrieve()
+            .bodyToMono(String.class)
+            .block();
     }
 
     @Data
@@ -107,17 +107,17 @@ public abstract class PrisonApi {
                                                              final String outcome, final Pageable pageable) {
 
         final var data = webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/offender-activities/{offenderNo}/attendance-history")
-                        .queryParam("fromDate", fromDate)
-                        .queryParam("toDate", toDate)
-                        .queryParamIfPresent("outcome", Optional.ofNullable(outcome))
-                        .queryParam("page", pageable.isPaged() ? pageable.getPageNumber() : 0)
-                        .queryParam("size", pageable.isPaged() ? pageable.getPageSize() : 10000)
-                        .build(offenderNo))
-                .retrieve()
-                .bodyToMono(AttendancePage.class)
-                .block();
+            .uri(uriBuilder -> uriBuilder
+                .path("/offender-activities/{offenderNo}/attendance-history")
+                .queryParam("fromDate", fromDate)
+                .queryParam("toDate", toDate)
+                .queryParamIfPresent("outcome", Optional.ofNullable(outcome))
+                .queryParam("page", pageable.isPaged() ? pageable.getPageNumber() : 0)
+                .queryParam("size", pageable.isPaged() ? pageable.getPageSize() : 10000)
+                .build(offenderNo))
+            .retrieve()
+            .bodyToMono(AttendancePage.class)
+            .block();
         if (data == null) {
             throw new RuntimeException("No data returned");
         }
@@ -132,20 +132,20 @@ public abstract class PrisonApi {
         };
 
         return Objects.requireNonNull(webClient.get()
-                .uri("/schedules/{prisonId}/activities?date={date}&timeSlot={period}", prisonId, date, period)
-                .retrieve()
-                .bodyToMono(responseType)
-                .block());
+            .uri("/schedules/{prisonId}/activities?date={date}&timeSlot={period}", prisonId, date, period)
+            .retrieve()
+            .bodyToMono(responseType)
+            .block());
     }
 
     public String getOffenderNoFromBookingId(final Long bookingId) {
         return webClient.get()
-                .uri("/bookings/{bookingId}?basicInfo=true", bookingId)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .map(entry -> entry.get("offenderNo"))
-                .cast(String.class)
-                .block();
+            .uri("/bookings/{bookingId}?basicInfo=true", bookingId)
+            .retrieve()
+            .bodyToMono(Map.class)
+            .map(entry -> entry.get("offenderNo"))
+            .cast(String.class)
+            .block();
     }
 
     public List<OffenderBooking> getOffenderDetailsFromOffenderNos(final Collection<String> offenderNos, boolean isActive) {
@@ -153,11 +153,11 @@ public abstract class PrisonApi {
         };
 
         return webClient.post()
-                .uri("/bookings/offenders?activeOnly={isActive}", isActive)
-                .bodyValue(offenderNos)
-                .retrieve()
-                .bodyToMono(responseType)
-                .block();
+            .uri("/bookings/offenders?activeOnly={isActive}", isActive)
+            .bodyValue(offenderNos)
+            .retrieve()
+            .bodyToMono(responseType)
+            .block();
     }
 
     public List<OffenderDetails> getScheduleActivityOffenderData(final String prisonId,
@@ -166,11 +166,11 @@ public abstract class PrisonApi {
         };
 
         return webClient.post()
-                .uri("/schedules/{prisonId}/activities-by-event-ids", prisonId)
-                .bodyValue(eventIds)
-                .retrieve()
-                .bodyToMono(responseType)
-                .block();
+            .uri("/schedules/{prisonId}/activities-by-event-ids", prisonId)
+            .bodyValue(eventIds)
+            .retrieve()
+            .bodyToMono(responseType)
+            .block();
     }
 
     public PrisonerActivitiesCount getScheduleActivityCounts(final String prisonId,
@@ -180,15 +180,15 @@ public abstract class PrisonApi {
                                                              final Map<Long, Integer> attendancesBookingIdsCount
     ) {
         return webClient.post()
-                .uri("/schedules/{prisonId}/count-activities",
-                        b -> b.queryParam("fromDate", fromDate)
-                                .queryParam("toDate", toDate)
-                                .queryParam("timeSlots", periods)
-                                .build(prisonId))
-                .bodyValue(attendancesBookingIdsCount)
-                .retrieve()
-                .bodyToMono(PrisonerActivitiesCount.class)
-                .block();
+            .uri("/schedules/{prisonId}/count-activities",
+                b -> b.queryParam("fromDate", fromDate)
+                    .queryParam("toDate", toDate)
+                    .queryParam("timeSlots", periods)
+                    .build(prisonId))
+            .bodyValue(attendancesBookingIdsCount)
+            .retrieve()
+            .bodyToMono(PrisonerActivitiesCount.class)
+            .block();
     }
 
     public List<LocationGroup> getLocationGroups(final String agencyId) {
@@ -197,10 +197,10 @@ public abstract class PrisonApi {
 
         try {
             return webClient.get()
-                    .uri("/agencies/{agencyId}/locations/groups", agencyId)
-                    .retrieve()
-                    .bodyToMono(responseType)
-                    .block();
+                .uri("/agencies/{agencyId}/locations/groups", agencyId)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
         } catch (WebClientResponseException e) {
             if (e.getStatusCode().equals(NOT_FOUND)) {
                 throw new EntityNotFoundException(String.format("Locations not found for agency %s", agencyId));
@@ -215,10 +215,10 @@ public abstract class PrisonApi {
 
         try {
             return webClient.get()
-                    .uri("/agencies/{agencyId}/locations/type/{type}", agencyId, locationType)
-                    .retrieve()
-                    .bodyToMono(responseType)
-                    .block();
+                .uri("/agencies/{agencyId}/locations/type/{type}", agencyId, locationType)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
         } catch (WebClientResponseException e) {
             if (e.getStatusCode().equals(NOT_FOUND)) {
                 throw new EntityNotFoundException(String.format("Locations not found for agency %s with location type %s", agencyId, locationType));
@@ -240,10 +240,10 @@ public abstract class PrisonApi {
 
         try {
             return webClient.get()
-                    .uri("/agencies/{agencyId}/locations?eventType={locationType}", agencyId, locationType)
-                    .retrieve()
-                    .bodyToMono(responseType)
-                    .block();
+                .uri("/agencies/{agencyId}/locations?eventType={locationType}", agencyId, locationType)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
         } catch (WebClientResponseException e) {
             if (e.getStatusCode().equals(NOT_FOUND)) {
                 throw new EntityNotFoundException(String.format("Locations not found for agency %s with location type %s", agencyId, locationType));
@@ -251,6 +251,25 @@ public abstract class PrisonApi {
             throw e;
         }
     }
+
+    public OffenderBooking getOffenderBookingDetails(final Long bookingId) {
+        final var responseType = new ParameterizedTypeReference<OffenderBooking>() {
+        };
+
+        try {
+            return webClient.get()
+                .uri("/bookings/{bookingId}", bookingId)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
+        } catch (WebClientResponseException e) {
+            if (e.getStatusCode().equals(NOT_FOUND)) {
+                throw new EntityNotFoundException(String.format("Booking details not found for bookingId %s ", bookingId));
+            }
+            throw e;
+        }
+    }
+
 
     public List<Location> getAllLocationsInAgency(final String agencyId) {
         final var responseType = new ParameterizedTypeReference<List<Location>>() {
@@ -277,10 +296,10 @@ public abstract class PrisonApi {
 
         try {
             return webClient.get()
-                    .uri(uri, agencyId, attribute)
-                    .retrieve()
-                    .bodyToMono(responseType)
-                    .block();
+                .uri(uri, agencyId, attribute)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
         } catch (WebClientResponseException e) {
             if (e.getStatusCode().equals(NOT_FOUND)) {
                 throw new EntityNotFoundException(String.format("No cells with capacity for agency %s and attribute %s", agencyId, attribute));
@@ -294,12 +313,12 @@ public abstract class PrisonApi {
         };
 
         return webClient.post()
-                .uri("/bookings/{bookingId}/appointments", bookingId)
-                .bodyValue(createbookingAppointment)
-                .header("no-event-propagation", propagation.doNotPropagate())
-                .retrieve()
-                .bodyToMono(responseType)
-                .block();
+            .uri("/bookings/{bookingId}/appointments", bookingId)
+            .bodyValue(createbookingAppointment)
+            .header("no-event-propagation", propagation.doNotPropagate())
+            .retrieve()
+            .bodyToMono(responseType)
+            .block();
     }
 
     public List<CreatedAppointmentDetailsDto> createAppointments(final CreatePrisonAppointment createPrisonAppointment) {
@@ -307,11 +326,11 @@ public abstract class PrisonApi {
         };
 
         return webClient.post()
-                .uri("/appointments")
-                .bodyValue(createPrisonAppointment)
-                .retrieve()
-                .bodyToMono(responseType)
-                .block();
+            .uri("/appointments")
+            .bodyValue(createPrisonAppointment)
+            .retrieve()
+            .bodyToMono(responseType)
+            .block();
     }
 
     public CellMoveResult putCellMove(final long bookingId, final String internalLocationDescription, final String reasonCode) {
@@ -319,102 +338,102 @@ public abstract class PrisonApi {
         };
 
         return webClient.put()
-                .uri("/bookings/{bookingId}/living-unit/{internalLocationDescription}?reasonCode={reasonCode}",
-                        bookingId, internalLocationDescription, reasonCode)
-                .retrieve()
-                .bodyToMono(responseType)
-                .block();
+            .uri("/bookings/{bookingId}/living-unit/{internalLocationDescription}?reasonCode={reasonCode}",
+                bookingId, internalLocationDescription, reasonCode)
+            .retrieve()
+            .bodyToMono(responseType)
+            .block();
     }
 
     public PrisonAppointment getPrisonAppointment(long appointmentId) {
         return webClient.get()
-                .uri("/appointments/{appointmentId}", appointmentId)
-                .retrieve()
-                .bodyToMono(PrisonAppointment.class)
-                .onErrorResume(WebClientResponseException.NotFound.class, notFound -> Mono.empty())
-                .blockOptional()
-                .orElse(null);
+            .uri("/appointments/{appointmentId}", appointmentId)
+            .retrieve()
+            .bodyToMono(PrisonAppointment.class)
+            .onErrorResume(WebClientResponseException.NotFound.class, notFound -> Mono.empty())
+            .blockOptional()
+            .orElse(null);
     }
 
     public void deleteAppointment(final Long appointmentId, final EventPropagation propagation) {
 
         webClient.delete()
-                .uri("/appointments/{appointmentId}", appointmentId)
-                .header("no-event-propagation", propagation.doNotPropagate())
-                .retrieve()
-                .toBodilessEntity()
-                .onErrorResume(WebClientResponseException.NotFound.class, notFound -> {
-                    logger.info("Ignoring appointment with id: '{}' that does not exist in nomis", appointmentId);
-                    return Mono.empty();
-                })
-                .block();
+            .uri("/appointments/{appointmentId}", appointmentId)
+            .header("no-event-propagation", propagation.doNotPropagate())
+            .retrieve()
+            .toBodilessEntity()
+            .onErrorResume(WebClientResponseException.NotFound.class, notFound -> {
+                logger.info("Ignoring appointment with id: '{}' that does not exist in nomis", appointmentId);
+                return Mono.empty();
+            })
+            .block();
     }
 
     public void updateAppointmentComment(long appointmentId, @Nullable String comment, final EventPropagation propagation) {
         webClient.put()
-                .uri("/appointments/{appointmentId}/comment", appointmentId)
-                .header("no-event-propagation", propagation.doNotPropagate())
-                .contentType(MediaType.TEXT_PLAIN)
-                .body(comment != null ? BodyInserters.fromValue(comment) : BodyInserters.empty())
-                .retrieve()
-                .toBodilessEntity()
-                .onErrorResume(WebClientResponseException.NotFound.class, notFound -> {
-                    logger.info("Ignoring appointment with id: '{}' that does not exist in nomis", appointmentId);
-                    return Mono.empty();
-                })
-                .block();
+            .uri("/appointments/{appointmentId}/comment", appointmentId)
+            .header("no-event-propagation", propagation.doNotPropagate())
+            .contentType(MediaType.TEXT_PLAIN)
+            .body(comment != null ? BodyInserters.fromValue(comment) : BodyInserters.empty())
+            .retrieve()
+            .toBodilessEntity()
+            .onErrorResume(WebClientResponseException.NotFound.class, notFound -> {
+                logger.info("Ignoring appointment with id: '{}' that does not exist in nomis", appointmentId);
+                return Mono.empty();
+            })
+            .block();
     }
 
     public List<ScheduledAppointmentSearchDto> getScheduledAppointments(final String agencyId, final LocalDate date, final TimePeriod timeSlot, final Long locationId) {
         return webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/schedules/{agencyId}/appointments")
-                        .queryParam("date", "{date}")
-                        .queryParamIfPresent("timeSlot", Optional.ofNullable(timeSlot))
-                        .queryParamIfPresent("locationId", Optional.ofNullable(locationId))
-                        .build(agencyId, date))
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<ScheduledAppointmentSearchDto>>() {
-                })
-                .block();
+            .uri(uriBuilder -> uriBuilder
+                .path("/schedules/{agencyId}/appointments")
+                .queryParam("date", "{date}")
+                .queryParamIfPresent("timeSlot", Optional.ofNullable(timeSlot))
+                .queryParamIfPresent("locationId", Optional.ofNullable(locationId))
+                .build(agencyId, date))
+            .retrieve()
+            .bodyToMono(new ParameterizedTypeReference<List<ScheduledAppointmentSearchDto>>() {
+            })
+            .block();
     }
 
     public LocationDto getLocation(long locationId) {
         return webClient.get()
-                .uri("/locations/{locationId}", locationId)
-                .retrieve()
-                .bodyToMono(LocationDto.class)
-                .onErrorResume(WebClientResponseException.NotFound.class, notFound -> Mono.empty())
-                .blockOptional()
-                .orElse(null);
+            .uri("/locations/{locationId}", locationId)
+            .retrieve()
+            .bodyToMono(LocationDto.class)
+            .onErrorResume(WebClientResponseException.NotFound.class, notFound -> Mono.empty())
+            .blockOptional()
+            .orElse(null);
     }
 
     public void deleteAppointments(final List<Long> appointmentIds, final EventPropagation propagation) {
         webClient.post()
-                .uri("/appointments/delete")
-                .bodyValue(appointmentIds)
-                .header("no-event-propagation", propagation.doNotPropagate())
-                .retrieve()
-                .toBodilessEntity()
-                .block();
+            .uri("/appointments/delete")
+            .bodyValue(appointmentIds)
+            .header("no-event-propagation", propagation.doNotPropagate())
+            .retrieve()
+            .toBodilessEntity()
+            .block();
     }
 
     public List<ScheduledEventDto> getScheduledEvents(final String offenderNo, final LocalDate fromDate, final LocalDate toDate) {
         return webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/offenders/{offenderNo}/scheduled-events")
-                        .queryParam("fromDate", "{fromDate}")
-                        .queryParam("toDate", "{toDate}")
-                        .build(offenderNo, fromDate, toDate))
-                .retrieve()
-                .onStatus(s -> s == NOT_FOUND, response ->
-                        response.bodyToMono(ErrorResponse.class).map(r -> new EntityNotFoundException(r.getDeveloperMessage()))
-                )
-                .onStatus(s -> s == BAD_REQUEST, response ->
-                        response.bodyToMono(ErrorResponse.class).map(r -> new ValidationException(r.getDeveloperMessage()))
-                )
-                .bodyToMono(new ParameterizedTypeReference<List<ScheduledEventDto>>() {
-                })
-                .block();
+            .uri(uriBuilder -> uriBuilder
+                .path("/offenders/{offenderNo}/scheduled-events")
+                .queryParam("fromDate", "{fromDate}")
+                .queryParam("toDate", "{toDate}")
+                .build(offenderNo, fromDate, toDate))
+            .retrieve()
+            .onStatus(s -> s == NOT_FOUND, response ->
+                response.bodyToMono(ErrorResponse.class).map(r -> new EntityNotFoundException(r.getDeveloperMessage()))
+            )
+            .onStatus(s -> s == BAD_REQUEST, response ->
+                response.bodyToMono(ErrorResponse.class).map(r -> new ValidationException(r.getDeveloperMessage()))
+            )
+            .bodyToMono(new ParameterizedTypeReference<List<ScheduledEventDto>>() {
+            })
+            .block();
     }
 }

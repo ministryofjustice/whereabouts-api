@@ -23,7 +23,7 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
   @BeforeEach
   fun prepare() {
     deleteAll()
-    makeSomeBookings(startDate, bookingCount)
+    makeSomeBookings(startDate, BOOKING_COUNT)
     TestTransaction.flagForCommit()
     TestTransaction.end()
   }
@@ -77,7 +77,7 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
   fun `Happy flow`() {
     prisonApiMockServer.stubGetAgencyLocationsForTypeUnrestricted("MDI", "APP", getAllRooms())
 
-    val uri = "$baseUrl?start-date=${LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)}"
+    val uri = "$BASE_URL?start-date=${LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)}"
     webTestClient.get()
       .uri(uri)
       .accept(MediaType("text", "csv"))
@@ -95,7 +95,7 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
       .expectBody().consumeWith {
         val csv = String(it.responseBody)
         assertThat(csv).startsWith("eventId,timestamp,videoLinkBookingId,eventType,agencyId,court,courtId,madeByTheCourt,mainStartTime,mainEndTime,preStartTime,preEndTime,postStartTime,postEndTime,mainLocationName,preLocationName,postLocationName")
-        assertThat(csv).hasLineCount((bookingCount + 1).toInt())
+        assertThat(csv).hasLineCount((BOOKING_COUNT + 1).toInt())
       }
   }
 
@@ -140,9 +140,9 @@ class VideoLinkBookingEventIntegrationTest : IntegrationTest() {
   }
 
   companion object {
-    const val bookingCount = 20L
+    const val BOOKING_COUNT = 20L
     val startDate: LocalDate = LocalDate.now().plusDays(30)
-    const val baseUrl = "/events/video-link-booking-events"
+    const val BASE_URL = "/events/video-link-booking-events"
   }
 }
 private fun getAllRooms() =

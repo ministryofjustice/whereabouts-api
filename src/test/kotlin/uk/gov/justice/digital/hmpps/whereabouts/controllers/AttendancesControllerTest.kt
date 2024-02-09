@@ -25,17 +25,17 @@ import java.time.format.DateTimeFormatter
   excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class],
 )
 class AttendancesControllerTest : TestController() {
-  private val OFFENDER_NO = "A1234AB"
-  private val START = LocalDate.of(2021, 3, 14)
-  private val END = LocalDate.of(2021, 5, 24)
-  private val MOORLAND = "HMP Moorland"
+  private val offenderNo = "A1234AB"
+  private val startDate = LocalDate.of(2021, 3, 14)
+  private val endDate = LocalDate.of(2021, 5, 24)
+  private val prisonName = "HMP Moorland"
 
   private val testAttendanceHistoryDto = PageImpl(
     listOf(
       AttendanceHistoryDto(
-        eventDate = START,
+        eventDate = startDate,
         comments = "Test comment",
-        location = MOORLAND,
+        location = prisonName,
         activity = "a",
         activityDescription = "d",
       ),
@@ -50,7 +50,7 @@ class AttendancesControllerTest : TestController() {
   @Test
   @WithMockUser(username = "ITAG_USER")
   fun `getAttendances valid call returns expected data`() {
-    whenever(attendanceService.getAttendanceAbsenceSummaryForOffender(OFFENDER_NO, START, END))
+    whenever(attendanceService.getAttendanceAbsenceSummaryForOffender(offenderNo, startDate, endDate))
       .thenReturn(
         AttendanceSummary(
           acceptableAbsence = 6,
@@ -61,9 +61,9 @@ class AttendancesControllerTest : TestController() {
 
     mockMvc
       .perform(
-        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absence-count")
-          .param("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
-          .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE)),
+        MockMvcRequestBuilders.get("/attendances/offender/$offenderNo/unacceptable-absence-count")
+          .param("fromDate", startDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .param("toDate", endDate.format(DateTimeFormatter.ISO_LOCAL_DATE)),
       )
       .andExpect(MockMvcResultMatchers.status().isOk)
       .andExpect(MockMvcResultMatchers.jsonPath("$.acceptableAbsence").value(6))
@@ -76,15 +76,15 @@ class AttendancesControllerTest : TestController() {
   @Test
   @WithMockUser(username = "ITAG_USER")
   fun `getAttendances details valid call returns expected data`() {
-    whenever(attendanceService.getAttendanceDetailsForOffender(OFFENDER_NO, START, END, pageable))
+    whenever(attendanceService.getAttendanceDetailsForOffender(offenderNo, startDate, endDate, pageable))
       .thenReturn(testAttendanceHistoryDto)
 
     mockMvc
       .perform(
-        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absences")
-          .param("offenderNo", OFFENDER_NO)
-          .param("fromDate", START.format(DateTimeFormatter.ISO_LOCAL_DATE))
-          .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE))
+        MockMvcRequestBuilders.get("/attendances/offender/$offenderNo/unacceptable-absences")
+          .param("offenderNo", offenderNo)
+          .param("fromDate", startDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+          .param("toDate", endDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
           .param("page", "0")
           .param("size", "10"),
       )
@@ -99,9 +99,9 @@ class AttendancesControllerTest : TestController() {
   fun `getAttendances details - missing parameter`() {
     mockMvc
       .perform(
-        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absences")
-          .param("offenderNo", OFFENDER_NO)
-          .param("toDate", END.format((DateTimeFormatter.ISO_LOCAL_DATE))),
+        MockMvcRequestBuilders.get("/attendances/offender/$offenderNo/unacceptable-absences")
+          .param("offenderNo", offenderNo)
+          .param("toDate", endDate.format((DateTimeFormatter.ISO_LOCAL_DATE))),
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest)
       .andExpect(
@@ -115,8 +115,8 @@ class AttendancesControllerTest : TestController() {
   fun `getAttendances invalid call no fromDate`() {
     mockMvc
       .perform(
-        MockMvcRequestBuilders.get("/attendances/offender/$OFFENDER_NO/unacceptable-absence-count")
-          .param("toDate", END.format(DateTimeFormatter.ISO_LOCAL_DATE)),
+        MockMvcRequestBuilders.get("/attendances/offender/$offenderNo/unacceptable-absence-count")
+          .param("toDate", endDate.format(DateTimeFormatter.ISO_LOCAL_DATE)),
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest)
       .andExpect(

@@ -972,6 +972,8 @@ class VideoLinkBookingServiceTest {
       service.processNomisUpdate(appointmentChangedEventMessage)
       verify(videoLinkAppointmentRepository).findOneByAppointmentId(anyLong())
       verify(videoLinkBookingRepository, never()).delete(any())
+      verify(notifyService, never()).sendAppointmentCanceledEmailToPrisonOnly(any(), any())
+      verify(notifyService, never()).sendAppointmentCanceledEmailToCourtAndPrison(any(), any(), any())
     }
 
     @Test
@@ -992,6 +994,8 @@ class VideoLinkBookingServiceTest {
       service.processNomisUpdate(appointmentChangedEventMessage)
       verify(videoLinkBookingEventListener).appointmentUpdatedInNomis(any(), any())
       verify(videoLinkBookingRepository, never()).delete(any())
+      verify(notifyService, never()).sendAppointmentCanceledEmailToPrisonOnly(any(), any())
+      verify(notifyService, never()).sendAppointmentCanceledEmailToCourtAndPrison(any(), any(), any())
     }
 
     @Test
@@ -1012,10 +1016,12 @@ class VideoLinkBookingServiceTest {
       service.processNomisUpdate(appointmentChangedEventMessage)
       verify(videoLinkBookingRepository).save(any())
       verify(videoLinkBookingRepository, never()).delete(any())
+      verify(notifyService, never()).sendAppointmentCanceledEmailToPrisonOnly(any(), any())
+      verify(notifyService, never()).sendAppointmentCanceledEmailToCourtAndPrison(any(), any(), any())
     }
 
     @Test
-    fun `delete PRE,POST,MAIN appointments when recordDeleted flag is true and appointment is MAIN`() {
+    fun `delete PRE,POST,MAIN appointments when recordDeleted flag is true and appointment is MAIN and court email exist`() {
       val appointmentChangedEventMessage = AppointmentChangedEventMessage(
         scheduleEventId = 1,
         agencyLocationId = "WWI",
@@ -1030,8 +1036,70 @@ class VideoLinkBookingServiceTest {
 
       whenever(videoLinkAppointmentRepository.findOneByAppointmentId(anyLong())).thenReturn(videoLinkBooking.appointments[HearingType.MAIN])
       whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
+      whenever(courtService.getCourtEmailForCourtId(any())).thenReturn("court@email.com")
+      whenever(prisonRegisterClient.getPrisonDetails(any())).thenReturn(
+        PrisonRegisterClient.PrisonDetail(
+          prisonId = "MDI",
+          prisonName = "Moorland",
+        ),
+      )
+      whenever(prisonRegisterClient.getPrisonEmailAddress(any(), any())).thenReturn(
+        PrisonRegisterClient.DepartmentDto(
+          type = "1",
+          emailAddress = "some-prison@email.com",
+        ),
+      )
+      val offenderBooking = mock<OffenderBooking>()
+      whenever(offenderBooking.bookingId).thenReturn(1)
+      whenever(offenderBooking.firstName).thenReturn("Jim")
+      whenever(offenderBooking.lastName).thenReturn("Smith")
+      whenever(offenderBooking.offenderNo).thenReturn("A1234BC")
+      whenever(offenderBooking.dateOfBirth).thenReturn(LocalDate.of(2000, 5, 1))
+      whenever(prisonApiService.getOffenderBookingDetails(any())).thenReturn(offenderBooking)
       service.processNomisUpdate(appointmentChangedEventMessage)
       verify(prisonApiService).deleteAppointments(listOf(3, 4, 5), EventPropagation.DENY)
+      verify(notifyService).sendAppointmentCanceledEmailToCourtAndPrison(any(), any(), any())
+    }
+
+    @Test
+    fun `delete PRE,POST,MAIN appointments when recordDeleted flag is true and appointment is MAIN and court email not exist`() {
+      val appointmentChangedEventMessage = AppointmentChangedEventMessage(
+        scheduleEventId = 1,
+        agencyLocationId = "WWI",
+        bookingId = 1056979,
+        eventDatetime = "2022-10-06T09:34:40",
+        recordDeleted = true,
+        scheduleEventStatus = ScheduleEventStatus.SCH,
+        scheduledEndTime = "2022-10-06T15:00:00",
+        scheduledStartTime = "2022-10-06T11:00:00",
+      )
+      val videoLinkBooking = createVideoLinkBooking()
+
+      whenever(videoLinkAppointmentRepository.findOneByAppointmentId(anyLong())).thenReturn(videoLinkBooking.appointments[HearingType.MAIN])
+      whenever(videoLinkBookingRepository.findById(anyLong())).thenReturn(Optional.of(videoLinkBooking))
+      whenever(courtService.getCourtEmailForCourtId(any())).thenReturn(null)
+      whenever(prisonRegisterClient.getPrisonDetails(any())).thenReturn(
+        PrisonRegisterClient.PrisonDetail(
+          prisonId = "MDI",
+          prisonName = "Moorland",
+        ),
+      )
+      whenever(prisonRegisterClient.getPrisonEmailAddress(any(), any())).thenReturn(
+        PrisonRegisterClient.DepartmentDto(
+          type = "1",
+          emailAddress = "some-prison@email.com",
+        ),
+      )
+      val offenderBooking = mock<OffenderBooking>()
+      whenever(offenderBooking.bookingId).thenReturn(1)
+      whenever(offenderBooking.firstName).thenReturn("Jim")
+      whenever(offenderBooking.lastName).thenReturn("Smith")
+      whenever(offenderBooking.offenderNo).thenReturn("A1234BC")
+      whenever(offenderBooking.dateOfBirth).thenReturn(LocalDate.of(2000, 5, 1))
+      whenever(prisonApiService.getOffenderBookingDetails(any())).thenReturn(offenderBooking)
+      service.processNomisUpdate(appointmentChangedEventMessage)
+      verify(prisonApiService).deleteAppointments(listOf(3, 4, 5), EventPropagation.DENY)
+      verify(notifyService).sendAppointmentCanceledEmailToPrisonOnly(any(), any())
     }
 
     @Test
@@ -1080,7 +1148,7 @@ class VideoLinkBookingServiceTest {
         id = 21L,
         offenderBookingId = 3L,
         courtName = COURT_NAME,
-        courtId = null,
+        courtId = COURT_ID,
         courtHearingType = COURT_HEARING_TYPE,
         madeByTheCourt = true,
         prisonId = "WWI",
