@@ -186,7 +186,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       .expectStatus()
       .is5xxServerError
       .expectBody()
-      .jsonPath("$.developerMessage").isEqualTo("400 Bad Request from PUT http://localhost:8999/api/bookings/6/activities/2/attendance?lockTimeout=true")
+      .jsonPath("$.developerMessage").isEqualTo("400 Bad Request from PUT http://localhost:8999/api/bookings/" + bookingId + "/activities/2/attendance")
   }
 
   @Test
