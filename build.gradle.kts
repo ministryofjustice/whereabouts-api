@@ -31,7 +31,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.2.1")
 
-  implementation("io.swagger.core.v3:swagger-annotations:2.2.20")
+  implementation("io.swagger:swagger-annotations:1.6.13")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 
   implementation("org.apache.commons:commons-lang3")
@@ -44,20 +44,18 @@ dependencies {
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.1.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+  implementation("uk.gov.service.notify:notifications-java-client:4.1.1-RELEASE")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
-
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.7")
   testImplementation("org.wiremock:wiremock-standalone:3.4.1")
   testImplementation("io.mockk:mockk:1.13.9")
-  testCompileOnly("org.projectlombok:lombok")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.35.0")
-  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:1.35.0")
-  implementation("uk.gov.service.notify:notifications-java-client:4.1.1-RELEASE")
+  testCompileOnly("org.projectlombok:lombok")
 }
 
 allOpen {
