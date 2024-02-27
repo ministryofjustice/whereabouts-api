@@ -14,13 +14,7 @@ import java.util.UUID
 
 @Component
 class JwtAuthHelper {
-  private final var keyPair: KeyPair
-
-  init {
-    val gen = KeyPairGenerator.getInstance("RSA")
-    gen.initialize(2048)
-    keyPair = gen.generateKeyPair()
-  }
+  private val keyPair: KeyPair = KeyPairGenerator.getInstance("RSA").apply { initialize(2048) }.generateKeyPair()
 
   @Bean
   fun jwtDecoder(): JwtDecoder = NimbusJwtDecoder.withPublicKey(keyPair.public as RSAPublicKey).build()
