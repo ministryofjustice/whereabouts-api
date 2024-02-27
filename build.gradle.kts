@@ -1,7 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.3"
   kotlin("plugin.spring") version "1.9.22"
   kotlin("plugin.jpa") version "1.9.22"
 }
@@ -33,7 +31,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.2.1")
 
-  implementation("io.swagger:swagger-annotations:1.6.12")
+  implementation("io.swagger:swagger-annotations:1.6.13")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 
   implementation("org.apache.commons:commons-lang3")
@@ -45,32 +43,19 @@ dependencies {
   implementation("com.google.guava:guava:33.0.0-jre")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:1.32.0")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+  implementation("uk.gov.service.notify:notifications-java-client:4.1.1-RELEASE")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
-
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
-  testImplementation("org.wiremock:wiremock-standalone:3.3.1")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.7")
+  testImplementation("org.wiremock:wiremock-standalone:3.4.1")
   testImplementation("io.mockk:mockk:1.13.9")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.35.0")
   testCompileOnly("org.projectlombok:lombok")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.34.1")
-  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:1.32.0")
-  implementation("uk.gov.service.notify:notifications-java-client:4.1.1-RELEASE")
-}
-
-/**
- * Without this Kotlin compiler setting Java Bean validator annotations do not work on Kotlin lists.
- * See for example AppointmentLocationsSpecification#appointmentIntervals
- * The alternative ito this is to use Java classes instead.
- */
-tasks.withType<KotlinCompile>().configureEach {
-  kotlinOptions {
-    freeCompilerArgs += "-Xemit-jvm-type-annotations"
-  }
 }
 
 allOpen {
@@ -82,13 +67,14 @@ allOpen {
 }
 
 java {
-  toolchain.languageVersion.set(JavaLanguageVersion.of(19))
+  toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 tasks {
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-      jvmTarget = "19"
+    compilerOptions {
+      freeCompilerArgs.set(listOf("-Xemit-jvm-type-annotations"))
+      jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
     }
   }
 }

@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.utils
 
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm.RS256
 import org.springframework.context.annotation.Bean
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
@@ -15,13 +14,7 @@ import java.util.UUID
 
 @Component
 class JwtAuthHelper {
-  private val keyPair: KeyPair
-
-  init {
-    val gen = KeyPairGenerator.getInstance("RSA")
-    gen.initialize(2048)
-    keyPair = gen.generateKeyPair()
-  }
+  private val keyPair: KeyPair = KeyPairGenerator.getInstance("RSA").apply { initialize(2048) }.generateKeyPair()
 
   @Bean
   fun jwtDecoder(): JwtDecoder = NimbusJwtDecoder.withPublicKey(keyPair.public as RSAPublicKey).build()
@@ -39,11 +32,11 @@ class JwtAuthHelper {
     roles?.let { claims["authorities"] = roles }
     scope?.let { claims["scope"] = scope }
     return Jwts.builder()
-      .setId(jwtId)
-      .setSubject(subject)
-      .addClaims(claims)
-      .setExpiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
-      .signWith(keyPair.private, RS256)
+      .id(jwtId)
+      .subject(subject)
+      .claims(claims)
+      .expiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
+      .signWith(keyPair.private)
       .compact()
   }
 }
