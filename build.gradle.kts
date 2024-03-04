@@ -44,7 +44,7 @@ dependencies {
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:1.33.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-  implementation("uk.gov.service.notify:notifications-java-client:4.1.1-RELEASE")
+  implementation("uk.gov.service.notify:notifications-java-client:5.0.0-RELEASE")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
