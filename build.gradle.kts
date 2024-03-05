@@ -42,7 +42,7 @@ dependencies {
   implementation("com.google.code.gson:gson")
   implementation("com.google.guava:guava:33.0.0-jre")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
-  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:1.33.0")
+  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.1.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
   implementation("uk.gov.service.notify:notifications-java-client:5.0.0-RELEASE")
 
