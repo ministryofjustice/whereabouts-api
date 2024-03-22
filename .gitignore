@@ -25,6 +25,9 @@
 /nbdist/
 /.nb-gradle/
 
+# MacOS
+.DS_Store
+
 *secrets*.yaml
 !secrets-example.yaml
 dps-gradle-spring-boot-suppressions.xml
