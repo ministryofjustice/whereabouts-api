@@ -12,6 +12,7 @@ data class NotifyRequest(
   val postHearing: VideoLinkAppointment?,
   val comments: String?,
   val prisonName: String,
+  val prisonNumber: String,
   val courtName: String,
 ) {
   fun constructMapOfNotifyRequest(): Map<String, String> {
@@ -25,6 +26,7 @@ data class NotifyRequest(
       "postHearingStartAndEndTime" to formatStartAndEndTime(postHearing),
       "comments" to (comments ?: "None entered"),
       "prison" to prisonName,
+      "prisonNumber" to prisonNumber,
       "hearingLocation" to courtName,
     )
   }
