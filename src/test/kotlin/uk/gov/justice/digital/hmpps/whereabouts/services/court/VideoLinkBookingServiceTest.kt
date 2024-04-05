@@ -1549,6 +1549,16 @@ class VideoLinkBookingServiceTest {
       )
 
       service.deleteAppointmentWhenTransferredOrReleased(message)
+
+      verify(
+        videoLinkAppointmentRepository,
+        times(1),
+      ).findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
+        HearingType.MAIN,
+        LocalDateTime.of(2024, 4, 1, 17, 7, 58),
+        1L,
+        "SWI",
+      )
       verify(videoLinkBookingRepository, times(1)).deleteById(any())
       verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
       verify(notifyService, times(1)).sendOffenderTransferredEmailToCourtAndPrison(any(), any(), any())
