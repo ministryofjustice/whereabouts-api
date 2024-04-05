@@ -1503,6 +1503,21 @@ class VideoLinkBookingServiceTest {
     }
 
     @Test
+    fun `Should  handle messages with an offset in occurredAt`() {
+      val message = ReleasedOffenderEventMessage(
+        occurredAt = "2023-11-20T17:07:58Z+01:00",
+        additionalInformation = AdditionalInformation(
+          prisonId = "SWI",
+          nomsNumber = "A7215DZ",
+          reason = Reason.RELEASED_TO_HOSPITAL,
+        ),
+      )
+      service.deleteAppointmentWhenTransferredOrReleased(message)
+      verify(videoLinkBookingRepository, never()).deleteById(any())
+      verify(videoLinkBookingEventListener, never()).bookingDeleted(any())
+    }
+
+    @Test
     fun `Should not delete BVL appointment if zero offender details returned by prisonApi`() {
       val message = ReleasedOffenderEventMessage(
         occurredAt = "2023-11-20T17:07:58Z",
