@@ -22,9 +22,12 @@ by whereabouts health monitoring (e.g. pager duty) and not other systems who wis
 
 ### Pre Release Testing
 
-Whereabouts api is best tested by the front end (https://digital-preprod.prison.service.justice.gov.uk).  To manually smoke test / regression test whereabouts api prior to release:
+Whereabouts api is best tested using the DPS front end (https://dps-preprod.prison.service.justice.gov.uk).  
 
-1. Choose a residential wing and click continue
+To manually test whereabouts API prior to release, and must be in a prison not enabled for Activities and Appointments:
+
+1. Select the Prisoner Whereabouts -> View by Residential Location tiles 
+2. Choose a residential wing and click continue
    1. Check sub locations are shown - selecting one should limit listed prisoners to that location
    1. Click attended - select yes reason and enter case note
    1. Click attended - select no reason and choose unacceptable so that IEP functionality triggered
@@ -34,36 +37,36 @@ Whereabouts api is best tested by the front end (https://digital-preprod.prison.
 1. Click [View prisoners unaccounted for](https://digital-preprod.prison.service.justice.gov.uk/manage-prisoner-whereabouts/prisoners-unaccounted-for) and check page loads with data
 1. Click [View attendance reason statistics](https://digital-preprod.prison.service.justice.gov.uk/manage-prisoner-whereabouts/attendance-reason-statistics) and check page loads with data (generated from yes / no above)
 
-### Starting localstack
-
-Localstack has been introduced for some integration tests and it is also possible to run the application against localstack.
-
-* In the root of the project, to clear down and then bring up localstack, run:
-```
-rm -rf /tmp/localstack && docker-compose -f docker-compose-localstack.yaml down && TMPDIR=/private$TMPDIR docker-compose -f docker-compose-localstack.yaml up
-```
-
-* You can now use the aws CLI to send messages to the queue
-* When running the service, the queue's health status should appear as a local healthcheck: http://localhost:8082/health
-
 ### Running the tests
 
-With localstack now up and running (see previous section), run:
+Localstack has been introduced and is required for some of the integration tests
+
+* To start a localstack container for testing
+```
+$ docker-compose -f docker-compose-test.yaml up -d 
+```
+Then run the tests with
 ```bash
-./gradlew test
+$ ./gradlew test
+```
+Then shutdown the localstack container
+```
+$ docker-compose -f docker-compose-test.yaml down 
 ```
 
-### Running the service:
+### Running the service locally
 
-As well as localstack, this service also requires oauth, prison-api and the offender-case-notes services running to work. 
+As well as localstack, the service requires oauth, prison-api and the offender-case-notes services. 
 
 Bootstrap these services by running:
 ```bash
-docker-compose up
+$ docker-compose -f docker-compose-local.yml up -d
 ```
+* You can now use the aws CLI to send messages to the localstack queue
+* When running the service, the queue's health status should appear as a local healthcheck: http://localhost:8082/health
 
-To run the app, the following profiles need to be enabled: 'dev,localstack,local'
+To run the app itself the following profiles need to be enabled: 'dev,localstack,local'
 therefore with gradle, run:
 ```bash
-./gradlew bootRun --args='--spring.profiles.active=dev,localstack,local'
+$ ./gradlew bootRun --args='--spring.profiles.active=dev,localstack,local'
 ```
