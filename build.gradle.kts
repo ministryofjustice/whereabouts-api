@@ -1,3 +1,7 @@
+import uk.gov.justice.digital.hmpps.gradle.PortForwardRDSTask
+import uk.gov.justice.digital.hmpps.gradle.PortForwardRedisTask
+import uk.gov.justice.digital.hmpps.gradle.RevealSecretsTask
+
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.5"
   kotlin("plugin.spring") version "1.9.23"
@@ -71,6 +75,18 @@ java {
 }
 
 tasks {
+  register<PortForwardRDSTask>("portForwardRDS") {
+    namespacePrefix = "whereabouts-api"
+  }
+
+  register<PortForwardRedisTask>("portForwardRedis") {
+    namespacePrefix = "whereabouts-api"
+  }
+
+  register<RevealSecretsTask>("revealSecrets") {
+    namespacePrefix = "whereabouts-api"
+  }
+
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     compilerOptions {
       freeCompilerArgs.set(listOf("-Xemit-jvm-type-annotations"))
