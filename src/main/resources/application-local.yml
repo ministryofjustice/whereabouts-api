@@ -4,7 +4,30 @@ spring:
       resourceserver:
         jwt:
           public-key-location: classpath:local-public-key.pub
+  devtools:
+    add-properties: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/whereabouts_api_db?sslmode=prefer
+    username: whereabouts_api
+    password: whereabouts_api
+
+  jpa:
+    show-sql: true
+
 oauth:
+  endpoint:
+    url: http://localhost:9090/auth
   client:
     id: whereabouts-api-client
     secret: clientsecret
+
+elite2api:
+  endpoint:
+    url: http://localhost:8080
+casenotes:
+  endpoint:
+    url: http://localhost:8083
+prisonregister:
+  endpoint:
+    url: http://localhost:8084

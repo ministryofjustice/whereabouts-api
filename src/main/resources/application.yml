@@ -52,7 +52,11 @@ spring:
     group:
       test:
         - "dev"
-
+      dev-local:
+        - "dev"
+        - "postgres"
+        - "local"
+        - "localstack"
 server:
   port: 8082
   servlet:
