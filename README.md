@@ -65,8 +65,8 @@ $ docker-compose -f docker-compose-local.yml up -d
 * You can now use the aws CLI to send messages to the localstack queue
 * When running the service, the queue's health status should appear as a local healthcheck: http://localhost:8082/health
 
-To run the app itself the following profiles need to be enabled: 'dev,localstack,local'
-therefore with gradle, run:
+To run the app locally the following profiles need to be enabled: 'dev, postgres, localstack, local', which have been bundled into a profile group 'dev-local'
+so with gradle, run:
 ```bash
-$ ./gradlew bootRun --args='--spring.profiles.active=dev,localstack,local'
+$ ./gradlew bootRun --args='--spring.profiles.active=dev-local'
 ```
