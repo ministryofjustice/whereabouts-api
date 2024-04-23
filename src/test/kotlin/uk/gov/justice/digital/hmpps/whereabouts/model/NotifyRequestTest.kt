@@ -15,6 +15,7 @@ class NotifyRequestTest {
   val courtId = "TC"
   val courtHearingType = CourtHearingType.APPEAL
   val prisonId = "WWI"
+  val prisonNumber = "G5526UN"
   val prisonName = "Prison name"
   val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 12, 34)
   val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
@@ -46,6 +47,7 @@ class NotifyRequestTest {
       comments = comments,
       prisonName = prisonName,
       courtName = courtName,
+      prisonNumber = prisonNumber,
     )
 
     val map = request.constructMapOfNotifyRequest()
@@ -73,6 +75,7 @@ class NotifyRequestTest {
       comments = comments,
       prisonName = prisonName,
       courtName = courtName,
+      prisonNumber = prisonNumber,
     )
 
     val map = request.constructMapOfNotifyRequest()
@@ -100,6 +103,7 @@ class NotifyRequestTest {
       comments = null,
       prisonName = prisonName,
       courtName = courtName,
+      prisonNumber = prisonNumber,
     )
 
     val map = request.constructMapOfNotifyRequest()
