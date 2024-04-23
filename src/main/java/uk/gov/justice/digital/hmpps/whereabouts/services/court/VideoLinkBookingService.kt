@@ -500,6 +500,7 @@ class VideoLinkBookingService(
       comments = videoLinkBooking.comment,
       prisonName = prisonName,
       courtName = courtName,
+      prisonNumber = activeOffenderBooking.offenderNo,
     )
   }
 
