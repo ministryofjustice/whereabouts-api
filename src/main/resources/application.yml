@@ -108,7 +108,7 @@ notify:
     prison:
       released: 5e1cfe03-8f0b-4d2f-aaa4-9628b145d28f
       released-but-no-court-email: a0edf532-e956-49ef-907a-80618ff2a7a3
-      transferred: 5fe80af4-1d1e-4c13-a524-dcca52bc7d0d
+      transferred: c74ecedc-dcdc-4ebd-8dc7-8194538d81d5
       transferred-but-no-court-email: 70050e95-7067-49e9-bbaf-3538d7604d23
     court:
       released: d3d166be-b439-466e-bd81-7114183335d9
