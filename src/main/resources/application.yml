@@ -52,7 +52,11 @@ spring:
     group:
       test:
         - "dev"
-
+      dev-local:
+        - "dev"
+        - "postgres"
+        - "local"
+        - "localstack"
 server:
   port: 8082
   servlet:
@@ -87,7 +91,7 @@ management:
 
 video-link-booking:
   booking-options-finder:
-    day-start: "09:00"
+    day-start: "10:00"
     day-end: "17:00"
     step: "PT15M"
     max-alternatives: 3

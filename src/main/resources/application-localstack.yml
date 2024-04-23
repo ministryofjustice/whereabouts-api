@@ -2,8 +2,24 @@ hmpps.sqs:
   provider: localstack
   queues:
     whereabouts:
-      queueName: whereabouts_api_queue
-      dlqName: whereabouts_api_dlq
+      queueName: ${random.uuid}
+      dlqName: ${random.uuid}
+      subscribeTopicId: prisonerevents
+      subscribeFilter: >-
+        {"eventType": [
+          "DATA_COMPLIANCE_DELETE-OFFENDER",
+          "APPOINTMENT_CHANGED"
+        ]}
     domainevent:
-      queueName: domainevent_api_queue
-      dlqName: domainevent_api_dlq
+      queueName: ${random.uuid}
+      dlqName: ${random.uuid}
+      subscribeTopicId: domainevents
+      subscribeFilter: >-
+        {"eventType": [
+          "prison-offender-events.prisoner.released"
+        ]}
+  topics:
+    domainevents:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+    prisonerevents:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}

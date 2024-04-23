@@ -408,7 +408,7 @@ class VideoLinkBookingService(
             hearingType = MAIN,
             startDateTime = LocalDateTime.parse(
               releasedOffenderEventMessage.occurredAt,
-              DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+              DateTimeFormatter.ISO_OFFSET_DATE_TIME,
             ),
             offenderBookingId = offenderBookingId,
             prisonId = releasedOffenderEventMessage.additionalInformation.prisonId,

@@ -1538,6 +1538,33 @@ class VideoLinkBookingServiceTest {
     }
 
     @Test
+    fun `Should delete BVL appointment and send emails to court and prison when release reason is TRANSFERRED when date is in summer time`() {
+      val message = ReleasedOffenderEventMessage(
+        occurredAt = "2024-04-01T17:07:58+01:00",
+        additionalInformation = AdditionalInformation(
+          prisonId = "SWI",
+          nomsNumber = "A7215DZ",
+          reason = Reason.TRANSFERRED,
+        ),
+      )
+
+      service.deleteAppointmentWhenTransferredOrReleased(message)
+
+      verify(
+        videoLinkAppointmentRepository,
+        times(1),
+      ).findAllByHearingTypeIsAndStartDateTimeIsAfterAndVideoLinkBookingOffenderBookingIdIsAndVideoLinkBookingPrisonIdIs(
+        HearingType.MAIN,
+        LocalDateTime.of(2024, 4, 1, 17, 7, 58),
+        1L,
+        "SWI",
+      )
+      verify(videoLinkBookingRepository, times(1)).deleteById(any())
+      verify(videoLinkBookingEventListener, times(1)).bookingDeleted(any())
+      verify(notifyService, times(1)).sendOffenderTransferredEmailToCourtAndPrison(any(), any(), any())
+    }
+
+    @Test
     fun `Should delete BVL appointment when release reason is TRANSFERRED and email prison only`() {
       val message = ReleasedOffenderEventMessage(
         occurredAt = "2023-11-20T17:07:58Z",
