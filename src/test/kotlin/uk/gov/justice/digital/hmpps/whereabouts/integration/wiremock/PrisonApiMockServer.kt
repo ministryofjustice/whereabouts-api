@@ -62,7 +62,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
   }
 
   fun stubUpdateAppointmentComment(appointmentId: Long, status: Int = HttpStatus.NO_CONTENT_204) {
-    val updateAppointmentUrl = "/api/appointments/$appointmentId/comment"
+    val updateAppointmentUrl = "/api/appointments/$appointmentId/comment/v2"
 
     stubFor(
       put(urlPathEqualTo(updateAppointmentUrl))

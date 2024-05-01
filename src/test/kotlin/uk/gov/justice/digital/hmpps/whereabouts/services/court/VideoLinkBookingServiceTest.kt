@@ -1382,9 +1382,9 @@ class VideoLinkBookingServiceTest {
 
       service.updateVideoLinkBookingComment(1L, newComment)
 
-      verify(prisonApiService).updateAppointmentComment(10L, newComment, EventPropagation.DENY)
-      verify(prisonApiService).updateAppointmentComment(11L, newComment, EventPropagation.DENY)
-      verify(prisonApiService).updateAppointmentComment(12L, newComment, EventPropagation.DENY)
+      verify(prisonApiService).updateAppointmentComment(10L, UpdateComment(newComment), EventPropagation.DENY)
+      verify(prisonApiService).updateAppointmentComment(11L, UpdateComment(newComment), EventPropagation.DENY)
+      verify(prisonApiService).updateAppointmentComment(12L, UpdateComment(newComment), EventPropagation.DENY)
       verifyNoMoreInteractions(prisonApiService)
     }
 
@@ -1410,7 +1410,7 @@ class VideoLinkBookingServiceTest {
 
       service.updateVideoLinkBookingComment(1L, newComment)
 
-      verify(prisonApiService).updateAppointmentComment(11L, newComment, EventPropagation.DENY)
+      verify(prisonApiService).updateAppointmentComment(11L, UpdateComment(newComment), EventPropagation.DENY)
       verifyNoMoreInteractions(prisonApiService)
     }
   }

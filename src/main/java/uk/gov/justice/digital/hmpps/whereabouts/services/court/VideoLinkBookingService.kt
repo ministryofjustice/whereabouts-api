@@ -270,7 +270,7 @@ class VideoLinkBookingService(
     booking.appointments.values.forEach {
       prisonApiService.updateAppointmentComment(
         it.appointmentId,
-        comment,
+        UpdateComment(comment),
         EventPropagation.DENY,
       )
     }
@@ -534,3 +534,5 @@ class VideoLinkBookingService(
     VIDEOLINK_CONFERENCING_CENTRE,
   }
 }
+
+data class UpdateComment(val comment: String?)

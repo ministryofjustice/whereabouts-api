@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
-import com.github.tomakehurst.wiremock.client.WireMock.absent
 import com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
@@ -19,6 +18,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMo
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation.ALLOW
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation.DENY
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.UpdateComment
 import java.time.LocalDate
 
 class PrisonApiServiceTest {
@@ -90,10 +90,10 @@ class PrisonApiServiceTest {
     val comment = "New comment"
 
     prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
-    prisonApiService.updateAppointmentComment(appointmentId, comment, ALLOW)
+    prisonApiService.updateAppointmentComment(appointmentId, UpdateComment(comment), ALLOW)
     prisonApiMockServer.verify(
-      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
-        .withRequestBody(equalTo(comment))
+      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment/v2"))
+        .withRequestBody(equalTo("""{"comment":"$comment"}"""))
         .withHeader("no-event-propagation", equalTo("false")),
     )
   }
@@ -104,10 +104,10 @@ class PrisonApiServiceTest {
     val comment = ""
 
     prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
-    prisonApiService.updateAppointmentComment(appointmentId, comment, ALLOW)
+    prisonApiService.updateAppointmentComment(appointmentId, UpdateComment(comment), ALLOW)
     prisonApiMockServer.verify(
-      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
-        .withRequestBody(absent())
+      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment/v2"))
+        .withRequestBody(equalTo("""{"comment":""}"""))
         .withHeader("no-event-propagation", equalTo("false")),
     )
   }
@@ -118,12 +118,11 @@ class PrisonApiServiceTest {
     val comment = null
 
     prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
-    prisonApiService.updateAppointmentComment(appointmentId, comment, ALLOW)
+    prisonApiService.updateAppointmentComment(appointmentId, UpdateComment(comment), ALLOW)
     prisonApiMockServer.verify(
-      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
+      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment/v2"))
         .withHeader("no-event-propagation", equalTo("false"))
-        .withRequestBody(absent()),
-    )
+        .withRequestBody(equalTo("""{"comment":null}""")))
   }
 
   @Test

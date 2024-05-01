@@ -35,6 +35,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.UpdateComment;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -369,12 +370,12 @@ public abstract class PrisonApi {
             .block();
     }
 
-    public void updateAppointmentComment(long appointmentId, @Nullable String comment, final EventPropagation propagation) {
+    public void updateAppointmentComment(long appointmentId, UpdateComment comment, final EventPropagation propagation) {
         webClient.put()
-            .uri("/appointments/{appointmentId}/comment", appointmentId)
+            .uri("/appointments/{appointmentId}/comment/v2", appointmentId)
             .header("no-event-propagation", propagation.doNotPropagate())
-            .contentType(MediaType.TEXT_PLAIN)
-            .body(comment != null ? BodyInserters.fromValue(comment) : BodyInserters.empty())
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(comment)
             .retrieve()
             .toBodilessEntity()
             .onErrorResume(WebClientResponseException.NotFound.class, notFound -> {
