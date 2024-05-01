@@ -651,7 +651,7 @@ VALUES (4, 438577491, 'MAIN',2, 1234L, '2020-12-25 08:00:00', '2020-12-25 09:00:
         .expectStatus().isNoContent
 
       prisonApiMockServer.verify(
-        WireMock.putRequestedFor(WireMock.urlEqualTo("/api/appointments/10/comment")),
+        WireMock.putRequestedFor(WireMock.urlEqualTo("/api/appointments/10/comment/v2")),
       )
     }
   }
