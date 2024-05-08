@@ -372,7 +372,7 @@ public abstract class PrisonApi {
 
     public void updateAppointmentComment(long appointmentId, UpdateComment comment, final EventPropagation propagation) {
         webClient.put()
-            .uri("/appointments/{appointmentId}/comment/v2", appointmentId)
+            .uri("/appointments/{appointmentId}/comment", appointmentId)
             .header("no-event-propagation", propagation.doNotPropagate())
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(comment)
