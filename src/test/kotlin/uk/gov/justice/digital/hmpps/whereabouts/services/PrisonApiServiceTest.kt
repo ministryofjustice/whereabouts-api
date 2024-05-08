@@ -92,7 +92,7 @@ class PrisonApiServiceTest {
     prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
     prisonApiService.updateAppointmentComment(appointmentId, UpdateComment(comment), ALLOW)
     prisonApiMockServer.verify(
-      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment/v2"))
+      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
         .withRequestBody(equalTo("""{"comment":"$comment"}"""))
         .withHeader("no-event-propagation", equalTo("false")),
     )
@@ -106,7 +106,7 @@ class PrisonApiServiceTest {
     prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
     prisonApiService.updateAppointmentComment(appointmentId, UpdateComment(comment), ALLOW)
     prisonApiMockServer.verify(
-      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment/v2"))
+      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
         .withRequestBody(equalTo("""{"comment":""}"""))
         .withHeader("no-event-propagation", equalTo("false")),
     )
@@ -120,9 +120,10 @@ class PrisonApiServiceTest {
     prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
     prisonApiService.updateAppointmentComment(appointmentId, UpdateComment(comment), ALLOW)
     prisonApiMockServer.verify(
-      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment/v2"))
+      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
         .withHeader("no-event-propagation", equalTo("false"))
-        .withRequestBody(equalTo("""{"comment":null}""")))
+        .withRequestBody(equalTo("""{"comment":null}""")),
+    )
   }
 
   @Test
