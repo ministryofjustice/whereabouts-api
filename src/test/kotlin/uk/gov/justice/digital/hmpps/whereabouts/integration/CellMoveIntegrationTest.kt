@@ -46,7 +46,7 @@ class CellMoveIntegrationTest : IntegrationTest() {
 
     prisonApiMockServer.verify(
       putRequestedFor(
-        urlEqualTo("/api/bookings/$SOME_BOOKING_ID/living-unit/$SOME_INTERNAL_LOCATION_DESCRIPTION?reasonCode=$SOME_REASON_CODE"),
+        urlEqualTo("/api/bookings/$SOME_BOOKING_ID/living-unit/$SOME_INTERNAL_LOCATION_DESCRIPTION?lockTimeout=true&reasonCode=$SOME_REASON_CODE"),
       ),
     )
   }

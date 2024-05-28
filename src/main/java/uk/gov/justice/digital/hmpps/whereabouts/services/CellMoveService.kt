@@ -24,7 +24,7 @@ class CellMoveService(
 ) {
 
   @Transactional
-  fun makeCellMove(cellMoveDetails: CellMoveDetails): CellMoveResult {
+  fun makeCellMove(cellMoveDetails: CellMoveDetails, lockTimeout: Boolean): CellMoveResult {
     val occurrenceDateTime = LocalDateTime.now(clock)
 
     log.info("Making a cell move: {}", cellMoveDetails.copy(commentText = ""))
@@ -33,6 +33,7 @@ class CellMoveService(
       cellMoveDetails.bookingId,
       cellMoveDetails.internalLocationDescriptionDestination,
       cellMoveDetails.cellMoveReasonCode,
+      lockTimeout,
     )
 
     log.info(
