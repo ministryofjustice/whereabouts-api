@@ -46,7 +46,35 @@ class CellMoveIntegrationTest : IntegrationTest() {
 
     prisonApiMockServer.verify(
       putRequestedFor(
-        urlEqualTo("/api/bookings/$SOME_BOOKING_ID/living-unit/$SOME_INTERNAL_LOCATION_DESCRIPTION?reasonCode=$SOME_REASON_CODE"),
+        urlEqualTo("/api/bookings/$SOME_BOOKING_ID/living-unit/$SOME_INTERNAL_LOCATION_DESCRIPTION?lockTimeout=false&reasonCode=$SOME_REASON_CODE"),
+      ),
+    )
+  }
+
+  @Test
+  fun `make a request to change an offenders cell with lock timeout`() {
+    stubCellMove(lockTimeout = true)
+
+    webTestClient.post()
+      .uri("/cell/make-cell-move?lockTimeout=true")
+      .bodyValue(
+        mapOf(
+          "bookingId" to SOME_BOOKING_ID,
+          "offenderNo" to SOME_OFFENDER_NO,
+          "internalLocationDescriptionDestination" to SOME_INTERNAL_LOCATION_DESCRIPTION,
+          "cellMoveReasonCode" to SOME_REASON_CODE,
+          "commentText" to SOME_TEXT,
+        ),
+      )
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isCreated
+      .expectBody()
+      .json(loadJsonFile("cell-move-details.json"))
+
+    prisonApiMockServer.verify(
+      putRequestedFor(
+        urlEqualTo("/api/bookings/$SOME_BOOKING_ID/living-unit/$SOME_INTERNAL_LOCATION_DESCRIPTION?lockTimeout=true&reasonCode=$SOME_REASON_CODE"),
       ),
     )
   }
@@ -116,13 +144,14 @@ class CellMoveIntegrationTest : IntegrationTest() {
       .json(loadJsonFile("cell-move-reason.json"))
   }
 
-  private fun stubCellMove() {
+  private fun stubCellMove(lockTimeout: Boolean = false) {
     prisonApiMockServer.stubMakeCellMove(
       bookingId = SOME_BOOKING_ID,
       agencyId = SOME_AGENCY_ID,
       assignedLivingUnitId = SOME_ASSIGNMENT_LIVING_UNIT_ID,
       internalLocationDescription = SOME_INTERNAL_LOCATION_DESCRIPTION,
       bedAssignmentHistorySequence = SOME_BED_ASSIGNMENT_SEQUENCE,
+      lockTimeout = lockTimeout,
     )
     caseNotesMockServer.stubCreateCaseNote(SOME_OFFENDER_NO, SOME_CASE_NOTE_ID)
   }

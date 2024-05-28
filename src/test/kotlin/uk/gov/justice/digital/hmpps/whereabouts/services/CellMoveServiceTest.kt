@@ -5,6 +5,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
@@ -42,6 +43,7 @@ class CellMoveServiceTest {
         cellMoveReasonCode = REASON_CODE,
         commentText = TEXT,
       ),
+      false,
     )
 
     assertThat(details.agencyId).isEqualTo(AGENCY_ID)
@@ -49,7 +51,7 @@ class CellMoveServiceTest {
     assertThat(details.assignedLivingUnitId).isEqualTo(ASSIGNED_LIVING_UNIT_ID)
     assertThat(details.agencyId).isEqualTo(AGENCY_ID)
 
-    verify(prisonApiService).putCellMove(BOOKING_ID, ASSIGNED_LIVING_UNIT_DESC, REASON_CODE)
+    verify(prisonApiService).putCellMove(BOOKING_ID, ASSIGNED_LIVING_UNIT_DESC, REASON_CODE, false)
   }
 
   @Test
@@ -66,6 +68,7 @@ class CellMoveServiceTest {
         cellMoveReasonCode = REASON_CODE,
         commentText = TEXT,
       ),
+      false,
     )
 
     verify(caseNoteService).postCaseNote(
@@ -91,6 +94,7 @@ class CellMoveServiceTest {
         cellMoveReasonCode = REASON_CODE,
         commentText = TEXT,
       ),
+      false,
     )
 
     verify(cellMoveRepository).save(
@@ -139,6 +143,7 @@ class CellMoveServiceTest {
         cellMoveReasonCode = REASON_CODE,
         commentText = TEXT,
       ),
+      false,
     )
 
     verify(telemetryClient).trackEvent(
@@ -154,7 +159,7 @@ class CellMoveServiceTest {
   }
 
   private fun stubPutCellMove() {
-    whenever(prisonApiService.putCellMove(anyLong(), anyString(), anyString()))
+    whenever(prisonApiService.putCellMove(anyLong(), anyString(), anyString(), eq(false)))
       .thenReturn(
         CellMoveResult(
           bookingId = BOOKING_ID,

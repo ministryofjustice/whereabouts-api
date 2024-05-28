@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveDetails
@@ -61,10 +62,11 @@ class CellMoveController {
     ],
   )
   fun makeCellMove(
+    @RequestParam(name = "lockTimeout", required = false, defaultValue = "false") lockTimeout: Boolean,
     @RequestBody @Valid
     cellMoveDetails: CellMoveDetails,
   ): CellMoveResponse =
-    CellMoveResponse(cellMoveResult = cellMoveService.makeCellMove(cellMoveDetails))
+    CellMoveResponse(cellMoveResult = cellMoveService.makeCellMove(cellMoveDetails, lockTimeout))
 
   @GetMapping("/cell-move-reason/booking/{bookingId}/bed-assignment-sequence/{bedAssignmentId}")
   @Operation(description = "Return cell move reason")

@@ -382,18 +382,6 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
-  fun stubGetAllLocationsForPrison(agencyId: String, locations: List<Location>) {
-    stubFor(
-      get(urlEqualTo("/api/agencies/$agencyId/locations"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withBody(gson.toJson(locations))
-            .withStatus(200),
-        ),
-    )
-  }
-
   fun stubGetAgencyLocationGroupsServerError(agencyId: String) {
     stubFor(
       get(urlEqualTo("/api/agencies/$agencyId/locations/groups"))
@@ -560,9 +548,10 @@ class PrisonApiMockServer : WireMockServer(8999) {
     assignedLivingUnitId: Long,
     agencyId: String,
     bedAssignmentHistorySequence: Int,
+    lockTimeout: Boolean,
   ) {
     stubFor(
-      put(urlPathEqualTo("/api/bookings/$bookingId/living-unit/$internalLocationDescription"))
+      put(urlEqualTo("/api/bookings/$bookingId/living-unit/$internalLocationDescription?lockTimeout=$lockTimeout&reasonCode=ADM"))
         .willReturn(
           aResponse()
             .withHeader("Content-type", "application/json")

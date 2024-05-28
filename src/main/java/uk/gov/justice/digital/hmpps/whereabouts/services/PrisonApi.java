@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.services;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -11,7 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -271,25 +269,6 @@ public abstract class PrisonApi {
         }
     }
 
-
-    public List<Location> getAllLocationsInAgency(final String agencyId) {
-        final var responseType = new ParameterizedTypeReference<List<Location>>() {
-        };
-
-        try {
-            return webClient.get()
-                .uri("/agencies/{agencyId}/locations", agencyId)
-                .retrieve()
-                .bodyToMono(responseType)
-                .block();
-        } catch (WebClientResponseException e) {
-            if (e.getStatusCode().equals(NOT_FOUND)) {
-                throw new EntityNotFoundException(String.format("Locations not found for agency %s", agencyId));
-            }
-            throw e;
-        }
-    }
-
     public List<CellWithAttributes> getCellsWithCapacity(final String agencyId, final String attribute) {
         final var responseType = new ParameterizedTypeReference<List<CellWithAttributes>>() {
         };
@@ -334,15 +313,19 @@ public abstract class PrisonApi {
             .block();
     }
 
-    public CellMoveResult putCellMove(final long bookingId, final String internalLocationDescription, final String reasonCode) {
+    public CellMoveResult putCellMove(final long bookingId, final String internalLocationDescription, final String reasonCode, final Boolean lockTimeout) {
         final var responseType = new ParameterizedTypeReference<CellMoveResult>() {
         };
 
         return webClient.put()
-            .uri("/bookings/{bookingId}/living-unit/{internalLocationDescription}?reasonCode={reasonCode}",
-                bookingId, internalLocationDescription, reasonCode)
+            .uri("/bookings/{bookingId}/living-unit/{internalLocationDescription}?lockTimeout={lockTimeout}&reasonCode={reasonCode}",
+                bookingId, internalLocationDescription, lockTimeout, reasonCode)
             .retrieve()
             .bodyToMono(responseType)
+            .onErrorResume(
+                WebClientResponseException.class,
+                e -> Mono.error(e.getStatusCode().value() == 423 ? new DatabaseRowLockedException() : e)
+            )
             .block();
     }
 
