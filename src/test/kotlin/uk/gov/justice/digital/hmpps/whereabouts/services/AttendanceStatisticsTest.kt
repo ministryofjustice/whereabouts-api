@@ -264,7 +264,7 @@ class AttendanceStatisticsTest {
       )
         .thenReturn(attendances.filter { setOf(1L, 2L, 3L).contains(it.bookingId) }.toSet())
 
-      val stats = service.getStats(prisonId, null, from, to)
+      service.getStats(prisonId, null, from, to)
 
       verify(prisonApiService).getScheduleActivityCounts(
         prisonId,

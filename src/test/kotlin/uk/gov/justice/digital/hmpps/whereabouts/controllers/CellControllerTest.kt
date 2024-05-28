@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyLong
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
@@ -38,7 +39,7 @@ class CellControllerTest : TestController() {
   @Test
   @WithMockUser(username = "ITAG_USER")
   fun `handle not found errors correctly`() {
-    whenever(cellMoveService.makeCellMove(any())).thenThrow(EntityNotFoundException(SOME_ERROR_MESSAGE))
+    whenever(cellMoveService.makeCellMove(any(), eq(false))).thenThrow(EntityNotFoundException(SOME_ERROR_MESSAGE))
 
     mockMvc.perform(
       post("/cell/make-cell-move")
@@ -60,7 +61,7 @@ class CellControllerTest : TestController() {
   @Test
   @WithMockUser(username = "ITAG_USER")
   fun `handle server errors correctly`() {
-    whenever(cellMoveService.makeCellMove(any())).thenThrow(RestClientException(SOME_ERROR_MESSAGE))
+    whenever(cellMoveService.makeCellMove(any(), eq(false))).thenThrow(RestClientException(SOME_ERROR_MESSAGE))
 
     mockMvc.perform(
       post("/cell/make-cell-move")
@@ -81,8 +82,8 @@ class CellControllerTest : TestController() {
 
   @Test
   @WithMockUser(username = "ITAG_USER")
-  fun `return cll move details`() {
-    whenever(cellMoveService.makeCellMove(any()))
+  fun `return cell move details`() {
+    whenever(cellMoveService.makeCellMove(any(), eq(false)))
       .thenReturn(
         CellMoveResult(
           bookingId = SOME_BOOKING_ID.toLong(),

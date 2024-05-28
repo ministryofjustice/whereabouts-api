@@ -548,9 +548,10 @@ class PrisonApiMockServer : WireMockServer(8999) {
     assignedLivingUnitId: Long,
     agencyId: String,
     bedAssignmentHistorySequence: Int,
+    lockTimeout: Boolean,
   ) {
     stubFor(
-      put(urlPathEqualTo("/api/bookings/$bookingId/living-unit/$internalLocationDescription?lockTimeout=true"))
+      put(urlEqualTo("/api/bookings/$bookingId/living-unit/$internalLocationDescription?lockTimeout=$lockTimeout&reasonCode=ADM"))
         .willReturn(
           aResponse()
             .withHeader("Content-type", "application/json")
