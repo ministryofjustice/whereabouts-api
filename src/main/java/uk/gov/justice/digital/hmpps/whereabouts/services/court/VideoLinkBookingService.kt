@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
@@ -511,7 +512,7 @@ class VideoLinkBookingService(
         prisonId,
         DepartmentType.VIDEOLINK_CONFERENCING_CENTRE,
       )?.emailAddress
-    } catch (e: EntityNotFoundException) {
+    } catch (e: WebClientResponseException) {
       log.info(
         "Could not get prison VCC email address for {} from prisonRegister. Exception message {}",
         prisonId,
@@ -524,7 +525,7 @@ class VideoLinkBookingService(
   fun getPrisonName(prisonId: String): String? {
     try {
       return prisonRegisterClient.getPrisonDetails(prisonId)?.prisonName
-    } catch (e: EntityNotFoundException) {
+    } catch (e: WebClientResponseException) {
       log.info("Could not get prison name for {} from prisonRegister. Error message: {}", prisonId, e.message)
     }
     return null
