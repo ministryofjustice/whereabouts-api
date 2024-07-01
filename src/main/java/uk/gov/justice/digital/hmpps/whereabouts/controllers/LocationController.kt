@@ -22,6 +22,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.LocationService
 @Tag(name = "locations")
 @RestController
 @RequestMapping(value = ["locations"], produces = [MediaType.APPLICATION_JSON_VALUE])
+@Deprecated(message = "Replaced by endpoints in locations inside in prison https://locations-inside-prison-api.hmpps.service.justice.gov.uk")
 class LocationController(private val locationService: LocationService) {
 
   @GetMapping("/groups/{agencyId}/{name}")
@@ -40,6 +41,7 @@ class LocationController(private val locationService: LocationService) {
       ),
     ],
   )
+  @Deprecated(message = "Replaced by endpoint in locations inside in prison https://locations-inside-prison-api.hmpps.service.justice.gov.uk")
   fun getLocationGroup(
     @Parameter(description = "The prison", required = true)
     @PathVariable("agencyId")
@@ -94,6 +96,7 @@ class LocationController(private val locationService: LocationService) {
       ),
     ],
   )
+  @Deprecated(message = "Replaced by endpoint in locations inside in prison https://locations-inside-prison-api.hmpps.service.justice.gov.uk")
   fun getCellsWithCapacityForGroup(
     @Parameter(description = "The prison", required = true)
     @PathVariable("agencyId")
@@ -147,6 +150,7 @@ class LocationController(private val locationService: LocationService) {
       ),
     ],
   )
+  @Deprecated(message = "Replaced by endpoint in locations inside in prison https://locations-inside-prison-api.hmpps.service.justice.gov.uk")
   fun getLocationPrefixFromGroup(
     @Parameter(description = "The prison", required = true)
     @PathVariable("agencyId")
