@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.LocationService
 
 @Tag(name = "video-link-booking-rooms")
 @RestController
+@Deprecated(message = "Location service provides this data")
 class VideoLinkBookingRoomsController(
   private val locationService: LocationService,
 
