@@ -68,6 +68,7 @@ class AgencyController(
       ],
     ),
   )
+  @Deprecated(message = "Replaced by endpoint in locations inside in prison https://locations-inside-prison-api.hmpps.service.justice.gov.uk/locations/prison/{prisonId}/groups")
   fun getAvailableLocationGroups(
     @Parameter(
       description = "The prison",
@@ -100,6 +101,7 @@ class AgencyController(
       ),
     ],
   )
+  @Deprecated(message = "Not used - will be removed")
   fun getWhereabouts(
     @Parameter(
       description = "The prison",

@@ -18,9 +18,7 @@ class LocationGroupServiceSelector(
 
   override fun getLocationGroups(agencyId: String): List<LocationGroup> {
     val groups = overrideService.getLocationGroups(agencyId)
-    return if (groups.isNotEmpty()) {
-      groups
-    } else {
+    return groups.ifEmpty {
       defaultService.getLocationGroups(agencyId)
     }
   }
