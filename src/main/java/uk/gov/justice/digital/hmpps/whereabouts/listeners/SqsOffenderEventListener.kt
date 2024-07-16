@@ -7,6 +7,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
@@ -18,9 +19,14 @@ class SqsOffenderEventListener(
   @Qualifier("videoLinkBookingServiceAppScope")
   private val videoLinkBookingService: VideoLinkBookingService,
   private val gson: Gson,
+  @Value("\${feature.bvls.enabled}") private val bvlsEnabled: Boolean,
 ) {
   companion object {
-    val log: Logger = LoggerFactory.getLogger(this::class.java)
+    private val log: Logger = LoggerFactory.getLogger(this::class.java)
+  }
+
+  init {
+    log.info("BVLS enabled=$bvlsEnabled for offender events")
   }
 
   @SqsListener("whereabouts", factory = "hmppsQueueContainerFactoryProxy")
@@ -44,8 +50,10 @@ class SqsOffenderEventListener(
         }
 
         "APPOINTMENT_CHANGED" -> {
-          val appointmentChangedEventMessage = gson.fromJson(message, AppointmentChangedEventMessage::class.java)
-          videoLinkBookingService.processNomisUpdate(appointmentChangedEventMessage)
+          if (bvlsEnabled) {
+            val appointmentChangedEventMessage = gson.fromJson(message, AppointmentChangedEventMessage::class.java)
+            videoLinkBookingService.processNomisUpdate(appointmentChangedEventMessage)
+          }
         }
       }
     } catch (e: Exception) {

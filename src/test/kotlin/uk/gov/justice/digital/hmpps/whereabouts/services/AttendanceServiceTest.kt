@@ -73,13 +73,13 @@ class AttendanceServiceTest {
       comments = "hello",
     )
 
-  private val START = LocalDate.of(2021, 3, 14)
-  private val MOORLAND = "MDI"
+  private val start = LocalDate.of(2021, 3, 14)
+  private val moorland = "MDI"
   private val testAttendanceHistoryDto =
     AttendanceHistoryDto(
-      eventDate = START,
+      eventDate = start,
       comments = "Test comment",
-      location = MOORLAND,
+      location = moorland,
       activity = "a",
       activityDescription = "d",
     )
