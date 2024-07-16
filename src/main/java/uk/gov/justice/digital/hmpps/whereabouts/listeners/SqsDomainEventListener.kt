@@ -7,6 +7,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 
@@ -15,29 +16,36 @@ class SqsDomainEventListener(
   @Qualifier("videoLinkBookingServiceAppScope")
   private val videoLinkBookingService: VideoLinkBookingService,
   private val gson: Gson,
+  @Value("\${feature.bvls.enabled}") private val bvlsEnabled: Boolean,
 ) {
   companion object {
-    val log: Logger = LoggerFactory.getLogger(this::class.java)
+    private val log: Logger = LoggerFactory.getLogger(this::class.java)
+  }
+
+  init {
+    log.info("BVLS enabled=$bvlsEnabled for domain events")
   }
 
   @SqsListener("domainevent", factory = "hmppsQueueContainerFactoryProxy")
   @WithSpan(value = "map-devs-hmpps_whereabouts_api_domain_queue", kind = SpanKind.SERVER)
   fun handleDomainEvents(requestJson: String?) {
-    try {
-      log.info("Raw domain event message: {}", requestJson)
-      val (message, messageAttributes) = gson.fromJson(requestJson, Message::class.java)
-      val eventType = messageAttributes.eventType.value
-      log.info("Processing message of type {}", eventType)
+    if (bvlsEnabled) {
+      try {
+        log.info("Raw domain event message: {}", requestJson)
+        val (message, messageAttributes) = gson.fromJson(requestJson, Message::class.java)
+        val eventType = messageAttributes.eventType.value
+        log.info("Processing message of type {}", eventType)
 
-      when (eventType) {
-        "prison-offender-events.prisoner.released" -> {
-          val transferEventMessage = gson.fromJson(message, ReleasedOffenderEventMessage::class.java)
-          videoLinkBookingService.deleteAppointmentWhenTransferredOrReleased(transferEventMessage)
+        when (eventType) {
+          "prison-offender-events.prisoner.released" -> {
+            val transferEventMessage = gson.fromJson(message, ReleasedOffenderEventMessage::class.java)
+            videoLinkBookingService.deleteAppointmentWhenTransferredOrReleased(transferEventMessage)
+          }
         }
+      } catch (e: Exception) {
+        log.error("processDomainEvent() Unexpected error", e)
+        throw e
       }
-    } catch (e: Exception) {
-      log.error("processDomainEvent() Unexpected error", e)
-      throw e
     }
   }
 }
