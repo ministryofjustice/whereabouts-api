@@ -46,10 +46,8 @@ class LocationService(
       .map { it.copy(description = it.description.formatLocation()) }
       .toList()
 
-
   private fun String.formatLocation(): String =
     WordUtils.capitalizeFully(this)
       .replace(Regex("hmp|Hmp"), "HMP")
       .replace(Regex("yoi|Yoi"), "YOI")
-
 }
