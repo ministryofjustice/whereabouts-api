@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationIdAndDescription
 import java.util.Properties
@@ -179,64 +178,6 @@ class LocationServiceTest {
       .thenReturn(Predicate { false })
 
     val group = locationService.getCellLocationsForGroup("LEI", "mylist")
-
-    assertThat(group).isEmpty()
-  }
-
-  @Test
-  fun `getCellsWithCapacityForGroup - cells match predicate`() {
-    whenever(prisonApiService.getCellsWithCapacity("LEI", null))
-      .thenReturn(
-        listOf(
-          CellWithAttributes(
-            id = 1L,
-            description = "LEI-1-1",
-            userDescription = "Dormitory",
-            noOfOccupants = 1,
-            capacity = 2,
-          ),
-          CellWithAttributes(
-            id = 2L,
-            description = "LEI-1-2",
-            userDescription = "Dormitory",
-            noOfOccupants = 1,
-            capacity = 2,
-          ),
-        ),
-      )
-    whenever(locationGroupService.locationGroupFilter("LEI", "myList"))
-      .thenReturn(locationPrefixPredicate("LEI-1-1", "LEI-1-2"))
-
-    val group = locationService.getCellsWithCapacityForGroup("LEI", "myList", null)
-
-    assertThat(group).extracting("description").containsExactlyInAnyOrder("LEI-1-1", "LEI-1-2")
-  }
-
-  @Test
-  fun `getCellsWithCapacityForGroup - no cells match predicate`() {
-    whenever(prisonApiService.getCellsWithCapacity("LEI", null))
-      .thenReturn(
-        listOf(
-          CellWithAttributes(
-            id = 1L,
-            description = "LEI-1-1",
-            userDescription = "Dormitory",
-            noOfOccupants = 1,
-            capacity = 2,
-          ),
-          CellWithAttributes(
-            id = 2L,
-            description = "LEI-1-2",
-            userDescription = "Dormitory",
-            noOfOccupants = 1,
-            capacity = 2,
-          ),
-        ),
-      )
-    whenever(locationGroupService.locationGroupFilter("LEI", "myList"))
-      .thenReturn(Predicate { false })
-
-    val group = locationService.getCellsWithCapacityForGroup("LEI", "myList", null)
 
     assertThat(group).isEmpty()
   }
