@@ -28,7 +28,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.ScheduledEventDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto;
-import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment;
@@ -264,25 +263,6 @@ public abstract class PrisonApi {
         } catch (WebClientResponseException e) {
             if (e.getStatusCode().equals(NOT_FOUND)) {
                 throw new EntityNotFoundException(String.format("Booking details not found for bookingId %s ", bookingId));
-            }
-            throw e;
-        }
-    }
-
-    public List<CellWithAttributes> getCellsWithCapacity(final String agencyId, final String attribute) {
-        final var responseType = new ParameterizedTypeReference<List<CellWithAttributes>>() {
-        };
-        final var uri = attribute != null ? "/agencies/{agencyId}/cellsWithCapacity?attribute={attribute}" : "/agencies/{agencyId}/cellsWithCapacity";
-
-        try {
-            return webClient.get()
-                .uri(uri, agencyId, attribute)
-                .retrieve()
-                .bodyToMono(responseType)
-                .block();
-        } catch (WebClientResponseException e) {
-            if (e.getStatusCode().equals(NOT_FOUND)) {
-                throw new EntityNotFoundException(String.format("No cells with capacity for agency %s and attribute %s", agencyId, attribute));
             }
             throw e;
         }
