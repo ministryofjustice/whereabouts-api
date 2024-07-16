@@ -9,18 +9,18 @@ import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDateTime
 
 class VideoLinkBookingTest {
-  val COURT_NAME = "The Court"
-  val COURT_ID = "TC"
-  val COURT_HEARING_TYPE = CourtHearingType.APPEAL
-  val PRISON_ID = "WWI"
-  val START_DATE_TIME = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
-  val END_DATE_TIME = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
+  private val courtName = "The Court"
+  private val courtId = "TC"
+  private val courtHearingType = CourtHearingType.APPEAL
+  private val prisonId = "WWI"
+  private val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
+  private val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
 
-  var videoLinkBooking =
-    DataHelpers.makeVideoLinkBooking(id = 1L, courtName = COURT_NAME, courtId = COURT_ID, courtHearingType = COURT_HEARING_TYPE, offenderBookingId = 1L, prisonId = PRISON_ID).apply {
-      addPreAppointment(1L, 10L, START_DATE_TIME, END_DATE_TIME)
-      addMainAppointment(2L, 20L, START_DATE_TIME, END_DATE_TIME)
-      addPostAppointment(3L, 30L, START_DATE_TIME, END_DATE_TIME)
+  private val videoLinkBooking =
+    DataHelpers.makeVideoLinkBooking(id = 1L, courtName = courtName, courtId = courtId, courtHearingType = courtHearingType, offenderBookingId = 1L, prisonId = prisonId).apply {
+      addPreAppointment(1L, 10L, startDateTime, endDateTime)
+      addMainAppointment(2L, 20L, startDateTime, endDateTime)
+      addPostAppointment(3L, 30L, startDateTime, endDateTime)
     }
 
   @Test
@@ -49,7 +49,7 @@ class VideoLinkBookingTest {
 
   @Test
   fun `no appointments`() {
-    val vlb = VideoLinkBooking(offenderBookingId = 1L, prisonId = PRISON_ID)
+    val vlb = VideoLinkBooking(offenderBookingId = 1L, prisonId = prisonId)
     assertThat(vlb.appointments[PRE]).isNull()
     assertThat(vlb.appointments[MAIN]).isNull()
     assertThat(vlb.appointments[POST]).isNull()

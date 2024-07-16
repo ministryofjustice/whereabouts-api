@@ -15,14 +15,14 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtRepository
 
 class CourtServiceTest {
 
-  val repository: CourtRepository = mock()
+  private val repository: CourtRepository = mock()
 
-  val DERBY_JC_ID = "DRBYJC"
-  val DERBY_JC_NAME = "Derby Justice Centre"
-  val DERBY_JC_EMAIL = "derby@derby.org"
+  private val derbyJcId = "DRBYJC"
+  private val derbyJcName = "Derby Justice Centre"
+  private val derbyJcEmail = "derby@derby.org"
 
-  val courts = listOf(
-    Court(DERBY_JC_ID, DERBY_JC_NAME, DERBY_JC_EMAIL),
+  private val courts = listOf(
+    Court(derbyJcId, derbyJcName, derbyJcEmail),
     Court("DUDLMC", "Dudley"),
     Court("HERFCC", "Hereford Crown"),
 
@@ -49,14 +49,14 @@ class CourtServiceTest {
   @Test
   fun `courtNames`() {
     val service = CourtService(repository)
-    assertThat(service.courtNames).containsExactly(DERBY_JC_NAME, "Dudley", "Hereford Crown")
+    assertThat(service.courtNames).containsExactly(derbyJcName, "Dudley", "Hereford Crown")
   }
 
   @Nested
   inner class FindName {
     @Test
     fun `found`() {
-      assertThat(CourtService(repository).getCourtNameForCourtId(DERBY_JC_ID)).isEqualTo(DERBY_JC_NAME)
+      assertThat(CourtService(repository).getCourtNameForCourtId(derbyJcId)).isEqualTo(derbyJcName)
     }
 
     @Test
@@ -69,7 +69,7 @@ class CourtServiceTest {
   inner class FindEmail {
     @Test
     fun `found`() {
-      assertThat(CourtService(repository).getCourtEmailForCourtId(DERBY_JC_ID)).isEqualTo(DERBY_JC_EMAIL)
+      assertThat(CourtService(repository).getCourtEmailForCourtId(derbyJcId)).isEqualTo(derbyJcEmail)
     }
 
     @Test
@@ -82,13 +82,13 @@ class CourtServiceTest {
   inner class FindId {
     @Test
     fun `perfect match`() {
-      assertThat(CourtService(repository).getCourtIdForCourtName(DERBY_JC_NAME)).isEqualTo(DERBY_JC_ID)
+      assertThat(CourtService(repository).getCourtIdForCourtName(derbyJcName)).isEqualTo(derbyJcId)
     }
 
     @Test
     fun `case insensitive match with whitespace`() {
-      assertThat(CourtService(repository).getCourtIdForCourtName(" ${DERBY_JC_NAME.uppercase()}  ")).isEqualTo(
-        DERBY_JC_ID,
+      assertThat(CourtService(repository).getCourtIdForCourtName(" ${derbyJcName.uppercase()}  ")).isEqualTo(
+        derbyJcId,
       )
     }
   }
