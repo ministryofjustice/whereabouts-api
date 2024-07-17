@@ -11,7 +11,6 @@ generic-service:
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
     NOTIFY_ENABLED: true
     PRISONREGISTER_ENDPOINT_URL: "https://prison-register-dev.hmpps.service.justice.gov.uk"
-    FEATURE_BVLS_ENABLED: "false"
 
   allowlist:
     groups:
