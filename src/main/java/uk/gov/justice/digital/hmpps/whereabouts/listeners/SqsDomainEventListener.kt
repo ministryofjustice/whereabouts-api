@@ -46,6 +46,8 @@ class SqsDomainEventListener(
         log.error("processDomainEvent() Unexpected error", e)
         throw e
       }
+    } else {
+      log.info("Ignoring domain events for BVLS, BVLS feature is disabled.")
     }
   }
 }
