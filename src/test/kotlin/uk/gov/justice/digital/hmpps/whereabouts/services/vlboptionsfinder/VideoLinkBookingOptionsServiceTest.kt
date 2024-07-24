@@ -38,10 +38,10 @@ class VideoLinkBookingOptionsServiceTest {
       service()
         .findVideoLinkBookingOptions(
           VideoLinkBookingSearchSpecification(
-            date = SEARCH_DATE,
+            date = searchDate,
             agencyId = AGENCY_ID,
             preAppointment = null,
-            mainAppointment = LocationAndInterval(location1, dontCareInterval),
+            mainAppointment = LocationAndInterval(LOCATION_1, dontCareInterval),
           ),
         ),
     ).isEqualTo(theResult)
@@ -67,16 +67,16 @@ class VideoLinkBookingOptionsServiceTest {
       )
 
     val specification = VideoLinkBookingSearchSpecification(
-      date = SEARCH_DATE,
+      date = searchDate,
       agencyId = AGENCY_ID,
       preAppointment = null,
-      mainAppointment = LocationAndInterval(location1, dontCareInterval),
+      mainAppointment = LocationAndInterval(LOCATION_1, dontCareInterval),
     )
 
     service().findVideoLinkBookingOptions(specification)
 
     verify {
-      prisonApiService.getScheduledAppointments(eq(AGENCY_ID), eq(SEARCH_DATE), isNull(), eq(location1))
+      prisonApiService.getScheduledAppointments(eq(AGENCY_ID), eq(searchDate), isNull(), eq(LOCATION_1))
     }
 
     verify {
@@ -115,11 +115,11 @@ class VideoLinkBookingOptionsServiceTest {
       )
 
     val specification = VideoLinkBookingSearchSpecification(
-      date = SEARCH_DATE,
+      date = searchDate,
       agencyId = AGENCY_ID,
       preAppointment = null,
-      mainAppointment = LocationAndInterval(location1, dontCareInterval),
-      vlbIdToExclude = excludedVideoLinkBookingId,
+      mainAppointment = LocationAndInterval(LOCATION_1, dontCareInterval),
+      vlbIdToExclude = EXCLUDED_VIDEO_LINK_BOOKING_ID,
     )
     service().findVideoLinkBookingOptions(specification)
 
@@ -131,7 +131,7 @@ class VideoLinkBookingOptionsServiceTest {
         )
     }
 
-    verify { videoLinkBookingRepository.findById(excludedVideoLinkBookingId) }
+    verify { videoLinkBookingRepository.findById(EXCLUDED_VIDEO_LINK_BOOKING_ID) }
   }
 
   @Test
@@ -149,34 +149,34 @@ class VideoLinkBookingOptionsServiceTest {
       Optional.of(excludedVideoLinkBooking)
 
     every {
-      prisonApiService.getScheduledAppointments(any(), any(), isNull(), location1)
+      prisonApiService.getScheduledAppointments(any(), any(), isNull(), LOCATION_1)
     } returns
       listOf(appt_location1_excl_main, appt2_location1)
 
     every {
-      prisonApiService.getScheduledAppointments(any(), any(), isNull(), location2)
+      prisonApiService.getScheduledAppointments(any(), any(), isNull(), LOCATION_2)
     } returns
       listOf(appt_location2_excl_pre, appt2_location2)
 
     every {
-      prisonApiService.getScheduledAppointments(any(), any(), isNull(), location3)
+      prisonApiService.getScheduledAppointments(any(), any(), isNull(), LOCATION_3)
     } returns
       listOf(appt_location3_excl_post, appt2_location3)
 
     val specification = VideoLinkBookingSearchSpecification(
-      date = SEARCH_DATE,
+      date = searchDate,
       agencyId = AGENCY_ID,
-      preAppointment = LocationAndInterval(location2, dontCareInterval),
-      mainAppointment = LocationAndInterval(location1, dontCareInterval),
-      postAppointment = LocationAndInterval(location3, dontCareInterval),
-      vlbIdToExclude = excludedVideoLinkBookingId,
+      preAppointment = LocationAndInterval(LOCATION_2, dontCareInterval),
+      mainAppointment = LocationAndInterval(LOCATION_1, dontCareInterval),
+      postAppointment = LocationAndInterval(LOCATION_3, dontCareInterval),
+      vlbIdToExclude = EXCLUDED_VIDEO_LINK_BOOKING_ID,
     )
 
     service().findVideoLinkBookingOptions(specification)
 
-    verify { prisonApiService.getScheduledAppointments(AGENCY_ID, SEARCH_DATE, null, location1) }
-    verify { prisonApiService.getScheduledAppointments(AGENCY_ID, SEARCH_DATE, null, location2) }
-    verify { prisonApiService.getScheduledAppointments(AGENCY_ID, SEARCH_DATE, null, location3) }
+    verify { prisonApiService.getScheduledAppointments(AGENCY_ID, searchDate, null, LOCATION_1) }
+    verify { prisonApiService.getScheduledAppointments(AGENCY_ID, searchDate, null, LOCATION_2) }
+    verify { prisonApiService.getScheduledAppointments(AGENCY_ID, searchDate, null, LOCATION_3) }
 
     verify {
       videoLinkBookingOptionsFinder
@@ -193,40 +193,40 @@ class VideoLinkBookingOptionsServiceTest {
 
   companion object {
     const val DONT_CARE = "Don't care"
-    const val excludedVideoLinkBookingId = 100L
-    const val excludedMainAppointmentId = 1L
-    const val excludedPreAppointmentId = 2L
-    const val excludedPostAppointmentId = 3L
+    const val EXCLUDED_VIDEO_LINK_BOOKING_ID = 100L
+    const val EXCLUDED_MAIN_APPOINTMENT_ID = 1L
+    const val EXCLUDED_PRE_APPOINTMENT_ID = 2L
+    const val EXCLUDED_POST_APPOINTMENT_ID = 3L
 
-    const val location1 = 11L
-    const val location2 = 12L
-    const val location3 = 13L
+    const val LOCATION_1 = 11L
+    const val LOCATION_2 = 12L
+    const val LOCATION_3 = 13L
 
     // Tests aren't concerned with the following values
-    val SEARCH_DATE: LocalDate = LocalDate.of(2020, 1, 1)
+    val searchDate: LocalDate = LocalDate.of(2020, 1, 1)
     val dontCareTime: LocalTime = LocalTime.of(9, 0)
-    val dontCareDateTime: LocalDateTime = SEARCH_DATE.atTime(dontCareTime)
+    val dontCareDateTime: LocalDateTime = searchDate.atTime(dontCareTime)
 
     const val AGENCY_ID = "WWI"
     val startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0)
     val endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0)
-    const val dontCareOffenderNo = "C3456CC"
+    const val DONT_CARE_OFFENDER_NO = "C3456CC"
     val dontCareInterval = Interval(dontCareTime, dontCareTime)
 
     // appointmentTypeCode doesn't matter. All appointments for a room make the room unavailable.
-    val appt1_location1 = appointmentDto(location1, excludedMainAppointmentId, "VLAA")
-    val appt2_location1 = appointmentDto(location1, 20L)
+    val appt1_location1 = appointmentDto(LOCATION_1, EXCLUDED_MAIN_APPOINTMENT_ID, "VLAA")
+    val appt2_location1 = appointmentDto(LOCATION_1, 20L)
 
     // Always excluded because endTime == null
     val appt3_location1_no_end_time =
       ScheduledAppointmentSearchDto(
         id = 30L,
         agencyId = AGENCY_ID,
-        locationId = location1,
+        locationId = LOCATION_1,
         appointmentTypeCode = "VLB",
         startTime = dontCareDateTime,
         endTime = null,
-        offenderNo = dontCareOffenderNo,
+        offenderNo = DONT_CARE_OFFENDER_NO,
         appointmentTypeDescription = DONT_CARE,
         createUserId = DONT_CARE,
         firstName = DONT_CARE,
@@ -234,36 +234,36 @@ class VideoLinkBookingOptionsServiceTest {
         locationDescription = DONT_CARE,
       )
 
-    val appt1_location2 = appointmentDto(location2, excludedPreAppointmentId)
-    val appt2_location2 = appointmentDto(location2, 40L)
+    val appt1_location2 = appointmentDto(LOCATION_2, EXCLUDED_PRE_APPOINTMENT_ID)
+    val appt2_location2 = appointmentDto(LOCATION_2, 40L)
 
-    val appt1_location3 = appointmentDto(location3, excludedPostAppointmentId)
-    val appt2_location3 = appointmentDto(location3, 50L)
+    val appt1_location3 = appointmentDto(LOCATION_3, EXCLUDED_POST_APPOINTMENT_ID)
+    val appt2_location3 = appointmentDto(LOCATION_3, 50L)
 
     val appt_location1_excl_main = appt1_location1
     val appt_location2_excl_pre = appt1_location2
     val appt_location3_excl_post = appt1_location3
 
     val excludedVideoLinkBookingMainOnly = DataHelpers.makeVideoLinkBooking(
-      id = excludedVideoLinkBookingId,
+      id = EXCLUDED_VIDEO_LINK_BOOKING_ID,
       offenderBookingId = 999L,
       courtName = DONT_CARE,
       courtId = DONT_CARE,
       prisonId = AGENCY_ID,
     ).apply {
-      addMainAppointment(excludedMainAppointmentId, 20L, startDateTime, endDateTime, 9999L)
+      addMainAppointment(EXCLUDED_MAIN_APPOINTMENT_ID, 20L, startDateTime, endDateTime, 9999L)
     }
 
     val excludedVideoLinkBooking = DataHelpers.makeVideoLinkBooking(
-      id = excludedVideoLinkBookingId,
+      id = EXCLUDED_VIDEO_LINK_BOOKING_ID,
       offenderBookingId = 999L,
       courtName = DONT_CARE,
       courtId = DONT_CARE,
       prisonId = AGENCY_ID,
     ).apply {
-      addMainAppointment(excludedMainAppointmentId, 20L, startDateTime, endDateTime, 9999L)
-      addPreAppointment(excludedPreAppointmentId, 20L, startDateTime, endDateTime, 9998L)
-      addPostAppointment(excludedPostAppointmentId, 20L, startDateTime, endDateTime, 9997L)
+      addMainAppointment(EXCLUDED_MAIN_APPOINTMENT_ID, 20L, startDateTime, endDateTime, 9999L)
+      addPreAppointment(EXCLUDED_PRE_APPOINTMENT_ID, 20L, startDateTime, endDateTime, 9998L)
+      addPostAppointment(EXCLUDED_POST_APPOINTMENT_ID, 20L, startDateTime, endDateTime, 9997L)
     }
 
     fun appointmentDto(locationId: Long, id: Long, appointmentTypeCode: String = "VLB"): ScheduledAppointmentSearchDto =
@@ -274,7 +274,7 @@ class VideoLinkBookingOptionsServiceTest {
         appointmentTypeCode = appointmentTypeCode,
         startTime = dontCareDateTime,
         endTime = dontCareDateTime,
-        offenderNo = dontCareOffenderNo,
+        offenderNo = DONT_CARE_OFFENDER_NO,
         appointmentTypeDescription = DONT_CARE,
         createUserId = DONT_CARE,
         firstName = DONT_CARE,
