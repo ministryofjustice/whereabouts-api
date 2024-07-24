@@ -10,20 +10,20 @@ class LocationGroupFromElite2ServiceTest {
   private val prisonApiService: PrisonApiService = mock()
   private val service = LocationGroupFromPrisonApiService(prisonApiService)
 
-  private val CELL_A_1: Location =
+  private val cellA1: Location =
     aLocation(locationId = -320L, locationType = "CELL", description = "LEI-A-1-001", parentLocationId = -32L)
-  private val CELL_AA_1: Location =
+  private val cellAA1: Location =
     aLocation(locationId = -320L, locationType = "CELL", description = "LEI-AA-1-001", parentLocationId = -32L)
-  private val CELL_A_3: Location =
+  private val cellA3: Location =
     aLocation(locationId = -320L, locationType = "CELL", description = "LEI-A-3-001", parentLocationId = -32L)
-  private val CELL_B_1: Location =
+  private val cellB1: Location =
     aLocation(locationId = -320L, locationType = "CELL", description = "LEI-B-2-001", parentLocationId = -32L)
 
   @Test
   fun locationGroupFilters() {
     val filter = service.locationGroupFilter("LEI", "A")
-    assertThat(listOf(CELL_A_1, CELL_A_3, CELL_B_1, CELL_AA_1).filter(filter::test))
-      .containsExactlyInAnyOrder(CELL_A_1, CELL_A_3)
+    assertThat(listOf(cellA1, cellA3, cellB1, cellAA1).filter(filter::test))
+      .containsExactlyInAnyOrder(cellA1, cellA3)
   }
 
   private fun aLocation(locationId: Long, locationType: String, description: String, parentLocationId: Long): Location {

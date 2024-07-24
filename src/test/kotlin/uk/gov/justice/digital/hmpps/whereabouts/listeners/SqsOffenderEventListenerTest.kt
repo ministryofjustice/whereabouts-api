@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
@@ -46,32 +47,41 @@ class SqsOffenderEventListenerTest {
     scheduleEventStatus = ScheduleEventStatus.CANC,
   )
 
+  private val bvlsEnabledListener = SqsOffenderEventListener(attendanceService, videoLinkBookingService, Gson(), true)
+
   @Test
   fun `should call delete with the correct offenderNo`() {
-    val eventListener = SqsOffenderEventListener(attendanceService, videoLinkBookingService, Gson())
-    eventListener.handleEvents(getJson("/listeners/offender-deletion-request.json"))
+    bvlsEnabledListener.handleEvents(getJson("/listeners/offender-deletion-request.json"))
     verify(attendanceService).deleteAttendancesForOffenderDeleteEvent("A1234AA", listOf(321L, 322L))
   }
 
   @Test
-  fun `should call process nomis update when event type is APPOINTMENT_CHANGED and recordDeleted is true`() {
-    val eventListener = SqsOffenderEventListener(attendanceService, videoLinkBookingService, Gson())
-    eventListener.handleEvents(getJson("/listeners/appointment-deleted-request.json"))
+  fun `should call process nomis update when event type is APPOINTMENT_CHANGED and recordDeleted is true and bvls enabled`() {
+    bvlsEnabledListener.handleEvents(getJson("/listeners/appointment-deleted-request.json"))
     verify(videoLinkBookingService).processNomisUpdate(appointmentChangedEventMessageAndRecordDeleted)
   }
 
   @Test
-  fun `should call process nomis update when event type is APPOINTMENT_CHANGED and scheduleEventStatus is CANC`() {
-    val eventListener = SqsOffenderEventListener(attendanceService, videoLinkBookingService, Gson())
-    eventListener.handleEvents(getJson("/listeners/appointment-cancelled-request.json"))
+  fun `should call process nomis update when event type is APPOINTMENT_CHANGED and scheduleEventStatus is CANC and bvls enabled`() {
+    bvlsEnabledListener.handleEvents(getJson("/listeners/appointment-cancelled-request.json"))
     verify(videoLinkBookingService).processNomisUpdate(appointmentCancelledMessage)
   }
 
   @Test
-  fun `should call process nomis update when event type is APPOINTMENT_CHANGED and scheduleEventStatus is SCH`() {
-    val eventListener = SqsOffenderEventListener(attendanceService, videoLinkBookingService, Gson())
-    eventListener.handleEvents(getJson("/listeners/appointment-changed-request.json"))
+  fun `should call process nomis update when event type is APPOINTMENT_CHANGED and scheduleEventStatus is SCH and bvls enabled`() {
+    bvlsEnabledListener.handleEvents(getJson("/listeners/appointment-changed-request.json"))
     verify(videoLinkBookingService).processNomisUpdate(appointmentChangedEventMessage)
+  }
+
+  @Test
+  fun `should not process nomis appointment changed events when bvls disabled`() {
+    SqsOffenderEventListener(attendanceService, videoLinkBookingService, Gson(), false).run {
+      handleEvents(getJson("/listeners/appointment-deleted-request.json"))
+      handleEvents(getJson("/listeners/appointment-cancelled-request.json"))
+      handleEvents(getJson("/listeners/appointment-changed-request.json"))
+    }
+
+    verifyNoInteractions(videoLinkBookingService)
   }
 
   private fun getJson(filename: String): String {

@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 
 class LocationIntegrationTest : IntegrationTest() {
@@ -60,32 +59,6 @@ class LocationIntegrationTest : IntegrationTest() {
   }
 
   @Test
-  fun `cells with capacity - no attribute`() {
-    prisonApiMockServer.stubCellsWithCapacityNoAttribute("RNI", getRniHb7Cells())
-
-    webTestClient.get()
-      .uri("/locations/cellsWithCapacity/RNI/House block 7")
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .json(loadJsonFile("RNI_cells_with_capacity.json"))
-  }
-
-  @Test
-  fun `cells with capacity - passes attribute`() {
-    prisonApiMockServer.stubCellsWithCapacityWithAttribute("RNI", getRniHb7Cells(), "LC")
-
-    webTestClient.get()
-      .uri("/locations/cellsWithCapacity/RNI/House block 7?attribute=LC")
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .json(loadJsonFile("RNI_cells_with_capacity.json"))
-  }
-
-  @Test
   fun `get location prefix by group`() {
     webTestClient.get()
       .uri("/locations/MDI/Houseblock 1/location-prefix")
@@ -120,14 +93,6 @@ class LocationIntegrationTest : IntegrationTest() {
       ),
       aLocation(locationId = 108582, description = "S-1-001", agencyId = "LEI", locationPrefix = "LEI-S-1-001"),
       aLocation(locationId = 108583, description = "S-1-002", agencyId = "LEI", locationPrefix = "LEI-S-1-002"),
-    )
-
-  private fun getRniHb7Cells() =
-    listOf(
-      CellWithAttributes(id = 507011, description = "RNI-HB7-1-002", noOfOccupants = 1, capacity = 2),
-      CellWithAttributes(id = 507031, description = "RNI-HB7-1-021", noOfOccupants = 1, capacity = 2),
-      CellWithAttributes(id = 108582, description = "RNI-S-1-001", noOfOccupants = 1, capacity = 2),
-      CellWithAttributes(id = 108583, description = "RNI-S-1-002", noOfOccupants = 1, capacity = 2),
     )
 
   private fun aLocation(locationId: Long, description: String, agencyId: String, locationPrefix: String) =

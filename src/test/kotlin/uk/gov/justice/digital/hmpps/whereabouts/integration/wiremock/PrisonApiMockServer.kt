@@ -13,8 +13,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
-import uk.gov.justice.digital.hmpps.whereabouts.model.CellAttribute
-import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
@@ -410,30 +408,6 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
-  fun stubCellsWithCapacityNoAttribute(agencyId: String, cells: List<CellWithAttributes>) {
-    stubFor(
-      get(urlEqualTo("/api/agencies/$agencyId/cellsWithCapacity"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-type", "application/json")
-            .withBody(gson.toJson(cells.map { it.toMap() }))
-            .withStatus(200),
-        ),
-    )
-  }
-
-  fun stubCellsWithCapacityWithAttribute(agencyId: String, cells: List<CellWithAttributes>, attribute: String) {
-    stubFor(
-      get(urlEqualTo("/api/agencies/$agencyId/cellsWithCapacity?attribute=$attribute"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-type", "application/json")
-            .withBody(gson.toJson(cells.map { it.toMap() }))
-            .withStatus(200),
-        ),
-    )
-  }
-
   // Null values are included by gson marshalled to JSON, so use a map to emulate to omit them
   private fun Location.toMap(): Map<String, String> {
     val locationMap = mutableMapOf(
@@ -450,18 +424,6 @@ class PrisonApiMockServer : WireMockServer(8999) {
     if (this.locationUsage != null) locationMap["locationUsage"] = this.locationUsage as String
     if (this.parentLocationId != null) locationMap["parentLocationId"] = "${this.parentLocationId}"
     return locationMap.toMap()
-  }
-
-  private fun CellWithAttributes.toMap(): Map<String, Any?> {
-    val cellMap = mutableMapOf(
-      "id" to this.id,
-      "description" to this.description,
-      "userDescription" to this.userDescription,
-      "noOfOccupants" to "${this.noOfOccupants}",
-      "capacity" to "${this.capacity}",
-      "attributes" to listOf<CellAttribute>(),
-    )
-    return cellMap.toMap()
   }
 
   fun stubGetAgencyLocationsByTypeNotFound(agencyId: String, locationType: String) {
