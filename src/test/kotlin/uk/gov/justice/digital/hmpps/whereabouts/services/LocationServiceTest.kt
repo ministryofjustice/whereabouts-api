@@ -1,10 +1,7 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
-import jakarta.persistence.EntityNotFoundException
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
@@ -239,24 +236,6 @@ class LocationServiceTest {
     val group = locationService.getCellsWithCapacityForGroup("LEI", "myList", null)
 
     assertThat(group).isEmpty()
-  }
-
-  @Test
-  fun `should throw entity not found error when trying to load the location prefix`() {
-    whenever(groupsProperties.getProperty(anyString())).thenReturn(null)
-
-    Assertions.assertThrows(EntityNotFoundException::class.java) {
-      locationService.getLocationPrefixFromGroup("XXX", "1")
-    }
-  }
-
-  @Test
-  fun `should return location prefix for group`() {
-    whenever(groupsProperties.getProperty(anyString())).thenReturn("MDI-2-")
-
-    val locationPrefixDto = locationService.getLocationPrefixFromGroup("MDI", "Houseblock 7")
-
-    assertThat(locationPrefixDto.locationPrefix).isEqualTo("MDI-2-")
   }
 
   private fun locationPrefixPredicate(vararg cells: String): Predicate<Location>? {
