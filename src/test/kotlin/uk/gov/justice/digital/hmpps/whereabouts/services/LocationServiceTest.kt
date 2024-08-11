@@ -16,7 +16,7 @@ class LocationServiceTest {
   private val locationGroupService: LocationGroupService = mock()
   private val groupsProperties: Properties = mock()
 
-  private val locationService = LocationService(prisonApiService, locationGroupService, groupsProperties)
+  private val locationService = LocationService(prisonApiService, locationGroupService)
 
   private val cell1 = aLocation(locationPrefix = "cell1")
   private val cell2 = aLocation(locationPrefix = "cell2")

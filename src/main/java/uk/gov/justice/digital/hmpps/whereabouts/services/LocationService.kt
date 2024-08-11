@@ -6,13 +6,11 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellWithAttributes
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationIdAndDescription
-import java.util.Properties
 
 @Service
 class LocationService(
   private val prisonApiService: PrisonApiService,
   @Qualifier("locationGroupServiceSelector") private val locationGroupService: LocationGroupService,
-  @Qualifier("whereaboutsGroups") private val groupsProperties: Properties,
 ) {
 
   fun getVideoLinkRoomsForPrison(agencyId: String): List<LocationIdAndDescription> =
