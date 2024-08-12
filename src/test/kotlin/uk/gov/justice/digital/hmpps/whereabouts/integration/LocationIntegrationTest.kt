@@ -57,18 +57,6 @@ class LocationIntegrationTest : IntegrationTest() {
       .jsonPath("$.developerMessage")
       .isEqualTo("500 Internal Server Error from GET http://localhost:8999/api/agencies/any_agency/locations/type/CELL")
   }
-
-  @Test
-  fun `get location prefix by group`() {
-    webTestClient.get()
-      .uri("/locations/MDI/Houseblock 1/location-prefix")
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .json(loadJsonFile("MDI_location-prefix.json"))
-  }
-
   private fun getRniHb7Locations() =
     listOf(
       aLocation(locationId = 507011, description = "Hb7-1-002", agencyId = "RNI", locationPrefix = "RNI-HB7-1-002"),

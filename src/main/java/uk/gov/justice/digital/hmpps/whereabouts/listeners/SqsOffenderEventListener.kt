@@ -53,6 +53,7 @@ class SqsOffenderEventListener(
           if (bvlsEnabled) {
             val appointmentChangedEventMessage = gson.fromJson(message, AppointmentChangedEventMessage::class.java)
             videoLinkBookingService.processNomisUpdate(appointmentChangedEventMessage)
+            log.info("SQS event received. APPOINTMENT_CHANGED. processing appointmentChangedEventMessage $appointmentChangedEventMessage")
           } else {
             log.info("Ignoring offender event appointment changed for BVLS, BVLS feature is disabled.")
           }

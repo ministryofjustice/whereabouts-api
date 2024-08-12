@@ -341,6 +341,7 @@ class VideoLinkBookingService(
       } else {
         try {
           this.deleteVideoLinkBooking(videoLinkAppointment.videoLinkBooking.id!!)
+          log.debug("processNomisUpdate deleteVideoLinkBooking executed for ${videoLinkAppointment.videoLinkBooking.id}")
         } catch (e: EntityNotFoundException) {
           log.info(
             "Video link appointment for offenderBookingId already deleted: {}",
@@ -358,9 +359,13 @@ class VideoLinkBookingService(
         }
 
         var courtEmail = courtService.getCourtEmailForCourtId(videoLinkAppointment.videoLinkBooking.courtId)
+        log.debug("courtEmail received for ${videoLinkAppointment.videoLinkBooking.courtId} is $courtEmail")
+
         var courtName =
           courtService.getCourtNameForCourtId(videoLinkAppointment.videoLinkBooking.courtId)
             ?: videoLinkAppointment.videoLinkBooking.courtName ?: ""
+
+        log.debug("courtName received for ${ videoLinkAppointment.videoLinkBooking.courtName} is $courtName")
 
         val prisonEmail = getPrisonEmail(videoLinkAppointment.videoLinkBooking.prisonId)
         val prisonName = getPrisonName(videoLinkAppointment.videoLinkBooking.prisonId)
