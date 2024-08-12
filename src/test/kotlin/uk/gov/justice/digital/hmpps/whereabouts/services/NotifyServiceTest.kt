@@ -14,7 +14,7 @@ class NotifyServiceTest {
   private val notifyRequest: NotifyRequest = mock()
   private val prisonEmailAddress = "some-prison@mail.com"
   private val courtEmailAddress = "some-court@mail.com"
-  val map = mapOf<String, String>()
+  val map = mapOf("courtEmail" to courtEmailAddress, "prisonEmailAddress" to prisonEmailAddress)
 
   private val service = NotifyService(
     "offenderTransferredPrisonEmailTemplateId",

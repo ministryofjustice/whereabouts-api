@@ -28,16 +28,9 @@ class NotifyService(
     prisonEmail: String,
   ) {
     val values = notifyRequest.constructMapOfNotifyRequest()
+    log.info("Values used for email request: ${ values.entries.joinToString { "${it.key}: ${it.value}" }}")
     sendEmail(appointmentCanceledCourtEmailTemplateId, courtEmail, values, null)
     sendEmail(appointmentCanceledPrisonEmailTemplateId, prisonEmail, values, null)
-
-    log.info(
-      "BVL appointment cancellation. " +
-        "Email sent to prison: $prisonEmail and court $courtEmail" +
-        "Offender name: ${values["firstName"]} ${values["lastName"]}, " +
-        "offender Noms number: ${values["offenderId"]}, " +
-        "BVL booking id: ${values["videoLinkBookingId"]} ",
-    )
   }
 
   fun sendAppointmentCanceledEmailToPrisonOnly(notifyRequest: NotifyRequest, prisonEmail: String) {
