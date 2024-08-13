@@ -51,7 +51,7 @@ $ ./gradlew test
 ```
 Then shutdown the localstack container
 ```
-$ docker-compose -f docker-compose-test.yaml down 
+$ docker-compose -f docker-compose-test.yml down 
 ```
 
 ### Running the service locally

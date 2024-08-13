@@ -30,7 +30,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingEventService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
-import uk.gov.justice.digital.hmpps.whereabouts.services.vlboptionsfinder.VideoLinkBookingOptionsService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 import java.time.LocalDate
@@ -50,9 +49,6 @@ class VideoLinkBookingControllerTest : TestController() {
 
   @MockBean
   lateinit var videoLinkBookingEventService: VideoLinkBookingEventService
-
-  @MockBean
-  lateinit var videoLinkBookingOptionsService: VideoLinkBookingOptionsService
 
   val videoLinkBookingResponse = VideoLinkBookingResponse(
     videoLinkBookingId = 1,

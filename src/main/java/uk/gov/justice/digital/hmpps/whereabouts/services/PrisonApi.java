@@ -206,32 +206,6 @@ public abstract class PrisonApi {
             throw e;
         }
     }
-
-    public List<Location> getAgencyLocationsForType(final String agencyId, final String locationType) {
-        final var responseType = new ParameterizedTypeReference<List<Location>>() {
-        };
-
-        try {
-            return webClient.get()
-                .uri("/agencies/{agencyId}/locations/type/{type}", agencyId, locationType)
-                .retrieve()
-                .bodyToMono(responseType)
-                .block();
-        } catch (WebClientResponseException e) {
-            if (e.getStatusCode().equals(NOT_FOUND)) {
-                throw new EntityNotFoundException(String.format("Locations not found for agency %s with location type %s", agencyId, locationType));
-            }
-            throw e;
-        }
-    }
-
-    /**
-     * Version of getAgencyLocationsForType that does not check that the invoker has the selected agency in their caseload.
-     *
-     * @param agencyId     'WWI' etc.
-     * @param locationType 'APP', 'CELL'
-     * @return list of matching locations.
-     */
     public List<Location> getAgencyLocationsForTypeUnrestricted(final String agencyId, final String locationType) {
         final var responseType = new ParameterizedTypeReference<List<Location>>() {
         };
