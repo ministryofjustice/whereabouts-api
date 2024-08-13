@@ -365,7 +365,7 @@ class VideoLinkBookingService(
           courtService.getCourtNameForCourtId(videoLinkAppointment.videoLinkBooking.courtId)
             ?: videoLinkAppointment.videoLinkBooking.courtName ?: ""
 
-        log.debug("courtName received for ${ videoLinkAppointment.videoLinkBooking.courtName} is $courtName")
+        log.debug("courtName received for ${videoLinkAppointment.videoLinkBooking.courtId} is $courtName")
 
         val prisonEmail = getPrisonEmail(videoLinkAppointment.videoLinkBooking.prisonId)
         val prisonName = getPrisonName(videoLinkAppointment.videoLinkBooking.prisonId)
