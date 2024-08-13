@@ -27,7 +27,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkAppointmentSpecific
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingUpdateSpecification
 import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
-import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingEventService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkBookingService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
@@ -41,9 +40,6 @@ import java.time.LocalDateTime
 )
 @Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)
 class VideoLinkBookingControllerTest : TestController() {
-  @MockBean
-  lateinit var courtService: CourtService
-
   @MockBean
   lateinit var videoLinkBookingService: VideoLinkBookingService
 
