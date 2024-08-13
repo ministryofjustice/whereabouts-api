@@ -43,7 +43,7 @@ Localstack has been introduced and is required for some of the integration tests
 
 * To start a localstack container for testing
 ```
-$ docker-compose -f docker-compose-test.yaml up -d 
+$ docker-compose -f docker-compose-test.yml up -d 
 ```
 Then run the tests with
 ```bash
