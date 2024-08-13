@@ -126,27 +126,6 @@ class PrisonApiServiceTest {
     )
   }
 
-  @Test
-  fun `get Agency Locations for type, unrestricted`() {
-    val agencyId = "WWI"
-    val locationType = "APP"
-
-    prisonApiMockServer.stubGetAgencyLocationsForTypeUnrestricted(agencyId, locationType, getLocation())
-    val locations = prisonApiService.getAgencyLocationsForTypeUnrestricted(agencyId, locationType)
-    assertThat(locations)
-      .containsExactly(
-        Location(
-          locationId = 1L,
-          locationType = "VIDE",
-          description = "A VLB location",
-          agencyId = "WWI",
-          currentOccupancy = 0,
-          locationPrefix = "XXX",
-          operationalCapacity = 10,
-        ),
-      )
-  }
-
   val pageable = Pageable.ofSize(10000)
 
   @Test
