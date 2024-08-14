@@ -29,7 +29,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.LocationDto;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointmentSearchDto;
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
-import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup;
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.UpdateComment;
@@ -188,25 +187,6 @@ public abstract class PrisonApi {
             .bodyToMono(PrisonerActivitiesCount.class)
             .block();
     }
-
-    public List<LocationGroup> getLocationGroups(final String agencyId) {
-        final var responseType = new ParameterizedTypeReference<List<LocationGroup>>() {
-        };
-
-        try {
-            return webClient.get()
-                .uri("/agencies/{agencyId}/locations/groups", agencyId)
-                .retrieve()
-                .bodyToMono(responseType)
-                .block();
-        } catch (WebClientResponseException e) {
-            if (e.getStatusCode().equals(NOT_FOUND)) {
-                throw new EntityNotFoundException(String.format("Locations not found for agency %s", agencyId));
-            }
-            throw e;
-        }
-    }
-
     /**
      * Version of getAgencyLocationsForType that does not check that the invoker has the selected agency in their caseload.
      *
