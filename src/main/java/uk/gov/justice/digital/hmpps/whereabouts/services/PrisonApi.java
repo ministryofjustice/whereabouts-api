@@ -270,7 +270,7 @@ public abstract class PrisonApi {
                 e -> Mono.error(e.getStatusCode().value() == 423 ? new DatabaseRowLockedException() : e)
             )
             .retry(3)
-            .timeout(Duration.ofSeconds(1))
+            .timeout(Duration.ofSeconds(12))
             .block();
     }
 
