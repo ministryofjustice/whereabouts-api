@@ -19,7 +19,6 @@ class VideoLinkBookingRoomsController(
   private val locationService: LocationService,
 
 ) {
-
   @GetMapping(
     path = ["/video-link-rooms/{agencyId}"],
     produces = [MediaType.APPLICATION_JSON_VALUE],

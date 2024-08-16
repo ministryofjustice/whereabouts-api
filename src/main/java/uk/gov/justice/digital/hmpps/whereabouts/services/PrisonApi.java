@@ -33,6 +33,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.UpdateComment;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -268,6 +269,8 @@ public abstract class PrisonApi {
                 WebClientResponseException.class,
                 e -> Mono.error(e.getStatusCode().value() == 423 ? new DatabaseRowLockedException() : e)
             )
+            .retry(3)
+            .timeout(Duration.ofSeconds(1))
             .block();
     }
 
