@@ -60,4 +60,3 @@ values ('ALDTCV', 'Aldershot Civil'),
        ('WORCCV', 'Worcester Civil'),
        ('WORCFM', 'Worcester Family'),
        ('YEOVCV', 'Yeovil Civil and Family');
-	
