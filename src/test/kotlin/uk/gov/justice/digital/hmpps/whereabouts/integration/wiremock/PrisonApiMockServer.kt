@@ -555,7 +555,7 @@ class PrisonApiMockServer : WireMockServer(8999) {
     val response = listOf(agency, agency2)
 
     stubFor(
-      get(urlPathEqualTo("/api/agencies"))
+      get(urlPathEqualTo("/api/agencies/prisons"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
