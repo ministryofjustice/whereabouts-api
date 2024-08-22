@@ -71,23 +71,16 @@ public abstract class PrisonApi {
     @Data
     public static class Agency {
         String agencyId;
-
-    }
-
-    @Data
-    public static class AgencyPage {
-      List<Agency> content;
-        Integer totalPages;
     }
 
     public List<String> getActiveAgencies() {
-      return webClient.get()
+       return webClient.get()
            .uri("/agencies")
-          .header("Page-Limit", "1000")
-          .retrieve()
-          .bodyToMono(AgencyPage.class)
-          .map(agencies -> agencies.content.stream().map(m -> m.agencyId).toList())
-          .block();
+           .retrieve()
+           .bodyToFlux(Agency.class)
+           .toStream()
+           .map(m -> m.agencyId)
+           .toList();
     }
 
     public void putAttendance(final Long bookingId, final long activityId, final EventOutcome eventOutcome) {

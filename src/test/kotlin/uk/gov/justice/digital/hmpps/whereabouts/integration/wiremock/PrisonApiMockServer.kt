@@ -552,16 +552,14 @@ class PrisonApiMockServer : WireMockServer(8999) {
     agency.agencyId = "IWI"
     val agency2 = PrisonApi.Agency()
     agency2.agencyId = "WDI"
-    val page = PrisonApi.AgencyPage()
-    page.totalPages = 1
-    page.content = listOf(agency, agency2)
+    val response = listOf(agency, agency2)
 
     stubFor(
       get(urlPathEqualTo("/api/agencies"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withBody(ObjectMapper().writeValueAsString(page))
+            .withBody(ObjectMapper().writeValueAsString(response))
             .withStatus(200),
         ),
     )
