@@ -128,7 +128,7 @@ class HealthCheckIntegrationTest : IntegrationTest() {
       .expectStatus().isOk
       .expectBody().jsonPath("activeAgencies").value<List<String>> {
         assertThat(it.contains("IWI")).isTrue
-        assertThat(it.contains("RSI")).isFalse
+        assertThat(it.contains("WDI")).isFalse
       }
   }
 
