@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.delete
@@ -16,6 +17,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi
 import wiremock.org.eclipse.jetty.http.HttpStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -540,6 +542,24 @@ class PrisonApiMockServer : WireMockServer(8999) {
           aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(responseJson)
+            .withStatus(200),
+        ),
+    )
+  }
+
+  fun stubGetAgencies() {
+    val agency = PrisonApi.Agency()
+    agency.agencyId = "IWI"
+    val agency2 = PrisonApi.Agency()
+    agency2.agencyId = "WDI"
+    val response = listOf(agency, agency2)
+
+    stubFor(
+      get(urlPathEqualTo("/api/agencies"))
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(ObjectMapper().writeValueAsString(response))
             .withStatus(200),
         ),
     )

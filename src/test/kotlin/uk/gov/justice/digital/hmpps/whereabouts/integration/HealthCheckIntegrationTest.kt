@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class HealthCheckIntegrationTest : IntegrationTest() {
@@ -116,6 +117,19 @@ class HealthCheckIntegrationTest : IntegrationTest() {
       .expectStatus().isOk
       .expectBody()
       .jsonPath("$.status").isEqualTo("UP")
+  }
+
+  @Test
+  fun `has active prisons`() {
+    prisonApiMockServer.stubGetAgencies()
+
+    webTestClient.get().uri("/info")
+      .exchange()
+      .expectStatus().isOk
+      .expectBody().jsonPath("activeAgencies").value<List<String>> {
+        assertThat(it.contains("IWI")).isTrue
+        assertThat(it.contains("WDI")).isFalse
+      }
   }
 
   private fun subPing(status: Int) {

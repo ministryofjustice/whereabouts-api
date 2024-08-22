@@ -68,6 +68,21 @@ public abstract class PrisonApi {
         }
     }
 
+    @Data
+    public static class Agency {
+        String agencyId;
+    }
+
+    public List<String> getActiveAgencies() {
+       return webClient.get()
+           .uri("/agencies")
+           .retrieve()
+           .bodyToFlux(Agency.class)
+           .toStream()
+           .map(m -> m.agencyId)
+           .toList();
+    }
+
     public void putAttendance(final Long bookingId, final long activityId, final EventOutcome eventOutcome) {
         webClient.put()
             .uri("/bookings/{bookingId}/activities/{activityId}/attendance?lockTimeout=true", bookingId, activityId)
