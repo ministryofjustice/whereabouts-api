@@ -75,7 +75,7 @@ public abstract class PrisonApi {
 
     public List<String> getActiveAgencies() {
        return webClient.get()
-           .uri("/agencies")
+           .uri("/agencies/prisons")
            .retrieve()
            .bodyToFlux(Agency.class)
            .toStream()
