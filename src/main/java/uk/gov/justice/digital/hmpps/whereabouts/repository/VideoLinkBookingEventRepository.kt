@@ -43,6 +43,10 @@ interface VideoLinkBookingEventRepository : JpaRepository<VideoLinkBookingEvent,
     @Param("start") start: LocalDateTime,
     @Param("end") end: LocalDateTime,
   ): Stream<VideoLinkBookingEvent>
+
+  fun findEventsByVideoLinkBookingId(
+    @Param("videoLinkBookingId") videoLinkBookingId: Long,
+  ): List<VideoLinkBookingEvent>
 }
 
 fun VideoLinkBookingEventRepository.findByDatesBetween(
