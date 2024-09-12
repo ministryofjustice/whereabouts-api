@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -27,8 +28,9 @@ class VideoLinkMigrationController(
     summary = "Returns the data for one video link booking and its associated events",
     description = "Used to migrate the data for one video link booking",
   )
+  @PreAuthorize("hasAnyRole('BOOK_A_VIDEO_LINK_ADMIN')")
   fun getVideoLinkBookingToMigrate(
-    @Parameter(description = "The video booking ID to return data for.", required = true)
+    @Parameter(description = "The video link booking ID to return data for.", required = true)
     @PathVariable videoBookingId: Long,
   ) = videoLinkMigrationService.getVideoLinkBookingToMigrate(videoBookingId)
 }

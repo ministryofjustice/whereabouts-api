@@ -4,16 +4,18 @@ import jakarta.persistence.EntityNotFoundException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoBookingEvent
+import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentLocationTimeSlot
+import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoBookingMigrateEvent
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoBookingMigrateResponse
-import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoLinkBookingResponse.LocationTimeslot
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingEventRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 @Service
 class VideoLinkMigrationService(
@@ -29,10 +31,12 @@ class VideoLinkMigrationService(
     val videoLinkBooking = videoLinkBookingRepository.findById(videoBookingId)
       .orElseThrow { EntityNotFoundException("Video link booking ID {videoBookingId} was not found") }
 
+    log.info("Migrating video link booking ID $videoBookingId")
+
     val appointments = videoLinkAppointmentRepository.findAllByVideoLinkBooking(videoLinkBooking)
     require(appointments.isNotEmpty()) { "Video link booking ID $videoBookingId has no appointments" }
 
-    // Extract the different appointments
+    // Extract the related appointments
     val main = appointments.find { it.hearingType == HearingType.MAIN }
     val pre = appointments.find { it.hearingType == HearingType.PRE }
     val post = appointments.find { it.hearingType == HearingType.POST }
@@ -40,6 +44,7 @@ class VideoLinkMigrationService(
     // Fail if the main appointment is not present
     require(main != null) { "Video link booking ID $videoBookingId has no main appointment" }
 
+    // Get the history of events for this booking
     val events = videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)
     require(events.isNotEmpty()) { "Video link booking ID $videoBookingId has no events" }
 
@@ -50,7 +55,7 @@ class VideoLinkMigrationService(
       courtName = videoLinkBooking.courtName,
       madeByTheCourt = videoLinkBooking.madeByTheCourt ?: false,
       prisonCode = videoLinkBooking.prisonId,
-      isProbation = videoLinkBooking.courtName?.contains("Probation") ?: false,
+      probation = videoLinkBooking.courtName?.contains("Probation") ?: false,
       comment = videoLinkBooking.comment,
       pre = pre?.let { mapAppointment(pre) },
       main = mapAppointment(main),
@@ -59,29 +64,31 @@ class VideoLinkMigrationService(
     )
   }
 
-  private fun mapAppointment(appointment: VideoLinkAppointment) =
-    LocationTimeslot(
+  fun mapAppointment(appointment: VideoLinkAppointment) =
+    AppointmentLocationTimeSlot(
       locationId = appointment.locationId,
-      startTime = appointment.startDateTime,
-      endTime = appointment.endDateTime,
+      date = LocalDate.from(appointment.startDateTime),
+      startTime = LocalTime.from(appointment.startDateTime).withSecond(0).withNano(0),
+      endTime = LocalTime.from(appointment.endDateTime).withSecond(0).withNano(0),
     )
 
-  private fun mapEventToLocationTimeSlot(locationId: Long, startTime: LocalDateTime, endTime: LocalDateTime) =
-    LocationTimeslot(
+  fun mapEventToLocationTimeSlot(locationId: Long, startTime: LocalDateTime, endTime: LocalDateTime) =
+    AppointmentLocationTimeSlot(
       locationId = locationId,
-      startTime = startTime,
-      endTime = endTime,
+      date = LocalDate.of(startTime.year, startTime.month, startTime.dayOfMonth),
+      startTime = LocalTime.of(startTime.hour, startTime.minute),
+      endTime = LocalTime.of(endTime.hour, endTime.minute),
     )
 
-  private fun mapEvents(events: List<VideoLinkBookingEvent>): List<VideoBookingEvent> {
+  private fun mapEvents(events: List<VideoLinkBookingEvent>): List<VideoBookingMigrateEvent> {
     val response = events.map { event ->
-      VideoBookingEvent(
+      VideoBookingMigrateEvent(
         eventId = event.eventId!!,
         eventTime = event.timestamp,
-        eventType = event.eventType.toString(),
+        eventType = event.eventType,
         createdByUsername = event.userId?.let { event.userId } ?: "MIGRATED",
         prisonCode = event.agencyId?.let { event.agencyId } ?: "UNKNOWN",
-        courtCode = event.courtId,
+        courtCode = event.courtId?.let { event.courtId } ?: "UNKNOWN",
         courtName = event.court,
         madeByTheCourt = event.madeByTheCourt ?: false,
         comment = event.comment,
