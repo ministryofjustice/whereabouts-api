@@ -13,20 +13,23 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkMigrationService
 
-@Tag(name = "court")
+@Tag(name = "Migration")
 @RestController
-@RequestMapping(value = ["court"], produces = [MediaType.APPLICATION_JSON_VALUE])
+@RequestMapping(value = ["/migrate"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class VideoLinkMigrationController(
   val videoLinkMigrationService: VideoLinkMigrationService,
 ) {
   @GetMapping(
-    path = ["/video-link-bookings/migrate/{videoBookingId}"],
+    path = ["/video-link-booking/{videoBookingId}"],
     produces = [MediaType.APPLICATION_JSON_VALUE],
   )
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Returns the data for one video link booking and its associated events",
-    description = "Used to migrate the data for one video link booking",
+    description = """
+      Requires role: ROLE_BOOK_A_VIDEO_LINK_ADMIN
+      Used to migrate the data for one video link booking
+      """,
   )
   @PreAuthorize("hasAnyRole('BOOK_A_VIDEO_LINK_ADMIN')")
   fun getVideoLinkBookingToMigrate(

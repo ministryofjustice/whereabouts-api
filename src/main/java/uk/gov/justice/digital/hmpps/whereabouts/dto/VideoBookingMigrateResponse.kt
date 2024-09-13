@@ -17,14 +17,23 @@ data class VideoBookingMigrateResponse(
   @ApiModelProperty(value = "Offender booking Id", example = "1", required = true)
   val offenderBookingId: Long,
 
-  @ApiModelProperty(value = "The code/ID of the court this booking is for", example = "YORKMAG")
+  @ApiModelProperty(
+    value = "The court code this booking is for, which may be null if prison staff used the OTHER option.",
+    example = "YORKMAG",
+  )
   val courtCode: String?,
 
-  @ApiModelProperty(value = "The description for the court.", example = "York Magistrates")
+  @ApiModelProperty(
+    value = "The court name, which may be null when the court code is provided, or may contain a text value from prison staff.",
+    example = "York Magistrates",
+  )
   val courtName: String?,
 
   @ApiModelProperty(value = "True if this booking was made by a court user", example = "true", required = true)
   val madeByTheCourt: Boolean,
+
+  @ApiModelProperty(value = "The court or prison username of the person who created the booking", example = "X6767G", required = true)
+  val createdByUsername: String,
 
   @ApiModelProperty(value = "The prison agency code", example = "WWI", required = true)
   val prisonCode: String,
@@ -32,20 +41,23 @@ data class VideoBookingMigrateResponse(
   @ApiModelProperty(value = "True if this is a probation PPOC court", example = "true", required = true)
   val probation: Boolean,
 
+  @ApiModelProperty(value = "True if this booking is already cancelled, otherwise false", example = "true", required = true)
+  val cancelled: Boolean,
+
   @ApiModelProperty(value = "Free text comments", example = "Requires special access")
   val comment: String?,
 
-  @ApiModelProperty(value = "List of associated events")
+  @ApiModelProperty(value = "Pre-hearing location, date and time")
   val pre: AppointmentLocationTimeSlot?,
 
-  @ApiModelProperty(value = "Main appointment", required = true)
+  @ApiModelProperty(value = "Main hearing location, date and time", required = true)
   val main: AppointmentLocationTimeSlot,
 
-  @ApiModelProperty(value = "Post-hearing appointment")
+  @ApiModelProperty(value = "Post-hearing location, date and time")
   val post: AppointmentLocationTimeSlot?,
 
   @ApiModelProperty(value = "The events associated with this booking")
-  val events: List<VideoBookingMigrateEvent>? = emptyList(),
+  val events: List<VideoBookingMigrateEvent> = emptyList(),
 )
 
 @ApiModel(description = "Video booking migrate event")
@@ -78,20 +90,20 @@ data class VideoBookingMigrateEvent(
   @ApiModelProperty(value = "Free text comments", example = "Requires special access")
   val comment: String?,
 
-  @ApiModelProperty(value = "List of associated events")
+  @ApiModelProperty(value = "Pre-hearing appointment details")
   val pre: AppointmentLocationTimeSlot?,
 
-  @ApiModelProperty(value = "Main appointment", required = true)
+  @ApiModelProperty(value = "Main appointment details", required = true)
   val main: AppointmentLocationTimeSlot,
 
-  @ApiModelProperty(value = "Post-hearing appointment")
+  @ApiModelProperty(value = "Post-hearing appointment details")
   val post: AppointmentLocationTimeSlot?,
 )
 
 @ApiModel(description = "Class describing the location, date, start and end times for an appointment")
 data class AppointmentLocationTimeSlot(
 
-  @ApiModelProperty(value = "The location identifier", example = "1", required = true)
+  @ApiModelProperty(value = "The internal location identifier from NOMIS", example = "1", required = true)
   val locationId: Long,
 
   @ApiModelProperty(value = "Date of the appointment. ISO date format", example = "2020-12-23", required = true)

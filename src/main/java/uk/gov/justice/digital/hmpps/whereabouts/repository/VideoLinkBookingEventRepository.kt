@@ -1,9 +1,9 @@
 package uk.gov.justice.digital.hmpps.whereabouts.repository
 
 import jakarta.persistence.QueryHint
-import org.hibernate.jpa.QueryHints.HINT_CACHEABLE
-import org.hibernate.jpa.QueryHints.HINT_FETCH_SIZE
-import org.hibernate.jpa.QueryHints.HINT_READONLY
+import org.hibernate.jpa.AvailableHints.HINT_CACHEABLE
+import org.hibernate.jpa.AvailableHints.HINT_FETCH_SIZE
+import org.hibernate.jpa.AvailableHints.HINT_READ_ONLY
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.QueryHints
@@ -18,7 +18,7 @@ interface VideoLinkBookingEventRepository : JpaRepository<VideoLinkBookingEvent,
     value = [
       QueryHint(name = HINT_FETCH_SIZE, value = "" + Integer.MAX_VALUE),
       QueryHint(name = HINT_CACHEABLE, value = "false"),
-      QueryHint(name = HINT_READONLY, value = "true"),
+      QueryHint(name = HINT_READ_ONLY, value = "true"),
     ],
   )
   fun findByTimestampBetweenOrderByEventId(start: LocalDateTime, end: LocalDateTime): Stream<VideoLinkBookingEvent>
@@ -44,9 +44,7 @@ interface VideoLinkBookingEventRepository : JpaRepository<VideoLinkBookingEvent,
     @Param("end") end: LocalDateTime,
   ): Stream<VideoLinkBookingEvent>
 
-  fun findEventsByVideoLinkBookingId(
-    @Param("videoLinkBookingId") videoLinkBookingId: Long,
-  ): List<VideoLinkBookingEvent>
+  fun findEventsByVideoLinkBookingId(videoLinkBookingId: Long): List<VideoLinkBookingEvent>
 }
 
 fun VideoLinkBookingEventRepository.findByDatesBetween(
