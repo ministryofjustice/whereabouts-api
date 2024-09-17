@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.repository
 
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import java.time.LocalDateTime
 
 interface VideoLinkAppointmentRepository : ReadOnlyRepository<VideoLinkAppointment, Long> {
@@ -24,4 +25,6 @@ interface VideoLinkAppointmentRepository : ReadOnlyRepository<VideoLinkAppointme
     offenderBookingId: Long,
     prisonId: String,
   ): Set<VideoLinkAppointment>
+
+  fun findAllByVideoLinkBooking(videoLinkBooking: VideoLinkBooking): List<VideoLinkAppointment>
 }
