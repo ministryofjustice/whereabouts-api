@@ -19,11 +19,10 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
 
-private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
-private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
-private val videoLinkBookingEventRepository: VideoLinkBookingEventRepository = mock()
-
 class VideoLinkMigrationServiceTest {
+  private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
+  private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
+  private val videoLinkBookingEventRepository: VideoLinkBookingEventRepository = mock()
 
   private val videoLinkMigrationService = VideoLinkMigrationService(
     videoLinkBookingRepository,

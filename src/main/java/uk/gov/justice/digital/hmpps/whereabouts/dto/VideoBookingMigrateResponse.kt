@@ -78,10 +78,10 @@ data class VideoBookingMigrateEvent(
   @ApiModelProperty(value = "The prison agency code", example = "WWI", required = true)
   val prisonCode: String,
 
-  @ApiModelProperty(value = "The code/ID of the court this booking is for", example = "YORKMAG", required = true)
+  @ApiModelProperty(value = "The code/ID of the court this booking is for", example = "YORKMAG")
   val courtCode: String?,
 
-  @ApiModelProperty(value = "The description for the court.", example = "York Magistrates", required = false)
+  @ApiModelProperty(value = "The description for the court.", example = "York Magistrates")
   val courtName: String?,
 
   @ApiModelProperty(value = "True if this booking was made by a court user", example = "true", required = true)

@@ -9,6 +9,7 @@ import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.test.jdbc.JdbcTestUtils
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoBookingMigrateResponse
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventType
 import java.time.LocalDateTime
 
 @Transactional
@@ -48,6 +49,7 @@ class VideoLinkMigrateIntegrationTest : IntegrationTest() {
     with(result!!) {
       assertThat(cancelled).isFalse
       assertThat(events.size).isEqualTo(1)
+      assertThat(events).extracting("eventType").containsOnly(VideoLinkBookingEventType.CREATE)
       assertThat(courtCode).isEqualTo("CVNTCC")
       assertThat(madeByTheCourt).isTrue
       assertThat(probation).isFalse
@@ -91,6 +93,10 @@ class VideoLinkMigrateIntegrationTest : IntegrationTest() {
     with(result!!) {
       assertThat(cancelled).isTrue
       assertThat(events.size).isEqualTo(2)
+      assertThat(events).extracting("eventType").containsExactly(
+        VideoLinkBookingEventType.CREATE,
+        VideoLinkBookingEventType.DELETE,
+      )
       assertThat(courtCode).isEqualTo("CVNTCC")
       assertThat(madeByTheCourt).isTrue
       assertThat(probation).isFalse
@@ -132,6 +138,11 @@ class VideoLinkMigrateIntegrationTest : IntegrationTest() {
       assertThat(cancelled).isTrue
 
       assertThat(events.size).isEqualTo(3)
+      assertThat(events).extracting("eventType").containsExactly(
+        VideoLinkBookingEventType.CREATE,
+        VideoLinkBookingEventType.UPDATE,
+        VideoLinkBookingEventType.DELETE,
+      )
 
       // This is populated from the UPDATE event, main hearing should be 2023-11-12 10:40-11:10am
       with(main) {

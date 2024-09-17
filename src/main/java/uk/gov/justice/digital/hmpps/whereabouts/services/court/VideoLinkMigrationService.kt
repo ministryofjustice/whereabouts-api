@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentLocationTimeSlot
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoBookingMigrateEvent
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoBookingMigrateResponse
@@ -28,6 +29,7 @@ class VideoLinkMigrationService(
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
+  @Transactional(readOnly = true)
   fun getVideoLinkBookingToMigrate(videoBookingId: Long): VideoBookingMigrateResponse {
     val videoLinkBooking = videoLinkBookingRepository.findById(videoBookingId)
       .orElseThrow { EntityNotFoundException("Video link booking ID {videoBookingId} was not found") }
@@ -64,10 +66,10 @@ class VideoLinkMigrationService(
     return VideoBookingMigrateResponse(
       videoBookingId = videoLinkBooking.id!!,
       offenderBookingId = videoLinkBooking.offenderBookingId,
-      courtCode = videoLinkBooking.courtId?.let { videoLinkBooking.courtId } ?: "UNKNOWN",
+      courtCode = videoLinkBooking.courtId ?: "UNKNOWN",
       courtName = videoLinkBooking.courtName,
-      madeByTheCourt = videoLinkBooking.madeByTheCourt?.let { videoLinkBooking.madeByTheCourt } ?: false,
-      createdByUsername = videoLinkBooking.createdByUsername?.let { videoLinkBooking.createdByUsername } ?: "MIGRATED",
+      madeByTheCourt = videoLinkBooking.madeByTheCourt == true,
+      createdByUsername = videoLinkBooking.createdByUsername ?: "MIGRATED",
       prisonCode = videoLinkBooking.prisonId,
       probation = videoLinkBooking.courtName?.contains("Probation") ?: false,
       cancelled = cancelledBooking,
@@ -101,11 +103,11 @@ class VideoLinkMigrationService(
         eventId = event.eventId!!,
         eventTime = event.timestamp,
         eventType = event.eventType,
-        createdByUsername = event.userId?.let { event.userId } ?: "MIGRATED",
-        prisonCode = event.agencyId?.let { event.agencyId } ?: "UNKNOWN",
-        courtCode = event.courtId?.let { event.courtId } ?: "UNKNOWN",
+        createdByUsername = event.userId ?: "MIGRATED",
+        prisonCode = event.agencyId ?: "UNKNOWN",
+        courtCode = event.courtId ?: "UNKNOWN",
         courtName = event.court,
-        madeByTheCourt = event.madeByTheCourt?.let { event.madeByTheCourt } ?: false,
+        madeByTheCourt = event.madeByTheCourt == true,
         comment = event.comment,
         pre = event.preLocationId?.let { mapEventToLocationTimeSlot(event.preLocationId!!, event.preStartTime!!, event.preEndTime!!) },
         main = mapEventToLocationTimeSlot(event.mainLocationId!!, event.mainStartTime!!, event.mainEndTime!!),
