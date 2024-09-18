@@ -4,6 +4,8 @@ import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
@@ -194,18 +196,13 @@ class VideoLinkMigrationServiceTest {
       comment = "hello",
     )
 
-    // No appointments
-    val appointments: List<VideoLinkAppointment> = emptyList()
-
     // Events include create, update and delete
     val events = listOf(
-      makeEvent(3L, 1L, VideoLinkBookingEventType.CREATE),
+      makeEvent(3L, 1L, VideoLinkBookingEventType.CREATE, "YORKMAGS", "York Justice Centre"),
       makeEvent(3L, 1L, VideoLinkBookingEventType.UPDATE),
       makeEvent(3L, 1L, VideoLinkBookingEventType.DELETE),
     )
 
-    whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(booking))
-    whenever(videoLinkAppointmentRepository.findAllByVideoLinkBooking(booking)).thenReturn(appointments)
     whenever(videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)).thenReturn(events)
 
     val response = videoLinkMigrationService.getVideoLinkBookingToMigrate(3)
@@ -228,6 +225,10 @@ class VideoLinkMigrationServiceTest {
     assertThat(response.main.endTime).isNotNull()
 
     assertThat(response.post).isNull()
+
+    verify(videoLinkBookingEventRepository).findEventsByVideoLinkBookingId(videoBookingId)
+    verifyNoInteractions(videoLinkBookingRepository)
+    verifyNoInteractions(videoLinkAppointmentRepository)
   }
 
   @Test
