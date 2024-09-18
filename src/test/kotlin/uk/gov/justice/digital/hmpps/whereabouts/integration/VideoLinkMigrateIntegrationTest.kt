@@ -97,7 +97,7 @@ class VideoLinkMigrateIntegrationTest : IntegrationTest() {
         VideoLinkBookingEventType.CREATE,
         VideoLinkBookingEventType.DELETE,
       )
-      assertThat(courtCode).isEqualTo("CVNTCC")
+      assertThat(courtCode).isEqualTo("UNKNOWN")
       assertThat(madeByTheCourt).isTrue
       assertThat(probation).isFalse
       assertThat(prisonCode).isEqualTo("MDI")
@@ -193,16 +193,17 @@ class VideoLinkMigrateIntegrationTest : IntegrationTest() {
   }
 
   private fun makeABooking(cancelled: Boolean = false, updated: Boolean = false) {
-    jdbcTemplate.update(
-      """
-      INSERT INTO video_link_booking (id, offender_booking_id, court_name, court_id, court_hearing_type, made_by_the_court, prison_id, comment)             
-      VALUES (1, 1, 'CVNTCC', 'CVNTCC', 'APPEAL', true, 'MDI', 'Comment')
-      """,
-    )
-
+    // Cancelled bookings only have events - no video_link_booking or video_link_appointment rows
     makeEvents(cancelled, updated)
 
     if (!cancelled) {
+      jdbcTemplate.update(
+        """
+      INSERT INTO video_link_booking (id, offender_booking_id, court_name, court_id, court_hearing_type, made_by_the_court, prison_id, comment)             
+      VALUES (1, 1, 'CVNTCC', 'CVNTCC', 'APPEAL', true, 'MDI', 'Comment')
+      """,
+      )
+
       val appointmentTime = LocalDateTime.of(2023, 11, 10, 10, 30)
       makeAppointment(appointmentTime)
     }
