@@ -187,16 +187,7 @@ class VideoLinkMigrationServiceTest {
   @Test
   fun `Handle a cancelled booking`() {
     val videoBookingId = 3L
-    val booking = makeVideoLinkBooking(
-      id = videoBookingId,
-      madeByTheCourt = true,
-      courtName = "York Justice Centre",
-      courtId = "YORKMAGS",
-      prisonId = "MDI",
-      comment = "hello",
-    )
 
-    // Events include create, update and delete
     val events = listOf(
       makeEvent(3L, 1L, VideoLinkBookingEventType.CREATE, "YORKMAGS", "York Justice Centre"),
       makeEvent(3L, 1L, VideoLinkBookingEventType.UPDATE),
@@ -205,7 +196,7 @@ class VideoLinkMigrationServiceTest {
 
     whenever(videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)).thenReturn(events)
 
-    val response = videoLinkMigrationService.getVideoLinkBookingToMigrate(3)
+    val response = videoLinkMigrationService.getVideoLinkBookingToMigrate(videoBookingId)
 
     assertThat(response.cancelled).isTrue()
 
@@ -253,6 +244,38 @@ class VideoLinkMigrationServiceTest {
     assertThrows(IllegalArgumentException::class.java) {
       videoLinkMigrationService.getVideoLinkBookingToMigrate(3)
     }
+  }
+
+  @Test
+  fun `Cancelled booking with no main appointment details on the DELETE event`() {
+    val videoBookingId = 3L
+
+    val events = listOf(
+      makeEvent(3L, 1L, VideoLinkBookingEventType.CREATE, "YORKMAGS", "York Justice Centre"),
+      makeEvent(3L, 1L, VideoLinkBookingEventType.UPDATE),
+      makeEvent(3L, 1L, VideoLinkBookingEventType.DELETE, noMainAppointment = true),
+    )
+
+    whenever(videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)).thenReturn(events)
+
+    val response = videoLinkMigrationService.getVideoLinkBookingToMigrate(videoBookingId)
+
+    assertThat(response.cancelled).isTrue()
+
+    assertThat(response.events).hasSize(3)
+    assertThat(response.events).extracting("eventType").containsExactly(
+      VideoLinkBookingEventType.CREATE,
+      VideoLinkBookingEventType.UPDATE,
+      VideoLinkBookingEventType.DELETE,
+    )
+
+    // Specific check that a null main appointment is good for DELETE events
+    val deleteEvent = response.events.find { it.eventType == VideoLinkBookingEventType.DELETE }
+    assertThat(deleteEvent?.main).isNull()
+
+    verify(videoLinkBookingEventRepository).findEventsByVideoLinkBookingId(videoBookingId)
+    verifyNoInteractions(videoLinkBookingRepository)
+    verifyNoInteractions(videoLinkAppointmentRepository)
   }
 
   @Test
@@ -313,6 +336,7 @@ class VideoLinkMigrationServiceTest {
     eventType: VideoLinkBookingEventType = VideoLinkBookingEventType.CREATE,
     courtCode: String = "YORK",
     courtName: String = "YORKMAGS",
+    noMainAppointment: Boolean = false,
   ): VideoLinkBookingEvent {
     return VideoLinkBookingEvent(
       eventId = eventId,
@@ -326,10 +350,10 @@ class VideoLinkMigrationServiceTest {
       courtId = courtCode,
       madeByTheCourt = true,
       comment = "comments",
-      mainNomisAppointmentId = 123L,
-      mainLocationId = 123L,
-      mainStartTime = LocalDateTime.now().plusDays(1),
-      mainEndTime = LocalDateTime.now().plusDays(1).plusHours(1),
+      mainNomisAppointmentId = if (noMainAppointment) null else 123L,
+      mainLocationId = if (noMainAppointment) null else 123L,
+      mainStartTime = if (noMainAppointment) null else LocalDateTime.now().plusDays(1),
+      mainEndTime = if (noMainAppointment) null else LocalDateTime.now().plusDays(1).plusHours(1),
     )
   }
 }

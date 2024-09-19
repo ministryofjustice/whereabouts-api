@@ -143,7 +143,7 @@ class VideoLinkMigrationService(
         madeByTheCourt = event.madeByTheCourt == true,
         comment = event.comment,
         pre = event.preLocationId?.let { mapEventToLocationTimeSlot(event.preLocationId!!, event.preStartTime!!, event.preEndTime!!) },
-        main = mapEventToLocationTimeSlot(event.mainLocationId!!, event.mainStartTime!!, event.mainEndTime!!),
+        main = event.mainLocationId?.let { mapEventToLocationTimeSlot(event.mainLocationId!!, event.mainStartTime!!, event.mainEndTime!!) },
         post = event.postLocationId?.let { mapEventToLocationTimeSlot(event.postLocationId!!, event.postStartTime!!, event.postEndTime!!) },
       )
     }

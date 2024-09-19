@@ -93,8 +93,8 @@ data class VideoBookingMigrateEvent(
   @ApiModelProperty(value = "Pre-hearing appointment details")
   val pre: AppointmentLocationTimeSlot?,
 
-  @ApiModelProperty(value = "Main appointment details", required = true)
-  val main: AppointmentLocationTimeSlot,
+  @ApiModelProperty(value = "Main appointment details")
+  val main: AppointmentLocationTimeSlot?,
 
   @ApiModelProperty(value = "Post-hearing appointment details")
   val post: AppointmentLocationTimeSlot?,
