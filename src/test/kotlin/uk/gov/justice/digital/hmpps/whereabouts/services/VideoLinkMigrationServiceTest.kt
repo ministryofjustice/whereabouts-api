@@ -269,9 +269,9 @@ class VideoLinkMigrationServiceTest {
       VideoLinkBookingEventType.DELETE,
     )
 
-    // Specific check that a null main appointment is good for DELETE events
     val deleteEvent = response.events.find { it.eventType == VideoLinkBookingEventType.DELETE }
-    assertThat(deleteEvent?.main).isNull()
+    val updateEvent = response.events.find { it.eventType == VideoLinkBookingEventType.UPDATE }
+    assertThat(deleteEvent?.main?.locationId).isEqualTo(updateEvent?.main?.locationId)
 
     verify(videoLinkBookingEventRepository).findEventsByVideoLinkBookingId(videoBookingId)
     verifyNoInteractions(videoLinkBookingRepository)

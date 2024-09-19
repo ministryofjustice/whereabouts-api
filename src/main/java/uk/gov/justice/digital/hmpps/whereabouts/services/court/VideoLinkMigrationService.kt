@@ -130,8 +130,10 @@ class VideoLinkMigrationService(
       endTime = LocalTime.of(endTime.hour, endTime.minute),
     )
 
-  private fun mapEvents(events: List<VideoLinkBookingEvent>): List<VideoBookingMigrateEvent> =
-    events.map { event ->
+  private fun mapEvents(events: List<VideoLinkBookingEvent>): List<VideoBookingMigrateEvent> {
+    val lastChangeEvent = events.sortedBy { it.timestamp }.last { it.eventType != VideoLinkBookingEventType.DELETE }
+
+    return events.map { event ->
       VideoBookingMigrateEvent(
         eventId = event.eventId!!,
         eventTime = event.timestamp,
@@ -142,11 +144,28 @@ class VideoLinkMigrationService(
         courtName = event.court,
         madeByTheCourt = event.madeByTheCourt == true,
         comment = event.comment,
-        pre = event.preLocationId?.let { mapEventToLocationTimeSlot(event.preLocationId!!, event.preStartTime!!, event.preEndTime!!) },
-        main = event.mainLocationId?.let { mapEventToLocationTimeSlot(event.mainLocationId!!, event.mainStartTime!!, event.mainEndTime!!) },
-        post = event.postLocationId?.let { mapEventToLocationTimeSlot(event.postLocationId!!, event.postStartTime!!, event.postEndTime!!) },
+        pre = event.preLocationId?.let {
+          mapEventToLocationTimeSlot(
+            locationId = event.preLocationId!!,
+            startTime = event.preStartTime!!,
+            endTime = event.preEndTime!!,
+          )
+        },
+        main = mapEventToLocationTimeSlot(
+          locationId = event.mainLocationId ?: lastChangeEvent.mainLocationId!!,
+          startTime = event.mainStartTime ?: lastChangeEvent.mainStartTime!!,
+          endTime = event.mainEndTime ?: lastChangeEvent.mainEndTime!!,
+        ),
+        post = event.postLocationId?.let {
+          mapEventToLocationTimeSlot(
+            locationId = event.postLocationId!!,
+            startTime = event.postStartTime!!,
+            endTime = event.postEndTime!!,
+          )
+        },
       )
     }
+  }
 
   private fun extractAppointmentsFromEvent(eventEntities: List<VideoLinkBookingEvent>): AppointmentsFromEvent {
     val latestEvent = eventEntities.sortedBy { it.timestamp }.last { it.eventType != VideoLinkBookingEventType.DELETE }
