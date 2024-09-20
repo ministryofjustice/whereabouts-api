@@ -7,6 +7,12 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
+import org.springframework.test.context.ContextConfiguration
+import uk.gov.justice.digital.hmpps.whereabouts.config.TestAsyncConfiguration
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
@@ -15,22 +21,31 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentR
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingEventRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkMigrationService
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.events.OutboundEvent
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.events.OutboundEventsService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers.Companion.makeVideoLinkBooking
 import java.lang.IllegalArgumentException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
 
+@ContextConfiguration(classes = [TestAsyncConfiguration::class])
 class VideoLinkMigrationServiceTest {
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
   private val videoLinkBookingEventRepository: VideoLinkBookingEventRepository = mock()
+  private val outboundEventsService: OutboundEventsService = mock()
 
   private val videoLinkMigrationService = VideoLinkMigrationService(
     videoLinkBookingRepository,
     videoLinkBookingEventRepository,
     videoLinkAppointmentRepository,
+    outboundEventsService,
   )
+
+  companion object {
+    private val log: Logger = LoggerFactory.getLogger(this::class.java)
+  }
 
   @Test
   fun `Event date and time conversion`() {
@@ -64,6 +79,36 @@ class VideoLinkMigrationServiceTest {
     assertThat(slot.date).isEqualTo("2023-10-01")
     assertThat(slot.startTime).hasHour(12).hasMinute(20).hasSecond(0).hasNano(0)
     assertThat(slot.endTime).hasHour(12).hasMinute(40).hasSecond(0).hasNano(0)
+  }
+
+  @Test
+  fun `Generate migration events`() {
+    val fromDate = LocalDate.of(2023, 10, 1)
+    val fromDateTime = LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0)
+    val pageable = Pageable.ofSize(10).first()
+
+    whenever(videoLinkBookingEventRepository.findAllByTimestampGreaterThanAndEventTypeEquals(fromDateTime, VideoLinkBookingEventType.CREATE, pageable))
+      .thenReturn(
+        PageImpl(
+          listOf(
+            makeEvent(1L, 1L, VideoLinkBookingEventType.CREATE),
+            makeEvent(2L, 2L, VideoLinkBookingEventType.CREATE),
+            makeEvent(3L, 3L, VideoLinkBookingEventType.CREATE),
+          ),
+        ),
+      )
+
+    val result = videoLinkMigrationService.migrateVideoLinkBookingsSinceDate(fromDate)
+    val migrationSummary = result.get()
+    with(migrationSummary) {
+      assertThat(numberOfPages).isEqualTo(1)
+      assertThat(numberOfBookings).isEqualTo(3)
+      assertThat(numberOfEventsRaised).isEqualTo(3)
+    }
+
+    verify(outboundEventsService).send(OutboundEvent.VIDEO_LINK_BOOKING_MIGRATE, 1L)
+    verify(outboundEventsService).send(OutboundEvent.VIDEO_LINK_BOOKING_MIGRATE, 2L)
+    verify(outboundEventsService).send(OutboundEvent.VIDEO_LINK_BOOKING_MIGRATE, 3L)
   }
 
   @Test

@@ -17,6 +17,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventType
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingEventRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.events.OutboundEvent
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.events.OutboundEventsService
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -29,11 +31,16 @@ class VideoLinkMigrationService(
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val videoLinkBookingEventRepository: VideoLinkBookingEventRepository,
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
+  private val outboundEventsService: OutboundEventsService,
 ) {
   companion object {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
+  /**
+   * This service is only used in the mitgration process for video link bookings and not used in any user flow.
+   * It can be removed along with other video link booking features when that migration has been completed.
+   */
   @Async("asyncExecutor")
   fun migrateVideoLinkBookingsSinceDate(fromDate: LocalDate): CompletableFuture<MigrationSummary> {
     val task = CompletableFuture<MigrationSummary>()
@@ -45,7 +52,7 @@ class VideoLinkMigrationService(
     val elapsed = measureTimeMillis {
       // Change to use the main hearing date - this is what Emma preferred
       var page = videoLinkBookingEventRepository.findAllByTimestampGreaterThanAndEventTypeEquals(
-        LocalDateTime.from(fromDate),
+        LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0),
         VideoLinkBookingEventType.CREATE,
         pageable,
       )
@@ -55,8 +62,7 @@ class VideoLinkMigrationService(
 
       while (page.hasContent()) {
         page.content.map {
-          // For each item in the page
-          // Raise a domain event
+          outboundEventsService.send(OutboundEvent.VIDEO_LINK_BOOKING_MIGRATE, it.videoLinkBookingId)
           numberOfEventsRaised++
         }
 
@@ -66,7 +72,7 @@ class VideoLinkMigrationService(
 
         // Get the next page of create events
         page = videoLinkBookingEventRepository.findAllByTimestampGreaterThanAndEventTypeEquals(
-          LocalDateTime.from(fromDate),
+          LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0),
           VideoLinkBookingEventType.CREATE,
           pageable.next(),
         )
