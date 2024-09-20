@@ -3,6 +3,8 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 import jakarta.persistence.EntityNotFoundException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Pageable
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.whereabouts.dto.AppointmentLocationTimeSlot
@@ -18,8 +20,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepos
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.util.concurrent.CompletableFuture
+import kotlin.system.measureTimeMillis
 
 @Service
+@Transactional(readOnly = true)
 class VideoLinkMigrationService(
   private val videoLinkBookingRepository: VideoLinkBookingRepository,
   private val videoLinkBookingEventRepository: VideoLinkBookingEventRepository,
@@ -29,7 +34,53 @@ class VideoLinkMigrationService(
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  @Transactional(readOnly = true)
+  @Async("asyncExecutor")
+  fun migrateVideoLinkBookingsSinceDate(fromDate: LocalDate): CompletableFuture<MigrationSummary> {
+    val task = CompletableFuture<MigrationSummary>()
+    var numberOfEventsRaised = 0
+    val pageable = Pageable.ofSize(10).first()
+
+    log.info("Starting migration of video link bookings from $fromDate at ${LocalDateTime.now()}")
+
+    val elapsed = measureTimeMillis {
+      // Change to use the main hearing date - this is what Emma preferred
+      var page = videoLinkBookingEventRepository.findAllByTimestampGreaterThanAndEventTypeEquals(
+        LocalDateTime.from(fromDate),
+        VideoLinkBookingEventType.CREATE,
+        pageable,
+      )
+
+      val numberOfBookings = page.numberOfElements
+      val numberOfPages = page.totalPages
+
+      while (page.hasContent()) {
+        page.content.map {
+          // For each item in the page
+          // Raise a domain event
+          numberOfEventsRaised++
+        }
+
+        if (page.isLast) {
+          break
+        }
+
+        // Get the next page of create events
+        page = videoLinkBookingEventRepository.findAllByTimestampGreaterThanAndEventTypeEquals(
+          LocalDateTime.from(fromDate),
+          VideoLinkBookingEventType.CREATE,
+          pageable.next(),
+        )
+      }
+
+      // Complete the async task
+      task.complete(MigrationSummary(numberOfBookings, numberOfPages, numberOfEventsRaised))
+    }
+
+    log.info("End migration of video link bookings - took ${elapsed}ms")
+
+    return task
+  }
+
   fun getVideoLinkBookingToMigrate(videoBookingId: Long): VideoBookingMigrateResponse {
     // Get the events for this booking - deleted bookings have no video_link_booking or video_link_appointments
     val eventEntities = videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)
@@ -47,7 +98,7 @@ class VideoLinkMigrationService(
     }
   }
 
-  fun cancelledVideoLinkBooking(
+  private fun cancelledVideoLinkBooking(
     videoBookingId: Long,
     eventEntities: List<VideoLinkBookingEvent>,
   ): VideoBookingMigrateResponse {
@@ -55,7 +106,7 @@ class VideoLinkMigrationService(
     val lastChangeEvent = eventEntities.sortedBy { it.timestamp }.last { it.eventType != VideoLinkBookingEventType.DELETE }
 
     // Reconstruct the appointment detail from the latest CREATE or UPDATE event
-    val appointmentsFromEvent = extractAppointmentsFromEvent(eventEntities)
+    val appointmentsFromEvent = extractAppointmentsFromEvent(lastChangeEvent)
 
     // Reconstruct the booking details from the events
     val bookingDetails = extractBookingFromEvents(createEvent, lastChangeEvent)
@@ -78,7 +129,7 @@ class VideoLinkMigrationService(
     )
   }
 
-  fun activeVideoLinkBooking(
+  private fun activeVideoLinkBooking(
     videoBookingId: Long,
     eventEntities: List<VideoLinkBookingEvent>,
   ): VideoBookingMigrateResponse {
@@ -167,8 +218,7 @@ class VideoLinkMigrationService(
     }
   }
 
-  private fun extractAppointmentsFromEvent(eventEntities: List<VideoLinkBookingEvent>): AppointmentsFromEvent {
-    val latestEvent = eventEntities.sortedBy { it.timestamp }.last { it.eventType != VideoLinkBookingEventType.DELETE }
+  private fun extractAppointmentsFromEvent(latestEvent: VideoLinkBookingEvent): AppointmentsFromEvent {
     val pre = latestEvent.preLocationId?.let {
       mapEventToLocationTimeSlot(it, latestEvent.preStartTime!!, latestEvent.preEndTime!!)
     }
@@ -207,4 +257,10 @@ data class BookingDetails(
   val prisonId: String,
   val createdByUsername: String,
   val comment: String? = null,
+)
+
+data class MigrationSummary(
+  val numberOfBookings: Int,
+  val numberOfPages: Int,
+  val numberOfEventsRaised: Int,
 )

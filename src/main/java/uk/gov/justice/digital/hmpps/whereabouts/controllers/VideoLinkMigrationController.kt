@@ -8,10 +8,12 @@ import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkMigrationService
+import java.time.LocalDate
 
 @Tag(name = "Migration")
 @RestController
@@ -36,4 +38,26 @@ class VideoLinkMigrationController(
     @Parameter(description = "The video link booking ID to return data for.", required = true)
     @PathVariable videoBookingId: Long,
   ) = videoLinkMigrationService.getVideoLinkBookingToMigrate(videoBookingId)
+
+  @PutMapping(
+    path = ["/video-link-bookings"],
+    produces = [MediaType.APPLICATION_JSON_VALUE],
+  )
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(
+    summary = "Trigger the process which will emit domain events for all bookings with a main hearing start time that is after the fromDate",
+    description = """
+      Requires role: ROLE_BOOK_A_VIDEO_LINK_ADMIN
+      Triggers the start of the data migration process for video link bookings
+      """,
+  )
+  @PreAuthorize("hasAnyRole('BOOK_A_VIDEO_LINK_ADMIN')")
+  fun migrateVideoLinkBookings(
+    @Parameter(
+      description = "The start date to migrate bookings with a creation date on or after this date, Defaults to 5 days ago",
+      required = true,
+      example = "2023-10-01",
+    )
+    fromDate: LocalDate,
+  ) = videoLinkMigrationService.migrateVideoLinkBookingsSinceDate(fromDate)
 }
