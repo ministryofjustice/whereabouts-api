@@ -87,7 +87,7 @@ class VideoLinkMigrationServiceTest {
     val fromDateTime = LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0)
     val pageable = Pageable.ofSize(10).first()
 
-    whenever(videoLinkBookingEventRepository.findAllByTimestampGreaterThanAndEventTypeEquals(fromDateTime, VideoLinkBookingEventType.CREATE, pageable))
+    whenever(videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(fromDateTime, VideoLinkBookingEventType.CREATE, pageable))
       .thenReturn(
         PageImpl(
           listOf(

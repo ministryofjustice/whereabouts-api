@@ -51,7 +51,7 @@ class VideoLinkMigrationService(
 
     val elapsed = measureTimeMillis {
       // Change to use the main hearing date - this is what Emma preferred
-      var page = videoLinkBookingEventRepository.findAllByTimestampGreaterThanAndEventTypeEquals(
+      var page = videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
         LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0),
         VideoLinkBookingEventType.CREATE,
         pageable,
@@ -71,7 +71,7 @@ class VideoLinkMigrationService(
         }
 
         // Get the next page of create events
-        page = videoLinkBookingEventRepository.findAllByTimestampGreaterThanAndEventTypeEquals(
+        page = videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
           LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0),
           VideoLinkBookingEventType.CREATE,
           pageable.next(),

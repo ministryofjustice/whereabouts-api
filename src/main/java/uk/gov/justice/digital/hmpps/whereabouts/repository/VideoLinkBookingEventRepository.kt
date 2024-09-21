@@ -50,7 +50,7 @@ interface VideoLinkBookingEventRepository : JpaRepository<VideoLinkBookingEvent,
 
   fun findEventsByVideoLinkBookingId(videoLinkBookingId: Long): List<VideoLinkBookingEvent>
 
-  fun findAllByTimestampGreaterThanAndEventTypeEquals(
+  fun findAllByMainStartTimeGreaterThanAndEventTypeEquals(
     fromDate: LocalDateTime,
     eventType: VideoLinkBookingEventType = VideoLinkBookingEventType.CREATE,
     pageable: Pageable,
