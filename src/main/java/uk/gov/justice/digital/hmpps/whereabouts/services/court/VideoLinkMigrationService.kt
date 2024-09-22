@@ -38,26 +38,29 @@ class VideoLinkMigrationService(
   }
 
   /**
-   * This service is only used in the mitgration process for video link bookings and not used in any user flow.
+   * This service is only used in the migration process for video link bookings and not used in any user flow.
    * It can be removed along with other video link booking features when that migration has been completed.
    */
   @Async("asyncExecutor")
-  fun migrateVideoLinkBookingsSinceDate(fromDate: LocalDate): CompletableFuture<MigrationSummary> {
+  fun migrateVideoLinkBookingsSinceDate(
+    fromDate: LocalDate,
+    pageSize: Int,
+    waitMillis: Long,
+  ): CompletableFuture<MigrationSummary> {
     val task = CompletableFuture<MigrationSummary>()
     var numberOfEventsRaised = 0
-    val pageable = Pageable.ofSize(10).first()
+    val pageable = Pageable.ofSize(pageSize)
 
     log.info("Starting migration of video link bookings from $fromDate at ${LocalDateTime.now()}")
 
     val elapsed = measureTimeMillis {
-      // Change to use the main hearing date - this is what Emma preferred
       var page = videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
         LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0),
         VideoLinkBookingEventType.CREATE,
-        pageable,
+        pageable.first(),
       )
 
-      val numberOfBookings = page.numberOfElements
+      val numberOfBookings = page.totalElements
       val numberOfPages = page.totalPages
 
       while (page.hasContent()) {
@@ -70,7 +73,10 @@ class VideoLinkMigrationService(
           break
         }
 
-        // Get the next page of create events
+        if (waitMillis > 0) {
+          Thread.sleep(waitMillis)
+        }
+
         page = videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
           LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0),
           VideoLinkBookingEventType.CREATE,
@@ -78,7 +84,6 @@ class VideoLinkMigrationService(
         )
       }
 
-      // Complete the async task
       task.complete(MigrationSummary(numberOfBookings, numberOfPages, numberOfEventsRaised))
     }
 
@@ -92,10 +97,7 @@ class VideoLinkMigrationService(
     val eventEntities = videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)
     require(eventEntities.isNotEmpty()) { "Video link booking ID $videoBookingId has no events" }
 
-    // Does a DELETE event exist?
     val cancelledBooking = eventEntities.any { it.eventType == VideoLinkBookingEventType.DELETE }
-
-    log.info("Migrating video link booking ID $videoBookingId (cancelled?=$cancelledBooking)")
 
     return if (cancelledBooking) {
       cancelledVideoLinkBooking(videoBookingId, eventEntities)
@@ -114,7 +116,7 @@ class VideoLinkMigrationService(
     // Reconstruct the appointment detail from the latest CREATE or UPDATE event
     val appointmentsFromEvent = extractAppointmentsFromEvent(lastChangeEvent)
 
-    // Reconstruct the booking details from the events
+    // Reconstruct the booking details from the latest CREATE and UPDATE events (create can contain more detail)
     val bookingDetails = extractBookingFromEvents(createEvent, lastChangeEvent)
 
     return VideoBookingMigrateResponse(
@@ -266,7 +268,7 @@ data class BookingDetails(
 )
 
 data class MigrationSummary(
-  val numberOfBookings: Int,
+  val numberOfBookings: Long,
   val numberOfPages: Int,
   val numberOfEventsRaised: Int,
 )

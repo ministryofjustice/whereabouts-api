@@ -53,11 +53,11 @@ class VideoLinkMigrationController(
   )
   @PreAuthorize("hasAnyRole('BOOK_A_VIDEO_LINK_ADMIN')")
   fun migrateVideoLinkBookings(
-    @Parameter(
-      description = "The start date to migrate bookings with a creation date on or after this date, Defaults to 5 days ago",
-      required = true,
-      example = "2023-10-01",
-    )
+    @Parameter(description = "Earliest date for the main hearing time", required = true, example = "2023-10-01")
     fromDate: LocalDate,
-  ) = videoLinkMigrationService.migrateVideoLinkBookingsSinceDate(fromDate)
+    @Parameter(description = "Page size", required = false, example = "10")
+    pageSize: Int = 10,
+    @Parameter(description = "Milliseconds to delay between pages")
+    waitMillis: Long = 0,
+  ) = videoLinkMigrationService.migrateVideoLinkBookingsSinceDate(fromDate, pageSize, waitMillis)
 }
