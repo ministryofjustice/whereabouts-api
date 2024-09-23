@@ -55,7 +55,7 @@ class VideoLinkMigrationService(
 
     val elapsed = measureTimeMillis {
       var page = videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
-        LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0),
+        fromDate.atStartOfDay(),
         VideoLinkBookingEventType.CREATE,
         pageable.first(),
       )
@@ -78,7 +78,7 @@ class VideoLinkMigrationService(
         }
 
         page = videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
-          LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0),
+          fromDate.atStartOfDay(),
           VideoLinkBookingEventType.CREATE,
           pageable.next(),
         )

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.kotlin.any
-import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
@@ -14,8 +13,6 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.support.PagedListHolder
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
-import org.springframework.test.context.ContextConfiguration
-import uk.gov.justice.digital.hmpps.whereabouts.config.TestAsyncConfiguration
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
@@ -32,7 +29,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
 
-@ContextConfiguration(classes = [TestAsyncConfiguration::class])
 class VideoLinkMigrationServiceTest {
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
@@ -164,7 +160,7 @@ class VideoLinkMigrationServiceTest {
       assertThat(numberOfEventsRaised).isEqualTo(5)
     }
 
-    verify(outboundEventsService, times(5)).send(any(), anyLong(), anyOrNull())
+    verify(outboundEventsService, times(5)).send(any(), anyLong())
   }
 
   @Test

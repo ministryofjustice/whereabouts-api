@@ -14,7 +14,7 @@ class OutboundEventsService(
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun send(outboundEvent: OutboundEvent, identifier: Long, secondIdentifier: Long? = null) {
+  fun send(outboundEvent: OutboundEvent, identifier: Long) {
     if (featureSwitches.isEnabled(outboundEvent)) {
       log.info("Sending outbound event $outboundEvent for identifier $identifier")
       when (outboundEvent) {
