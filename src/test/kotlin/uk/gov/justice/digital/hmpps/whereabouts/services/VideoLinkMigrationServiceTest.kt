@@ -3,10 +3,16 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyLong
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
+import org.springframework.beans.support.PagedListHolder
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
@@ -15,6 +21,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentR
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingEventRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkMigrationService
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.events.OutboundEvent
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.events.OutboundEventsService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers.Companion.makeVideoLinkBooking
 import java.lang.IllegalArgumentException
 import java.time.LocalDate
@@ -25,11 +33,13 @@ class VideoLinkMigrationServiceTest {
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository = mock()
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
   private val videoLinkBookingEventRepository: VideoLinkBookingEventRepository = mock()
+  private val outboundEventsService: OutboundEventsService = mock()
 
   private val videoLinkMigrationService = VideoLinkMigrationService(
     videoLinkBookingRepository,
     videoLinkBookingEventRepository,
     videoLinkAppointmentRepository,
+    outboundEventsService,
   )
 
   @Test
@@ -64,6 +74,93 @@ class VideoLinkMigrationServiceTest {
     assertThat(slot.date).isEqualTo("2023-10-01")
     assertThat(slot.startTime).hasHour(12).hasMinute(20).hasSecond(0).hasNano(0)
     assertThat(slot.endTime).hasHour(12).hasMinute(40).hasSecond(0).hasNano(0)
+  }
+
+  @Test
+  fun `Generate migration events`() {
+    val fromDate = LocalDate.of(2023, 10, 1)
+    val fromDateTime = LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0)
+    val pageSize = 3
+    val waitMillis = 0L
+    val pageable = Pageable.ofSize(pageSize)
+
+    whenever(videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(fromDateTime, VideoLinkBookingEventType.CREATE, pageable.first()))
+      .thenReturn(
+        PageImpl(
+          listOf(
+            makeEvent(1L, 1L, VideoLinkBookingEventType.CREATE),
+            makeEvent(2L, 2L, VideoLinkBookingEventType.CREATE),
+            makeEvent(3L, 3L, VideoLinkBookingEventType.CREATE),
+          ),
+        ),
+      )
+
+    val result = videoLinkMigrationService.migrateVideoLinkBookingsSinceDate(fromDate, pageSize, waitMillis)
+
+    val migrationSummary = result.get()
+    with(migrationSummary) {
+      assertThat(numberOfPages).isEqualTo(1)
+      assertThat(numberOfBookings).isEqualTo(3L)
+      assertThat(numberOfEventsRaised).isEqualTo(3)
+    }
+
+    verify(outboundEventsService).send(OutboundEvent.VIDEO_LINK_BOOKING_MIGRATE, 1L)
+    verify(outboundEventsService).send(OutboundEvent.VIDEO_LINK_BOOKING_MIGRATE, 2L)
+    verify(outboundEventsService).send(OutboundEvent.VIDEO_LINK_BOOKING_MIGRATE, 3L)
+  }
+
+  @Test
+  fun `Generate migration events - paginated`() {
+    val pageSize = 3
+    val waitMillis = 0L
+    val fromDate = LocalDate.of(2023, 10, 1)
+    val fromDateTime = LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0)
+    val pageable = Pageable.ofSize(pageSize)
+
+    // Two pages worth of VideoLinkBookingEvents
+    val events = listOf(
+      makeEvent(1L, 1L, VideoLinkBookingEventType.CREATE),
+      makeEvent(2L, 2L, VideoLinkBookingEventType.CREATE),
+      makeEvent(3L, 3L, VideoLinkBookingEventType.CREATE),
+      makeEvent(4L, 4L, VideoLinkBookingEventType.CREATE),
+      makeEvent(5L, 5L, VideoLinkBookingEventType.CREATE),
+    )
+
+    // Used to paginate the mocked responses
+    val pagedList = PagedListHolder(events)
+    pagedList.pageSize = pageSize
+    pagedList.page = 0
+
+    whenever(
+      videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
+        fromDateTime,
+        VideoLinkBookingEventType.CREATE,
+        pageable.first(),
+      ),
+    )
+      .thenReturn(PageImpl(pagedList.pageList, pageable.first(), 5))
+
+    pagedList.page = 1
+
+    whenever(
+      videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
+        fromDateTime,
+        VideoLinkBookingEventType.CREATE,
+        pageable.next(),
+      ),
+    )
+      .thenReturn(PageImpl(pagedList.pageList, pageable.next(), 5))
+
+    val result = videoLinkMigrationService.migrateVideoLinkBookingsSinceDate(fromDate, pageSize, waitMillis)
+
+    val migrationSummary = result.get()
+    with(migrationSummary) {
+      assertThat(numberOfPages).isEqualTo(2)
+      assertThat(numberOfBookings).isEqualTo(5L)
+      assertThat(numberOfEventsRaised).isEqualTo(5)
+    }
+
+    verify(outboundEventsService, times(5)).send(any(), anyLong())
   }
 
   @Test
