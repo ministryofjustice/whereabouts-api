@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkMigrationService
@@ -54,10 +55,10 @@ class VideoLinkMigrationController(
   @PreAuthorize("hasAnyRole('BOOK_A_VIDEO_LINK_ADMIN')")
   fun migrateVideoLinkBookings(
     @Parameter(description = "Earliest date for the main hearing time", required = true, example = "2023-10-01")
-    fromDate: LocalDate,
-    @Parameter(description = "Page size", required = false, example = "10")
-    pageSize: Int = 10,
-    @Parameter(description = "Milliseconds to delay between pages")
-    waitMillis: Long = 0,
+    @RequestParam fromDate: LocalDate,
+    @Parameter(description = "Page size. Will default to 10 if not provided", required = false, example = "10")
+    @RequestParam pageSize: Int = 10,
+    @Parameter(description = "Milliseconds to delay between pages. Defaults to no delay (0 milliseconds)")
+    @RequestParam waitMillis: Long = 0,
   ) = videoLinkMigrationService.migrateVideoLinkBookingsSinceDate(fromDate, pageSize, waitMillis)
 }
