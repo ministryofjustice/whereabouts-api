@@ -59,9 +59,6 @@ generic-service:
       HMPPS_SQS_QUEUES_DOMAINEVENT_QUEUE_NAME: "sqs_name"
     whereabouts-api-domain-events-sqs-dl-instance-output:
       HMPPS_SQS_QUEUES_DOMAINEVENT_DLQ_NAME: "sqs_name"
-    hmpps-domain-events-topic:
-      HMPPS_SQS_TOPICS_DOMAINEVENTS_ARN: "topic_arn"
-
 
   allowlist:
     groups:
