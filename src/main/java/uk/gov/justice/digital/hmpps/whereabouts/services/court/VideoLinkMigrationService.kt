@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.services.court
 import jakarta.persistence.EntityNotFoundException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
@@ -49,19 +50,20 @@ class VideoLinkMigrationService(
   ): CompletableFuture<MigrationSummary> {
     val task = CompletableFuture<MigrationSummary>()
     var numberOfEventsRaised = 0
-    val pageable = Pageable.ofSize(pageSize)
-
-    log.info("Starting migration of video link bookings from $fromDate at ${LocalDateTime.now()}")
+    val pageRequest = PageRequest.of(0, pageSize)
 
     val elapsed = measureTimeMillis {
       var page = videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
         fromDate.atStartOfDay(),
         VideoLinkBookingEventType.CREATE,
-        pageable.first(),
+        pageRequest,
       )
 
       val numberOfBookings = page.totalElements
       val numberOfPages = page.totalPages
+
+      log.info("Starting migration of video link bookings from $fromDate at ${LocalDateTime.now()}")
+      log.info("Estimated rows $numberOfBookings in $numberOfPages pages")
 
       while (page.hasContent()) {
         page.content.map {
@@ -80,7 +82,7 @@ class VideoLinkMigrationService(
         page = videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
           fromDate.atStartOfDay(),
           VideoLinkBookingEventType.CREATE,
-          pageable.next(),
+          pageRequest.next(),
         )
       }
 

@@ -12,6 +12,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.beans.support.PagedListHolder
 import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
@@ -115,7 +116,7 @@ class VideoLinkMigrationServiceTest {
     val waitMillis = 0L
     val fromDate = LocalDate.of(2023, 10, 1)
     val fromDateTime = LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0)
-    val pageable = Pageable.ofSize(pageSize)
+    val pageRequest = PageRequest.of(0, pageSize)
 
     // Two pages worth of VideoLinkBookingEvents
     val events = listOf(
@@ -135,10 +136,10 @@ class VideoLinkMigrationServiceTest {
       videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
         fromDateTime,
         VideoLinkBookingEventType.CREATE,
-        pageable.first(),
+        pageRequest.first(),
       ),
     )
-      .thenReturn(PageImpl(pagedList.pageList, pageable.first(), 5))
+      .thenReturn(PageImpl(pagedList.pageList, pageRequest, 5))
 
     pagedList.page = 1
 
@@ -146,10 +147,10 @@ class VideoLinkMigrationServiceTest {
       videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
         fromDateTime,
         VideoLinkBookingEventType.CREATE,
-        pageable.next(),
+        pageRequest.next(),
       ),
     )
-      .thenReturn(PageImpl(pagedList.pageList, pageable.next(), 5))
+      .thenReturn(PageImpl(pagedList.pageList, pageRequest.next(), 5))
 
     val result = videoLinkMigrationService.migrateVideoLinkBookingsSinceDate(fromDate, pageSize, waitMillis)
 
