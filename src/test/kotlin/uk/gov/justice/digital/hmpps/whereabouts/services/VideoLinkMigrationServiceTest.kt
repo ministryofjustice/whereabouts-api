@@ -112,7 +112,7 @@ class VideoLinkMigrationServiceTest {
 
   @Test
   fun `Generate migration events - paginated`() {
-    val pageSize = 3
+    val pageSize = 2
     val waitMillis = 0L
     val fromDate = LocalDate.of(2023, 10, 1)
     val fromDateTime = LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0)
@@ -153,11 +153,23 @@ class VideoLinkMigrationServiceTest {
     )
       .thenReturn(PageImpl(pagedList.pageList, pageRequest, 5))
 
+    pagedList.page = 2
+    pageRequest = pageRequest.next()
+
+    whenever(
+      videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
+        fromDateTime,
+        VideoLinkBookingEventType.CREATE,
+        pageRequest,
+      ),
+    )
+      .thenReturn(PageImpl(pagedList.pageList, pageRequest, 5))
+
     val result = videoLinkMigrationService.migrateVideoLinkBookingsSinceDate(fromDate, pageSize, waitMillis)
 
     val migrationSummary = result.get()
     with(migrationSummary) {
-      assertThat(numberOfPages).isEqualTo(2)
+      assertThat(numberOfPages).isEqualTo(3)
       assertThat(numberOfBookings).isEqualTo(5L)
       assertThat(numberOfEventsRaised).isEqualTo(5)
     }
