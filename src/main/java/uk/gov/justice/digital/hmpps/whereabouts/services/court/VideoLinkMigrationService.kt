@@ -4,7 +4,6 @@ import jakarta.persistence.EntityNotFoundException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -50,7 +49,7 @@ class VideoLinkMigrationService(
   ): CompletableFuture<MigrationSummary> {
     val task = CompletableFuture<MigrationSummary>()
     var numberOfEventsRaised = 0
-    val pageRequest = PageRequest.of(0, pageSize)
+    var pageRequest = PageRequest.of(0, pageSize)
 
     val elapsed = measureTimeMillis {
       var page = videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
@@ -79,10 +78,12 @@ class VideoLinkMigrationService(
           Thread.sleep(waitMillis)
         }
 
+        pageRequest = pageRequest.next()
+
         page = videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
           fromDate.atStartOfDay(),
           VideoLinkBookingEventType.CREATE,
-          pageRequest.next(),
+          pageRequest,
         )
       }
 

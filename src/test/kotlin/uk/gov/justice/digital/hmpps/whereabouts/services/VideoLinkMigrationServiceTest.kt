@@ -116,7 +116,7 @@ class VideoLinkMigrationServiceTest {
     val waitMillis = 0L
     val fromDate = LocalDate.of(2023, 10, 1)
     val fromDateTime = LocalDateTime.of(fromDate.year, fromDate.month, fromDate.dayOfMonth, 0, 0)
-    val pageRequest = PageRequest.of(0, pageSize)
+    var pageRequest = PageRequest.of(0, pageSize)
 
     // Two pages worth of VideoLinkBookingEvents
     val events = listOf(
@@ -136,21 +136,22 @@ class VideoLinkMigrationServiceTest {
       videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
         fromDateTime,
         VideoLinkBookingEventType.CREATE,
-        pageRequest.first(),
+        pageRequest,
       ),
     )
       .thenReturn(PageImpl(pagedList.pageList, pageRequest, 5))
 
     pagedList.page = 1
+    pageRequest = pageRequest.next()
 
     whenever(
       videoLinkBookingEventRepository.findAllByMainStartTimeGreaterThanAndEventTypeEquals(
         fromDateTime,
         VideoLinkBookingEventType.CREATE,
-        pageRequest.next(),
+        pageRequest,
       ),
     )
-      .thenReturn(PageImpl(pagedList.pageList, pageRequest.next(), 5))
+      .thenReturn(PageImpl(pagedList.pageList, pageRequest, 5))
 
     val result = videoLinkMigrationService.migrateVideoLinkBookingsSinceDate(fromDate, pageSize, waitMillis)
 
