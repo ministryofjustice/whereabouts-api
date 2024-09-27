@@ -15,4 +15,8 @@ generic-service:
     NOTIFY_ENABLED: false
     PRISONREGISTER_ENDPOINT_URL: "https://prison-register-preprod.hmpps.service.justice.gov.uk"
     WHEREABOUTS_DISABLED: RSI,WDI,LPI,FMI,IWI
+    FEATURE_EVENTS_SNS_ENABLED: true
 
+  namespace_secrets:
+    hmpps-domain-events-topic:
+      HMPPS_SQS_TOPICS_DOMAINEVENTS_ARN: "topic_arn"
