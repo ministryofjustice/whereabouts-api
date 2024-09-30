@@ -4,16 +4,20 @@ import jakarta.persistence.QueryHint
 import org.hibernate.jpa.AvailableHints.HINT_CACHEABLE
 import org.hibernate.jpa.AvailableHints.HINT_FETCH_SIZE
 import org.hibernate.jpa.AvailableHints.HINT_READ_ONLY
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.QueryHints
+import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.stream.Stream
 
-interface VideoLinkBookingEventRepository : JpaRepository<VideoLinkBookingEvent, Long> {
+interface VideoLinkBookingEventRepository : JpaRepository<VideoLinkBookingEvent, Long>, PagingAndSortingRepository<VideoLinkBookingEvent, Long> {
   @QueryHints(
     value = [
       QueryHint(name = HINT_FETCH_SIZE, value = "" + Integer.MAX_VALUE),
@@ -45,6 +49,12 @@ interface VideoLinkBookingEventRepository : JpaRepository<VideoLinkBookingEvent,
   ): Stream<VideoLinkBookingEvent>
 
   fun findEventsByVideoLinkBookingId(videoLinkBookingId: Long): List<VideoLinkBookingEvent>
+
+  fun findAllByMainStartTimeGreaterThanAndEventTypeEquals(
+    fromDate: LocalDateTime,
+    eventType: VideoLinkBookingEventType = VideoLinkBookingEventType.CREATE,
+    pageable: Pageable,
+  ): Page<VideoLinkBookingEvent>
 }
 
 fun VideoLinkBookingEventRepository.findByDatesBetween(

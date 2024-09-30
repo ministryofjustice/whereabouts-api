@@ -37,6 +37,8 @@ generic-service:
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.json
     HMPPS_SQS_USE_WEB_TOKEN: "true"
     FEATURE_BVLS_ENABLED: "true"
+    FEATURE_EVENTS_SNS_ENABLED: false
+    FEATURE_EVENT_WHEREABOUTS_API_VIDEOLINK_MIGRATE: true
 
   namespace_secrets:
     whereabouts-api:
@@ -57,8 +59,6 @@ generic-service:
       HMPPS_SQS_QUEUES_DOMAINEVENT_QUEUE_NAME: "sqs_name"
     whereabouts-api-domain-events-sqs-dl-instance-output:
       HMPPS_SQS_QUEUES_DOMAINEVENT_DLQ_NAME: "sqs_name"
-
-
 
   allowlist:
     groups:
