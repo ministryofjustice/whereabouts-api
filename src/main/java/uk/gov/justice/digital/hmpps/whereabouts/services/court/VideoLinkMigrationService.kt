@@ -12,6 +12,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoBookingMigrateEvent
 import uk.gov.justice.digital.hmpps.whereabouts.dto.VideoBookingMigrateResponse
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
+import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEvent
 import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventType
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
@@ -32,6 +33,7 @@ class VideoLinkMigrationService(
   private val videoLinkBookingEventRepository: VideoLinkBookingEventRepository,
   private val videoLinkAppointmentRepository: VideoLinkAppointmentRepository,
   private val outboundEventsService: OutboundEventsService,
+  private val courtService: CourtService,
 ) {
   companion object {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -130,7 +132,7 @@ class VideoLinkMigrationService(
       madeByTheCourt = bookingDetails.madeByTheCourt,
       createdByUsername = bookingDetails.createdByUsername,
       prisonCode = bookingDetails.prisonId,
-      probation = bookingDetails.courtName?.contains("Probation") ?: false,
+      probation = bookingDetails.isProbationBooking(),
       cancelled = true,
       comment = bookingDetails.comment,
       pre = appointmentsFromEvent.pre,
@@ -139,6 +141,10 @@ class VideoLinkMigrationService(
       events = mapEvents(eventEntities),
     )
   }
+
+  private fun BookingDetails.isProbationBooking() =
+    courtName?.uppercase()?.contains("PROBATION") == true ||
+      courtService.getCourtNameForCourtId(courtId)?.uppercase()?.contains("PROBATION") == true
 
   private fun activeVideoLinkBooking(
     videoBookingId: Long,
@@ -166,7 +172,7 @@ class VideoLinkMigrationService(
       madeByTheCourt = videoLinkBooking.madeByTheCourt == true,
       createdByUsername = videoLinkBooking.createdByUsername ?: "MIGRATED",
       prisonCode = videoLinkBooking.prisonId,
-      probation = videoLinkBooking.courtName?.contains("Probation") ?: false,
+      probation = videoLinkBooking.isProbationBooking(),
       cancelled = false,
       comment = videoLinkBooking.comment,
       pre = pre?.let { mapAppointment(pre) },
@@ -175,6 +181,10 @@ class VideoLinkMigrationService(
       events = mapEvents(eventEntities),
     )
   }
+
+  private fun VideoLinkBooking.isProbationBooking() =
+    courtName?.uppercase()?.contains("PROBATION") == true ||
+      courtService.getCourtNameForCourtId(courtId)?.uppercase()?.contains("PROBATION") == true
 
   fun mapAppointment(appointment: VideoLinkAppointment) =
     AppointmentLocationTimeSlot(

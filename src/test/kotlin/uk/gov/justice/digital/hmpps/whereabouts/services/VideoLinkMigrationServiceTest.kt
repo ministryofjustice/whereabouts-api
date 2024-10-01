@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
@@ -21,11 +22,11 @@ import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBookingEventType
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkAppointmentRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingEventRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
+import uk.gov.justice.digital.hmpps.whereabouts.services.court.CourtService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.VideoLinkMigrationService
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.events.OutboundEvent
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.events.OutboundEventsService
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers.Companion.makeVideoLinkBooking
-import java.lang.IllegalArgumentException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
@@ -35,12 +36,14 @@ class VideoLinkMigrationServiceTest {
   private val videoLinkBookingRepository: VideoLinkBookingRepository = mock()
   private val videoLinkBookingEventRepository: VideoLinkBookingEventRepository = mock()
   private val outboundEventsService: OutboundEventsService = mock()
+  private val courtService: CourtService = mock()
 
   private val videoLinkMigrationService = VideoLinkMigrationService(
     videoLinkBookingRepository,
     videoLinkBookingEventRepository,
     videoLinkAppointmentRepository,
     outboundEventsService,
+    courtService,
   )
 
   @Test
@@ -218,7 +221,7 @@ class VideoLinkMigrationServiceTest {
   }
 
   @Test
-  fun `Recognise a probation booking`() {
+  fun `Recognise a probation booking by name`() {
     val videoBookingId = 3L
     val booking = makeVideoLinkBooking(
       id = videoBookingId,
@@ -235,6 +238,34 @@ class VideoLinkMigrationServiceTest {
     whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(booking))
     whenever(videoLinkAppointmentRepository.findAllByVideoLinkBooking(booking)).thenReturn(appointments)
     whenever(videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)).thenReturn(events)
+
+    val response = videoLinkMigrationService.getVideoLinkBookingToMigrate(3)
+
+    assertThat(response.madeByTheCourt).isTrue()
+    assertThat(response.probation).isTrue()
+    assertThat(response.courtCode).isEqualTo("PROBYRK")
+    assertThat(response.prisonCode).isEqualTo("MDI")
+  }
+
+  @Test
+  fun `Recognise a probation booking by enabled court name`() {
+    val videoBookingId = 3L
+    val booking = makeVideoLinkBooking(
+      id = videoBookingId,
+      madeByTheCourt = true,
+      courtName = null,
+      courtId = "PROBYRK",
+      prisonId = "MDI",
+      comment = "hello",
+    )
+
+    val appointments = booking.appointments.values.toList()
+    val events = listOf(makeEvent(3L, 1L))
+
+    whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(booking))
+    whenever(videoLinkAppointmentRepository.findAllByVideoLinkBooking(booking)).thenReturn(appointments)
+    whenever(videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)).thenReturn(events)
+    whenever(courtService.getCourtNameForCourtId("PROBYRK")) doReturn " ProBation "
 
     val response = videoLinkMigrationService.getVideoLinkBookingToMigrate(3)
 
@@ -325,12 +356,54 @@ class VideoLinkMigrationServiceTest {
     assertThat(response.main.date).isEqualTo(LocalDate.now().plusDays(1))
     assertThat(response.main.startTime).isNotNull()
     assertThat(response.main.endTime).isNotNull()
+    assertThat(response.probation).isFalse()
 
     assertThat(response.post).isNull()
 
     verify(videoLinkBookingEventRepository).findEventsByVideoLinkBookingId(videoBookingId)
     verifyNoInteractions(videoLinkBookingRepository)
     verifyNoInteractions(videoLinkAppointmentRepository)
+  }
+
+  @Test
+  fun `Handle a cancelled probation booking`() {
+    val videoBookingId = 3L
+
+    val events = listOf(
+      makeEvent(3L, 1L, VideoLinkBookingEventType.CREATE, "PROB"),
+      makeEvent(3L, 1L, VideoLinkBookingEventType.UPDATE, "PROB"),
+      makeEvent(3L, 1L, VideoLinkBookingEventType.DELETE, "PROB"),
+    )
+
+    whenever(videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)).thenReturn(events)
+    whenever(courtService.getCourtNameForCourtId("PROB")) doReturn " ProBation "
+
+    val response = videoLinkMigrationService.getVideoLinkBookingToMigrate(videoBookingId)
+
+    assertThat(response.cancelled).isTrue()
+
+    assertThat(response.events).hasSize(3)
+    assertThat(response.events).extracting("eventType").containsExactly(
+      VideoLinkBookingEventType.CREATE,
+      VideoLinkBookingEventType.UPDATE,
+      VideoLinkBookingEventType.DELETE,
+    )
+
+    assertThat(response.pre).isNull()
+
+    // Only the main appointment has been populated from the latest CREATE or UPDATE event
+    assertThat(response.main.locationId).isEqualTo(123L)
+    assertThat(response.main.date).isEqualTo(LocalDate.now().plusDays(1))
+    assertThat(response.main.startTime).isNotNull()
+    assertThat(response.main.endTime).isNotNull()
+    assertThat(response.probation).isTrue()
+
+    assertThat(response.post).isNull()
+
+    verify(videoLinkBookingEventRepository).findEventsByVideoLinkBookingId(videoBookingId)
+    verifyNoInteractions(videoLinkBookingRepository)
+    verifyNoInteractions(videoLinkAppointmentRepository)
+    verify(courtService).getCourtNameForCourtId("PROB")
   }
 
   @Test
@@ -446,7 +519,7 @@ class VideoLinkMigrationServiceTest {
     eventId: Long,
     eventType: VideoLinkBookingEventType = VideoLinkBookingEventType.CREATE,
     courtCode: String = "YORK",
-    courtName: String = "YORKMAGS",
+    courtName: String? = null,
     noMainAppointment: Boolean = false,
   ): VideoLinkBookingEvent {
     return VideoLinkBookingEvent(
