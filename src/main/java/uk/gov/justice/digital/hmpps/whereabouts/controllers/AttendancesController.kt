@@ -281,8 +281,11 @@ class AttendancesController(private val attendanceService: AttendanceService) {
       iso = DATE_TIME,
     )
     toDateTime: LocalDateTime?,
+    @Parameter(description = "The agency Id")
+    @RequestParam(name = "agencyId", required = false)
+    agencyId: String? = null,
   ): AttendanceChangesResponse = AttendanceChangesResponse(
-    changes = attendanceService.getAttendanceChanges(fromDateTime, toDateTime),
+    changes = attendanceService.getAttendanceChanges(fromDateTime, toDateTime, agencyId),
   )
 
   @GetMapping("/offender/{offenderNo}/unacceptable-absence-count")
