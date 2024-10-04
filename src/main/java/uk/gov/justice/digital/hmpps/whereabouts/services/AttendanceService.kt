@@ -307,12 +307,12 @@ class AttendanceService(
     )
   }
 
-  fun getAttendanceChanges(fromDateTime: LocalDateTime, toDateTime: LocalDateTime?): Set<AttendanceChangeDto> {
+  fun getAttendanceChanges(fromDateTime: LocalDateTime, toDateTime: LocalDateTime?, agencyId: String? = null): Set<AttendanceChangeDto> {
     val changes =
       if (toDateTime == null) {
-        attendanceChangesRepository.findAttendanceChangeByCreateDateTime(fromDateTime)
+        attendanceChangesRepository.findAttendanceChangeByCreateDateTime(fromDateTime, agencyId)
       } else {
-        attendanceChangesRepository.findAttendanceChangeByCreateDateTimeBetween(fromDateTime, toDateTime)
+        attendanceChangesRepository.findAttendanceChangeByCreateDateTimeBetween(fromDateTime, toDateTime, agencyId)
       }
 
     return changes

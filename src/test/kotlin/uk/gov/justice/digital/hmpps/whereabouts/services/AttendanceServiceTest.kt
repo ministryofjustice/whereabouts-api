@@ -1370,7 +1370,7 @@ class AttendanceServiceTest {
   }
 
   @Test
-  fun `should call findAttendanceChangeByCreateDateTime when toDateTime is null`() {
+  fun `should call findAttendanceChangeByCreateDateTime when toDateTime is null and agencyId is present`() {
     val fromDateTime = LocalDateTime.now()
 
     service.getAttendanceChanges(fromDateTime, null)
@@ -1379,13 +1379,32 @@ class AttendanceServiceTest {
   }
 
   @Test
-  fun `should call findAttendanceChangeByCreateDateTimeBetween when fromDateTime and toDateTime are present`() {
+  fun `should call findAttendanceChangeByCreateDateTime when toDateTime is null and agencyId is not present`() {
+    val fromDateTime = LocalDateTime.now()
+
+    service.getAttendanceChanges(fromDateTime, null, "RSI")
+
+    verify(attendanceChangesRepository).findAttendanceChangeByCreateDateTime(fromDateTime, "RSI")
+  }
+
+  @Test
+  fun `should call findAttendanceChangeByCreateDateTimeBetween when fromDateTime and toDateTime are present but agencyId is not present`() {
     val fromDateTime = LocalDateTime.now()
     val toDateTime = LocalDateTime.now()
 
     service.getAttendanceChanges(fromDateTime, toDateTime)
 
     verify(attendanceChangesRepository).findAttendanceChangeByCreateDateTimeBetween(fromDateTime, toDateTime)
+  }
+
+  @Test
+  fun `should call findAttendanceChangeByCreateDateTimeBetween when fromDateTime and toDateTime are present but agencyId is present`() {
+    val fromDateTime = LocalDateTime.now()
+    val toDateTime = LocalDateTime.now()
+
+    service.getAttendanceChanges(fromDateTime, toDateTime, "RSI")
+
+    verify(attendanceChangesRepository).findAttendanceChangeByCreateDateTimeBetween(fromDateTime, toDateTime, "RSI")
   }
 
   @Test
@@ -1415,9 +1434,9 @@ class AttendanceServiceTest {
     )
 
     whenever(attendanceRepository.findById(1L)).thenReturn(Optional.of(attendance))
-    whenever(attendanceChangesRepository.findAttendanceChangeByCreateDateTime(any())).thenReturn(setOf(attendanceChange))
+    whenever(attendanceChangesRepository.findAttendanceChangeByCreateDateTime(any(), eq("LEI"))).thenReturn(setOf(attendanceChange))
 
-    val change = service.getAttendanceChanges(createdDateTime, null).first()
+    val change = service.getAttendanceChanges(createdDateTime, null, "LEI").first()
 
     assertThat(change.changedOn).isEqualTo(createdDateTime)
     assertThat(change.attendanceId).isEqualTo(1)
