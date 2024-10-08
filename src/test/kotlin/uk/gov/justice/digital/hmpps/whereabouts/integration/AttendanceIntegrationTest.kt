@@ -56,6 +56,27 @@ class AttendanceIntegrationTest : IntegrationTest() {
   }
 
   @Test
+  fun `post attendance is forbidden for WDI`() {
+    val attendance = CreateAttendanceDto(
+      prisonId = "WDI",
+      bookingId = 1,
+      eventId = 1,
+      eventLocationId = 2,
+      eventDate = LocalDate.of(2010, 10, 10),
+      period = TimePeriod.AM,
+      attended = true,
+      paid = true,
+    )
+    webTestClient.post()
+      .uri("/attendance")
+      .bodyValue(attendance)
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus()
+      .isForbidden
+  }
+
+  @Test
   fun `should make an elite api request to update an offenders attendance`() {
     val bookingId = getNextBookingId()
     val activityId = 2L
@@ -151,6 +172,19 @@ class AttendanceIntegrationTest : IntegrationTest() {
         .withRequestBody(matchingJsonPath("$[?(@.text == 'Refused to attend - incentive level warning - External moves. Test comment')]"))
         .withRequestBody(matchingJsonPath("$.occurrenceDateTime")),
     )
+  }
+
+  @Test
+  fun `update attendance is forbidden for WDI`() {
+    val bookingId = getNextBookingId()
+    val persistedAttendance = createAttendance(bookingId, "WDI")
+    webTestClient.put()
+      .uri("/attendance/${persistedAttendance.id}")
+      .bodyValue(UpdateAttendanceDto(attended = true, paid = true))
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus()
+      .isForbidden
   }
 
   @Test
@@ -300,7 +334,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       .isCreated
   }
 
-  private fun createAttendance(bookingId: Long) = attendanceRepository.save(
+  private fun createAttendance(bookingId: Long, agencyId: String = "LEI") = attendanceRepository.save(
     Attendance.builder()
       .bookingId(bookingId)
       .paid(false)
@@ -311,7 +345,7 @@ class AttendanceIntegrationTest : IntegrationTest() {
       .eventDate(LocalDate.now())
       .eventId(2)
       .eventLocationId(2)
-      .prisonId("LEI")
+      .prisonId(agencyId)
       .period(TimePeriod.AM)
       .createDateTime(LocalDateTime.now())
       .createUserId("user")

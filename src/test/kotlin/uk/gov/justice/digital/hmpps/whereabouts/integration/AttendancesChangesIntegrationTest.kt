@@ -15,7 +15,6 @@ class AttendancesChangesIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return all changes`() {
-
     val startTime = LocalDateTime.now()
 
     saveNewAttendance("LEI")
@@ -35,7 +34,6 @@ class AttendancesChangesIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return only changes for specific agency id`() {
-
     val startTime = LocalDateTime.now()
 
     saveNewAttendance("LEI")
@@ -57,7 +55,6 @@ class AttendancesChangesIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return only changes for specific agency id and within time range`() {
-
     updateAttendance(saveNewAttendance("LEI"))
 
     val startTime = LocalDateTime.now()
@@ -73,7 +70,6 @@ class AttendancesChangesIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return only changes for a specific time`() {
-
     updateAttendance(saveNewAttendance("LEI"))
 
     val updatedAttendanceLE2 = saveNewAttendance("LEI")
@@ -84,7 +80,7 @@ class AttendancesChangesIntegrationTest : IntegrationTest() {
 
     updateAttendance(saveNewAttendance("RSI"))
 
-    val startTime = allChangesResult.changes!!.first { change -> change.attendanceId == updatedAttendanceLE2.id}.changedOn
+    val startTime = allChangesResult.changes!!.first { change -> change.attendanceId == updatedAttendanceLE2.id }.changedOn
 
     val result = getChanges(startTime!!)
 
@@ -93,7 +89,6 @@ class AttendancesChangesIntegrationTest : IntegrationTest() {
 
   @Test
   fun `should return only changes for specific agency id and for a specific time`() {
-
     updateAttendance(saveNewAttendance("LEI"))
 
     val updatedAttendanceLE2 = saveNewAttendance("LEI")
@@ -104,7 +99,7 @@ class AttendancesChangesIntegrationTest : IntegrationTest() {
 
     val allChangesResult = getChanges(LocalDateTime.now().minusMinutes(2), LocalDateTime.now())
 
-    val startTime = allChangesResult.changes!!.first { change -> change.attendanceId == updatedAttendanceLE2.id}.changedOn
+    val startTime = allChangesResult.changes!!.first { change -> change.attendanceId == updatedAttendanceLE2.id }.changedOn
 
     val result = getChanges(startTime!!, null, "LEI")
 

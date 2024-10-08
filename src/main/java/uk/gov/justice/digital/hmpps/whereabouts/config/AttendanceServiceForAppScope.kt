@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApiService
 class AttendanceServiceForAppScope {
   @Bean(name = ["attendanceServiceAppScope"])
   fun getAttendanceServiceForAppScope(
+    disabledPrisonsConfig: DisabledPrisonsConfig,
     prisonApiService: PrisonApiService,
     attendanceRepository: AttendanceRepository,
     attendanceChangesRepository: AttendanceChangesRepository,
@@ -22,6 +23,7 @@ class AttendanceServiceForAppScope {
     telemetryClient: TelemetryClient,
   ): AttendanceService {
     return AttendanceService(
+      disabledPrisonsConfig,
       attendanceRepository,
       attendanceChangesRepository,
       prisonApiService,
