@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.whereabouts.config.DisabledPrisonsConfig
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.PrisonerScheduleDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AbsenceDto
@@ -32,8 +33,11 @@ import java.time.temporal.ChronoUnit
 import java.util.function.Predicate
 import java.util.stream.Collectors
 
+class ForbiddenException(message: String) : RuntimeException(message)
+
 @Service
 class AttendanceService(
+  private val disabledPrisonsConfig: DisabledPrisonsConfig,
   private val attendanceRepository: AttendanceRepository,
   private val attendanceChangesRepository: AttendanceChangesRepository,
   private val prisonApiService: PrisonApiService,
@@ -96,6 +100,8 @@ class AttendanceService(
   @Transactional
   @Throws(AttendanceExists::class)
   fun createAttendance(attendanceDto: CreateAttendanceDto): AttendanceDto {
+    if (disabledPrisonsConfig.getPrisons().contains(attendanceDto.prisonId)) throw ForbiddenException("whereabouts is no longer active - use A+A")
+
     val provisionalAttendance = toAttendance(attendanceDto)
     val existing = attendanceRepository.findByPrisonIdAndBookingIdAndEventIdAndEventDateAndPeriod(
       provisionalAttendance.prisonId,
@@ -129,6 +135,7 @@ class AttendanceService(
   @Throws(AttendanceNotFound::class, AttendanceLocked::class)
   fun updateAttendance(id: Long, newAttendanceDetails: UpdateAttendanceDto) {
     val attendance = attendanceRepository.findById(id).orElseThrow { AttendanceNotFound() }
+    if (disabledPrisonsConfig.getPrisons().contains(attendance.prisonId)) throw ForbiddenException("whereabouts is no longer active - use A+A")
     if (isAttendanceLocked(attendance)) {
       log.info("Update attempted on locked attendance, attendance id {}", id)
       throw AttendanceLocked()
@@ -234,6 +241,8 @@ class AttendanceService(
 
   @Transactional
   fun createAttendances(attendancesDto: AttendancesDto): Set<AttendanceDto> {
+    if (disabledPrisonsConfig.getPrisons().contains(attendancesDto.prisonId)) throw ForbiddenException("whereabouts is no longer active - use A+A")
+
     val attendances = attendancesDto.bookingActivities
       .map { (bookingId, activityId) ->
         Attendance.builder()
