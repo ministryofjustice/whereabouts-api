@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonRegisterApiServiceTest.Companion.prisonRegisterApiMockServer
 
 class HealthCheckIntegrationTest : IntegrationTest() {
 
@@ -159,6 +160,14 @@ class HealthCheckIntegrationTest : IntegrationTest() {
           .withStatus(status),
       ),
     )
+    prisonRegisterApiMockServer.stubFor(
+      get("/health/ping").willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withBody(if (status == 200) "pong" else "some error")
+          .withStatus(status),
+      ),
+    )
   }
 
   private fun subPingWithDelay(status: Int) {
@@ -189,5 +198,13 @@ class HealthCheckIntegrationTest : IntegrationTest() {
           .withStatus(status),
       ),
     )
+  /*  prisonRegisterMockServer.stubFor(
+      get("/health/ping").willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withBody(if (status == 200) "pong" else "some error")
+          .withStatus(status),
+      ),
+    )*/
   }
 }

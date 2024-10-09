@@ -5,7 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 
-class PrisonRegisterApiMockServer : WireMockServer(8999) {
+class PrisonRegisterApiMockServer : WireMockServer(8094) {
 
   fun stubGetPrisonEmailAddress(agencyId: String) {
     stubFor(

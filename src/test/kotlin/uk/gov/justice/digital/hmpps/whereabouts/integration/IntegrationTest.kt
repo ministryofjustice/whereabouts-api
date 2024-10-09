@@ -44,6 +44,9 @@ abstract class IntegrationTest {
     @JvmField
     internal val caseNotesMockServer = CaseNotesMockServer()
 
+    // @JvmField
+    // internal val prisonRegisterMockServer = PrisonRegisterApiMockServer()
+
     private var lastBookingId = 0L
 
     fun getNextBookingId(): Long {
@@ -57,6 +60,7 @@ abstract class IntegrationTest {
       prisonApiMockServer.start()
       oauthMockServer.start()
       caseNotesMockServer.start()
+      //  prisonRegisterMockServer.start()
     }
 
     @AfterAll
@@ -65,6 +69,7 @@ abstract class IntegrationTest {
       prisonApiMockServer.stop()
       oauthMockServer.stop()
       caseNotesMockServer.stop()
+      //   prisonRegisterMockServer.stop()
     }
   }
 
@@ -80,6 +85,7 @@ abstract class IntegrationTest {
     oauthMockServer.resetAll()
     caseNotesMockServer.resetAll()
     oauthMockServer.stubGrantToken()
+    // prisonRegisterMockServer.resetAll()
   }
 
   internal fun setHeaders(contentType: MediaType = MediaType.APPLICATION_JSON): (HttpHeaders) -> Unit = {
