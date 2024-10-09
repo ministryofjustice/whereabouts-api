@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
+import uk.gov.justice.digital.hmpps.whereabouts.config.DisabledPrisonsConfig
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderBooking
 import uk.gov.justice.digital.hmpps.whereabouts.dto.OffenderDetails
@@ -58,6 +59,7 @@ class AttendanceServiceTest {
   private val telemetryClient: TelemetryClient = mock()
 
   private val today: LocalDate = LocalDate.now()
+  private val disabledPrisonsConfig: DisabledPrisonsConfig = mock()
   private val testAttendanceDto: CreateAttendanceDto =
     CreateAttendanceDto(
       attended = false,
@@ -85,6 +87,7 @@ class AttendanceServiceTest {
     )
 
   private val service = AttendanceService(
+    disabledPrisonsConfig,
     attendanceRepository,
     attendanceChangesRepository,
     prisonApiService,
@@ -102,6 +105,8 @@ class AttendanceServiceTest {
     // return the attendance entity on save
     doAnswer { it.getArgument(0) as Attendance }.whenever(attendanceRepository)
       .save(ArgumentMatchers.any(Attendance::class.java))
+
+    whenever(disabledPrisonsConfig.getPrisons()).thenReturn(emptyList())
   }
 
   @Test

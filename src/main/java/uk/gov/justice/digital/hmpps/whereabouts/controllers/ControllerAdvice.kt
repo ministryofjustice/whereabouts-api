@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.controllers
 import jakarta.persistence.EntityNotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -19,6 +20,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceExists
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceLocked
 import uk.gov.justice.digital.hmpps.whereabouts.services.DatabaseRowLockedException
+import uk.gov.justice.digital.hmpps.whereabouts.services.ForbiddenException
 import uk.gov.justice.digital.hmpps.whereabouts.services.InvalidCourtLocation
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 
@@ -59,6 +61,11 @@ class ControllerAdvice {
           .status(HttpStatus.FORBIDDEN.value())
           .build(),
       )
+  }
+
+  @ExceptionHandler(ForbiddenException::class)
+  fun handleAccessDenied(e: ForbiddenException): ResponseEntity<ErrorResponse>? {
+    return handleWebClientForbidden(e)
   }
 
   @ExceptionHandler(WebClientResponseException::class)

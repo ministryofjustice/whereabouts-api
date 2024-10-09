@@ -7,4 +7,6 @@ import org.springframework.context.annotation.Configuration
 class DisabledPrisonsConfig(
   @Value("\${service.whereabouts-disabled}")
   val disabledPrisons: String,
-)
+) {
+  fun getPrisons(): List<String> = disabledPrisons.split(",")
+}

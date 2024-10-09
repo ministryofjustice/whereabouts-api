@@ -27,6 +27,27 @@ class AttendancesIntegrationTest : IntegrationTest() {
   lateinit var attendanceRepository: AttendanceRepository
 
   @Test
+  fun `post attendances is forbidden for WDI`() {
+    val attendAll = AttendancesDto(
+      eventDate = LocalDate.of(2019, 10, 10),
+      eventLocationId = 1L,
+      prisonId = "WDI",
+      period = TimePeriod.AM,
+      bookingActivities = emptySet(),
+      attended = true,
+      paid = true,
+    )
+
+    webTestClient
+      .post()
+      .uri("/attendances")
+      .headers(setHeaders())
+      .bodyValue(attendAll)
+      .exchange()
+      .expectStatus().isForbidden
+  }
+
+  @Test
   fun `receive a list of attendance for a prison, location, date and period`() {
     prisonApiMockServer.stubUpdateAttendance()
     prisonApiMockServer.stubGetBooking()

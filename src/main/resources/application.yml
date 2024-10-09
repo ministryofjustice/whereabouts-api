@@ -115,4 +115,4 @@ notify:
       transferred: 8c015bef-466a-4e99-854e-3b4574ee35b5
 
 service:
-   whereabouts-disabled: ${WHEREABOUTS_DISABLED:WDI,RSI,LPI}
+   whereabouts-disabled: ${WHEREABOUTS_DISABLED:WDI,LPI}

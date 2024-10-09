@@ -12,7 +12,7 @@ class ActivePrisonsInfo(
 ) : InfoContributor {
   override fun contribute(builder: Info.Builder?) {
     val prisons = prisonApiService.activeAgencies
-    val disabledPrisons = disabledPrisonsConfig.disabledPrisons.split(",")
+    val disabledPrisons = disabledPrisonsConfig.getPrisons()
     builder?.withDetail(
       "activeAgencies",
       prisons.filter { disabledPrisons.contains(it).not() },
