@@ -9,10 +9,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
 
-//@Component
+@Component
 public class LocationApiHealth extends HealthCheck {
 
-   // @Autowired
+    @Autowired
     public LocationApiHealth(
             @Qualifier("locationApiWebClient") final WebClient webClient,
             @Value("${api.health-timeout-ms}") final Duration timeout) {

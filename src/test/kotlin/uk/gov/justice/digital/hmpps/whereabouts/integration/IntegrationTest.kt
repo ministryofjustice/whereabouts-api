@@ -14,8 +14,10 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.CaseNotesMockServer
+import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.LocationApiMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
+import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonRegisterApiMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.utils.JwtAuthHelper
 import wiremock.org.apache.commons.io.IOUtils
 import java.nio.charset.StandardCharsets
@@ -44,8 +46,11 @@ abstract class IntegrationTest {
     @JvmField
     internal val caseNotesMockServer = CaseNotesMockServer()
 
-    // @JvmField
-    // internal val prisonRegisterMockServer = PrisonRegisterApiMockServer()
+    @JvmField
+    internal val locationApiMockServer = LocationApiMockServer()
+
+    @JvmField
+    internal val prisonRegisterMockServer = PrisonRegisterApiMockServer()
 
     private var lastBookingId = 0L
 
@@ -60,7 +65,8 @@ abstract class IntegrationTest {
       prisonApiMockServer.start()
       oauthMockServer.start()
       caseNotesMockServer.start()
-      //  prisonRegisterMockServer.start()
+      prisonRegisterMockServer.start()
+      locationApiMockServer.start()
     }
 
     @AfterAll
@@ -69,7 +75,8 @@ abstract class IntegrationTest {
       prisonApiMockServer.stop()
       oauthMockServer.stop()
       caseNotesMockServer.stop()
-      //   prisonRegisterMockServer.stop()
+      prisonRegisterMockServer.stop()
+      locationApiMockServer.stop()
     }
   }
 
@@ -85,7 +92,8 @@ abstract class IntegrationTest {
     oauthMockServer.resetAll()
     caseNotesMockServer.resetAll()
     oauthMockServer.stubGrantToken()
-    // prisonRegisterMockServer.resetAll()
+    prisonRegisterMockServer.resetAll()
+    locationApiMockServer.resetAll()
   }
 
   internal fun setHeaders(contentType: MediaType = MediaType.APPLICATION_JSON): (HttpHeaders) -> Unit = {
