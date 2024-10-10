@@ -1,0 +1,327 @@
+[
+  {
+    "id": "524d6621-dcde-4e00-a212-44b31170b52d",
+    "prisonId": "MDI",
+    "code": "1",
+    "pathHierarchy": "1",
+    "locationType": "WING",
+    "localName": "Houseblock 1",
+    "permanentlyInactive": false,
+    "capacity": {
+      "maxCapacity": 186,
+      "workingCapacity": 180
+    },
+    "certification": {
+      "certified": true,
+      "capacityOfCertifiedCell": 159
+    },
+    "accommodationTypes": [
+      "NORMAL_ACCOMMODATION"
+    ],
+    "specialistCellTypes": [
+      "CSU",
+      "CONSTANT_SUPERVISION"
+    ],
+    "usedFor": [
+      "STANDARD_ACCOMMODATION"
+    ],
+    "status": "ACTIVE",
+    "active": true,
+    "deactivatedByParent": false,
+    "topLevelId": "524d6621-dcde-4e00-a212-44b31170b52d",
+    "level": 1,
+    "leafLevel": false,
+    "lastModifiedBy": "MHALMA_GEN",
+    "lastModifiedDate": "2024-07-23T14:03:47",
+    "key": "MDI-1",
+    "isResidential": true
+  },
+  {
+    "id": "752a3094-7bb6-4a96-9918-ab98a76d3a73",
+    "prisonId": "MDI",
+    "code": "1",
+    "pathHierarchy": "1-1",
+    "locationType": "LANDING",
+    "localName": "Landing 1",
+    "permanentlyInactive": false,
+    "capacity": {
+      "maxCapacity": 64,
+      "workingCapacity": 58
+    },
+    "certification": {
+      "certified": true,
+      "capacityOfCertifiedCell": 55
+    },
+    "accommodationTypes": [
+      "NORMAL_ACCOMMODATION"
+    ],
+    "specialistCellTypes": [
+      "CSU",
+      "CONSTANT_SUPERVISION"
+    ],
+    "usedFor": [
+      "STANDARD_ACCOMMODATION"
+    ],
+    "status": "ACTIVE",
+    "active": true,
+    "deactivatedByParent": false,
+    "topLevelId": "524d6621-dcde-4e00-a212-44b31170b52d",
+    "level": 2,
+    "leafLevel": false,
+    "parentId": "524d6621-dcde-4e00-a212-44b31170b52d",
+    "lastModifiedBy": "MHALMA_GEN",
+    "lastModifiedDate": "2024-07-23T14:03:47",
+    "key": "MDI-1-1",
+    "isResidential": true
+  },
+  {
+    "id": "28832eb5-c925-4289-9799-efdb561a5e78",
+    "prisonId": "MDI",
+    "code": "001",
+    "pathHierarchy": "1-1-001",
+    "locationType": "CELL",
+    "comments": "comment text added by dom",
+    "permanentlyInactive": false,
+    "capacity": {
+      "maxCapacity": 2,
+      "workingCapacity": 2
+    },
+    "certification": {
+      "certified": true,
+      "capacityOfCertifiedCell": 1
+    },
+    "accommodationTypes": [
+      "NORMAL_ACCOMMODATION"
+    ],
+    "specialistCellTypes": [
+      "CSU"
+    ],
+    "usedFor": [
+      "STANDARD_ACCOMMODATION"
+    ],
+    "status": "ACTIVE",
+    "active": true,
+    "deactivatedByParent": false,
+    "topLevelId": "524d6621-dcde-4e00-a212-44b31170b52d",
+    "level": 3,
+    "leafLevel": true,
+    "parentId": "752a3094-7bb6-4a96-9918-ab98a76d3a73",
+    "lastModifiedBy": "MWILLIS_GEN",
+    "lastModifiedDate": "2024-09-11T10:54:42",
+    "key": "MDI-1-1-001",
+    "isResidential": true
+  },
+  {
+    "id": "7e783d8c-f7b9-44e1-9cd1-0f0b1e00f2b8",
+    "prisonId": "MDI",
+    "code": "002",
+    "pathHierarchy": "1-1-002",
+    "locationType": "CELL",
+    "permanentlyInactive": false,
+    "capacity": {
+      "maxCapacity": 2,
+      "workingCapacity": 2
+    },
+    "certification": {
+      "certified": true,
+      "capacityOfCertifiedCell": 1
+    },
+    "accommodationTypes": [
+      "NORMAL_ACCOMMODATION"
+    ],
+    "specialistCellTypes": [],
+    "usedFor": [
+      "STANDARD_ACCOMMODATION"
+    ],
+    "status": "ACTIVE",
+    "active": true,
+    "deactivatedByParent": false,
+    "topLevelId": "524d6621-dcde-4e00-a212-44b31170b52d",
+    "level": 3,
+    "leafLevel": true,
+    "parentId": "752a3094-7bb6-4a96-9918-ab98a76d3a73",
+    "lastModifiedBy": "MWILLIS_GEN",
+    "lastModifiedDate": "2024-09-11T10:54:58",
+    "key": "MDI-1-1-002",
+    "isResidential": true
+  },
+  {
+    "id": "6af2a284-83a1-4933-9ecd-43ae66d762ec",
+    "prisonId": "MDI",
+    "code": "003",
+    "pathHierarchy": "1-1-003",
+    "locationType": "CELL",
+    "permanentlyInactive": false,
+    "capacity": {
+      "maxCapacity": 1,
+      "workingCapacity": 1
+    },
+    "certification": {
+      "certified": true,
+      "capacityOfCertifiedCell": 1
+    },
+    "accommodationTypes": [
+      "NORMAL_ACCOMMODATION"
+    ],
+    "specialistCellTypes": [],
+    "usedFor": [
+      "STANDARD_ACCOMMODATION"
+    ],
+    "status": "ACTIVE",
+    "active": true,
+    "deactivatedByParent": false,
+    "topLevelId": "524d6621-dcde-4e00-a212-44b31170b52d",
+    "level": 3,
+    "leafLevel": true,
+    "parentId": "752a3094-7bb6-4a96-9918-ab98a76d3a73",
+    "lastModifiedBy": "DBULL_ADM",
+    "lastModifiedDate": "2024-07-04T13:57:37",
+    "key": "MDI-1-1-003",
+    "isResidential": true
+  },
+  {
+    "id": "166137b8-5ba6-4a28-9229-ac77804413c7",
+    "prisonId": "MDI",
+    "code": "004",
+    "pathHierarchy": "1-1-004",
+    "locationType": "CELL",
+    "permanentlyInactive": false,
+    "capacity": {
+      "maxCapacity": 1,
+      "workingCapacity": 1
+    },
+    "certification": {
+      "certified": true,
+      "capacityOfCertifiedCell": 1
+    },
+    "accommodationTypes": [
+      "NORMAL_ACCOMMODATION"
+    ],
+    "specialistCellTypes": [],
+    "usedFor": [
+      "STANDARD_ACCOMMODATION"
+    ],
+    "status": "ACTIVE",
+    "active": true,
+    "deactivatedByParent": false,
+    "topLevelId": "524d6621-dcde-4e00-a212-44b31170b52d",
+    "level": 3,
+    "leafLevel": true,
+    "parentId": "752a3094-7bb6-4a96-9918-ab98a76d3a73",
+    "lastModifiedBy": "OMS_OWNER",
+    "lastModifiedDate": "2024-07-19T14:25:27",
+    "key": "MDI-1-1-004",
+    "isResidential": true
+  },
+  {
+    "id": "c9e4d7e5-67cc-4e2c-a58e-9a252a5a460b",
+    "prisonId": "MDI",
+    "code": "005",
+    "pathHierarchy": "1-1-005",
+    "locationType": "CELL",
+    "permanentlyInactive": false,
+    "capacity": {
+      "maxCapacity": 2,
+      "workingCapacity": 0
+    },
+    "oldWorkingCapacity": 2,
+    "certification": {
+      "certified": true,
+      "capacityOfCertifiedCell": 2
+    },
+    "accommodationTypes": [
+      "NORMAL_ACCOMMODATION"
+    ],
+    "specialistCellTypes": [
+      "CONSTANT_SUPERVISION"
+    ],
+    "usedFor": [
+      "STANDARD_ACCOMMODATION"
+    ],
+    "status": "INACTIVE",
+    "active": false,
+    "deactivatedByParent": false,
+    "deactivatedDate": "2024-09-25T14:41:19",
+    "deactivatedReason": "DAMP",
+    "deactivationReasonDescription": "Very wet",
+    "deactivatedBy": "MWILLIS_GEN",
+    "proposedReactivationDate": "2024-11-09",
+    "planetFmReference": "298572432",
+    "topLevelId": "524d6621-dcde-4e00-a212-44b31170b52d",
+    "level": 3,
+    "leafLevel": true,
+    "parentId": "752a3094-7bb6-4a96-9918-ab98a76d3a73",
+    "lastModifiedBy": "MWILLIS_GEN",
+    "lastModifiedDate": "2024-09-25T14:41:19",
+    "key": "MDI-1-1-005",
+    "isResidential": true
+  },
+  {
+    "id": "1b7c251b-177f-40bc-a75f-1a458284fe14",
+    "prisonId": "MDI",
+    "code": "006",
+    "pathHierarchy": "1-1-006",
+    "locationType": "CELL",
+    "permanentlyInactive": false,
+    "capacity": {
+      "maxCapacity": 2,
+      "workingCapacity": 2
+    },
+    "certification": {
+      "certified": true,
+      "capacityOfCertifiedCell": 2
+    },
+    "accommodationTypes": [
+      "NORMAL_ACCOMMODATION"
+    ],
+    "specialistCellTypes": [],
+    "usedFor": [
+      "STANDARD_ACCOMMODATION"
+    ],
+    "status": "ACTIVE",
+    "active": true,
+    "deactivatedByParent": false,
+    "topLevelId": "524d6621-dcde-4e00-a212-44b31170b52d",
+    "level": 3,
+    "leafLevel": true,
+    "parentId": "752a3094-7bb6-4a96-9918-ab98a76d3a73",
+    "lastModifiedBy": "API_PROXY_USER",
+    "lastModifiedDate": "2024-05-16T13:25:46",
+    "key": "MDI-1-1-006",
+    "isResidential": true
+  },
+  {
+    "id": "fc53490a-b06e-422a-89da-073356836d34",
+    "prisonId": "MDI",
+    "code": "007",
+    "pathHierarchy": "1-1-007",
+    "locationType": "CELL",
+    "permanentlyInactive": false,
+    "capacity": {
+      "maxCapacity": 2,
+      "workingCapacity": 2
+    },
+    "certification": {
+      "certified": true,
+      "capacityOfCertifiedCell": 2
+    },
+    "accommodationTypes": [
+      "NORMAL_ACCOMMODATION"
+    ],
+    "specialistCellTypes": [],
+    "usedFor": [
+      "STANDARD_ACCOMMODATION"
+    ],
+    "status": "ACTIVE",
+    "active": true,
+    "deactivatedByParent": false,
+    "topLevelId": "524d6621-dcde-4e00-a212-44b31170b52d",
+    "level": 3,
+    "leafLevel": true,
+    "parentId": "752a3094-7bb6-4a96-9918-ab98a76d3a73",
+    "lastModifiedBy": "API_PROXY_USER",
+    "lastModifiedDate": "2024-05-16T13:25:46",
+    "key": "MDI-1-1-007",
+    "isResidential": true
+  }
+]
