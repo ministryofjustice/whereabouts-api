@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 @Transactional
 class VideoLinkMigrateIntegrationTest : IntegrationTest() {
   @Autowired
-  lateinit var jdbcTemplate: JdbcTemplate
+  private lateinit var jdbcTemplate: JdbcTemplate
 
   @BeforeEach
   fun prepare() {
@@ -154,6 +154,50 @@ class VideoLinkMigrateIntegrationTest : IntegrationTest() {
     }
   }
 
+
+  @Test
+  fun `Will return a booking to migrate when missing booking and delete event`() {
+    makeABooking(cancelled = false, updated = true, missing = true)
+
+    val result = webTestClient.get()
+      .uri("/migrate/video-link-booking/1")
+      .headers {
+        it.setBearerAuth(
+          jwtAuthHelper.createJwt(
+            subject = "TEST-USER",
+            roles = listOf("ROLE_BOOK_A_VIDEO_LINK_ADMIN"),
+            clientId = "hmpps-book-a-video-link-client",
+          ),
+        )
+      }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody(VideoBookingMigrateResponse::class.java)
+      .returnResult()
+      .responseBody
+
+    assertThat(result).isNotNull
+
+    with(result!!) {
+      assertThat(cancelled).isTrue
+
+      assertThat(events.size).isEqualTo(3)
+      assertThat(events).extracting("eventType").containsExactly(
+        VideoLinkBookingEventType.CREATE,
+        VideoLinkBookingEventType.UPDATE,
+        VideoLinkBookingEventType.DELETE,
+      )
+
+      // This is populated from the UPDATE event, main hearing should be 2023-11-12 10:40-11:10am
+      with(main) {
+        assertThat(locationId).isEqualTo(1)
+        assertThat(date).isEqualTo("2023-11-12")
+        assertThat(startTime).isEqualTo("10:30")
+        assertThat(endTime).isEqualTo("11:00")
+      }
+    }
+  }
+
   @Test
   fun `Will fail when ROLE_BOOK_A_VIDEO_LINK_ADMIN is missing`() {
     makeABooking()
@@ -183,6 +227,26 @@ class VideoLinkMigrateIntegrationTest : IntegrationTest() {
       .isUnauthorized
   }
 
+  @Test
+  fun `Will raise migration event`() {
+    makeABooking()
+
+    webTestClient.put()
+      .uri("/migrate/video-link-bookings?fromDate=2023-10-01&pageSize=10&waitMillis=0")
+      .headers {
+        it.setBearerAuth(
+          jwtAuthHelper.createJwt(
+            subject = "TEST-USER",
+            roles = listOf("ROLE_BOOK_A_VIDEO_LINK_ADMIN"),
+            clientId = "hmpps-book-a-video-link-client",
+          ),
+        )
+      }
+      .exchange()
+      .expectStatus()
+      .is2xxSuccessful()
+  }
+
   private fun deleteAllTestRows() {
     JdbcTestUtils.deleteFromTables(
       jdbcTemplate,
@@ -192,11 +256,11 @@ class VideoLinkMigrateIntegrationTest : IntegrationTest() {
     )
   }
 
-  private fun makeABooking(cancelled: Boolean = false, updated: Boolean = false) {
+  private fun makeABooking(cancelled: Boolean = false, updated: Boolean = false, missing: Boolean = false) {
     // Cancelled bookings only have events - no video_link_booking or video_link_appointment rows
     makeEvents(cancelled, updated)
 
-    if (!cancelled) {
+    if (!cancelled && !missing) {
       jdbcTemplate.update(
         """
       INSERT INTO video_link_booking (id, offender_booking_id, court_name, court_id, court_hearing_type, made_by_the_court, prison_id, comment)             
