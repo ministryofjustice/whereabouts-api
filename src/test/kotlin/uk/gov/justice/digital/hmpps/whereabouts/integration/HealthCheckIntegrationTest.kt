@@ -20,6 +20,8 @@ class HealthCheckIntegrationTest : IntegrationTest() {
       .jsonPath("$.components.prisonApiHealth.details.HttpStatus").isEqualTo("OK")
       .jsonPath("$.components.OAuthApiHealth.details.HttpStatus").isEqualTo("OK")
       .jsonPath("$.components.caseNotesApiHealth.details.HttpStatus").isEqualTo("OK")
+      .jsonPath("$.components.prisonRegisterApiHealth.details.HttpStatus").isEqualTo("OK")
+      .jsonPath("$.components.locationApiHealth.details.HttpStatus").isEqualTo("OK")
       .jsonPath("$.status").isEqualTo("UP")
   }
 
@@ -42,6 +44,12 @@ class HealthCheckIntegrationTest : IntegrationTest() {
       .jsonPath("$.components.caseNotesApiHealth.details.error")
       .isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException\$NotFound: 404 Not Found from GET http://localhost:8093/health/ping")
       .jsonPath("$.components.caseNotesApiHealth.details.body").isEqualTo("some error")
+      .jsonPath("$.components.prisonRegisterApiHealth.details.error")
+      .isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException\$NotFound: 404 Not Found from GET http://localhost:8094/health/ping")
+      .jsonPath("$.components.prisonRegisterApiHealth.details.body").isEqualTo("some error")
+      .jsonPath("$.components.locationApiHealth.details.error")
+      .isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException\$NotFound: 404 Not Found from GET http://localhost:8095/health/ping")
+      .jsonPath("$.components.locationApiHealth.details.body").isEqualTo("some error")
       .jsonPath("$.status").isEqualTo("DOWN")
   }
 
@@ -64,6 +72,12 @@ class HealthCheckIntegrationTest : IntegrationTest() {
       .jsonPath("$.components.caseNotesApiHealth.details.error")
       .isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException: 418 I'm a teapot from GET http://localhost:8093/health/ping")
       .jsonPath("$.components.caseNotesApiHealth.details.body").isEqualTo("some error")
+      .jsonPath("$.components.prisonRegisterApiHealth.details.error")
+      .isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException: 418 I'm a teapot from GET http://localhost:8094/health/ping")
+      .jsonPath("$.components.prisonRegisterApiHealth.details.body").isEqualTo("some error")
+      .jsonPath("$.components.locationApiHealth.details.error")
+      .isEqualTo("org.springframework.web.reactive.function.client.WebClientResponseException: 418 I'm a teapot from GET http://localhost:8095/health/ping")
+      .jsonPath("$.components.locationApiHealth.details.body").isEqualTo("some error")
       .jsonPath("$.status").isEqualTo("DOWN")
   }
 
@@ -79,6 +93,8 @@ class HealthCheckIntegrationTest : IntegrationTest() {
       .expectBody()
       .jsonPath("$.components.prisonApiHealth.details.error")
       .isEqualTo("java.lang.IllegalStateException: Timeout on blocking read for 1000000000 NANOSECONDS")
+      .jsonPath("$.components.prisonRegisterApiHealth.details.HttpStatus").isEqualTo("OK")
+      .jsonPath("$.components.locationApiHealth.details.HttpStatus").isEqualTo("OK")
       .jsonPath("$.components.OAuthApiHealth.details.HttpStatus").isEqualTo("OK")
       .jsonPath("$.components.caseNotesApiHealth.details.HttpStatus").isEqualTo("OK")
       .jsonPath("$.status").isEqualTo("DOWN")
@@ -159,6 +175,22 @@ class HealthCheckIntegrationTest : IntegrationTest() {
           .withStatus(status),
       ),
     )
+    prisonRegisterMockServer.stubFor(
+      get("/health/ping").willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withBody(if (status == 200) "pong" else "some error")
+          .withStatus(status),
+      ),
+    )
+    locationApiMockServer.stubFor(
+      get("/health/ping").willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withBody(if (status == 200) "pong" else "some error")
+          .withStatus(status),
+      ),
+    )
   }
 
   private fun subPingWithDelay(status: Int) {
@@ -182,6 +214,22 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     )
 
     caseNotesMockServer.stubFor(
+      get("/health/ping").willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withBody(if (status == 200) "pong" else "some error")
+          .withStatus(status),
+      ),
+    )
+    prisonRegisterMockServer.stubFor(
+      get("/health/ping").willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withBody(if (status == 200) "pong" else "some error")
+          .withStatus(status),
+      ),
+    )
+    locationApiMockServer.stubFor(
       get("/health/ping").willReturn(
         aResponse()
           .withHeader("Content-Type", "application/json")
