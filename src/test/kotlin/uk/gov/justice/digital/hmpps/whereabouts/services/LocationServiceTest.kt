@@ -11,7 +11,8 @@ import java.util.function.Predicate
 class LocationServiceTest {
 
   private val prisonApiService: PrisonApiService = mock()
-  private val locationService = LocationService(prisonApiService)
+  private val locationApiClient: LocationApiClient = mock()
+  private val locationService = LocationService(prisonApiService, locationApiClient)
 
   @Test
   fun `getVideoLinkRoomsForPrison - should return id and user-friendly location description but only for VIDE location types`() {

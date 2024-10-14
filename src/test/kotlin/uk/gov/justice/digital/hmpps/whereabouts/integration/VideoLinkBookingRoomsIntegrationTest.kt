@@ -22,6 +22,21 @@ class VideoLinkBookingRoomsIntegrationTest : IntegrationTest() {
       .jsonPath("[1].description").isEqualTo("room-b")
       .jsonPath("$.length()").value<Int> { assertThat(it).isEqualTo(2) }
   }
+
+  @Test
+  fun `should retrieve details of rooms of type VIDE only from location`() {
+    locationApiMockServer.stubGetAllLocationForPrison("WSI")
+
+    webTestClient.get()
+      .uri("/location/video-link-rooms/WSI")
+      .headers(setHeaders())
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("[0].locationId").isEqualTo("5e449d34-446d-47de-9e93-98190a8fbd80")
+      .jsonPath("[0].description").isEqualTo("Pcvl - Shared - Room 9")
+      .jsonPath("$.length()").value<Int> { assertThat(it).isEqualTo(1) }
+  }
 }
 
 private fun getVideLocations() =

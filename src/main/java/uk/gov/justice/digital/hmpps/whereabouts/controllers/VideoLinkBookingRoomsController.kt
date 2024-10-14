@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.model.LocationIdAndDescription
+import uk.gov.justice.digital.hmpps.whereabouts.model.LocationInsidePrisonIdAndDescription
 import uk.gov.justice.digital.hmpps.whereabouts.services.LocationService
 
 @Tag(name = "video-link-booking-rooms")
@@ -33,4 +34,19 @@ class VideoLinkBookingRoomsController(
     @PathVariable("agencyId")
     agencyId: String,
   ): List<LocationIdAndDescription> = locationService.getVideoLinkRoomsForPrison(agencyId)
+
+  @GetMapping(
+    path = ["/location/video-link-rooms/{agencyId}"],
+    produces = [MediaType.APPLICATION_JSON_VALUE],
+  )
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    description = "List of all the Video Link Booking rooms in the prison.",
+    summary = "getVideoLinkBookingRooms",
+  )
+  fun getVideoLinkBookingRoomsFromLocationApi(
+    @Parameter(description = "The prison", required = true)
+    @PathVariable("agencyId")
+    agencyId: String,
+  ): List<LocationInsidePrisonIdAndDescription> = locationService.getVideoLinkRoomsForPrisonFromLocation(agencyId)
 }

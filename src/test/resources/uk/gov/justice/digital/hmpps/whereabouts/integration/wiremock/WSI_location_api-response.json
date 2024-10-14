@@ -1,0 +1,99 @@
+[
+    {
+        "id": "d3bb91a1-1ce5-4ff9-b05e-c13471e275e8",
+        "prisonId": "WSI",
+        "code": "VIDEOLINK",
+        "pathHierarchy": "VIDEOLINK",
+        "locationType": "VIDEO_LINK",
+        "localName": "Video Link",
+        "permanentlyInactive": false,
+        "usage": [
+            {
+                "usageType": "APPOINTMENT",
+                "capacity": 8,
+                "sequence": 99
+            },
+            {
+                "usageType": "OCCURRENCE",
+                "capacity": 8,
+                "sequence": 99
+            },
+            {
+                "usageType": "VISIT",
+                "capacity": 18,
+                "sequence": 99
+            }
+        ],
+        "status": "ACTIVE",
+        "active": true,
+        "deactivatedByParent": false,
+        "topLevelId": "d3bb91a1-1ce5-4ff9-b05e-c13471e275e8",
+        "level": 1,
+        "leafLevel": false,
+        "lastModifiedBy": "VQX68X",
+        "lastModifiedDate": "2020-04-24T13:46:04",
+        "key": "WSI-VIDEOLINK",
+        "isResidential": false
+    },
+    {
+        "id": "5e449d34-446d-47de-9e93-98190a8fbd80",
+        "prisonId": "WSI",
+        "code": "PCVL-9",
+        "pathHierarchy": "VIDEOLINK-PCVL-9",
+        "locationType": "VIDEO_LINK",
+        "localName": "Pcvl - Shared - Room 9",
+        "permanentlyInactive": false,
+        "usage": [
+            {
+                "usageType": "APPOINTMENT",
+                "capacity": 3,
+                "sequence": 99
+            }
+        ],
+        "status": "ACTIVE",
+        "active": true,
+        "deactivatedByParent": false,
+        "topLevelId": "d3bb91a1-1ce5-4ff9-b05e-c13471e275e8",
+        "level": 2,
+        "leafLevel": true,
+        "parentId": "d3bb91a1-1ce5-4ff9-b05e-c13471e275e8",
+        "lastModifiedBy": "FQF89R",
+        "lastModifiedDate": "2024-07-30T13:50:03",
+        "key": "WSI-VIDEOLINK-PCVL-9",
+        "isResidential": false
+    },
+    {
+        "id": "94c9ec74-a3ff-464c-867d-5d82aa3ac073",
+        "prisonId": "WSI",
+        "code": "011",
+        "pathHierarchy": "A-1-011",
+        "locationType": "CELL",
+        "permanentlyInactive": false,
+        "capacity": {
+            "maxCapacity": 2,
+            "workingCapacity": 0
+        },
+        "certification": {
+            "certified": true,
+            "capacityOfCertifiedCell": 2
+        },
+        "accommodationTypes": [
+            "NORMAL_ACCOMMODATION"
+        ],
+        "specialistCellTypes": [],
+        "usedFor": [
+            "STANDARD_ACCOMMODATION"
+        ],
+        "status": "ACTIVE",
+        "active": true,
+        "deactivatedByParent": false,
+        "topLevelId": "8392dcfc-daaf-483c-9e97-b9e710252d10",
+        "level": 3,
+        "leafLevel": true,
+        "parentId": "bfa2233d-0bbd-4952-89ac-6a695b916b57",
+        "lastModifiedBy": "API_PROXY_USER",
+        "lastModifiedDate": "2010-04-23T09:00:34",
+        "key": "WSI-A-1-011",
+        "isResidential": true
+    }
+]
