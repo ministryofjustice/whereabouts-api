@@ -15,7 +15,7 @@ generic-service:
     PRISONREGISTER_ENDPOINT_URL: "https://prison-register.hmpps.service.justice.gov.uk"
     LOCATIONAPI_ENDPOINT_URL: "https://locations-inside-prison-api.hmpps.service.justice.gov.uk"
     WHEREABOUTS_DISABLED: RSI,WDI,LPI,FMI,IWI,WMI,GTI,FKI
-    FEATURE_EVENTS_SNS_ENABLED: true
+    FEATURE_EVENTS_SNS_ENABLED: false
 
   postgresDatabaseRestore:
     enabled: true
