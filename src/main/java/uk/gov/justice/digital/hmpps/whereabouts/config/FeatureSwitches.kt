@@ -16,9 +16,6 @@ class FeatureSwitches(private val environment: Environment) {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun isEnabled(feature: Feature, defaultValue: Boolean = false): Boolean =
-    get(feature.label, Boolean::class.java, defaultValue)
-
   fun isEnabled(outboundEvent: OutboundEvent, defaultValue: Boolean = false): Boolean =
     get("feature.event.${outboundEvent.eventType}", Boolean::class.java, defaultValue)
 
@@ -31,8 +28,4 @@ class FeatureSwitches(private val environment: Environment) {
         it
       }
     }
-}
-
-enum class Feature(val label: String) {
-  OUTBOUND_EVENTS_ENABLED("feature.events.sns.enabled"),
 }

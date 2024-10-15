@@ -26,7 +26,7 @@ class SqsOffenderEventListener(
   }
 
   init {
-    log.info("BVLS enabled=$bvlsEnabled for offender events")
+    log.info("Legacy BVLS enabled=$bvlsEnabled for offender events")
   }
 
   @SqsListener("whereabouts", factory = "hmppsQueueContainerFactoryProxy")
