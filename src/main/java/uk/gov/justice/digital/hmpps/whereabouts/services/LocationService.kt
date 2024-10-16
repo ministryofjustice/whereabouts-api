@@ -17,7 +17,8 @@ class LocationService(
       .map { LocationIdAndDescription(it.locationId, it.userDescription ?: it.description) }
 
   fun getVideoLinkRoomsForPrisonFromLocation(agencyId: String): List<LocationInsidePrisonIdAndDescription> =
-    locationApiClient.getAllLocationForPrison(agencyId).filter { it.active && it.leafLevel && it.locationType == "VIDEO_LINK" }
+    locationApiClient.getNonResidentialLocationForPrison(agencyId, "APPOINTMENT")
+      .filter { it.leafLevel && it.locationType == "VIDEO_LINK" }
       .map { LocationInsidePrisonIdAndDescription(it.id, it.localName ?: it.pathHierarchy) }
 
   fun getAllLocationsForPrison(agencyId: String): List<LocationIdAndDescription> =

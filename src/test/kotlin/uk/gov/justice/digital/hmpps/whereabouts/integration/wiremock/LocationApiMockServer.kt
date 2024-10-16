@@ -10,7 +10,7 @@ class LocationApiMockServer : WireMockServer(8095) {
 
   fun stubGetAllLocationForPrison(prisonId: String = "WSI") {
     stubFor(
-      get(urlEqualTo("/locations/prison/$prisonId"))
+      get(urlEqualTo("/locations/prison/$prisonId/non-residential-usage-type/APPOINTMENT"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")

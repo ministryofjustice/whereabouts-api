@@ -33,6 +33,7 @@ class VideoLinkBookingRoomsIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
+      .consumeWith(System.out::println)
       .jsonPath("[0].locationId").isEqualTo("5e449d34-446d-47de-9e93-98190a8fbd80")
       .jsonPath("[0].description").isEqualTo("Pcvl - Shared - Room 9")
       .jsonPath("$.length()").value<Int> { assertThat(it).isEqualTo(1) }

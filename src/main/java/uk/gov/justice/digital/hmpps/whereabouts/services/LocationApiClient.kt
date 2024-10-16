@@ -14,9 +14,9 @@ class LocationApiClient(@Qualifier("locationApiWebClient") private val webClient
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun getAllLocationForPrison(prisonId: String): List<LocationDetails> {
+  fun getNonResidentialLocationForPrison(prisonId: String, usageType: String): List<LocationDetails> {
     return webClient.get()
-      .uri("/locations/prison/$prisonId")
+      .uri("/locations/prison/$prisonId/non-residential-usage-type/$usageType")
       .retrieve()
       .bodyToMono(object : ParameterizedTypeReference<List<LocationDetails>>() {})
       .block()
