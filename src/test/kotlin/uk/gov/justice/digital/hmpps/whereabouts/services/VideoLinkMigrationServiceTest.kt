@@ -198,6 +198,7 @@ class VideoLinkMigrationServiceTest {
     whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(booking))
     whenever(videoLinkAppointmentRepository.findAllByVideoLinkBooking(booking)).thenReturn(appointments)
     whenever(videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)).thenReturn(events)
+    whenever(videoLinkBookingRepository.existsById(videoBookingId)) doReturn true
 
     val response = videoLinkMigrationService.getVideoLinkBookingToMigrate(3)
 
@@ -238,6 +239,7 @@ class VideoLinkMigrationServiceTest {
     whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(booking))
     whenever(videoLinkAppointmentRepository.findAllByVideoLinkBooking(booking)).thenReturn(appointments)
     whenever(videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)).thenReturn(events)
+    whenever(videoLinkBookingRepository.existsById(videoBookingId)) doReturn true
 
     val response = videoLinkMigrationService.getVideoLinkBookingToMigrate(3)
 
@@ -266,6 +268,7 @@ class VideoLinkMigrationServiceTest {
     whenever(videoLinkAppointmentRepository.findAllByVideoLinkBooking(booking)).thenReturn(appointments)
     whenever(videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)).thenReturn(events)
     whenever(courtService.getCourtNameForCourtId("PROBYRK")) doReturn " ProBation "
+    whenever(videoLinkBookingRepository.existsById(videoBookingId)) doReturn true
 
     val response = videoLinkMigrationService.getVideoLinkBookingToMigrate(3)
 
@@ -293,6 +296,7 @@ class VideoLinkMigrationServiceTest {
     whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(booking))
     whenever(videoLinkAppointmentRepository.findAllByVideoLinkBooking(booking)).thenReturn(appointments)
     whenever(videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)).thenReturn(events)
+    whenever(videoLinkBookingRepository.existsById(videoBookingId)) doReturn true
 
     val response = videoLinkMigrationService.getVideoLinkBookingToMigrate(3)
 
@@ -320,6 +324,7 @@ class VideoLinkMigrationServiceTest {
     whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(booking))
     whenever(videoLinkAppointmentRepository.findAllByVideoLinkBooking(booking)).thenReturn(appointments)
     whenever(videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)).thenReturn(events)
+    whenever(videoLinkBookingRepository.existsById(videoBookingId)) doReturn true
 
     assertThrows(IllegalArgumentException::class.java) {
       videoLinkMigrationService.getVideoLinkBookingToMigrate(3)
@@ -424,6 +429,7 @@ class VideoLinkMigrationServiceTest {
     whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(booking))
     whenever(videoLinkAppointmentRepository.findAllByVideoLinkBooking(booking)).thenReturn(appointments)
     whenever(videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)).thenReturn(events)
+    whenever(videoLinkBookingRepository.existsById(videoBookingId)) doReturn true
 
     assertThrows(IllegalArgumentException::class.java) {
       videoLinkMigrationService.getVideoLinkBookingToMigrate(3)
@@ -484,6 +490,7 @@ class VideoLinkMigrationServiceTest {
     whenever(videoLinkBookingRepository.findById(videoBookingId)).thenReturn(Optional.of(booking))
     whenever(videoLinkAppointmentRepository.findAllByVideoLinkBooking(booking)).thenReturn(appointments)
     whenever(videoLinkBookingEventRepository.findEventsByVideoLinkBookingId(videoBookingId)).thenReturn(events)
+    whenever(videoLinkBookingRepository.existsById(videoBookingId)) doReturn true
 
     assertThrows(IllegalArgumentException::class.java) {
       videoLinkMigrationService.getVideoLinkBookingToMigrate(3)

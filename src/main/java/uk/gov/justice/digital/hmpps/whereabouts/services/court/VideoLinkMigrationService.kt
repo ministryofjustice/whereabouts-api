@@ -89,7 +89,9 @@ class VideoLinkMigrationService(
         )
       }
 
-      task.complete(MigrationSummary(numberOfBookings, numberOfPages, numberOfEventsRaised))
+      val summary = MigrationSummary(numberOfBookings, numberOfPages, numberOfEventsRaised)
+      task.complete(summary)
+      log.info("$summary")
     }
 
     log.info("End migration of video link bookings - took ${elapsed}ms")
@@ -103,12 +105,50 @@ class VideoLinkMigrationService(
     require(eventEntities.isNotEmpty()) { "Video link booking ID $videoBookingId has no events" }
 
     val cancelledBooking = eventEntities.any { it.eventType == VideoLinkBookingEventType.DELETE }
+    val activeBooking = !cancelledBooking && videoLinkBookingRepository.existsById(videoBookingId)
 
-    return if (cancelledBooking) {
-      cancelledVideoLinkBooking(videoBookingId, eventEntities)
-    } else {
-      activeVideoLinkBooking(videoBookingId, eventEntities)
+    return when {
+      activeBooking -> activeVideoLinkBooking(videoBookingId, eventEntities)
+      cancelledBooking -> cancelledVideoLinkBooking(videoBookingId, eventEntities)
+      else -> missingBookingWithMissingDeleteEvent(eventEntities)
     }
+  }
+
+  private fun missingBookingWithMissingDeleteEvent(eventEntities: List<VideoLinkBookingEvent>): VideoBookingMigrateResponse {
+    val createEvent = eventEntities.single { it.eventType == VideoLinkBookingEventType.CREATE }
+    val lastChangeEvent = eventEntities.sortedBy { it.timestamp }.last()
+
+    // Reconstruct the appointment detail from the latest CREATE or UPDATE event
+    val appointmentsFromEvent = extractAppointmentsFromEvent(lastChangeEvent)
+
+    // Reconstruct the booking details from the latest CREATE and UPDATE events (create can contain more detail)
+    val bookingDetails = extractBookingFromEvents(createEvent, lastChangeEvent)
+
+    // Reconstruct a delete event from the last known change event. Dates and times will be the same as the last change
+    // event as we don't have enough information to work out when it was removed.
+    val reconstructedDeleteEvent = lastChangeEvent.copy(
+      eventId = lastChangeEvent.eventId!! + 1,
+      eventType = VideoLinkBookingEventType.DELETE,
+      userId = "MIGRATED",
+      comment = "The event was created during MIGRATION due to missing an actual expected delete event.",
+    )
+
+    return VideoBookingMigrateResponse(
+      videoBookingId = createEvent.videoLinkBookingId,
+      offenderBookingId = bookingDetails.offenderBookingId,
+      courtCode = bookingDetails.courtId ?: "UNKNOWN",
+      courtName = bookingDetails.courtName,
+      madeByTheCourt = bookingDetails.madeByTheCourt,
+      createdByUsername = bookingDetails.createdByUsername,
+      prisonCode = bookingDetails.prisonId,
+      probation = bookingDetails.isProbationBooking(),
+      cancelled = true,
+      comment = bookingDetails.comment,
+      pre = appointmentsFromEvent.pre,
+      main = appointmentsFromEvent.main!!,
+      post = appointmentsFromEvent.post,
+      events = mapEvents(eventEntities.plus(reconstructedDeleteEvent)),
+    )
   }
 
   private fun cancelledVideoLinkBooking(
