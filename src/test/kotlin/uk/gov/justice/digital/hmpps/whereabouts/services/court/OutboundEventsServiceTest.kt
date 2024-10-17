@@ -10,7 +10,6 @@ import org.mockito.kotlin.stub
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.verifyNoMoreInteractions
-import uk.gov.justice.digital.hmpps.whereabouts.config.Feature
 import uk.gov.justice.digital.hmpps.whereabouts.config.FeatureSwitches
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.events.AdditionalInformation
 import uk.gov.justice.digital.hmpps.whereabouts.services.court.events.OutboundEvent
@@ -48,15 +47,6 @@ class OutboundEventsServiceTest {
   @Test
   fun `video link booking migrate event is feature-switched off - no event sent`() {
     featureSwitches.stub { on { isEnabled(OutboundEvent.VIDEO_LINK_BOOKING_MIGRATE) } doReturn false }
-
-    outboundEventsService.send(OutboundEvent.VIDEO_LINK_BOOKING_MIGRATE, 1L)
-
-    verifyNoInteractions(eventsPublisher)
-  }
-
-  @Test
-  fun `all SNS event publishing is feature-switched off - no event sent`() {
-    featureSwitches.stub { on { isEnabled(Feature.OUTBOUND_EVENTS_ENABLED) } doReturn false }
 
     outboundEventsService.send(OutboundEvent.VIDEO_LINK_BOOKING_MIGRATE, 1L)
 

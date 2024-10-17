@@ -19,14 +19,14 @@ class SqsOffenderEventListener(
   @Qualifier("videoLinkBookingServiceAppScope")
   private val videoLinkBookingService: VideoLinkBookingService,
   private val gson: Gson,
-  @Value("\${feature.bvls.enabled}") private val bvlsEnabled: Boolean,
+  @Value("\${feature.listen.for.court.events}") private val featureListenForCourtEvents: Boolean,
 ) {
   companion object {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
   init {
-    log.info("BVLS enabled=$bvlsEnabled for offender events")
+    log.info("featureListenForCourtEvents = $featureListenForCourtEvents")
   }
 
   @SqsListener("whereabouts", factory = "hmppsQueueContainerFactoryProxy")
@@ -50,12 +50,12 @@ class SqsOffenderEventListener(
         }
 
         "APPOINTMENT_CHANGED" -> {
-          if (bvlsEnabled) {
+          if (featureListenForCourtEvents) {
             val appointmentChangedEventMessage = gson.fromJson(message, AppointmentChangedEventMessage::class.java)
             videoLinkBookingService.processNomisUpdate(appointmentChangedEventMessage)
             log.info("SQS event received. APPOINTMENT_CHANGED. processing appointmentChangedEventMessage $appointmentChangedEventMessage")
           } else {
-            log.info("Ignoring offender event appointment changed for BVLS, BVLS feature is disabled.")
+            log.info("Ignoring offender event appointment changed for BVLS, as featureListenForCourtEvent is disabled")
           }
         }
       }

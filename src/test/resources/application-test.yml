@@ -63,5 +63,7 @@ server:
   shutdown: immediate
 
 feature:
-  bvls:
-    enabled: true
+  listen:
+    for:
+      court:
+        events: true
