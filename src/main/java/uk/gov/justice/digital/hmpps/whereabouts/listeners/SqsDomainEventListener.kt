@@ -16,14 +16,14 @@ class SqsDomainEventListener(
   @Qualifier("videoLinkBookingServiceAppScope")
   private val videoLinkBookingService: VideoLinkBookingService,
   private val gson: Gson,
-  @Value("\${feature.bvls.enabled}") private val bvlsEnabled: Boolean,
+  @Value("\${feature.listen.for.court.events}") private val featureListenForCourtEvents: Boolean,
 ) {
   companion object {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
   init {
-    log.info("Legacy BVLS enabled=$bvlsEnabled for domain events")
+    log.info("featureListenForCourtEvents = $featureListenForCourtEvents")
   }
 
   @SqsListener("domainevent", factory = "hmppsQueueContainerFactoryProxy")
@@ -39,10 +39,10 @@ class SqsDomainEventListener(
         "prison-offender-events.prisoner.released" -> {
           val transferEventMessage = gson.fromJson(message, ReleasedOffenderEventMessage::class.java)
 
-          if (bvlsEnabled) {
+          if (featureListenForCourtEvents) {
             videoLinkBookingService.deleteAppointmentWhenTransferredOrReleased(transferEventMessage)
           } else {
-            log.info("Legacy BVLS event processing is disabled, ignoring release event - {}", transferEventMessage)
+            log.info("Court event processing is disabled, ignoring release event - {}", transferEventMessage)
           }
         }
       }

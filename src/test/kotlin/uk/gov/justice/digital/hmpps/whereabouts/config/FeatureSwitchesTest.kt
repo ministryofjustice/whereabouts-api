@@ -36,24 +36,22 @@ class FeatureSwitchesTest {
   @MockBean
   private lateinit var outboundEventsPublisher: OutboundEventsPublisher
 
-  @TestPropertySource(properties = ["FEATURE.EVENTS.SNS.ENABLED=true", "FEATURE.EVENT.WHEREABOUTS-API.VIDEOLINK.MIGRATE=true"])
+  @TestPropertySource(properties = ["FEATURE.EVENT.WHEREABOUTS-API.VIDEOLINK.MIGRATE=true"])
   @Nested
   @DisplayName("Features are enabled when set")
   inner class EnabledFeatures(@Autowired val featureSwitches: FeatureSwitches) {
     @Test
     fun `features are enabled`() {
-      assertThat(featureSwitches.isEnabled(Feature.OUTBOUND_EVENTS_ENABLED)).isTrue
       assertThat(featureSwitches.isEnabled(OutboundEvent.VIDEO_LINK_BOOKING_MIGRATE)).isTrue
     }
   }
 
-  @TestPropertySource(properties = ["FEATURE.EVENTS.SNS.ENABLED=false", "FEATURE.EVENT.WHEREABOUTS-API.VIDEOLINK.MIGRATE=false"])
+  @TestPropertySource(properties = ["FEATURE.EVENT.WHEREABOUTS-API.VIDEOLINK.MIGRATE=false"])
   @Nested
   @DisplayName("Features are enabled when set")
   inner class DisabledFeatures(@Autowired val featureSwitches: FeatureSwitches) {
     @Test
     fun `features are disabled`() {
-      assertThat(featureSwitches.isEnabled(Feature.OUTBOUND_EVENTS_ENABLED)).isFalse
       assertThat(featureSwitches.isEnabled(OutboundEvent.VIDEO_LINK_BOOKING_MIGRATE)).isFalse
     }
   }
