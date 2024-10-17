@@ -36,7 +36,7 @@ class VideoLinkBookingRoomsController(
   ): List<LocationIdAndDescription> = locationService.getVideoLinkRoomsForPrison(agencyId)
 
   @GetMapping(
-    path = ["/location/video-link-rooms/{agencyId}"],
+    path = ["/location/video-link-rooms/{prisonId}"],
     produces = [MediaType.APPLICATION_JSON_VALUE],
   )
   @ResponseStatus(HttpStatus.OK)
@@ -46,7 +46,7 @@ class VideoLinkBookingRoomsController(
   )
   fun getVideoLinkBookingRoomsFromLocationApi(
     @Parameter(description = "The prison", required = true)
-    @PathVariable("agencyId")
-    agencyId: String,
-  ): List<LocationInsidePrisonIdAndDescription> = locationService.getVideoLinkRoomsForPrisonFromLocationApi(agencyId)
+    @PathVariable("prisonId")
+    prisonId: String,
+  ): List<LocationInsidePrisonIdAndDescription> = locationService.getVideoLinkRoomsForPrisonFromLocationApi(prisonId)
 }
