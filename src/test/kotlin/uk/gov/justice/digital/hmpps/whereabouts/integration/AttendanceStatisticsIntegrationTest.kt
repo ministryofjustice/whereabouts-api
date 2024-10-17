@@ -106,7 +106,6 @@ class AttendanceStatisticsIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .consumeWith(System.out::println)
       .jsonPath("$.attended").isEqualTo(1)
       .jsonPath("$.suspended").isEqualTo(2)
       .jsonPath("$.notRecorded").isEqualTo(5)

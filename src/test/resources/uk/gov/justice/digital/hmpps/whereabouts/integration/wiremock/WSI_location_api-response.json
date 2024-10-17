@@ -1,0 +1,195 @@
+[
+    {
+        "id": "cabf4949-937c-48e6-b4a8-a532986b076f",
+        "prisonId": "WSI",
+        "code": "INPATIENTS",
+        "pathHierarchy": "HCARE-INPATIENTS",
+        "locationType": "MEDICAL",
+        "localName": "Healthcare - In-patients - H3",
+        "permanentlyInactive": false,
+        "usage": [
+            {
+                "usageType": "APPOINTMENT",
+                "capacity": 34,
+                "sequence": 99
+            },
+            {
+                "usageType": "MOVEMENT",
+                "capacity": 34,
+                "sequence": 99
+            },
+            {
+                "usageType": "OCCURRENCE",
+                "capacity": 34,
+                "sequence": 99
+            },
+            {
+                "usageType": "PROGRAMMES_ACTIVITIES",
+                "capacity": 34,
+                "sequence": 99
+            }
+        ],
+        "status": "ACTIVE",
+        "active": true,
+        "deactivatedByParent": false,
+        "topLevelId": "59ed2bf6-aae2-45e8-aa0c-947460469c85",
+        "level": 2,
+        "leafLevel": true,
+        "parentId": "59ed2bf6-aae2-45e8-aa0c-947460469c85",
+        "lastModifiedBy": "QQE60C",
+        "lastModifiedDate": "2010-04-23T09:22:50",
+        "key": "WSI-HCARE-INPATIENTS",
+        "isResidential": false
+    },
+    {
+        "id": "d3bb91a1-1ce5-4ff9-b05e-c13471e275e8",
+        "prisonId": "WSI",
+        "code": "VIDEOLINK",
+        "pathHierarchy": "VIDEOLINK",
+        "locationType": "VIDEO_LINK",
+        "localName": "Video Link",
+        "permanentlyInactive": false,
+        "usage": [
+            {
+                "usageType": "APPOINTMENT",
+                "capacity": 8,
+                "sequence": 99
+            },
+            {
+                "usageType": "OCCURRENCE",
+                "capacity": 8,
+                "sequence": 99
+            },
+            {
+                "usageType": "VISIT",
+                "capacity": 18,
+                "sequence": 99
+            }
+        ],
+        "status": "ACTIVE",
+        "active": true,
+        "deactivatedByParent": false,
+        "topLevelId": "d3bb91a1-1ce5-4ff9-b05e-c13471e275e8",
+        "level": 1,
+        "leafLevel": false,
+        "lastModifiedBy": "VQX68X",
+        "lastModifiedDate": "2020-04-24T13:46:04",
+        "key": "WSI-VIDEOLINK",
+        "isResidential": false
+    },
+    {
+        "id": "5e449d34-446d-47de-9e93-98190a8fbd80",
+        "prisonId": "WSI",
+        "code": "PCVL-9",
+        "pathHierarchy": "VIDEOLINK-PCVL-9",
+        "locationType": "VIDEO_LINK",
+        "localName": "Pcvl - Shared - Room 9",
+        "permanentlyInactive": false,
+        "usage": [
+            {
+                "usageType": "APPOINTMENT",
+                "capacity": 3,
+                "sequence": 99
+            }
+        ],
+        "status": "ACTIVE",
+        "active": true,
+        "deactivatedByParent": false,
+        "topLevelId": "d3bb91a1-1ce5-4ff9-b05e-c13471e275e8",
+        "level": 2,
+        "leafLevel": true,
+        "parentId": "d3bb91a1-1ce5-4ff9-b05e-c13471e275e8",
+        "lastModifiedBy": "FQF89R",
+        "lastModifiedDate": "2024-07-30T13:50:03",
+        "key": "WSI-VIDEOLINK-PCVL-9",
+        "isResidential": false
+    },
+    {
+        "id": "35cd24fb-dbf3-4de4-a5e8-1e0de7fac01b",
+        "prisonId": "WSI",
+        "code": "CWING",
+        "pathHierarchy": "RES-CWING",
+        "locationType": "WING",
+        "localName": "C-wing",
+        "permanentlyInactive": false,
+        "usage": [
+            {
+                "usageType": "APPOINTMENT",
+                "capacity": 300,
+                "sequence": 99
+            },
+            {
+                "usageType": "MOVEMENT",
+                "capacity": 300,
+                "sequence": 99
+            },
+            {
+                "usageType": "OCCURRENCE",
+                "capacity": 300,
+                "sequence": 99
+            },
+            {
+                "usageType": "PROGRAMMES_ACTIVITIES",
+                "capacity": 300,
+                "sequence": 99
+            }
+        ],
+        "status": "ACTIVE",
+        "active": true,
+        "deactivatedByParent": false,
+        "topLevelId": "786b2ba5-5942-4ca4-b0d6-140303d2aa38",
+        "level": 2,
+        "leafLevel": false,
+        "parentId": "786b2ba5-5942-4ca4-b0d6-140303d2aa38",
+        "lastModifiedBy": "QQE60C",
+        "lastModifiedDate": "2010-04-23T10:19:08",
+        "key": "WSI-RES-CWING",
+        "isResidential": false
+    },
+    {
+        "id": "786b2ba5-5942-4ca4-b0d6-140303d2aa38",
+        "prisonId": "WSI",
+        "code": "RES",
+        "pathHierarchy": "RES",
+        "locationType": "CELL",
+        "localName": "Residential",
+        "permanentlyInactive": false,
+        "usage": [
+            {
+                "usageType": "ADJUDICATION_HEARING",
+                "capacity": 10,
+                "sequence": 99
+            },
+            {
+                "usageType": "APPOINTMENT",
+                "capacity": 10,
+                "sequence": 99
+            },
+            {
+                "usageType": "MOVEMENT",
+                "capacity": 10,
+                "sequence": 99
+            },
+            {
+                "usageType": "OCCURRENCE",
+                "capacity": 10,
+                "sequence": 99
+            },
+            {
+                "usageType": "PROGRAMMES_ACTIVITIES",
+                "capacity": 10,
+                "sequence": 99
+            }
+        ],
+        "status": "ACTIVE",
+        "active": true,
+        "deactivatedByParent": false,
+        "topLevelId": "786b2ba5-5942-4ca4-b0d6-140303d2aa38",
+        "level": 1,
+        "leafLevel": false,
+        "lastModifiedBy": "WQW07Y",
+        "lastModifiedDate": "2010-04-23T10:18:54",
+        "key": "WSI-RES",
+        "isResidential": false
+    }
+]
