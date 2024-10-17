@@ -415,7 +415,6 @@ class AttendancesIntegrationTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .consumeWith(System.out::println)
       .jsonPath("\$.scheduled[*].offenderNo").isEqualTo("B123C")
 
     prisonApiMockServer.verify(getRequestedFor(urlEqualTo("/api/schedules/$prisonId/activities?date=$date&timeSlot=$period")))

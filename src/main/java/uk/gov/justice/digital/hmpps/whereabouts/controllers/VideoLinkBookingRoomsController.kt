@@ -48,5 +48,5 @@ class VideoLinkBookingRoomsController(
     @Parameter(description = "The prison", required = true)
     @PathVariable("agencyId")
     agencyId: String,
-  ): List<LocationInsidePrisonIdAndDescription> = locationService.getVideoLinkRoomsForPrisonFromLocation(agencyId)
+  ): List<LocationInsidePrisonIdAndDescription> = locationService.getVideoLinkRoomsForPrisonFromLocationApi(agencyId)
 }
