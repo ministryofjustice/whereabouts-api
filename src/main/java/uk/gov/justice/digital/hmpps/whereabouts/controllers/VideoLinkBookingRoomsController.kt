@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -44,6 +45,7 @@ class VideoLinkBookingRoomsController(
     description = "List of all the Video Link Booking rooms in the prison.",
     summary = "getVideoLinkBookingRooms",
   )
+  @PreAuthorize("hasRole('ROLE_BOOK_A_VIDEO_LINK')")
   fun getVideoLinkBookingRoomsFromLocationApi(
     @Parameter(description = "The prison", required = true)
     @PathVariable("prisonId")

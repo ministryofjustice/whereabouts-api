@@ -24,12 +24,21 @@ class VideoLinkBookingRoomsIntegrationTest : IntegrationTest() {
   }
 
   @Test
+  fun `access unauthorized with wrong role for retrieve details of rooms of type VIDE only from location`() {
+    webTestClient.get().uri("/location/video-link-rooms/WSI")
+      .headers(setHeaders(roles = listOf("ROLE_BOOK_A_VIDEO_LINK_ADMIN")))
+      .header("Content-Type", "application/json")
+      .exchange()
+      .expectStatus().isUnauthorized
+  }
+
+  @Test
   fun `should retrieve details of rooms of type VIDE only from location`() {
     locationApiMockServer.stubGetAllLocationForPrison("WSI")
 
     webTestClient.get()
       .uri("/location/video-link-rooms/WSI")
-      .headers(setHeaders())
+      .headers(setHeaders(roles = listOf("ROLE_BOOK_A_VIDEO_LINK")))
       .exchange()
       .expectStatus().isOk
       .expectBody()
