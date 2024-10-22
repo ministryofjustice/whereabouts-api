@@ -64,6 +64,8 @@ abstract class IntegrationTest {
     fun startMocks() {
       prisonApiMockServer.start()
       oauthMockServer.start()
+      oauthMockServer.stubGrantToken()
+      oauthMockServer.addMockServiceRequestListener(oauthMockServer::requestReceived)
       caseNotesMockServer.start()
       prisonRegisterMockServer.start()
       locationApiMockServer.start()
@@ -89,15 +91,13 @@ abstract class IntegrationTest {
   @BeforeEach
   fun resetStubs() {
     prisonApiMockServer.resetAll()
-    oauthMockServer.resetAll()
     caseNotesMockServer.resetAll()
-    oauthMockServer.stubGrantToken()
     prisonRegisterMockServer.resetAll()
     locationApiMockServer.resetAll()
   }
 
-  internal fun setHeaders(contentType: MediaType = MediaType.APPLICATION_JSON): (HttpHeaders) -> Unit = {
-    it.setBearerAuth(jwtAuthHelper.createJwt(subject = "ITAG_USER", roles = listOf("ROLE_LICENCE_CA", "ROLE_KW_ADMIN"), clientId = "elite2apiclient"))
+  internal fun setHeaders(contentType: MediaType = MediaType.APPLICATION_JSON, roles: List<String> = listOf("ROLE_LICENCE_CA", "ROLE_KW_ADMIN")): (HttpHeaders) -> Unit = {
+    it.setBearerAuth(jwtAuthHelper.createJwt(subject = "ITAG_USER", roles = roles, clientId = "elite2apiclient"))
     it.contentType = contentType
   }
 
