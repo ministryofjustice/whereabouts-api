@@ -54,7 +54,7 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.4.1")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:4.0.0")
   testImplementation("org.wiremock:wiremock-standalone:3.9.0")
   testImplementation("io.mockk:mockk:1.13.12")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
