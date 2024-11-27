@@ -12,6 +12,7 @@ generic-service:
     NOTIFY_ENABLED: true
     PRISONREGISTER_ENDPOINT_URL: "https://prison-register-dev.hmpps.service.justice.gov.uk"
     LOCATIONAPI_ENDPOINT_URL: "https://locations-inside-prison-api-dev.hmpps.service.justice.gov.uk"
+    WHEREABOUTS_DISABLED: RSI,LPI,WDI,IWI,FKI,FMI,WMI,GTI,LTI,BCI,LEI,FNI
 
   namespace_secrets:
     hmpps-domain-events-topic:
