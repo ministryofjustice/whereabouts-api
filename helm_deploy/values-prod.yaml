@@ -40,3 +40,7 @@ generic-prometheus-alerts:
     - "Digital-Prison-Services-prod-whereabouts_api_queue_dl"
     - "Digital-Prison-Services-prod-whereabouts_api_domain_events_queue"
     - "Digital-Prison-Services-prod-whereabouts_api_domain_events_queue_dl"
+
+  namespace_secrets:
+    hmpps-domain-events-topic:
+      HMPPS_SQS_TOPICS_DOMAINEVENTS_ARN: "topic_arn"
