@@ -16,6 +16,10 @@ generic-service:
     LOCATIONAPI_ENDPOINT_URL: "https://locations-inside-prison-api.hmpps.service.justice.gov.uk"
     WHEREABOUTS_DISABLED: RSI,WDI,LPI,FMI,IWI,WMI,GTI,FKI,LTI,BCI,FNI,MTI,LEI,FSI,DMI,HII,WII
 
+  namespace_secrets:
+    hmpps-domain-events-topic:
+      HMPPS_SQS_TOPICS_DOMAINEVENTS_ARN: "topic_arn"
+
   postgresDatabaseRestore:
     enabled: true
     namespace_secrets:
@@ -40,7 +44,3 @@ generic-prometheus-alerts:
     - "Digital-Prison-Services-prod-whereabouts_api_queue_dl"
     - "Digital-Prison-Services-prod-whereabouts_api_domain_events_queue"
     - "Digital-Prison-Services-prod-whereabouts_api_domain_events_queue_dl"
-
-  namespace_secrets:
-    hmpps-domain-events-topic:
-      HMPPS_SQS_TOPICS_DOMAINEVENTS_ARN: "topic_arn"
