@@ -48,21 +48,6 @@ class WebClientConfiguration(
   }
 
   @Bean
-  fun locationApiWebClient(builder: WebClient.Builder): WebClient {
-    return builder.baseUrl(locationApiRootUri)
-      .filter(addAuthHeaderFilterFunction())
-      .build()
-  }
-
-  @Bean
-  fun locationApiWebClientAppScope(
-    @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: OAuth2AuthorizedClientManager,
-    builder: WebClient.Builder,
-  ): WebClient {
-    return getOAuthWebClient(authorizedClientManager, builder, locationApiRootUri)
-  }
-
-  @Bean
   fun prisonApiHealthWebClient(builder: WebClient.Builder): WebClient {
     return builder.baseUrl(prisonApiHealthRootUri)
       .filter(addAuthHeaderFilterFunction())
@@ -113,6 +98,20 @@ class WebClientConfiguration(
       authorizedClientManager(clientRegistrationRepository, authorizedClientRepository),
       builder,
       prisonApiRootUri,
+    )
+  }
+
+  @Bean
+  @RequestScope
+  fun locationApiWebClient(
+    clientRegistrationRepository: ClientRegistrationRepository,
+    authorizedClientRepository: OAuth2AuthorizedClientRepository,
+    builder: WebClient.Builder,
+  ): WebClient {
+    return getOAuthWebClient(
+      authorizedClientManager(clientRegistrationRepository, authorizedClientRepository),
+      builder,
+      locationApiRootUri,
     )
   }
 
