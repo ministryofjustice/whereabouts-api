@@ -14,10 +14,6 @@ generic-service:
     LOCATIONAPI_ENDPOINT_URL: "https://locations-inside-prison-api-dev.hmpps.service.justice.gov.uk"
     WHEREABOUTS_DISABLED: RSI,LPI,WDI,IWI,FKI,FMI,WMI,GTI,LTI,BCI,LEI,FNI
 
-  namespace_secrets:
-    hmpps-domain-events-topic:
-      HMPPS_SQS_TOPICS_DOMAINEVENTS_ARN: "topic_arn"
-
   allowlist:
     groups:
       - internal
