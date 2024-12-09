@@ -154,7 +154,6 @@ class VideoLinkMigrateIntegrationTest : IntegrationTest() {
     }
   }
 
-
   @Test
   fun `Will return a booking to migrate when missing booking and delete event`() {
     makeABooking(cancelled = false, updated = true, missing = true)
