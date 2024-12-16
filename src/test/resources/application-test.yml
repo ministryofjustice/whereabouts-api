@@ -61,9 +61,3 @@ courts: Test Court 1,Test Court 2
 
 server:
   shutdown: immediate
-
-feature:
-  listen:
-    for:
-      court:
-        events: true
