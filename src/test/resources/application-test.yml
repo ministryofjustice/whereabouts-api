@@ -10,13 +10,6 @@ elite2api:
   host: localhost
   port: 8999
 
-
-prisonregister:
-  endpoint.url: http://localhost:8094
-
-locationapi:
-  endpoint.url: http://localhost:8095
-
 casenotes:
   endpoint.url: http://localhost:8093
 
@@ -53,9 +46,6 @@ hmpps.sqs:
     whereabouts:
       queueName: whereabouts_api_queue
       dlqName: whereabouts_api_dlq
-    domainevent:
-      queueName: domainevent_api_queue
-      dlqName: domainevent_api_dlq
 
 courts: Test Court 1,Test Court 2
 

@@ -12,5 +12,3 @@ class ApplicationInsightsConfiguration {
   @Bean
   fun telemetryClient(): TelemetryClient = TelemetryClient()
 }
-
-fun TelemetryClient.trackEvent(name: String, properties: Map<String, String>) = this.trackEvent(name, properties, null)

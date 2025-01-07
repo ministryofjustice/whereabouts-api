@@ -9,7 +9,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -31,7 +30,6 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.ScheduledAppointme
 import uk.gov.justice.digital.hmpps.whereabouts.model.Location;
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod;
-import uk.gov.justice.digital.hmpps.whereabouts.services.court.UpdateComment;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -304,21 +302,6 @@ public abstract class PrisonApi {
         webClient.delete()
             .uri("/appointments/{appointmentId}", appointmentId)
             .header("no-event-propagation", propagation.doNotPropagate())
-            .retrieve()
-            .toBodilessEntity()
-            .onErrorResume(WebClientResponseException.NotFound.class, notFound -> {
-                logger.info("Ignoring appointment with id: '{}' that does not exist in nomis", appointmentId);
-                return Mono.empty();
-            })
-            .block();
-    }
-
-    public void updateAppointmentComment(long appointmentId, UpdateComment comment, final EventPropagation propagation) {
-        webClient.put()
-            .uri("/appointments/{appointmentId}/comment", appointmentId)
-            .header("no-event-propagation", propagation.doNotPropagate())
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(comment)
             .retrieve()
             .toBodilessEntity()
             .onErrorResume(WebClientResponseException.NotFound.class, notFound -> {
