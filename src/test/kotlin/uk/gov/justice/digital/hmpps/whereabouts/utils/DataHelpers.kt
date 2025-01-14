@@ -7,77 +7,12 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatePrisonAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
 import uk.gov.justice.digital.hmpps.whereabouts.listeners.AppointmentChangedEventMessage
 import uk.gov.justice.digital.hmpps.whereabouts.listeners.ScheduleEventStatus
-import uk.gov.justice.digital.hmpps.whereabouts.model.CourtHearingType
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.PrisonAppointment
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkAppointment
-import uk.gov.justice.digital.hmpps.whereabouts.model.VideoLinkBooking
 import java.time.LocalDateTime
 
 class DataHelpers {
 
   companion object {
-
-    fun makeVideoLinkBooking(
-      id: Long? = null,
-      offenderBookingId: Long = 2L,
-      madeByTheCourt: Boolean? = true,
-      courtName: String? = "Court name",
-      courtId: String? = "TSTCRT",
-      courtHearingType: CourtHearingType? = CourtHearingType.APPEAL,
-      prisonId: String = "WWI",
-      comment: String? = "",
-    ): VideoLinkBooking =
-      VideoLinkBooking(
-        id = id,
-        offenderBookingId = offenderBookingId,
-        courtName = courtName,
-        prisonId = prisonId,
-        courtId = courtId,
-        courtHearingType = courtHearingType,
-        madeByTheCourt = madeByTheCourt,
-        comment = comment,
-      ).apply {
-        addMainAppointment(
-          id = 1L,
-          appointmentId = 1L,
-          locationId = 10L,
-          startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-          endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
-        )
-        addPreAppointment(
-          id = 2L,
-          appointmentId = 2L,
-          locationId = 20L,
-          startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-          endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
-        )
-        addPostAppointment(
-          id = 3L,
-          appointmentId = 3L,
-          locationId = 30L,
-          startDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-          endDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
-        )
-        createdByUsername = "SA"
-      }
-
-    fun makeVideoLinkAppointment(
-      videoLinkBooking: VideoLinkBooking = VideoLinkBooking(id = 1L, offenderBookingId = 999L, courtName = "The Court", courtId = "TSTCRT", prisonId = "WWI"),
-      appointmentId: Long = 1L,
-      locationId: Long = 10L,
-      hearingType: HearingType = HearingType.MAIN,
-      startDateTime: LocalDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-      endDateTime: LocalDateTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
-    ): VideoLinkAppointment =
-      VideoLinkAppointment(
-        videoLinkBooking = videoLinkBooking,
-        appointmentId = appointmentId,
-        locationId = locationId,
-        hearingType = hearingType,
-        startDateTime = startDateTime,
-        endDateTime = endDateTime,
-      )
 
     fun makeCreatePrisonAppointment(
       appointmentId: Long,
