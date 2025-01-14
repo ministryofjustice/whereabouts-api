@@ -8,19 +8,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.isA
-import org.mockito.kotlin.isNull
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.data.domain.Sort
-import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.RecurringAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RelatedAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
-import uk.gov.justice.digital.hmpps.whereabouts.repository.CourtRepository
 import uk.gov.justice.digital.hmpps.whereabouts.repository.RecurringAppointmentRepository
-import uk.gov.justice.digital.hmpps.whereabouts.repository.VideoLinkBookingRepository
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.Duration
 import java.time.LocalDateTime
@@ -28,19 +21,11 @@ import java.util.Optional
 
 class AppointmentIntegrationTest : IntegrationTest() {
   @MockBean
-  lateinit var courtRepository: CourtRepository
-
-  @MockBean
-  lateinit var videoLinkBookingRepository: VideoLinkBookingRepository
-
-  @MockBean
   lateinit var recurringAppointmentRepository: RecurringAppointmentRepository
 
   @BeforeEach
   fun beforeEach() {
     prisonApiMockServer.resetAll()
-
-    whenever(courtRepository.findAll(isA<Sort>())).thenReturn(listOf())
   }
 
   @Nested
@@ -71,20 +56,6 @@ class AppointmentIntegrationTest : IntegrationTest() {
         .expectStatus().isOk
         .expectBody()
         .json(loadJsonFile("appointment-details.json"))
-    }
-
-    @Test
-    fun `should return video link booking details`() {
-      whenever(videoLinkBookingRepository.findByAppointmentIdsAndHearingType(any(), eq(HearingType.MAIN), isNull(), isNull()))
-        .thenReturn(listOf(DataHelpers.makeVideoLinkBooking(id = 1L, offenderBookingId = -1L, courtName = "Court 1")))
-
-      webTestClient.mutate().responseTimeout(Duration.ofSeconds(10)).build().get()
-        .uri("/appointment/$APPOINTMENT_ID")
-        .headers(setHeaders())
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .json(loadJsonFile("appointment-details-video-link.json"))
     }
 
     @Test

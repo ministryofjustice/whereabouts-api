@@ -38,5 +38,3 @@ generic-prometheus-alerts:
   sqsAlertsQueueNames:
     - "Digital-Prison-Services-prod-whereabouts_api_queue"
     - "Digital-Prison-Services-prod-whereabouts_api_queue_dl"
-    - "Digital-Prison-Services-prod-whereabouts_api_domain_events_queue"
-    - "Digital-Prison-Services-prod-whereabouts_api_domain_events_queue_dl"

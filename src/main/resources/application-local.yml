@@ -28,6 +28,3 @@ elite2api:
 casenotes:
   endpoint:
     url: http://localhost:8083
-prisonregister:
-  endpoint:
-    url: http://localhost:8084

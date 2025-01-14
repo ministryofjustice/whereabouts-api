@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.whereabouts.services
 
 import com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
-import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
@@ -15,10 +14,8 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError
 import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.OffenderAttendance
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
-import uk.gov.justice.digital.hmpps.whereabouts.model.Location
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation.ALLOW
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagation.DENY
-import uk.gov.justice.digital.hmpps.whereabouts.services.court.UpdateComment
 import java.time.LocalDate
 
 class PrisonApiServiceTest {
@@ -81,48 +78,6 @@ class PrisonApiServiceTest {
     prisonApiMockServer.verify(
       deleteRequestedFor(urlEqualTo("/api/appointments/$appointmentId"))
         .withHeader("no-event-propagation", equalTo("false")),
-    )
-  }
-
-  @Test
-  fun `update appointment comment - main flow`() {
-    val appointmentId = 100L
-    val comment = "New comment"
-
-    prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
-    prisonApiService.updateAppointmentComment(appointmentId, UpdateComment(comment), ALLOW)
-    prisonApiMockServer.verify(
-      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
-        .withRequestBody(equalTo("""{"comment":"$comment"}"""))
-        .withHeader("no-event-propagation", equalTo("false")),
-    )
-  }
-
-  @Test
-  fun `update appointment comment - empty comment`() {
-    val appointmentId = 100L
-    val comment = ""
-
-    prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
-    prisonApiService.updateAppointmentComment(appointmentId, UpdateComment(comment), ALLOW)
-    prisonApiMockServer.verify(
-      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
-        .withRequestBody(equalTo("""{"comment":""}"""))
-        .withHeader("no-event-propagation", equalTo("false")),
-    )
-  }
-
-  @Test
-  fun `update appointment comment - null comment`() {
-    val appointmentId = 100L
-    val comment = null
-
-    prisonApiMockServer.stubUpdateAppointmentComment(appointmentId)
-    prisonApiService.updateAppointmentComment(appointmentId, UpdateComment(comment), ALLOW)
-    prisonApiMockServer.verify(
-      putRequestedFor(urlEqualTo("/api/appointments/$appointmentId/comment"))
-        .withHeader("no-event-propagation", equalTo("false"))
-        .withRequestBody(equalTo("""{"comment":null}""")),
     )
   }
 
@@ -191,13 +146,3 @@ class PrisonApiServiceTest {
       )
   }
 }
-
-private fun getLocation() =
-  listOf(
-    Location(
-      locationId = 1L, locationType = "VIDE", description = "A VLB location",
-      locationUsage = null, agencyId = "WWI", parentLocationId = null,
-      currentOccupancy = 0, locationPrefix = "XXX", operationalCapacity = 10,
-      userDescription = null, internalLocationCode = "",
-    ),
-  )
