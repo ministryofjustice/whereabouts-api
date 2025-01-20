@@ -1,17 +1,10 @@
 package uk.gov.justice.digital.hmpps.whereabouts.dto
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import uk.gov.justice.digital.hmpps.whereabouts.model.HearingType
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
 import java.time.LocalDateTime
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class CourtLocationsResponse(val courtLocations: List<String>? = emptyList())
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class VideoLinkAppointmentsResponse(val appointments: List<VideoLinkAppointmentDto>? = emptyList())
 
 data class CreateBookingAppointment(
   val appointmentType: String,
@@ -202,6 +195,7 @@ data class AppointmentDetailsDto(
   @ApiModelProperty(required = true, value = "Appointment details pulled from NOMIS")
   val appointment: AppointmentDto,
   @ApiModelProperty(required = false, value = "Video link booking details")
+  @Deprecated(message = "Not populated")
   val videoLinkBooking: VideoLinkBookingDto? = null,
   @ApiModelProperty(required = false, value = "Recurring appointment details")
   val recurring: RecurringAppointmentDto? = null,
