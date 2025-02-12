@@ -9,7 +9,7 @@ generic-service:
     OAUTH_ENDPOINT_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth"
     CASENOTES_ENDPOINT_URL: "https://dev.offender-case-notes.service.justice.gov.uk"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
-    WHEREABOUTS_DISABLED: RSI,LPI,WDI,IWI,FKI,FMI,WMI,GTI,LTI,BCI,LEI,FNI
+    WHEREABOUTS_DISABLED: RSI,LPI,WDI,IWI,FKI,FMI,WMI,GTI,LTI,BCI,LEI,FNI,RNI
 
   allowlist:
     groups:
