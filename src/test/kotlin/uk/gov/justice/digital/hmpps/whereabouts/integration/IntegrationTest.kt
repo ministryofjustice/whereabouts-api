@@ -87,6 +87,5 @@ abstract class IntegrationTest {
     it.contentType = contentType
   }
 
-  fun loadJsonFile(jsonFile: String): String =
-    IOUtils.toString(javaClass.getResourceAsStream(jsonFile), StandardCharsets.UTF_8.toString())
+  fun loadJsonFile(jsonFile: String): String = IOUtils.toString(javaClass.getResourceAsStream(jsonFile), StandardCharsets.UTF_8.toString())
 }

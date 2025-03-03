@@ -31,43 +31,32 @@ class WebClientConfiguration(
 ) {
 
   @Bean
-  fun prisonApiHealthWebClient(builder: WebClient.Builder): WebClient {
-    return builder.baseUrl(prisonApiHealthRootUri)
-      .filter(addAuthHeaderFilterFunction())
-      .build()
-  }
+  fun prisonApiHealthWebClient(builder: WebClient.Builder): WebClient = builder.baseUrl(prisonApiHealthRootUri)
+    .filter(addAuthHeaderFilterFunction())
+    .build()
 
   @Bean
-  fun prisonAPiWebClientAuditable(builder: WebClient.Builder): WebClient {
-    return builder
-      .baseUrl(prisonApiRootUri)
-      .filter(addAuthHeaderFilterFunction())
-      .build()
-  }
+  fun prisonAPiWebClientAuditable(builder: WebClient.Builder): WebClient = builder
+    .baseUrl(prisonApiRootUri)
+    .filter(addAuthHeaderFilterFunction())
+    .build()
 
   @Bean
-  fun caseNoteHealthWebClient(builder: WebClient.Builder): WebClient {
-    return builder
-      .baseUrl(caseNotesRootUri)
-      .filter(addAuthHeaderFilterFunction())
-      .build()
-  }
+  fun caseNoteHealthWebClient(builder: WebClient.Builder): WebClient = builder
+    .baseUrl(caseNotesRootUri)
+    .filter(addAuthHeaderFilterFunction())
+    .build()
 
   @Bean
-  fun oAuthHealthWebClient(builder: WebClient.Builder): WebClient {
-    return builder
-      .baseUrl(oauthRootUri)
-      .filter(addAuthHeaderFilterFunction())
-      .build()
-  }
+  fun oAuthHealthWebClient(builder: WebClient.Builder): WebClient = builder
+    .baseUrl(oauthRootUri)
+    .filter(addAuthHeaderFilterFunction())
+    .build()
 
-  private fun addAuthHeaderFilterFunction(): ExchangeFilterFunction {
-    return ExchangeFilterFunction { request: ClientRequest?, next: ExchangeFunction ->
-      val filtered = ClientRequest.from(request)
-        .header(HttpHeaders.AUTHORIZATION, UserContext.getAuthToken())
-        .build()
-      next.exchange(filtered)
-    }
+  private fun addAuthHeaderFilterFunction(): ExchangeFilterFunction = ExchangeFilterFunction { request: ClientRequest?, next: ExchangeFunction ->
+    val filtered = ClientRequest.from(request)
+      .header(HttpHeaders.AUTHORIZATION, UserContext.getAuthToken()).build()
+    next.exchange(filtered)
   }
 
   @Bean
@@ -76,13 +65,11 @@ class WebClientConfiguration(
     clientRegistrationRepository: ClientRegistrationRepository,
     authorizedClientRepository: OAuth2AuthorizedClientRepository,
     builder: WebClient.Builder,
-  ): WebClient {
-    return getOAuthWebClient(
-      authorizedClientManager(clientRegistrationRepository, authorizedClientRepository),
-      builder,
-      prisonApiRootUri,
-    )
-  }
+  ): WebClient = getOAuthWebClient(
+    authorizedClientManager(clientRegistrationRepository, authorizedClientRepository),
+    builder,
+    prisonApiRootUri,
+  )
 
   @Bean
   @RequestScope
@@ -90,13 +77,11 @@ class WebClientConfiguration(
     clientRegistrationRepository: ClientRegistrationRepository,
     authorizedClientRepository: OAuth2AuthorizedClientRepository,
     builder: WebClient.Builder,
-  ): WebClient {
-    return getOAuthWebClient(
-      authorizedClientManager(clientRegistrationRepository, authorizedClientRepository),
-      builder,
-      caseNotesRootUri,
-    )
-  }
+  ): WebClient = getOAuthWebClient(
+    authorizedClientManager(clientRegistrationRepository, authorizedClientRepository),
+    builder,
+    caseNotesRootUri,
+  )
 
   @Bean
   fun authorizedClientManagerAppScope(
@@ -114,17 +99,13 @@ class WebClientConfiguration(
   fun elite2WebClientAppScope(
     @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: OAuth2AuthorizedClientManager,
     builder: WebClient.Builder,
-  ): WebClient {
-    return getOAuthWebClient(authorizedClientManager, builder, prisonApiRootUri)
-  }
+  ): WebClient = getOAuthWebClient(authorizedClientManager, builder, prisonApiRootUri)
 
   @Bean
   fun caseNoteWebClientAppScope(
     @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: OAuth2AuthorizedClientManager,
     builder: WebClient.Builder,
-  ): WebClient {
-    return getOAuthWebClient(authorizedClientManager, builder, caseNotesRootUri)
-  }
+  ): WebClient = getOAuthWebClient(authorizedClientManager, builder, caseNotesRootUri)
 
   private fun getOAuthWebClient(
     authorizedClientManager: OAuth2AuthorizedClientManager,
