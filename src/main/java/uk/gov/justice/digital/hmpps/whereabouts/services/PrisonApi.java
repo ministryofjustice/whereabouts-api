@@ -280,8 +280,7 @@ public abstract class PrisonApi {
             .bodyToMono(responseType)
             .onErrorResume(
                 WebClientResponseException.class,
-                e -> Mono.error(e.getStatusCode().value() == 423 ? new DatabaseRowLockedException() : e)
-            )
+                e -> Mono.error(e.getStatusCode().value() == 423 ? new DatabaseRowLockedException() : e))
             .timeout(Duration.ofSeconds(12))
             .block();
     }
