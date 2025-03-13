@@ -282,6 +282,7 @@ public abstract class PrisonApi {
                 WebClientResponseException.class,
                 e -> Mono.error(e.getStatusCode().value() == 423 ? new DatabaseRowLockedException() : e)
             )
+            .filter(throwable -> throwable instanceof WebClientResponseException))
             .timeout(Duration.ofSeconds(12))
             .block();
     }
