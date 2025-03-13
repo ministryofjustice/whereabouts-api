@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
@@ -282,7 +283,8 @@ public abstract class PrisonApi {
                 WebClientResponseException.class,
                 e -> Mono.error(e.getStatusCode().value() == 423 ? new DatabaseRowLockedException() : e)
             )
-            .retry(3)
+            .retryWhen(Retry.backoff(3, Duration.ofSeconds(3))
+            .filter(throwable -> throwable instanceof WebClientResponseException))
             .timeout(Duration.ofSeconds(12))
             .block();
     }
