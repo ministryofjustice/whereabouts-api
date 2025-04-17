@@ -4,7 +4,7 @@
 
 A Spring Boot app to manage the location (whereabouts) of prisoners for the Digital Prison Services.  Backend services for https://github.com/ministryofjustice/prisonstaffhub/.
 
-Swagger API documentation is available (here)[https://whereabouts-api-dev.service.justice.gov.uk/swagger-ui/index.html] 
+Swagger API documentation is available [here](https://whereabouts-api-dev.service.justice.gov.uk/swagger-ui/index.html)
 
 ### Code style & formatting
 ```bash
