@@ -54,7 +54,7 @@ class CellMoveService(
     val cellMove = CellMoveReason(
       bookingId = moveResult.bookingId,
       bedAssignmentsSequence = moveResult.bedAssignmentHistorySequence,
-      caseNoteId = caseNoteDetails.caseNoteId,
+      caseNoteId = caseNoteDetails.legacyId,
     )
 
     log.info("Saving cell move details: {}", cellMove)
@@ -72,7 +72,7 @@ class CellMoveService(
       null,
     )
 
-    return moveResult.copy(caseNoteId = caseNoteDetails.caseNoteId)
+    return moveResult.copy(caseNoteId = caseNoteDetails.legacyId)
   }
 
   fun getCellMoveReason(bookingId: Long, bedAssigmentSequence: Int): CellMoveReasonDto {

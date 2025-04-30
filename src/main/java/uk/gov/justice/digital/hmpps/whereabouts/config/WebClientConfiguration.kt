@@ -118,14 +118,6 @@ class WebClientConfiguration(
     return getOAuthWebClient(authorizedClientManager, builder, prisonApiRootUri)
   }
 
-  @Bean
-  fun caseNoteWebClientAppScope(
-    @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: OAuth2AuthorizedClientManager,
-    builder: WebClient.Builder,
-  ): WebClient {
-    return getOAuthWebClient(authorizedClientManager, builder, caseNotesRootUri)
-  }
-
   private fun getOAuthWebClient(
     authorizedClientManager: OAuth2AuthorizedClientManager,
     builder: WebClient.Builder,
