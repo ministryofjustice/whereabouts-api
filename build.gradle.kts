@@ -95,7 +95,3 @@ tasks {
     }
   }
 }
-
-ktlint {
-  version.set("1.4.1")
-}
