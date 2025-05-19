@@ -87,6 +87,5 @@ class AppointmentsController(
     @Parameter(description = "Location id")
     @RequestParam(value = "locationId", required = false)
     locationId: Long?,
-  ): List<AppointmentSearchDto> =
-    appointmentService.getAppointments(agencyId, date, timeSlot, offenderLocationPrefix, locationId)
+  ): List<AppointmentSearchDto> = appointmentService.getAppointments(agencyId, date, timeSlot, offenderLocationPrefix, locationId)
 }

@@ -24,7 +24,6 @@ data class CellMoveReason(
   val caseNoteId: Long,
 )
 
-@Entity
 @Embeddable
 data class CellMoveReasonPK(
   @Id

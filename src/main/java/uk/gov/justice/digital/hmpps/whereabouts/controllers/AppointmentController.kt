@@ -89,8 +89,7 @@ class AppointmentController(private val appointmentService: AppointmentService) 
       ),
     ],
   )
-  fun createAppointment(@RequestBody createAppointmentSpecification: CreateAppointmentSpecification): List<CreatedAppointmentDetailsDto> =
-    appointmentService.createAppointment(createAppointmentSpecification)
+  fun createAppointment(@RequestBody createAppointmentSpecification: CreateAppointmentSpecification): List<CreatedAppointmentDetailsDto> = appointmentService.createAppointment(createAppointmentSpecification)
 
   @DeleteMapping(path = ["/{id}"])
   @Operation(
