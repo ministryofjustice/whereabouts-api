@@ -38,7 +38,7 @@ class IEPWarningServiceTest {
         any(LocalDateTime::class.java),
       ),
     )
-      .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
+      .thenReturn(CaseNoteDto.builder().legacyId(100L).build())
 
     whenever(prisonApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
@@ -67,7 +67,7 @@ class IEPWarningServiceTest {
         any(LocalDateTime::class.java),
       ),
     )
-      .thenReturn(CaseNoteDto.builder().caseNoteId(100L).build())
+      .thenReturn(CaseNoteDto.builder().legacyId(100L).build())
 
     whenever(prisonApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
@@ -121,7 +121,7 @@ class IEPWarningServiceTest {
         any(LocalDateTime::class.java),
       ),
     )
-      .thenReturn(CaseNoteDto.builder().caseNoteId(1).build())
+      .thenReturn(CaseNoteDto.builder().legacyId(1).build())
     whenever(prisonApiService.getOffenderNoFromBookingId(anyLong())).thenReturn("AB1234C")
 
     val attendance = Attendance.builder()

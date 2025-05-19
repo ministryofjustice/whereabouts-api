@@ -80,7 +80,7 @@ class IEPWarningService(
       )
 
       log.info("IEP Warning created for bookingId {}", bookingId)
-      return Optional.of(caseNote.caseNoteId)
+      return Optional.of(caseNote.legacyId)
     }
     return Optional.empty()
   }

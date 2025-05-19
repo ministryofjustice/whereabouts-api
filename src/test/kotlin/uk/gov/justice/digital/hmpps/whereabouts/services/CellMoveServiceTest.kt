@@ -171,7 +171,7 @@ class CellMoveServiceTest {
         ),
       )
     whenever(caseNoteService.postCaseNote(anyString(), anyString(), anyString(), anyString(), any()))
-      .thenReturn(CaseNoteDto.builder().caseNoteId(CASE_NOTE_ID).build())
+      .thenReturn(CaseNoteDto.builder().legacyId(CASE_NOTE_ID).build())
   }
 
   companion object {

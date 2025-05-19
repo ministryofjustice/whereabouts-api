@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class CaseNoteDto {
-    private long caseNoteId;
+    private long legacyId;
     private long bookingId;
     private long staffId;
     private String type;
@@ -20,8 +20,8 @@ public class CaseNoteDto {
     private String agencyId;
     private List<AmendmentDto> amendments;
 
-    public CaseNoteDto(long caseNoteId, long bookingId, long staffId, String type, String typeDescription, String subType, String subTypeDescription, String source, LocalDateTime creationDateTime, LocalDateTime occurrenceDateTime, String authorName, String text, String originalNoteText, String agencyId, List<AmendmentDto> amendments) {
-        this.caseNoteId = caseNoteId;
+    public CaseNoteDto(long legacyId, long bookingId, long staffId, String type, String typeDescription, String subType, String subTypeDescription, String source, LocalDateTime creationDateTime, LocalDateTime occurrenceDateTime, String authorName, String text, String originalNoteText, String agencyId, List<AmendmentDto> amendments) {
+        this.legacyId = legacyId;
         this.bookingId = bookingId;
         this.staffId = staffId;
         this.type = type;
@@ -45,8 +45,8 @@ public class CaseNoteDto {
         return new CaseNoteDtoBuilder();
     }
 
-    public long getCaseNoteId() {
-        return this.caseNoteId;
+    public long getLegacyId() {
+        return this.legacyId;
     }
 
     public long getBookingId() {
@@ -105,8 +105,8 @@ public class CaseNoteDto {
         return this.amendments;
     }
 
-    public void setCaseNoteId(long caseNoteId) {
-        this.caseNoteId = caseNoteId;
+    public void setLegacyId(long legacyId) {
+        this.legacyId = legacyId;
     }
 
     public void setBookingId(long bookingId) {
@@ -170,7 +170,7 @@ public class CaseNoteDto {
         if (!(o instanceof CaseNoteDto)) return false;
         final CaseNoteDto other = (CaseNoteDto) o;
         if (!other.canEqual((Object) this)) return false;
-        if (this.getCaseNoteId() != other.getCaseNoteId()) return false;
+        if (this.getLegacyId() != other.getLegacyId()) return false;
         if (this.getBookingId() != other.getBookingId()) return false;
         if (this.getStaffId() != other.getStaffId()) return false;
         final Object this$type = this.getType();
@@ -226,7 +226,7 @@ public class CaseNoteDto {
     public int hashCode() {
         final int PRIME = 59;
         int result = 1;
-        final long $caseNoteId = this.getCaseNoteId();
+        final long $caseNoteId = this.getLegacyId();
         result = result * PRIME + (int) ($caseNoteId >>> 32 ^ $caseNoteId);
         final long $bookingId = this.getBookingId();
         result = result * PRIME + (int) ($bookingId >>> 32 ^ $bookingId);
@@ -260,15 +260,15 @@ public class CaseNoteDto {
     }
 
     public String toString() {
-        return "CaseNoteDto(caseNoteId=" + this.getCaseNoteId() + ", bookingId=" + this.getBookingId() + ", staffId=" + this.getStaffId() + ", type=" + this.getType() + ", typeDescription=" + this.getTypeDescription() + ", subType=" + this.getSubType() + ", subTypeDescription=" + this.getSubTypeDescription() + ", source=" + this.getSource() + ", creationDateTime=" + this.getCreationDateTime() + ", occurrenceDateTime=" + this.getOccurrenceDateTime() + ", authorName=" + this.getAuthorName() + ", text=" + this.getText() + ", originalNoteText=" + this.getOriginalNoteText() + ", agencyId=" + this.getAgencyId() + ", amendments=" + this.getAmendments() + ")";
+        return "CaseNoteDto(caseNoteId=" + this.getLegacyId() + ", bookingId=" + this.getBookingId() + ", staffId=" + this.getStaffId() + ", type=" + this.getType() + ", typeDescription=" + this.getTypeDescription() + ", subType=" + this.getSubType() + ", subTypeDescription=" + this.getSubTypeDescription() + ", source=" + this.getSource() + ", creationDateTime=" + this.getCreationDateTime() + ", occurrenceDateTime=" + this.getOccurrenceDateTime() + ", authorName=" + this.getAuthorName() + ", text=" + this.getText() + ", originalNoteText=" + this.getOriginalNoteText() + ", agencyId=" + this.getAgencyId() + ", amendments=" + this.getAmendments() + ")";
     }
 
     public CaseNoteDtoBuilder toBuilder() {
-        return new CaseNoteDtoBuilder().caseNoteId(this.caseNoteId).bookingId(this.bookingId).staffId(this.staffId).type(this.type).typeDescription(this.typeDescription).subType(this.subType).subTypeDescription(this.subTypeDescription).source(this.source).creationDateTime(this.creationDateTime).occurrenceDateTime(this.occurrenceDateTime).authorName(this.authorName).text(this.text).originalNoteText(this.originalNoteText).agencyId(this.agencyId).amendments(this.amendments);
+        return new CaseNoteDtoBuilder().legacyId(this.legacyId).bookingId(this.bookingId).staffId(this.staffId).type(this.type).typeDescription(this.typeDescription).subType(this.subType).subTypeDescription(this.subTypeDescription).source(this.source).creationDateTime(this.creationDateTime).occurrenceDateTime(this.occurrenceDateTime).authorName(this.authorName).text(this.text).originalNoteText(this.originalNoteText).agencyId(this.agencyId).amendments(this.amendments);
     }
 
     public static class CaseNoteDtoBuilder {
-        private long caseNoteId;
+        private long legacyId;
         private long bookingId;
         private long staffId;
         private String type;
@@ -287,8 +287,8 @@ public class CaseNoteDto {
         CaseNoteDtoBuilder() {
         }
 
-        public CaseNoteDto.CaseNoteDtoBuilder caseNoteId(long caseNoteId) {
-            this.caseNoteId = caseNoteId;
+        public CaseNoteDto.CaseNoteDtoBuilder legacyId(long legacyId) {
+            this.legacyId = legacyId;
             return this;
         }
 
@@ -363,11 +363,11 @@ public class CaseNoteDto {
         }
 
         public CaseNoteDto build() {
-            return new CaseNoteDto(caseNoteId, bookingId, staffId, type, typeDescription, subType, subTypeDescription, source, creationDateTime, occurrenceDateTime, authorName, text, originalNoteText, agencyId, amendments);
+            return new CaseNoteDto(legacyId, bookingId, staffId, type, typeDescription, subType, subTypeDescription, source, creationDateTime, occurrenceDateTime, authorName, text, originalNoteText, agencyId, amendments);
         }
 
         public String toString() {
-            return "CaseNoteDto.CaseNoteDtoBuilder(caseNoteId=" + this.caseNoteId + ", bookingId=" + this.bookingId + ", staffId=" + this.staffId + ", type=" + this.type + ", typeDescription=" + this.typeDescription + ", subType=" + this.subType + ", subTypeDescription=" + this.subTypeDescription + ", source=" + this.source + ", creationDateTime=" + this.creationDateTime + ", occurrenceDateTime=" + this.occurrenceDateTime + ", authorName=" + this.authorName + ", text=" + this.text + ", originalNoteText=" + this.originalNoteText + ", agencyId=" + this.agencyId + ", amendments=" + this.amendments + ")";
+            return "CaseNoteDto.CaseNoteDtoBuilder(caseNoteId=" + this.legacyId + ", bookingId=" + this.bookingId + ", staffId=" + this.staffId + ", type=" + this.type + ", typeDescription=" + this.typeDescription + ", subType=" + this.subType + ", subTypeDescription=" + this.subTypeDescription + ", source=" + this.source + ", creationDateTime=" + this.creationDateTime + ", occurrenceDateTime=" + this.occurrenceDateTime + ", authorName=" + this.authorName + ", text=" + this.text + ", originalNoteText=" + this.originalNoteText + ", agencyId=" + this.agencyId + ", amendments=" + this.amendments + ")";
         }
     }
 }

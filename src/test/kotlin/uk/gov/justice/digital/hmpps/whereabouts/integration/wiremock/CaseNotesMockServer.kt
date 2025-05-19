@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
@@ -15,10 +16,11 @@ class CaseNotesMockServer : WireMockServer(8093) {
     val createCaseNote = "/case-notes/$offenderNo"
     stubFor(
       post(urlPathEqualTo(createCaseNote))
+        .withHeader("CaseloadId", equalTo("***"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withBody(gson.toJson(CaseNoteDto.builder().caseNoteId(caseNoteId).build()))
+            .withBody(gson.toJson(CaseNoteDto.builder().legacyId(caseNoteId).build()))
             .withStatus(201),
         ),
     )
@@ -28,6 +30,7 @@ class CaseNotesMockServer : WireMockServer(8093) {
     val updateCaseNote = "/case-notes/$offenderNo/$caseNoteId"
     stubFor(
       put(urlPathEqualTo(updateCaseNote))
+        .withHeader("CaseloadId", equalTo("***"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
