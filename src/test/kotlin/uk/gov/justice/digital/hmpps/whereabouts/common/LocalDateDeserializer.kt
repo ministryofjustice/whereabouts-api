@@ -15,31 +15,25 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 private class LocalDateDeserializer : JsonDeserializer<LocalDate> {
-  override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext?): LocalDate {
-    return LocalDate.parse(json.getAsJsonPrimitive().getAsString())
-  }
+  override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext?): LocalDate = LocalDate.parse(json.getAsJsonPrimitive().getAsString())
 }
 
-private class LocalDateTimeDeserializer : JsonSerializer<LocalDateTime?>, JsonDeserializer<LocalDateTime> {
+private class LocalDateTimeDeserializer :
+  JsonSerializer<LocalDateTime?>,
+  JsonDeserializer<LocalDateTime> {
   override fun serialize(
     localDateTime: LocalDateTime?,
     srcType: Type,
     context: JsonSerializationContext,
-  ): JsonElement {
-    return JsonPrimitive(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(localDateTime))
-  }
+  ): JsonElement = JsonPrimitive(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(localDateTime))
 
-  override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): LocalDateTime {
-    return LocalDateTime.parse(
-      json.asString,
-      DateTimeFormatter.ISO_LOCAL_DATE_TIME.withLocale(Locale.ENGLISH),
-    )
-  }
+  override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): LocalDateTime = LocalDateTime.parse(
+    json.asString,
+    DateTimeFormatter.ISO_LOCAL_DATE_TIME.withLocale(Locale.ENGLISH),
+  )
 }
 
-fun getGson(): Gson {
-  return GsonBuilder()
-    .registerTypeAdapter(LocalDate::class.java, LocalDateDeserializer())
-    .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeDeserializer())
-    .create()
-}
+fun getGson(): Gson = GsonBuilder()
+  .registerTypeAdapter(LocalDate::class.java, LocalDateDeserializer())
+  .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeDeserializer())
+  .create()

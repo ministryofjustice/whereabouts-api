@@ -64,9 +64,7 @@ class ControllerAdvice {
   }
 
   @ExceptionHandler(ForbiddenException::class)
-  fun handleAccessDenied(e: ForbiddenException): ResponseEntity<ErrorResponse>? {
-    return handleWebClientForbidden(e)
-  }
+  fun handleAccessDenied(e: ForbiddenException): ResponseEntity<ErrorResponse>? = handleWebClientForbidden(e)
 
   @ExceptionHandler(WebClientResponseException::class)
   fun handleException(e: WebClientResponseException): ResponseEntity<ErrorResponse> {
