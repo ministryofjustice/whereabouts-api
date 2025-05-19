@@ -376,114 +376,105 @@ class AttendanceService(
     fromDate: LocalDate,
     toDate: LocalDate,
     pageable: Pageable,
-  ): Page<AttendanceHistoryDto> =
-
-    prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate, "UNACAB", pageable)
-      .map {
-        AttendanceHistoryDto(
-          eventDate = LocalDate.parse(it.eventDate),
-          activity = it.activity,
-          activityDescription = it.description,
-          location = it.prisonId,
-          comments = it.comment,
-        )
-      }
-
-  private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails =
-    details.copy(
-      bookingId = details.bookingId,
-      offenderNo = details.offenderNo,
-      eventId = details.eventId,
-      cellLocation = details.cellLocation,
-      eventDate = details.eventDate,
-      timeSlot = period.toString(),
-      firstName = details.firstName,
-      lastName = details.lastName,
-      comment = details.comment,
-      suspended = details.suspended,
-    )
-
-  private fun toAbsenceDto(details: OffenderDetails, attendance: Attendance): AbsenceDto =
-    AbsenceDto(
-      attendanceId = attendance.id,
-      bookingId = attendance.bookingId,
-      offenderNo = details.offenderNo,
-      eventId = attendance.eventId,
-      eventLocationId = attendance.eventLocationId,
-      eventDate = attendance.eventDate,
-      period = TimePeriod.valueOf(details.timeSlot!!),
-      reason = attendance.absentReason,
-      subReason = attendance.absentSubReason,
-      subReasonDescription = attendance.absentSubReason?.label,
-      eventDescription = details.comment,
-      comments = attendance.comments,
-      cellLocation = details.cellLocation,
-      firstName = details.firstName,
-      lastName = details.lastName,
-      suspended = details.suspended,
-    )
-
-  private fun toAbsenceDto2(details: OffenderDetails, attendance: Attendance): AbsenceDto =
-    AbsenceDto(
-      attendanceId = attendance.id,
-      bookingId = attendance.bookingId,
-      offenderNo = details.offenderNo,
-      eventId = attendance.eventId,
-      eventLocationId = attendance.eventLocationId,
-      eventDate = attendance.eventDate,
-      period = attendance.period,
-      reason = attendance.absentReason,
-      subReason = attendance.absentSubReason,
-      subReasonDescription = attendance.absentSubReason?.label,
-      eventDescription = details.comment,
-      comments = attendance.comments,
-      cellLocation = details.cellLocation,
-      firstName = details.firstName,
-      lastName = details.lastName,
-      suspended = details.suspended,
-    )
-
-  private fun findAttendance(bookingId: Long, eventId: Long?, period: TimePeriod): Predicate<in OffenderDetails> {
-    return Predicate { (bookingId1, _, eventId1, _, _, timeSlot) ->
-      bookingId1 == bookingId && eventId1 == eventId && TimePeriod.valueOf(timeSlot!!) == period
+  ): Page<AttendanceHistoryDto> = prisonApiService.getAttendanceForOffender(offenderNo, fromDate, toDate, "UNACAB", pageable)
+    .map {
+      AttendanceHistoryDto(
+        eventDate = LocalDate.parse(it.eventDate),
+        activity = it.activity,
+        activityDescription = it.description,
+        location = it.prisonId,
+        comments = it.comment,
+      )
     }
+
+  private fun offenderDetailsWithPeriod(details: OffenderDetails, period: TimePeriod): OffenderDetails = details.copy(
+    bookingId = details.bookingId,
+    offenderNo = details.offenderNo,
+    eventId = details.eventId,
+    cellLocation = details.cellLocation,
+    eventDate = details.eventDate,
+    timeSlot = period.toString(),
+    firstName = details.firstName,
+    lastName = details.lastName,
+    comment = details.comment,
+    suspended = details.suspended,
+  )
+
+  private fun toAbsenceDto(details: OffenderDetails, attendance: Attendance): AbsenceDto = AbsenceDto(
+    attendanceId = attendance.id,
+    bookingId = attendance.bookingId,
+    offenderNo = details.offenderNo,
+    eventId = attendance.eventId,
+    eventLocationId = attendance.eventLocationId,
+    eventDate = attendance.eventDate,
+    period = TimePeriod.valueOf(details.timeSlot!!),
+    reason = attendance.absentReason,
+    subReason = attendance.absentSubReason,
+    subReasonDescription = attendance.absentSubReason?.label,
+    eventDescription = details.comment,
+    comments = attendance.comments,
+    cellLocation = details.cellLocation,
+    firstName = details.firstName,
+    lastName = details.lastName,
+    suspended = details.suspended,
+  )
+
+  private fun toAbsenceDto2(details: OffenderDetails, attendance: Attendance): AbsenceDto = AbsenceDto(
+    attendanceId = attendance.id,
+    bookingId = attendance.bookingId,
+    offenderNo = details.offenderNo,
+    eventId = attendance.eventId,
+    eventLocationId = attendance.eventLocationId,
+    eventDate = attendance.eventDate,
+    period = attendance.period,
+    reason = attendance.absentReason,
+    subReason = attendance.absentSubReason,
+    subReasonDescription = attendance.absentSubReason?.label,
+    eventDescription = details.comment,
+    comments = attendance.comments,
+    cellLocation = details.cellLocation,
+    firstName = details.firstName,
+    lastName = details.lastName,
+    suspended = details.suspended,
+  )
+
+  private fun findAttendance(bookingId: Long, eventId: Long?, period: TimePeriod): Predicate<in OffenderDetails> = Predicate { (bookingId1, _, eventId1, _, _, timeSlot) ->
+    bookingId1 == bookingId && eventId1 == eventId && TimePeriod.valueOf(timeSlot!!) == period
   }
 
-  private fun toAttendance(attendanceDto: CreateAttendanceDto): Attendance =
-    Attendance
-      .builder()
-      .eventLocationId(attendanceDto.eventLocationId)
-      .eventDate(attendanceDto.eventDate)
-      .eventId(attendanceDto.eventId)
-      .bookingId(attendanceDto.bookingId)
-      .period(attendanceDto.period)
-      .paid(attendanceDto.paid)
-      .attended(attendanceDto.attended)
-      .prisonId(attendanceDto.prisonId)
-      .absentReason(attendanceDto.absentReason)
-      .absentSubReason(attendanceDto.absentSubReason)
-      .comments(attendanceDto.comments)
-      .build()
+  private fun toAttendance(attendanceDto: CreateAttendanceDto): Attendance = Attendance
+    .builder()
+    .eventLocationId(attendanceDto.eventLocationId)
+    .eventDate(attendanceDto.eventDate)
+    .eventId(attendanceDto.eventId)
+    .bookingId(attendanceDto.bookingId)
+    .period(attendanceDto.period)
+    .paid(attendanceDto.paid)
+    .attended(attendanceDto.attended)
+    .prisonId(attendanceDto.prisonId)
+    .absentReason(attendanceDto.absentReason)
+    .absentSubReason(attendanceDto.absentSubReason)
+    .comments(attendanceDto.comments)
+    .build()
 
-  private fun toAttendanceDto(attendanceData: Attendance): AttendanceDto =
-    AttendanceDto.builder()
-      .id(attendanceData.id)
-      .eventDate(attendanceData.eventDate)
-      .eventId(attendanceData.eventId)
-      .bookingId(attendanceData.bookingId)
-      .period(attendanceData.period)
-      .paid(attendanceData.paid)
-      .attended(attendanceData.attended)
-      .prisonId(attendanceData.prisonId)
-      .absentReason(attendanceData.absentReason)
-      .absentSubReason(attendanceData.absentSubReason)
-      .eventLocationId(attendanceData.eventLocationId)
-      .comments(attendanceData.comments)
-      .createUserId(attendanceData.createUserId)
-      .createDateTime(attendanceData.createDateTime)
-      .caseNoteId(attendanceData.caseNoteId)
-      .locked(isAttendanceLocked(attendanceData))
-      .modifyDateTime(attendanceData.modifyDateTime)
-      .modifyUserId(attendanceData.modifyUserId)
-      .build()
+  private fun toAttendanceDto(attendanceData: Attendance): AttendanceDto = AttendanceDto.builder()
+    .id(attendanceData.id)
+    .eventDate(attendanceData.eventDate)
+    .eventId(attendanceData.eventId)
+    .bookingId(attendanceData.bookingId)
+    .period(attendanceData.period)
+    .paid(attendanceData.paid)
+    .attended(attendanceData.attended)
+    .prisonId(attendanceData.prisonId)
+    .absentReason(attendanceData.absentReason)
+    .absentSubReason(attendanceData.absentSubReason)
+    .eventLocationId(attendanceData.eventLocationId)
+    .comments(attendanceData.comments)
+    .createUserId(attendanceData.createUserId)
+    .createDateTime(attendanceData.createDateTime)
+    .caseNoteId(attendanceData.caseNoteId)
+    .locked(isAttendanceLocked(attendanceData))
+    .modifyDateTime(attendanceData.modifyDateTime)
+    .modifyUserId(attendanceData.modifyUserId)
+    .build()
 }

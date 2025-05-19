@@ -84,25 +84,24 @@ class DataHelpers {
       startTime: LocalDateTime = LocalDateTime.now(),
       endTime: LocalDateTime = LocalDateTime.now(),
       repeat: Repeat? = null,
-    ) =
-      CreatePrisonAppointment(
-        appointmentDefaults = AppointmentDefaults(
-          appointmentType = appointmentType,
+    ) = CreatePrisonAppointment(
+      appointmentDefaults = AppointmentDefaults(
+        appointmentType = appointmentType,
+        comment = comment,
+        startTime = startTime,
+        endTime = endTime,
+        locationId = locationId,
+      ),
+      appointments = listOf(
+        Appointment(
+          bookingId = bookingId,
           comment = comment,
           startTime = startTime,
           endTime = endTime,
-          locationId = locationId,
         ),
-        appointments = listOf(
-          Appointment(
-            bookingId = bookingId,
-            comment = comment,
-            startTime = startTime,
-            endTime = endTime,
-          ),
-        ),
-        repeat = repeat,
-      )
+      ),
+      repeat = repeat,
+    )
 
     fun makeAppointmentChangedEventMessage(
       bookingId: Long = 2L,

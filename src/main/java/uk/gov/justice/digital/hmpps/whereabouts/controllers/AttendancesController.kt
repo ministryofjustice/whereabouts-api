@@ -151,8 +151,7 @@ class AttendancesController(private val attendanceService: AttendanceService) {
     @DateTimeFormat(iso = DATE)
     toDate: LocalDate,
     @PageableDefault(page = 0, size = 20) pageable: Pageable,
-  ): Page<AttendanceHistoryDto> =
-    attendanceService.getAttendanceDetailsForOffender(offenderNo, fromDate, toDate, pageable)
+  ): Page<AttendanceHistoryDto> = attendanceService.getAttendanceDetailsForOffender(offenderNo, fromDate, toDate, pageable)
 
   @PostMapping("/{prison}")
   @Operation(
