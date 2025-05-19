@@ -3,7 +3,7 @@ import uk.gov.justice.digital.hmpps.gradle.PortForwardRedisTask
 import uk.gov.justice.digital.hmpps.gradle.RevealSecretsTask
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.1.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.1.0"
   kotlin("plugin.spring") version "2.1.21"
   kotlin("plugin.jpa") version "2.1.21"
 }
@@ -94,8 +94,4 @@ tasks {
       jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
     }
   }
-}
-
-ktlint {
-  version.set("1.4.1")
 }
