@@ -10,6 +10,9 @@ import java.util.Map;
 
 @Service
 public class CaseNotesService {
+    private static final String CASELOAD_ID_HEADER = "CaseloadId";
+    private static final String CASELOAD_ID_ALL = "***";
+
     private final WebClient webClient;
 
     public CaseNotesService(@Qualifier("caseNoteWebClient") final WebClient webClient) {
@@ -19,6 +22,7 @@ public class CaseNotesService {
     public CaseNoteDto postCaseNote(final String offenderNo, final String type, final String subType, final String text, final LocalDateTime occurrence) {
         return webClient.post()
                 .uri("/case-notes/{offenderNo}", offenderNo)
+                .header(CASELOAD_ID_HEADER, CASELOAD_ID_ALL)
                 .bodyValue(Map.of(
                         "type", type,
                         "subType", subType,
@@ -32,6 +36,7 @@ public class CaseNotesService {
     public void putCaseNoteAmendment(final String offenderNo, final long caseNoteId, final String text) {
         webClient.put()
                 .uri("/case-notes/{offenderNo}/{caseNoteId}", offenderNo, caseNoteId)
+                .header(CASELOAD_ID_HEADER, CASELOAD_ID_ALL)
                 .bodyValue(Map.of("text", text))
                 .retrieve()
                 .bodyToMono(String.class)
