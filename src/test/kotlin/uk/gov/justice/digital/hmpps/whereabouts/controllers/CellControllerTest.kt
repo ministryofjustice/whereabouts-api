@@ -160,17 +160,16 @@ class CellControllerTest : TestController() {
     destination: String?,
     cellMoveReason: String?,
     commentText: String?,
-  ) =
-    objectMapper.writeValueAsString(
-      mapOf(
-        "bookingId" to bookingId,
-        "offenderNo" to offenderNo,
-        "offenderNo" to offenderNo,
-        "cellMoveReasonCode" to cellMoveReason,
-        "internalLocationDescriptionDestination" to destination,
-        "commentText" to commentText,
-      ),
-    )
+  ) = objectMapper.writeValueAsString(
+    mapOf(
+      "bookingId" to bookingId,
+      "offenderNo" to offenderNo,
+      "offenderNo" to offenderNo,
+      "cellMoveReasonCode" to cellMoveReason,
+      "internalLocationDescriptionDestination" to destination,
+      "commentText" to commentText,
+    ),
+  )
 
   companion object {
     private const val SOME_BOOKING_ID = -10

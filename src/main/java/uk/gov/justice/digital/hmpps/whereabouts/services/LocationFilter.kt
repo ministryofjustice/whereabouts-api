@@ -7,17 +7,13 @@ interface LocationFilter {
 }
 
 class NoOpFilter : LocationFilter {
-  override fun filterLocations(appointment: ScheduledAppointmentSearchDto): Boolean {
-    return true
-  }
+  override fun filterLocations(appointment: ScheduledAppointmentSearchDto): Boolean = true
 }
 
 class OffenderLocationFilter(
   private val offenderLocationPrefix: String,
   private val offenderLocationDescriptionByOffenderNo: Map<String, String?>,
 ) : LocationFilter {
-  override fun filterLocations(appointment: ScheduledAppointmentSearchDto): Boolean {
-    return offenderLocationDescriptionByOffenderNo[appointment.offenderNo].orEmpty()
-      .startsWith(offenderLocationPrefix)
-  }
+  override fun filterLocations(appointment: ScheduledAppointmentSearchDto): Boolean = offenderLocationDescriptionByOffenderNo[appointment.offenderNo].orEmpty()
+    .startsWith(offenderLocationPrefix)
 }

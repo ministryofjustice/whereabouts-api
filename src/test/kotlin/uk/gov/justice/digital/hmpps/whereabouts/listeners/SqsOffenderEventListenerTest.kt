@@ -18,7 +18,5 @@ class SqsOffenderEventListenerTest {
     verify(attendanceService).deleteAttendancesForOffenderDeleteEvent("A1234AA", listOf(321L, 322L))
   }
 
-  private fun getJson(filename: String): String {
-    return IOUtils.toString(javaClass.getResourceAsStream(filename), StandardCharsets.UTF_8.toString())
-  }
+  private fun getJson(filename: String): String = IOUtils.toString(javaClass.getResourceAsStream(filename), StandardCharsets.UTF_8.toString())
 }

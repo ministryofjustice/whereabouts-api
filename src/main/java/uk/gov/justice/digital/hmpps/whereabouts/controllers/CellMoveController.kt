@@ -65,8 +65,7 @@ class CellMoveController {
     @RequestParam(name = "lockTimeout", required = false, defaultValue = "false") lockTimeout: Boolean,
     @RequestBody @Valid
     cellMoveDetails: CellMoveDetails,
-  ): CellMoveResponse =
-    CellMoveResponse(cellMoveResult = cellMoveService.makeCellMove(cellMoveDetails, lockTimeout))
+  ): CellMoveResponse = CellMoveResponse(cellMoveResult = cellMoveService.makeCellMove(cellMoveDetails, lockTimeout))
 
   @GetMapping("/cell-move-reason/booking/{bookingId}/bed-assignment-sequence/{bedAssignmentId}")
   @Operation(description = "Return cell move reason")

@@ -207,59 +207,55 @@ class AppointmentService(
   }
 }
 
-private fun makeAppointmentDto(scheduledAppointmentDto: ScheduledAppointmentSearchDto): AppointmentSearchDto =
-  AppointmentSearchDto(
-    id = scheduledAppointmentDto.id,
-    agencyId = scheduledAppointmentDto.agencyId,
-    locationId = scheduledAppointmentDto.locationId,
-    locationDescription = scheduledAppointmentDto.locationDescription,
-    appointmentTypeCode = scheduledAppointmentDto.appointmentTypeCode,
-    appointmentTypeDescription = scheduledAppointmentDto.appointmentTypeDescription,
-    offenderNo = scheduledAppointmentDto.offenderNo,
-    firstName = scheduledAppointmentDto.firstName,
-    lastName = scheduledAppointmentDto.lastName,
-    startTime = scheduledAppointmentDto.startTime,
-    endTime = scheduledAppointmentDto.endTime,
-    createUserId = scheduledAppointmentDto.createUserId,
-  )
+private fun makeAppointmentDto(scheduledAppointmentDto: ScheduledAppointmentSearchDto): AppointmentSearchDto = AppointmentSearchDto(
+  id = scheduledAppointmentDto.id,
+  agencyId = scheduledAppointmentDto.agencyId,
+  locationId = scheduledAppointmentDto.locationId,
+  locationDescription = scheduledAppointmentDto.locationDescription,
+  appointmentTypeCode = scheduledAppointmentDto.appointmentTypeCode,
+  appointmentTypeDescription = scheduledAppointmentDto.appointmentTypeDescription,
+  offenderNo = scheduledAppointmentDto.offenderNo,
+  firstName = scheduledAppointmentDto.firstName,
+  lastName = scheduledAppointmentDto.lastName,
+  startTime = scheduledAppointmentDto.startTime,
+  endTime = scheduledAppointmentDto.endTime,
+  createUserId = scheduledAppointmentDto.createUserId,
+)
 
-private fun makeAppointmentDto(offenderNo: String? = null, prisonAppointment: PrisonAppointment): AppointmentDto =
-  AppointmentDto(
-    id = prisonAppointment.eventId,
-    agencyId = prisonAppointment.agencyId,
-    locationId = prisonAppointment.eventLocationId,
-    appointmentTypeCode = prisonAppointment.eventSubType,
-    startTime = prisonAppointment.startTime,
-    endTime = prisonAppointment.endTime,
-    offenderNo = offenderNo,
-    createUserId = prisonAppointment.createUserId,
-    comment = prisonAppointment.comment,
-  )
+private fun makeAppointmentDto(offenderNo: String? = null, prisonAppointment: PrisonAppointment): AppointmentDto = AppointmentDto(
+  id = prisonAppointment.eventId,
+  agencyId = prisonAppointment.agencyId,
+  locationId = prisonAppointment.eventLocationId,
+  appointmentTypeCode = prisonAppointment.eventSubType,
+  startTime = prisonAppointment.startTime,
+  endTime = prisonAppointment.endTime,
+  offenderNo = offenderNo,
+  createUserId = prisonAppointment.createUserId,
+  comment = prisonAppointment.comment,
+)
 
-private fun makeRecurringAppointmentDto(recurringAppointment: RecurringAppointment): RecurringAppointmentDto =
-  RecurringAppointmentDto(
-    id = recurringAppointment.id!!,
-    repeatPeriod = recurringAppointment.repeatPeriod,
-    count = recurringAppointment.count,
-    startTime = recurringAppointment.startTime,
-  )
+private fun makeRecurringAppointmentDto(recurringAppointment: RecurringAppointment): RecurringAppointmentDto = RecurringAppointmentDto(
+  id = recurringAppointment.id!!,
+  repeatPeriod = recurringAppointment.repeatPeriod,
+  count = recurringAppointment.count,
+  startTime = recurringAppointment.startTime,
+)
 
-private fun makePrisonAppointment(createAppointmentSpecification: CreateAppointmentSpecification) =
-  CreatePrisonAppointment(
-    appointmentDefaults = AppointmentDefaults(
-      appointmentType = createAppointmentSpecification.appointmentType,
+private fun makePrisonAppointment(createAppointmentSpecification: CreateAppointmentSpecification) = CreatePrisonAppointment(
+  appointmentDefaults = AppointmentDefaults(
+    appointmentType = createAppointmentSpecification.appointmentType,
+    comment = createAppointmentSpecification.comment,
+    startTime = createAppointmentSpecification.startTime,
+    endTime = createAppointmentSpecification.endTime,
+    locationId = createAppointmentSpecification.locationId,
+  ),
+  appointments = listOf(
+    Appointment(
+      bookingId = createAppointmentSpecification.bookingId,
       comment = createAppointmentSpecification.comment,
       startTime = createAppointmentSpecification.startTime,
       endTime = createAppointmentSpecification.endTime,
-      locationId = createAppointmentSpecification.locationId,
     ),
-    appointments = listOf(
-      Appointment(
-        bookingId = createAppointmentSpecification.bookingId,
-        comment = createAppointmentSpecification.comment,
-        startTime = createAppointmentSpecification.startTime,
-        endTime = createAppointmentSpecification.endTime,
-      ),
-    ),
-    repeat = createAppointmentSpecification.repeat,
-  )
+  ),
+  repeat = createAppointmentSpecification.repeat,
+)

@@ -14,21 +14,20 @@ import uk.gov.justice.digital.hmpps.whereabouts.security.AuthAwareTokenConverter
 @EnableMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 class ResourceServerConfiguration {
   @Bean
-  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain =
-    http
-      .sessionManagement()
-      .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-      .and().csrf().disable()
-      .authorizeHttpRequests { auth ->
-        auth.requestMatchers(
-          "/webjars/**", "/favicon.ico", "/csrf",
-          "/health/**", "/info", "/ping", "/h2-console/**",
-          "/v3/api-docs/**", "/swagger-ui.html",
-          "/swagger-ui/**", "/swagger-resources", "/swagger-resources/configuration/ui",
-          "/swagger-resources/configuration/security", "/queue-admin/retry-all-dlqs",
-        )
-          .permitAll().anyRequest().authenticated()
-      }
-      .also { it.oauth2ResourceServer().jwt().jwtAuthenticationConverter(AuthAwareTokenConverter()) }
-      .build()
+  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain = http
+    .sessionManagement()
+    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+    .and().csrf().disable()
+    .authorizeHttpRequests { auth ->
+      auth.requestMatchers(
+        "/webjars/**", "/favicon.ico", "/csrf",
+        "/health/**", "/info", "/ping", "/h2-console/**",
+        "/v3/api-docs/**", "/swagger-ui.html",
+        "/swagger-ui/**", "/swagger-resources", "/swagger-resources/configuration/ui",
+        "/swagger-resources/configuration/security", "/queue-admin/retry-all-dlqs",
+      )
+        .permitAll().anyRequest().authenticated()
+    }
+    .also { it.oauth2ResourceServer().jwt().jwtAuthenticationConverter(AuthAwareTokenConverter()) }
+    .build()
 }
