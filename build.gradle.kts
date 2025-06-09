@@ -59,7 +59,7 @@ dependencies {
   testImplementation("io.mockk:mockk:1.14.2")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.50.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.51.0")
   testCompileOnly("org.projectlombok:lombok")
 }
 
