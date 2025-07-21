@@ -3,7 +3,7 @@ import uk.gov.justice.digital.hmpps.gradle.PortForwardRedisTask
 import uk.gov.justice.digital.hmpps.gradle.RevealSecretsTask
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.3"
   kotlin("plugin.spring") version "2.2.0"
   kotlin("plugin.jpa") version "2.2.0"
 }
@@ -34,7 +34,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.6")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.8")
 
   implementation("io.swagger:swagger-annotations:1.6.16")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
@@ -47,7 +47,7 @@ dependencies {
   implementation("com.google.code.gson:gson")
   implementation("com.google.guava:guava:33.4.8-jre")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
-  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.17.0")
+  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.18.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
   implementation("uk.gov.service.notify:notifications-java-client:5.2.1-RELEASE")
 
@@ -56,10 +56,10 @@ dependencies {
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:4.1.1")
   testImplementation("org.wiremock:wiremock-standalone:3.13.1")
-  testImplementation("io.mockk:mockk:1.14.4")
+  testImplementation("io.mockk:mockk:1.14.5")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.51.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.52.0")
   testCompileOnly("org.projectlombok:lombok")
 }
 
