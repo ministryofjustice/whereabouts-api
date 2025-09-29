@@ -32,7 +32,7 @@ generic-service:
 
 # determine which slack channel alerts are sent to, via the correct Alert Manager receiver
 generic-prometheus-alerts:
-  alertSeverity: digital-prison-service
+  alertSeverity: hmpps-activities-management-prod
   rdsAlertsDatabases:
     cloud-platform-67257a8b15c64e7f: "Whereabouts API"
   sqsAlertsQueueNames:
