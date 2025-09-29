@@ -16,4 +16,4 @@ generic-service:
       - internal
 
 generic-prometheus-alerts:
-  alertSeverity: digital-prison-service-dev
+  alertSeverity: hmpps-activities-management-dev
