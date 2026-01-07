@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-jammy AS builder
+FROM eclipse-temurin:25.0.1_8-jdk-jammy AS builder
 
 ARG BUILD_NUMBER
 ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
@@ -11,7 +11,7 @@ RUN ./gradlew assemble -Dorg.gradle.daemon=false
 RUN apt-get update && apt-get install -y curl
 RUN curl https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem  > root.crt
 
-FROM eclipse-temurin:21-jre-jammy
+FROM eclipse-temurin:25.0.1_8-jre-jammy
 LABEL maintainer="HMPPS Digital Studio <info@digital.justice.gov.uk>"
 
 ARG BUILD_NUMBER
