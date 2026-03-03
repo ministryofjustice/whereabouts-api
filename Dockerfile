@@ -1,8 +1,10 @@
 ARG BASE_IMAGE=ghcr.io/ministryofjustice/hmpps-eclipse-temurin:25-jre-jammy
-FROM ${BASE_IMAGE} AS builder
+ARG BUILDER_IMAGE=eclipse-temurin:25-jdk-jammy
+FROM ${BUILDER_IMAGE} AS builder
+# USER root
 
 ARG BUILD_NUMBER
-ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
+ENV BUILD_NUMBER=${BUILD_NUMBER:-1_0_0}
 
 WORKDIR /app
 ADD . .
@@ -13,24 +15,26 @@ RUN apt-get update && apt-get install -y curl
 RUN curl https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem  > root.crt
 
 FROM ${BASE_IMAGE}
-LABEL maintainer="HMPPS Digital Studio <info@digital.justice.gov.uk>"
+LABEL maintainer="HMPPS Digital Studio <info@digital.justice# .gov.uk>"
+USER root
 
 ARG BUILD_NUMBER
-ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
+ENV BUILD_NUMBER=${BUILD_NUMBER:-1_0_0}
 
-RUN apt-get update && \
+RUN install -d -m 0755 /var/lib/apt/lists/partial && \
+    apt-get update && \
     apt-get -y upgrade && \
-    apt-get install -y curl && \
+    apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/*
 
 ENV TZ=Europe/London
 RUN ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezone
 
-RUN addgroup --gid 2000 --system appgroup && \
-    adduser --uid 2000 --system appuser --gid 2000
+RUN if ! getent group appgroup >/dev/null; then addgroup --gid 2000 --system appgroup; fi && \
+    if ! id -u appuser >/dev/null 2>&1; then adduser --uid 2000 --system appuser --gid 2000; fi
 
 # Install AWS RDS Root cert into Java truststore
-RUN mkdir /home/appuser/.postgresql
+RUN mkdir -p /home/appuser/.postgresql
 COPY --from=builder --chown=appuser:appgroup /app/root.crt /home/appuser/.postgresql/root.crt
 
 WORKDIR /app
