@@ -3,9 +3,9 @@ import uk.gov.justice.digital.hmpps.gradle.PortForwardRedisTask
 import uk.gov.justice.digital.hmpps.gradle.RevealSecretsTask
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.4.0"
-  kotlin("plugin.spring") version "2.3.10"
-  kotlin("plugin.jpa") version "2.3.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.6.0"
+  kotlin("plugin.spring") version "2.3.20"
+  kotlin("plugin.jpa") version "2.3.20"
 }
 
 configurations {
@@ -47,19 +47,19 @@ dependencies {
   implementation("com.google.code.gson:gson")
   implementation("com.google.guava:guava:33.5.0-jre")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
-  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.25.0")
+  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.26.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
   implementation("uk.gov.service.notify:notifications-java-client:6.0.0-RELEASE")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:5.1.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:5.1.1")
   testImplementation("org.wiremock:wiremock-standalone:3.13.2")
   testImplementation("io.mockk:mockk:1.14.9")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.59.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.60.1")
   testCompileOnly("org.projectlombok:lombok")
 }
 
