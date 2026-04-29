@@ -59,6 +59,7 @@ workflows:
             branches:
               only:
                 - main
+                - dev/SAA-4038-use-sre-base-image
           requires:
             - validate
             - helm_lint
