@@ -1,6 +1,6 @@
 ARG BASE_IMAGE=ghcr.io/ministryofjustice/hmpps-eclipse-temurin:25-jre-jammy
 
-FROM eclipse-temurin:25-jdk-jammy AS builder
+FROM eclipse-temurin:25.0.2_10-jdk-jammy AS builder
 
 ARG BUILD_NUMBER
 ENV BUILD_NUMBER=${BUILD_NUMBER:-1_0_0}
