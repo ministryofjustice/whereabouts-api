@@ -48,6 +48,7 @@ workflows:
             branches:
               only:
                 - main
+                - dev/SAA-4038-use-sre-base-image
       - hmpps/deploy_env:
           name: deploy_dev
           env: "dev"
