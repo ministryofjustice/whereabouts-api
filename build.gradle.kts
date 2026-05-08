@@ -48,7 +48,7 @@ dependencies {
   implementation("com.google.guava:guava:33.6.0-jre")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.27.0")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
   implementation("uk.gov.service.notify:notifications-java-client:6.0.0-RELEASE")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -59,7 +59,7 @@ dependencies {
   testImplementation("io.mockk:mockk:1.14.9")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.61.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.62.0")
   testCompileOnly("org.projectlombok:lombok")
 }
 
