@@ -17,7 +17,7 @@ jobs:
           keys:
             - gradle-{{ checksum "build.gradle.kts" }}
             - gradle-
-      - run: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit" -Dkotlin.daemon.jvm.options="--illegal-access=permit" check -x ktlintTestSourceSetCheck -x test
+      - run: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit" -Dkotlin.daemon.jvm.options="--illegal-access=permit" check -x ktlintTestSourceSetCheck
       - save_cache:
           paths:
             - ~/.gradle
@@ -48,7 +48,6 @@ workflows:
             branches:
               only:
                 - main
-                - dev/SAA-4338-Upgrade-to-Spring-Boot-v10
       - hmpps/deploy_env:
           name: deploy_dev
           env: "dev"
@@ -59,7 +58,6 @@ workflows:
             branches:
               only:
                 - main
-                - dev/SAA-4338-Upgrade-to-Spring-Boot-v10
           requires:
             - validate
             - helm_lint
