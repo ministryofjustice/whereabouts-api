@@ -7,14 +7,14 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 
 class CellMoveIntegrationTest : IntegrationTest() {
 
-  @MockBean
+  @MockitoBean
   lateinit var clock: Clock
 
   @BeforeEach

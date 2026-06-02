@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.digital.hmpps.whereabouts.model.RecurringAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RelatedAppointment
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
@@ -17,10 +17,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.repository.RecurringAppointmentR
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.Duration
 import java.time.LocalDateTime
-import java.util.Optional
+import java.util.*
 
 class AppointmentIntegrationTest : IntegrationTest() {
-  @MockBean
+  @MockitoBean
   lateinit var recurringAppointmentRepository: RecurringAppointmentRepository
 
   @BeforeEach

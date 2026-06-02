@@ -17,7 +17,7 @@ class AsyncConfiguration {
     corePoolSize = 2
     maxPoolSize = 2
     queueCapacity = 10
-    threadNamePrefix = "AsyncThread-"
+    setThreadNamePrefix("AsyncThread-")
     initialize()
   }
 }

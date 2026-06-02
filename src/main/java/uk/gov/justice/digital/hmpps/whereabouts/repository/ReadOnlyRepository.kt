@@ -5,7 +5,7 @@ import org.springframework.data.repository.Repository
 import java.util.Optional
 
 @NoRepositoryBean
-interface ReadOnlyRepository<T, ID> : Repository<T, ID> {
+interface ReadOnlyRepository<T : Any, ID : Any> : Repository<T, ID> {
   fun findById(id: ID): Optional<T>?
   fun findAll(): Set<T>?
 }

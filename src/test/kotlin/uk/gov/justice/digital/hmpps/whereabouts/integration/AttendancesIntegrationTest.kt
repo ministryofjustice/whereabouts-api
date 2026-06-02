@@ -8,7 +8,7 @@ import org.mockito.ArgumentMatchers.anySet
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendancesDto
 import uk.gov.justice.digital.hmpps.whereabouts.model.AbsentReason
@@ -23,7 +23,7 @@ import java.util.stream.Collectors
 
 class AttendancesIntegrationTest : IntegrationTest() {
 
-  @MockBean
+  @MockitoBean
   lateinit var attendanceRepository: AttendanceRepository
 
   @Test
@@ -196,7 +196,7 @@ class AttendancesIntegrationTest : IntegrationTest() {
         it.path("/attendances/LEI")
           .queryParam("date", LocalDate.of(2019, 10, 10))
           .queryParam("period", TimePeriod.PM)
-          .queryParam("bookings", setOf(1, 2))
+          .queryParam("bookings", 1, 2)
           .build()
       }
       .headers(setHeaders())
