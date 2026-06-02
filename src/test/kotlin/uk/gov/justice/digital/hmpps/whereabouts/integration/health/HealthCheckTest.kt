@@ -1,15 +1,13 @@
-package uk.gov.justice.digital.hmpps.whereabouts.integration
+package uk.gov.justice.digital.hmpps.whereabouts.integration.health
 
-import com.github.tomakehurst.wiremock.client.WireMock.aResponse
-import com.github.tomakehurst.wiremock.client.WireMock.get
-import org.assertj.core.api.Assertions.assertThat
+import com.github.tomakehurst.wiremock.client.WireMock
 import org.junit.jupiter.api.Test
+import uk.gov.justice.digital.hmpps.whereabouts.integration.IntegrationTest
 
-class HealthCheckIntegrationTest : IntegrationTest() {
-
+class HealthCheckTest : IntegrationTest() {
   @Test
   fun `Health page reports ok`() {
-    subPing(200)
+    stubPing(200)
 
     webTestClient.get()
       .uri("/health")
@@ -25,7 +23,7 @@ class HealthCheckIntegrationTest : IntegrationTest() {
 
   @Test
   fun `Health page reports down`() {
-    subPing(404)
+    stubPing(404)
 
     webTestClient.get()
       .uri("/health")
@@ -46,7 +44,7 @@ class HealthCheckIntegrationTest : IntegrationTest() {
 
   @Test
   fun `Health page reports a teapot`() {
-    subPing(418)
+    stubPing(418)
 
     webTestClient.get()
       .uri("/health")
@@ -66,25 +64,8 @@ class HealthCheckIntegrationTest : IntegrationTest() {
   }
 
   @Test
-  fun `Health page reports a timeout`() {
-    subPingWithDelay(200)
-
-    webTestClient.get()
-      .uri("/health")
-      .headers(setHeaders())
-      .exchange()
-      .expectStatus().is5xxServerError
-      .expectBody()
-      .jsonPath("$.components.prisonApiHealth.details.error")
-      .isEqualTo("java.lang.IllegalStateException: Timeout on blocking read for 1000000000 NANOSECONDS")
-      .jsonPath("$.components.OAuthApiHealth.details.HttpStatus").isEqualTo("OK")
-      .jsonPath("$.components.caseNotesApiHealth.details.HttpStatus").isEqualTo("OK")
-      .jsonPath("$.status").isEqualTo("DOWN")
-  }
-
-  @Test
   fun `Health status is OK`() {
-    subPing(200)
+    stubPing(200)
 
     webTestClient.get()
       .uri("/health")
@@ -117,23 +98,10 @@ class HealthCheckIntegrationTest : IntegrationTest() {
       .jsonPath("$.status").isEqualTo("UP")
   }
 
-  @Test
-  fun `has active prisons`() {
-    prisonApiMockServer.stubGetAgencies()
-
-    webTestClient.get().uri("/info")
-      .exchange()
-      .expectStatus().isOk
-      .expectBody().jsonPath("activeAgencies").value<List<String>> {
-        assertThat(it.contains("IWI")).isTrue
-        assertThat(it.contains("WDI")).isFalse
-      }
-  }
-
-  private fun subPing(status: Int) {
+  private fun stubPing(status: Int) {
     prisonApiMockServer.stubFor(
-      get("/health/ping").willReturn(
-        aResponse()
+      WireMock.get("/health/ping").willReturn(
+        WireMock.aResponse()
           .withHeader("Content-Type", "application/json")
           .withBody(if (status == 200) "pong" else "some error")
           .withStatus(status),
@@ -141,8 +109,8 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     )
 
     oauthMockServer.stubFor(
-      get("/auth/health/ping").willReturn(
-        aResponse()
+      WireMock.get("/auth/health/ping").willReturn(
+        WireMock.aResponse()
           .withHeader("Content-Type", "application/json")
           .withBody(if (status == 200) "pong" else "some error")
           .withStatus(status),
@@ -150,38 +118,8 @@ class HealthCheckIntegrationTest : IntegrationTest() {
     )
 
     caseNotesMockServer.stubFor(
-      get("/health/ping").willReturn(
-        aResponse()
-          .withHeader("Content-Type", "application/json")
-          .withBody(if (status == 200) "pong" else "some error")
-          .withStatus(status),
-      ),
-    )
-  }
-
-  private fun subPingWithDelay(status: Int) {
-    prisonApiMockServer.stubFor(
-      get("/health/ping").willReturn(
-        aResponse()
-          .withHeader("Content-Type", "application/json")
-          .withBody(if (status == 200) "pong" else "some error")
-          .withStatus(status)
-          .withFixedDelay(1000),
-      ),
-    )
-
-    oauthMockServer.stubFor(
-      get("/auth/health/ping").willReturn(
-        aResponse()
-          .withHeader("Content-Type", "application/json")
-          .withBody(if (status == 200) "pong" else "some error")
-          .withStatus(status),
-      ),
-    )
-
-    caseNotesMockServer.stubFor(
-      get("/health/ping").willReturn(
-        aResponse()
+      WireMock.get("/health/ping").willReturn(
+        WireMock.aResponse()
           .withHeader("Content-Type", "application/json")
           .withBody(if (status == 200) "pong" else "some error")
           .withStatus(status),

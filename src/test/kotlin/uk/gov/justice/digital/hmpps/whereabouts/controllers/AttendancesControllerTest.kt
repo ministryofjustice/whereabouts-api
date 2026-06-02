@@ -3,15 +3,13 @@ package uk.gov.justice.digital.hmpps.whereabouts.controllers
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.whenever
-import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
-import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.AttendanceHistoryDto
@@ -20,10 +18,8 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@WebMvcTest(
-  AttendancesController::class,
-  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class],
-)
+@WebMvcTest(AttendancesController::class)
+@ContextConfiguration(classes = [AttendancesController::class])
 class AttendancesControllerTest : TestController() {
   private val offenderNo = "A1234AB"
   private val startDate = LocalDate.of(2021, 3, 14)
@@ -44,7 +40,7 @@ class AttendancesControllerTest : TestController() {
     1,
   )
 
-  @MockBean
+  @MockitoBean
   lateinit var attendanceService: AttendanceService
 
   @Test

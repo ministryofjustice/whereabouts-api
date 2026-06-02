@@ -12,15 +12,9 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
 import uk.gov.justice.digital.hmpps.whereabouts.common.getGson
-import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
-import uk.gov.justice.digital.hmpps.whereabouts.dto.Event
-import uk.gov.justice.digital.hmpps.whereabouts.model.Location
-import uk.gov.justice.digital.hmpps.whereabouts.model.LocationGroup
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi
-import wiremock.org.eclipse.jetty.http.HttpStatus
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 class PrisonApiMockServer : WireMockServer(8999) {
   private val gson = getGson()
@@ -57,17 +51,6 @@ class PrisonApiMockServer : WireMockServer(8999) {
         .willReturn(
           aResponse()
             .withStatus(status),
-        ),
-    )
-  }
-
-  fun stubUpdateAppointmentComment(appointmentId: Long, status: Int = HttpStatus.NO_CONTENT_204) {
-    val updateAppointmentUrl = "/api/appointments/$appointmentId/comment"
-
-    stubFor(
-      put(urlPathEqualTo(updateAppointmentUrl))
-        .willReturn(
-          aResponse().withStatus(status),
         ),
     )
   }
@@ -122,55 +105,6 @@ class PrisonApiMockServer : WireMockServer(8999) {
                     "id" to 2L,
                     "agencyId" to agencyId,
                     "locationId" to 11L,
-                    "locationDescription" to "Res 1 Education",
-                    "appointmentTypeCode" to "MEH",
-                    "appointmentTypeDescription" to "Video Link Nooking",
-                    "startTime" to "2020-12-25T10:00:00",
-                    "endTime" to "2020-12-25T10:30:00",
-                    "offenderNo" to "B2345BB",
-                    "firstName" to "BILL",
-                    "lastName" to "BENN",
-                    "createUserId" to "BSMITH",
-                  ),
-                ),
-              ),
-            )
-            .withStatus(200),
-        ),
-    )
-  }
-
-  fun stubGetScheduledAppointmentsByAgencyDateAndLocationId(
-    agencyId: String,
-    offenderNo: String = "A1234AA",
-    locationId: Long,
-  ) {
-    stubFor(
-      get(urlEqualTo("/api/schedules/$agencyId/appointments?date=2020-12-25&locationId=$locationId"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withBody(
-              gson.toJson(
-                listOf(
-                  mapOf(
-                    "id" to 1L,
-                    "agencyId" to agencyId,
-                    "locationId" to locationId,
-                    "locationDescription" to "Res 1 Education",
-                    "appointmentTypeCode" to "VLB",
-                    "appointmentTypeDescription" to "Video Link Nooking",
-                    "startTime" to "2020-12-25T09:00:00",
-                    "endTime" to "2020-12-25T09:30:00",
-                    "offenderNo" to offenderNo,
-                    "firstName" to "BRUNO",
-                    "lastName" to "BEYETTE",
-                    "createUserId" to "ASMITH",
-                  ),
-                  mapOf(
-                    "id" to 2L,
-                    "agencyId" to agencyId,
-                    "locationId" to locationId,
                     "locationDescription" to "Res 1 Education",
                     "appointmentTypeCode" to "MEH",
                     "appointmentTypeDescription" to "Video Link Nooking",
@@ -330,168 +264,6 @@ class PrisonApiMockServer : WireMockServer(8999) {
     )
   }
 
-  fun stubGetAgencyLocationGroups(agencyId: String) {
-    stubFor(
-      get(urlEqualTo("/api/agencies/$agencyId/locations/groups"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withBody(
-              gson.toJson(
-                listOf(
-                  LocationGroup(key = "A", name = "Block A"),
-                ),
-              ),
-            )
-            .withStatus(200),
-        ),
-    )
-  }
-
-  fun stubGetAgencyLocationGroupsNotFound(agencyId: String) {
-    stubFor(
-      get(urlEqualTo("/api/agencies/$agencyId/locations/groups"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withBody(
-              gson.toJson(
-                ErrorResponse(
-                  404,
-                  null,
-                  "Resource with id [$agencyId] not found",
-                  "Resource with id [$agencyId] not found",
-                  null,
-                ),
-              ),
-            )
-            .withStatus(404),
-        ),
-    )
-  }
-
-  fun stubGetAgencyLocationsForTypeUnrestricted(agencyId: String, locationType: String, locations: List<Location>) {
-    stubFor(
-      get(urlEqualTo("/api/agencies/$agencyId/locations?eventType=$locationType"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withBody(gson.toJson(locations))
-            .withStatus(200),
-        ),
-    )
-  }
-
-  fun stubGetAgencyLocationGroupsServerError(agencyId: String) {
-    stubFor(
-      get(urlEqualTo("/api/agencies/$agencyId/locations/groups"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withBody(
-              gson.toJson(
-                ErrorResponse(500, null, "Server error", "Server error", null),
-              ),
-            )
-            .withStatus(500),
-        ),
-    )
-  }
-
-  fun stubAgencyLocationsByType(agencyId: String, locationType: String, locations: List<Location>) {
-    stubFor(
-      get(urlEqualTo("/api/agencies/$agencyId/locations/type/$locationType"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-type", "application/json")
-            .withBody(gson.toJson(locations.map { it.toMap() }))
-            .withStatus(200),
-        ),
-    )
-  }
-
-  // Null values are included by gson marshalled to JSON, so use a map to emulate to omit them
-  private fun Location.toMap(): Map<String, String> {
-    val locationMap = mutableMapOf(
-      "agencyId" to this.agencyId,
-      "currentOccupancy" to "${this.currentOccupancy}",
-      "description" to this.description,
-      "locationId" to "${this.locationId}",
-      "locationPrefix" to this.locationPrefix,
-      "locationType" to this.locationType,
-      "operationalCapacity" to "${this.operationalCapacity}",
-      "internalLocationCode" to this.internalLocationCode,
-    )
-    if (this.userDescription != null) locationMap["userDescription"] = this.userDescription as String
-    if (this.locationUsage != null) locationMap["locationUsage"] = this.locationUsage as String
-    if (this.parentLocationId != null) locationMap["parentLocationId"] = "${this.parentLocationId}"
-    return locationMap.toMap()
-  }
-
-  fun stubGetAgencyLocationsByTypeNotFound(agencyId: String, locationType: String) {
-    stubFor(
-      get(urlEqualTo("/api/agencies/$agencyId/locations/type/$locationType"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-type", "application/json")
-            .withBody(
-              gson.toJson(
-                listOf(
-                  ErrorResponse(
-                    404,
-                    null,
-                    "Locations of type [$locationType] in agency [$agencyId] not found",
-                    "Locations of type [$locationType] in agency [$agencyId] not found",
-                    null,
-                  ),
-                ),
-              ),
-            )
-            .withStatus(404),
-        ),
-    )
-  }
-
-  fun stubGetAgencyLocationsByTypeServerError(agencyId: String, locationType: String) {
-    stubFor(
-      get(urlEqualTo("/api/agencies/$agencyId/locations/type/$locationType"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-type", "application/json")
-            .withBody(
-              gson.toJson(
-                listOf(
-                  ErrorResponse(500, null, "Server error", "Server error", null),
-                ),
-              ),
-            )
-            .withStatus(500),
-        ),
-    )
-  }
-
-  fun stubAddAppointmentForBooking(bookingId: Long, eventId: Long = 1) {
-    stubFor(
-      post(urlEqualTo("/api/bookings/$bookingId/appointments"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-type", "application/json")
-            .withBody(
-              gson.toJson(
-                Event(
-                  eventId = eventId,
-                  agencyId = "WWI",
-                  eventLocationId = 10L,
-                  startTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0),
-                  endTime = LocalDateTime.of(2022, 1, 1, 11, 0, 0),
-                ),
-              ),
-            )
-            .withStatus(201),
-        ),
-    )
-  }
-
   fun stubAddAppointment(response: List<Map<String, Any>>? = null) {
     stubFor(
       post(urlEqualTo("/api/appointments"))
@@ -561,27 +333,6 @@ class PrisonApiMockServer : WireMockServer(8999) {
             .withHeader("Content-Type", "application/json")
             .withBody(ObjectMapper().writeValueAsString(response))
             .withStatus(200),
-        ),
-    )
-  }
-
-  fun stubGetLocation(locationId: Long, locationType: String = "VIDE") {
-    stubFor(
-      get(urlPathEqualTo("/api/locations/$locationId"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withStatus(200)
-            .withBody(
-              gson.toJson(
-                mapOf(
-                  "locationId" to locationId,
-                  "description" to "Location for id $locationId",
-                  "locationType" to locationType,
-                  "agencyId" to "WWI",
-                ),
-              ),
-            ),
         ),
     )
   }

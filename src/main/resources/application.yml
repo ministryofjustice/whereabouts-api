@@ -23,8 +23,10 @@ spring:
 
   jackson:
     date-format: "yyyy-MM-dd HH:mm:ss"
-    serialization:
-      WRITE_DATES_AS_TIMESTAMPS: false
+
+  http:
+    converters:
+      preferred-json-mapper: jackson2
 
   h2:
     console:
@@ -32,6 +34,9 @@ spring:
 
   security:
     oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${oauth.endpoint.url}/.well-known/jwks.json
       client:
         registration:
           elite2-api:
@@ -40,6 +45,12 @@ spring:
             client-secret: ${oauth.client.secret}
             authorization-grant-type: client_credentials
             scope: write
+          case-note-api:
+            provider: hmpps-auth
+            client-id: ${system.client.id}
+            client-secret: ${system.client.secret}
+            authorization-grant-type: client_credentials
+            scope: read,write
         provider:
           hmpps-auth:
             token-uri: ${oauth.endpoint.url}/oauth/token

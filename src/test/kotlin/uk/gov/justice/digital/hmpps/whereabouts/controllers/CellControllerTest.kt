@@ -7,14 +7,11 @@ import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
-import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
-import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.context.annotation.Import
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
@@ -24,16 +21,12 @@ import org.springframework.web.client.RestClientException
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveReasonDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult
 import uk.gov.justice.digital.hmpps.whereabouts.services.CellMoveService
-import uk.gov.justice.digital.hmpps.whereabouts.utils.UserMdcFilter
 
-@WebMvcTest(
-  CellMoveController::class,
-  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class],
-)
-@Import(UserMdcFilter::class, StubUserSecurityUtilsConfig::class)
+@WebMvcTest(CellMoveController::class)
+@ContextConfiguration(classes = [CellMoveController::class])
 class CellControllerTest : TestController() {
 
-  @MockBean
+  @MockitoBean
   lateinit var cellMoveService: CellMoveService
 
   @Test

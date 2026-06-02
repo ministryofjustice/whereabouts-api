@@ -2,8 +2,10 @@ package uk.gov.justice.digital.hmpps.whereabouts.controllers
 
 import jakarta.persistence.EntityNotFoundException
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.FORBIDDEN
+import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -14,8 +16,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestClientResponseException
+import org.springframework.web.context.request.WebRequest
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceExists
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceLocked
@@ -25,7 +29,7 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.InvalidCourtLocation
 import uk.gov.justice.digital.hmpps.whereabouts.services.ValidationException
 
 @RestControllerAdvice
-class ControllerAdvice {
+class ControllerAdvice : ResponseEntityExceptionHandler() {
   @ExceptionHandler(RestClientResponseException::class)
   fun handleException(e: RestClientResponseException): ResponseEntity<ByteArray> {
     log.error("Unexpected exception {}", e.message)
@@ -97,12 +101,12 @@ class ControllerAdvice {
   fun handleAttendanceLocked(e: AttendanceLocked): ResponseEntity<ErrorResponse> {
     log.debug("Attendance locked exception {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
+      .status(BAD_REQUEST)
       .contentType(MediaType.APPLICATION_JSON)
       .body(
         ErrorResponse
           .builder()
-          .status(HttpStatus.BAD_REQUEST.value())
+          .status(BAD_REQUEST.value())
           .userMessage(e.message)
           .developerMessage(e.message)
           .build(),
@@ -113,54 +117,71 @@ class ControllerAdvice {
   fun handleException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse> {
     log.debug("Required field missing {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
+      .status(BAD_REQUEST)
       .body(
         ErrorResponse
           .builder()
-          .status(HttpStatus.BAD_REQUEST.value())
+          .status(BAD_REQUEST.value())
           .developerMessage(e.message)
           .build(),
       )
   }
 
-  @ExceptionHandler(MissingServletRequestParameterException::class)
-  fun handleException(e: MissingServletRequestParameterException): ResponseEntity<ErrorResponse> {
-    log.debug("Required field missing {}", e.message)
+  override fun handleMissingServletRequestParameter(
+    ex: MissingServletRequestParameterException,
+    headers: HttpHeaders,
+    status: HttpStatusCode,
+    request: WebRequest,
+  ): ResponseEntity<Any>? {
+    log.info("missing servlet errors", ex)
+
     return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
+      .status(BAD_REQUEST)
       .body(
         ErrorResponse
           .builder()
-          .status(HttpStatus.BAD_REQUEST.value())
-          .developerMessage(e.message)
+          .status(BAD_REQUEST.value())
+          .developerMessage(ex.message)
           .build(),
       )
   }
 
-  @ExceptionHandler(HttpMessageNotReadableException::class)
-  fun handleException(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
-    log.debug("Failed to map into body data structure {}", e.message)
+  override fun handleHttpMessageNotReadable(
+    ex: HttpMessageNotReadableException,
+    headers: HttpHeaders,
+    status: HttpStatusCode,
+    request: WebRequest,
+  ): ResponseEntity<Any>? {
+    log.info("Exception not readable: {}", ex.message)
     return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
+      .status(BAD_REQUEST)
       .body(
         ErrorResponse
           .builder()
-          .status(HttpStatus.BAD_REQUEST.value())
-          .developerMessage(e.message)
+          .status(BAD_REQUEST.value())
+          .developerMessage(ex.message)
           .build(),
       )
   }
 
-  @ExceptionHandler(MethodArgumentNotValidException::class)
-  fun handleException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
-    log.debug("Request parameters not valid {}", e.message)
+  override fun handleMethodArgumentNotValid(
+    ex: MethodArgumentNotValidException,
+    headers: HttpHeaders,
+    status: HttpStatusCode,
+    request: WebRequest,
+  ): ResponseEntity<Any>? {
+    val errors = ex.bindingResult.allErrors.map { it.defaultMessage }
+
+    log.info("Constraint errors: {}", errors)
+
     return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
+      .status(BAD_REQUEST)
       .body(
         ErrorResponse
           .builder()
-          .status(HttpStatus.BAD_REQUEST.value())
-          .developerMessage(e.message)
+          .status(BAD_REQUEST.value())
+          .userMessage(ex.message)
+          .developerMessage(ex.message)
           .build(),
       )
   }
@@ -183,11 +204,11 @@ class ControllerAdvice {
   fun handleValidationException(e: Exception): ResponseEntity<ErrorResponse> {
     log.error("Validation exception {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
+      .status(BAD_REQUEST)
       .body(
         ErrorResponse
           .builder()
-          .status(HttpStatus.BAD_REQUEST.value())
+          .status(BAD_REQUEST.value())
           .userMessage(e.message)
           .developerMessage(e.message)
           .build(),
@@ -198,11 +219,11 @@ class ControllerAdvice {
   fun handleValidationException(e: InvalidCourtLocation): ResponseEntity<ErrorResponse> {
     log.error("InvalidCourtLocation exception {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
+      .status(BAD_REQUEST)
       .body(
         ErrorResponse
           .builder()
-          .status(HttpStatus.BAD_REQUEST.value())
+          .status(BAD_REQUEST.value())
           .userMessage(e.message)
           .developerMessage(e.message)
           .build(),

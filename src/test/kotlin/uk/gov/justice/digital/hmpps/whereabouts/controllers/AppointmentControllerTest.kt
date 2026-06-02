@@ -7,14 +7,12 @@ import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
-import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -25,15 +23,14 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateAppointmentSpecificati
 import uk.gov.justice.digital.hmpps.whereabouts.dto.Repeat
 import uk.gov.justice.digital.hmpps.whereabouts.model.RepeatPeriod
 import uk.gov.justice.digital.hmpps.whereabouts.services.AppointmentService
+import uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser
 import java.time.LocalDateTime
 
-@WebMvcTest(
-  AppointmentController::class,
-  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class],
-)
+@WebMvcTest(AppointmentController::class)
+@ContextConfiguration(classes = [AppointmentController::class])
 class AppointmentControllerTest : TestController() {
 
-  @MockBean
+  @MockitoBean
   lateinit var appointmentService: AppointmentService
 
   @Nested
@@ -150,7 +147,7 @@ class AppointmentControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `should return a HTTP 403`() {
-      val response = WebClientResponseException.create(403, "not authed", HttpHeaders(), null, null)
+      val response = WebClientResponseException.create(403, "not authed", HttpHeaders(), byteArrayOf(), null)
 
       whenever(appointmentService.createAppointment(any())).thenThrow(response)
 
@@ -166,7 +163,7 @@ class AppointmentControllerTest : TestController() {
     @Test
     @WithMockUser(username = "ITAG_USER")
     fun `should return a HTTP 401`() {
-      val response = WebClientResponseException.create(401, "not authed", HttpHeaders(), null, null)
+      val response = WebClientResponseException.create(401, "not authed", HttpHeaders(), byteArrayOf(), null)
 
       whenever(appointmentService.createAppointment(any())).thenThrow(response)
 
@@ -219,7 +216,7 @@ class AppointmentControllerTest : TestController() {
   @Nested
   inner class DeleteAppointment {
     @Test
-    @WithMockUser(username = "ITAG_USER")
+    @WithMockAuthUser(username = "ITAG_USER")
     fun `should delete an appointment`() {
       mockMvc.perform(
         delete("/appointment/$APPOINTMENT_ID")

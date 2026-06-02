@@ -10,10 +10,10 @@ class ActivePrisonsInfo(
   private val disabledPrisonsConfig: DisabledPrisonsConfig,
   private val prisonApiService: PrisonApiService,
 ) : InfoContributor {
-  override fun contribute(builder: Info.Builder?) {
+  override fun contribute(builder: Info.Builder) {
     val prisons = prisonApiService.activeAgencies
     val disabledPrisons = disabledPrisonsConfig.getPrisons()
-    builder?.withDetail(
+    builder.withDetail(
       "activeAgencies",
       prisons.filter { disabledPrisons.contains(it).not() },
     )
