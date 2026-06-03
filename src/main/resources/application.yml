@@ -47,8 +47,8 @@ spring:
             scope: write
           case-note-api:
             provider: hmpps-auth
-            client-id: ${system.client.id}
-            client-secret: ${system.client.secret}
+            client-id: ${oauth.client.id}
+            client-secret: ${oauth.client.secret}
             authorization-grant-type: client_credentials
             scope: read,write
         provider:
