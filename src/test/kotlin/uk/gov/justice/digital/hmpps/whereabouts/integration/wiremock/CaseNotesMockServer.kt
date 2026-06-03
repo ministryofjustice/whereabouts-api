@@ -12,15 +12,14 @@ import uk.gov.justice.digital.hmpps.whereabouts.dto.prisonapi.CaseNoteDto
 class CaseNotesMockServer : WireMockServer(8093) {
   private val gson = getGson()
 
-  fun stubCreateCaseNote(offenderNo: String = "AB1234C", caseNoteId: Long = 100L) {
-    val createCaseNote = "/case-notes/$offenderNo"
+  fun stubCreateCaseNote(offenderNo: String = "AB1234C", caseNoteId: Long = 100L, responseBody: String? = null) {
     stubFor(
-      post(urlPathEqualTo(createCaseNote))
+      post(urlPathEqualTo("/case-notes/$offenderNo"))
         .withHeader("CaseloadId", equalTo("***"))
         .willReturn(
           aResponse()
             .withHeader("Content-Type", "application/json")
-            .withBody(gson.toJson(CaseNoteDto.builder().legacyId(caseNoteId).build()))
+            .withBody(responseBody ?: gson.toJson(CaseNoteDto.builder().legacyId(caseNoteId).build()))
             .withStatus(201),
         ),
     )
