@@ -37,6 +37,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webclient")
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.3.2")
   implementation("org.springframework.boot:spring-boot-starter-flyway")
+  implementation("org.springframework.boot:spring-boot-jackson2")
 
   implementation("io.swagger:swagger-annotations:1.6.16")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")

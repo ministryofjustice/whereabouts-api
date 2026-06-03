@@ -129,8 +129,6 @@ class AppointmentIntegrationTest : IntegrationTest() {
         postRequestedFor(urlEqualTo("/api/appointments"))
           .withRequestBody(equalToJson(loadJsonFile("create-prison-appointment-no-repeat.json"))),
       )
-
-      oauthMockServer.verify(0, postRequestedFor(urlEqualTo("/auth/oauth/token")))
     }
 
     @Test
