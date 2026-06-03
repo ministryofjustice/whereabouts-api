@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.web.context.annotation.RequestScope
+import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.hmpps.kotlin.auth.authorisedWebClient
 import uk.gov.justice.hmpps.kotlin.auth.healthWebClient
@@ -37,11 +38,20 @@ class WebClientConfiguration(
     clientRegistrationRepository: ClientRegistrationRepository,
     oAuth2AuthorizedClientService: OAuth2AuthorizedClientService,
     builder: WebClient.Builder,
-  ) = builder.authorisedWebClient(
-    usernameAwareTokenRequestOAuth2AuthorizedClientManager(clientRegistrationRepository, oAuth2AuthorizedClientService),
-    "elite2-api",
-    prisonApiRootUri,
-  )
+  ) = builder
+    .exchangeStrategies(
+      ExchangeStrategies.builder()
+        .codecs { configurer ->
+          configurer.defaultCodecs()
+            .maxInMemorySize(-1)
+        }
+        .build(),
+    )
+    .authorisedWebClient(
+      usernameAwareTokenRequestOAuth2AuthorizedClientManager(clientRegistrationRepository, oAuth2AuthorizedClientService),
+      "elite2-api",
+      prisonApiRootUri,
+    )
 
   @Bean
   @RequestScope
