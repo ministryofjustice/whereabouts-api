@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.TestingAuthenticationToken
@@ -16,13 +17,14 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.CaseNotesMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.OAuthMockServer
 import uk.gov.justice.digital.hmpps.whereabouts.integration.wiremock.PrisonApiMockServer
-import uk.gov.justice.digital.hmpps.whereabouts.utils.JwtAuthHelper
+import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 import wiremock.org.apache.commons.io.IOUtils
 import java.nio.charset.StandardCharsets
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @ContextConfiguration
+@AutoConfigureWebTestClient(timeout = "36000")
 abstract class IntegrationTest {
 
   @Autowired
@@ -32,7 +34,7 @@ abstract class IntegrationTest {
   lateinit var objectMapper: ObjectMapper
 
   @Autowired
-  lateinit var jwtAuthHelper: JwtAuthHelper
+  lateinit var jwtAuthHelper: JwtAuthorisationHelper
 
   companion object {
     @JvmField
@@ -82,9 +84,16 @@ abstract class IntegrationTest {
     oauthMockServer.stubGrantToken()
   }
 
-  internal fun setHeaders(contentType: MediaType = MediaType.APPLICATION_JSON): (HttpHeaders) -> Unit = {
-    it.setBearerAuth(jwtAuthHelper.createJwt(subject = "ITAG_USER", roles = listOf("ROLE_LICENCE_CA", "ROLE_KW_ADMIN"), clientId = "elite2apiclient"))
-    it.contentType = contentType
+  internal fun setHeaders(contentType: MediaType = MediaType.APPLICATION_JSON): (HttpHeaders) -> Unit {
+    val setAuth = jwtAuthHelper.setAuthorisationHeader(
+      username = "ITAG_USER",
+      roles = listOf("ROLE_LICENCE_CA", "ROLE_KW_ADMIN"),
+      clientId = "elite2apiclient",
+    )
+    return {
+      setAuth(it)
+      it.contentType = contentType
+    }
   }
 
   fun loadJsonFile(jsonFile: String): String = IOUtils.toString(javaClass.getResourceAsStream(jsonFile), StandardCharsets.UTF_8.toString())

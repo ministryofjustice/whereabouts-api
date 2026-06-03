@@ -138,7 +138,7 @@ class AttendancesChangesIntegrationTest : IntegrationTest() {
       .isCreated
       .expectBody(AttendanceDto::class.java)
       .returnResult()
-      .responseBody
+      .responseBody!!
   }
 
   fun updateAttendance(attendance: AttendanceDto) {
@@ -169,6 +169,6 @@ class AttendancesChangesIntegrationTest : IntegrationTest() {
       .isOk
       .expectBody(AttendanceChangesResponse::class.java)
       .returnResult()
-      .responseBody
+      .responseBody!!
   }
 }

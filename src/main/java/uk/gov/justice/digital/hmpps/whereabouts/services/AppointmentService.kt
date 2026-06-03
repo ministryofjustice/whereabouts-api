@@ -121,7 +121,7 @@ class AppointmentService(
       ).orElse(null)
 
     if (recurringAppointment == null) {
-      prisonApiService.deleteAppointment(appointmentId, PrisonApi.EventPropagation.ALLOW)
+      prisonApiService.deleteAppointment(appointmentId, EventPropagation.ALLOW)
       return
     }
 
@@ -154,7 +154,7 @@ class AppointmentService(
     val recurringAppointmentToDelete = allRecurringAppointments.find { it.id == appointmentId }
     recurringAppointmentToDelete.let { allRecurringAppointments.remove(it) }
     if (allRecurringAppointments.size == 0) {
-      recurringAppointmentRepository.deleteById(recurringAppointment.id)
+      recurringAppointmentRepository.deleteById(recurringAppointment.id!!)
     }
   }
 

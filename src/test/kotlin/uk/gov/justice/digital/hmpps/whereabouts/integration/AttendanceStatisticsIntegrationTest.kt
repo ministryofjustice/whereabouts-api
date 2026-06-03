@@ -8,14 +8,14 @@ import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.digital.hmpps.whereabouts.model.Attendance
 import uk.gov.justice.digital.hmpps.whereabouts.model.TimePeriod
 import uk.gov.justice.digital.hmpps.whereabouts.repository.AttendanceRepository
 import java.time.LocalDate
 
 class AttendanceStatisticsIntegrationTest : IntegrationTest() {
-  @MockBean
+  @MockitoBean
   private lateinit var attendanceRepository: AttendanceRepository
 
   private val prisonId = "MDI"

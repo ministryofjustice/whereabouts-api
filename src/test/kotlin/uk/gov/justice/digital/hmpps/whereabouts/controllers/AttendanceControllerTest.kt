@@ -4,13 +4,11 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
-import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
-import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
@@ -23,12 +21,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceNotFound
 import uk.gov.justice.digital.hmpps.whereabouts.services.AttendanceService
 import java.time.LocalDate
 
-@WebMvcTest(
-  AttendanceController::class,
-  excludeAutoConfiguration = [SecurityAutoConfiguration::class, OAuth2ClientAutoConfiguration::class, OAuth2ResourceServerAutoConfiguration::class],
-)
+@WebMvcTest(AttendanceController::class)
+@ContextConfiguration(classes = [AttendanceController::class])
 class AttendanceControllerTest : TestController() {
-  @MockBean
+  @MockitoBean
   lateinit var attendanceService: AttendanceService
 
   @Test
