@@ -48,6 +48,7 @@ workflows:
             branches:
               only:
                 - main
+                - dev/SAA-4338-Fix-create-appt
       - hmpps/deploy_env:
           name: deploy_dev
           env: "dev"
@@ -58,6 +59,7 @@ workflows:
             branches:
               only:
                 - main
+                - dev/SAA-4338-Fix-create-appt
           requires:
             - validate
             - helm_lint
