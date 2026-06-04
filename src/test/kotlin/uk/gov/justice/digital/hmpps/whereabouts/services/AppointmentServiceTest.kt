@@ -30,11 +30,10 @@ import uk.gov.justice.digital.hmpps.whereabouts.services.PrisonApi.EventPropagat
 import uk.gov.justice.digital.hmpps.whereabouts.utils.DataHelpers
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.Optional
+import java.util.*
 
 class AppointmentServiceTest {
   private val prisonApiService: PrisonApiService = mock()
-  private val prisonApiServiceAuditable: PrisonApiServiceAuditable = mock()
   private val recurringAppointmentRepository: RecurringAppointmentRepository = mock()
   private val telemetryClient: TelemetryClient = mock()
 
@@ -44,7 +43,6 @@ class AppointmentServiceTest {
   fun before() {
     appointmentService = AppointmentService(
       prisonApiService,
-      prisonApiServiceAuditable,
       recurringAppointmentRepository,
       telemetryClient,
     )
@@ -343,7 +341,7 @@ class AppointmentServiceTest {
         endTime = END_TIME,
         appointmentType = "INST",
       )
-      whenever(prisonApiServiceAuditable.createAppointments(any())).thenReturn(
+      whenever(prisonApiService.createAppointments(any())).thenReturn(
         listOf(
           createAppointmentDetails.copy(appointmentEventId = 1),
           createAppointmentDetails.copy(appointmentEventId = 2),
@@ -363,7 +361,7 @@ class AppointmentServiceTest {
         ),
       )
 
-      verify(prisonApiServiceAuditable).createAppointments(
+      verify(prisonApiService).createAppointments(
         DataHelpers.makeCreatePrisonAppointment(
           bookingId = BOOKING_ID,
           startTime = START_TIME,
@@ -383,7 +381,7 @@ class AppointmentServiceTest {
         ),
       )
 
-      verify(prisonApiServiceAuditable).createAppointments(
+      verify(prisonApiService).createAppointments(
         DataHelpers.makeCreatePrisonAppointment(
           bookingId = BOOKING_ID,
           startTime = START_TIME,

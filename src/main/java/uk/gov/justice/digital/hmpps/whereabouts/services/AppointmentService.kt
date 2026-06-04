@@ -29,7 +29,6 @@ import java.time.LocalDateTime
 @Service
 class AppointmentService(
   private val prisonApiService: PrisonApiService,
-  private val prisonApiServiceAuditable: PrisonApiServiceAuditable,
   private val recurringAppointmentRepository: RecurringAppointmentRepository,
   private val telemetryClient: TelemetryClient,
 ) {
@@ -91,7 +90,7 @@ class AppointmentService(
   @Transactional
   fun createAppointment(createAppointmentSpecification: CreateAppointmentSpecification): List<CreatedAppointmentDetailsDto> {
     val appointmentCreated =
-      prisonApiServiceAuditable.createAppointments(makePrisonAppointment(createAppointmentSpecification))
+      prisonApiService.createAppointments(makePrisonAppointment(createAppointmentSpecification))
 
     createAppointmentSpecification.repeat?.let {
       val appointmentIds: Set<Long> = appointmentCreated?.map { it.appointmentEventId }?.toSet() ?: emptySet()
