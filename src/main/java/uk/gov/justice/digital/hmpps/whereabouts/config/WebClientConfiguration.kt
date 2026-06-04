@@ -61,10 +61,9 @@ class WebClientConfiguration(
     clientRegistrationRepository: ClientRegistrationRepository,
     oAuth2AuthorizedClientService: OAuth2AuthorizedClientService,
     builder: WebClient.Builder,
-  ) = builder
-    .authorisedWebClient(
-      usernameAwareTokenRequestOAuth2AuthorizedClientManager(clientRegistrationRepository, oAuth2AuthorizedClientService),
-      "case-note-api",
-      caseNotesRootUri,
-    )
+  ) = builder.authorisedWebClient(
+    usernameAwareTokenRequestOAuth2AuthorizedClientManager(clientRegistrationRepository, oAuth2AuthorizedClientService),
+    "case-note-api",
+    caseNotesRootUri,
+  )
 }
