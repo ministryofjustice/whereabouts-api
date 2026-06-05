@@ -48,6 +48,7 @@ workflows:
             branches:
               only:
                 - main
+                - bug/fix-app-version-in-app-insights
       - hmpps/deploy_env:
           name: deploy_dev
           env: "dev"
@@ -58,6 +59,7 @@ workflows:
             branches:
               only:
                 - main
+                - bug/fix-app-version-in-app-insights
           requires:
             - validate
             - helm_lint
