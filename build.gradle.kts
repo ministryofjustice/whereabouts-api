@@ -3,7 +3,7 @@ import uk.gov.justice.digital.hmpps.gradle.PortForwardRedisTask
 import uk.gov.justice.digital.hmpps.gradle.RevealSecretsTask
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.2"
   kotlin("plugin.spring") version "2.4.10"
   kotlin("plugin.jpa") version "2.4.10"
 }
@@ -52,7 +52,7 @@ dependencies {
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.30.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
-  implementation("uk.gov.service.notify:notifications-java-client:6.0.1-RELEASE")
+  implementation("uk.gov.service.notify:notifications-java-client:6.1.0-RELEASE")
 
   testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.0")
   testImplementation("org.springframework.boot:spring-boot-starter-test")

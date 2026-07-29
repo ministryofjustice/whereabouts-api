@@ -102,3 +102,8 @@ management:
 
 service:
    whereabouts-disabled: ${WHEREABOUTS_DISABLED:WDI,LPI}
+
+springdoc:
+  swagger-ui:
+    version: 5.32.11
+    tags-sorter: alpha
