@@ -52,7 +52,7 @@ dependencies {
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.30.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
-  implementation("uk.gov.service.notify:notifications-java-client:6.1.0-RELEASE")
+  implementation("uk.gov.service.notify:notifications-java-client:6.2.0-RELEASE")
 
   testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.0")
   testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -61,7 +61,7 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:6.1.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:6.2.0")
   testImplementation("org.wiremock:wiremock-standalone:3.13.2")
   testImplementation("io.mockk:mockk:1.14.11")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
