@@ -4,6 +4,7 @@ import com.microsoft.applicationinsights.TelemetryClient
 import jakarta.persistence.EntityNotFoundException
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveReasonDto
@@ -83,6 +84,15 @@ class CellMoveService(
 
     return CellMoveReasonDto(bookingId, bedAssigmentSequence, caseNoteId)
   }
+
+  /**
+   * A page of every cell move reason held, in primary key order, for export to
+   * hmpps-change-someones-cell-api ahead of this service's decommission. Callers walk the table by
+   * passing the last key of the previous page; an empty page means done.
+   */
+  fun getCellMoveReasons(lastBookingId: Long, lastBedAssignmentSequence: Int, pageSize: Int): List<CellMoveReasonDto> = cellMoveRepository
+    .findPageAfter(lastBookingId, lastBedAssignmentSequence, PageRequest.of(0, pageSize))
+    .map { CellMoveReasonDto(it.bookingId, it.bedAssignmentsSequence, it.caseNoteId) }
 
   companion object {
     private const val MOVE_CELL = "MOVED_CELL"
