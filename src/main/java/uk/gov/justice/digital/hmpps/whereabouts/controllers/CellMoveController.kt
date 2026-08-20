@@ -70,7 +70,26 @@ class CellMoveController {
   ): CellMoveResponse = CellMoveResponse(cellMoveResult = cellMoveService.makeCellMove(cellMoveDetails, lockTimeout))
 
   @GetMapping("/cell-move-reason/booking/{bookingId}/bed-assignment-sequence/{bedAssignmentId}")
-  @Operation(description = "Return cell move reason")
+  @Operation(
+    summary = "Return cell move reason (deprecated - the data here is frozen)",
+    deprecated = true,
+    description = """
+      **Deprecated. Switch to hmpps-change-someones-cell-api as soon as possible.**
+
+      Cell moves are no longer recorded by this service. Since the cell move UI switched to
+      `hmpps-change-someones-cell-api`, nothing writes to this table any more, so **the data behind
+      this endpoint is stale and will never grow**: any move made from that point onwards is not
+      here and never will be. A lookup for a recent move returns 404, which is indistinguishable
+      from a move that genuinely had no reason recorded.
+
+      The replacement is `GET /cell-movements/{bookingId}/bed-assignment/{bedAssignmentSequence}`
+      on hmpps-change-someones-cell-api (role `ROLE_CELL_MOVEMENTS__RO`). It serves both the
+      historic reasons migrated out of this service and every new move, so it is a superset of what
+      this endpoint can return - there is no window in which this endpoint is the better source.
+
+      This endpoint and its table are deleted once the last consumer has moved across.
+    """,
+  )
   @ApiResponses(
     value = [
       ApiResponse(responseCode = "400", description = "Invalid request."),
