@@ -10,6 +10,7 @@ import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveDetails
+import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveReasonDto
 import uk.gov.justice.digital.hmpps.whereabouts.dto.ErrorResponse
 import uk.gov.justice.digital.hmpps.whereabouts.dto.attendance.CellMoveReasonResponse
 import uk.gov.justice.digital.hmpps.whereabouts.services.CellMoveService
@@ -104,4 +106,41 @@ class CellMoveController {
     val cellMoveReason = cellMoveService.getCellMoveReason(bookingId, bedAssignmentId)
     return CellMoveReasonResponse(cellMoveReason = cellMoveReason)
   }
+
+  @GetMapping("/cell-move-reasons")
+  @PreAuthorize("hasRole('ROLE_CELL_MOVEMENTS__SYNC__RW')")
+  @Operation(
+    description = "Export a page of cell move reasons, in (bookingId, bedAssignmentSequence) order. " +
+      "Exists solely so hmpps-change-someones-cell-api can copy CELL_MOVE_REASON across ahead of this " +
+      "service's decommission - it takes over the cell move and serves this data from its own tables. " +
+      "Walk the table by passing the last key of the previous page; an empty page means the export is " +
+      "complete. Requires role ROLE_CELL_MOVEMENTS__SYNC__RW.",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "401",
+        description = "Missing the ROLE_CELL_MOVEMENTS__SYNC__RW role. (This service's error handling maps access denied to 401 rather than 403.)",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "500",
+        description = "Unrecoverable error occurred whilst processing request.",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
+  )
+  fun getCellMoveReasons(
+    @RequestParam(name = "lastBookingId", required = false, defaultValue = "0") lastBookingId: Long,
+    @RequestParam(name = "lastBedAssignmentSequence", required = false, defaultValue = "0") lastBedAssignmentSequence: Int,
+    @RequestParam(name = "pageSize", required = false, defaultValue = "1000") pageSize: Int,
+  ): CellMoveReasonsExportResponse = CellMoveReasonsExportResponse(
+    // Clamped rather than rejected: this service's error handling has no mapping for parameter
+    // constraint violations, and an export caller asking for too much simply gets the cap.
+    cellMoveReasons = cellMoveService.getCellMoveReasons(lastBookingId, lastBedAssignmentSequence, pageSize.coerceIn(1, 1000)),
+  )
 }
+
+data class CellMoveReasonsExportResponse(
+  val cellMoveReasons: List<CellMoveReasonDto>,
+)
