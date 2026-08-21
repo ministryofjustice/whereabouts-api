@@ -1,6 +1,6 @@
 ARG BASE_IMAGE=ghcr.io/ministryofjustice/hmpps-eclipse-temurin:25-jre-jammy
 
-FROM eclipse-temurin:25.0.3_9-jdk-jammy AS builder
+FROM eclipse-temurin:25.0.4_7-jdk-jammy AS builder
 
 
 WORKDIR /app
