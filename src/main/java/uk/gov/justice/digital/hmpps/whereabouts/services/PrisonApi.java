@@ -13,7 +13,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.BookingActivity;
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreateBookingAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatePrisonAppointment;
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CreatedAppointmentDetailsDto;
@@ -266,22 +265,6 @@ public abstract class PrisonApi {
             .bodyValue(createPrisonAppointment)
             .retrieve()
             .bodyToMono(responseType)
-            .block();
-    }
-
-    public CellMoveResult putCellMove(final long bookingId, final String internalLocationDescription, final String reasonCode, final Boolean lockTimeout) {
-        final var responseType = new ParameterizedTypeReference<CellMoveResult>() {
-        };
-
-        return webClient.put()
-            .uri("/bookings/{bookingId}/living-unit/{internalLocationDescription}?lockTimeout={lockTimeout}&reasonCode={reasonCode}",
-                bookingId, internalLocationDescription, lockTimeout, reasonCode)
-            .retrieve()
-            .bodyToMono(responseType)
-            .onErrorResume(
-                WebClientResponseException.class,
-                e -> Mono.error(e.getStatusCode().value() == 423 ? new DatabaseRowLockedException() : e))
-            .timeout(Duration.ofSeconds(12))
             .block();
     }
 

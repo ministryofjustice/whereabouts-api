@@ -1,80 +1,21 @@
 package uk.gov.justice.digital.hmpps.whereabouts.services
 
-import com.microsoft.applicationinsights.TelemetryClient
 import jakarta.persistence.EntityNotFoundException
-import jakarta.transaction.Transactional
-import org.slf4j.LoggerFactory
-import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveDetails
 import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveReasonDto
-import uk.gov.justice.digital.hmpps.whereabouts.dto.CellMoveResult
-import uk.gov.justice.digital.hmpps.whereabouts.model.CellMoveReason
 import uk.gov.justice.digital.hmpps.whereabouts.model.CellMoveReasonPK
 import uk.gov.justice.digital.hmpps.whereabouts.repository.CellMoveReasonRepository
-import java.time.Clock
-import java.time.LocalDateTime
 
+/**
+ * Reads the frozen CELL_MOVE_REASON table. This service no longer makes cell moves - that moved to
+ * hmpps-change-someones-cell-api, and the endpoint that did it was removed with MAPA-282 - so
+ * nothing writes here any more. What is left serves the historic rows to the last consumer still
+ * reading them, and goes when that consumer does.
+ */
 @Service
 class CellMoveService(
-  val prisonApiService: PrisonApiService,
-  val caseNotesService: CaseNotesService,
   val cellMoveRepository: CellMoveReasonRepository,
-  val telemetryClient: TelemetryClient,
-  val clock: Clock,
 ) {
-
-  @Transactional
-  fun makeCellMove(cellMoveDetails: CellMoveDetails, lockTimeout: Boolean): CellMoveResult {
-    val occurrenceDateTime = LocalDateTime.now(clock)
-
-    log.info("Making a cell move: {}", cellMoveDetails.copy(commentText = ""))
-
-    val moveResult = prisonApiService.putCellMove(
-      cellMoveDetails.bookingId,
-      cellMoveDetails.internalLocationDescriptionDestination,
-      cellMoveDetails.cellMoveReasonCode,
-      lockTimeout,
-    )
-
-    log.info(
-      "Creating a case note: offenderNo: {} type: {} subType: {}",
-      cellMoveDetails.offenderNo,
-      MOVE_CELL,
-      cellMoveDetails.cellMoveReasonCode,
-    )
-
-    val caseNoteDetails = caseNotesService.postCaseNote(
-      cellMoveDetails.offenderNo,
-      MOVE_CELL,
-      cellMoveDetails.cellMoveReasonCode,
-      cellMoveDetails.commentText,
-      occurrenceDateTime,
-    )
-
-    val cellMove = CellMoveReason(
-      bookingId = moveResult.bookingId,
-      bedAssignmentsSequence = moveResult.bedAssignmentHistorySequence,
-      caseNoteId = caseNoteDetails.legacyId,
-    )
-
-    log.info("Saving cell move details: {}", cellMove)
-
-    cellMoveRepository.save(cellMove)
-
-    telemetryClient.trackEvent(
-      "CellMove",
-      mapOf(
-        "bookingId" to moveResult.bookingId.toString(),
-        "assignedLivingUnitDesc" to moveResult.assignedLivingUnitDesc,
-        "assignedLivingUnitId" to moveResult.assignedLivingUnitId.toString(),
-        "cellMoveReasonCode" to cellMoveDetails.cellMoveReasonCode,
-      ),
-      null,
-    )
-
-    return moveResult.copy(caseNoteId = caseNoteDetails.legacyId)
-  }
 
   fun getCellMoveReason(bookingId: Long, bedAssigmentSequence: Int): CellMoveReasonDto {
     val (_, _, caseNoteId) = cellMoveRepository.findById(CellMoveReasonPK(bookingId, bedAssigmentSequence))
@@ -83,19 +24,5 @@ class CellMoveService(
       }
 
     return CellMoveReasonDto(bookingId, bedAssigmentSequence, caseNoteId)
-  }
-
-  /**
-   * A page of every cell move reason held, in primary key order, for export to
-   * hmpps-change-someones-cell-api ahead of this service's decommission. Callers walk the table by
-   * passing the last key of the previous page; an empty page means done.
-   */
-  fun getCellMoveReasons(lastBookingId: Long, lastBedAssignmentSequence: Int, pageSize: Int): List<CellMoveReasonDto> = cellMoveRepository
-    .findPageAfter(lastBookingId, lastBedAssignmentSequence, PageRequest.of(0, pageSize))
-    .map { CellMoveReasonDto(it.bookingId, it.bedAssignmentsSequence, it.caseNoteId) }
-
-  companion object {
-    private const val MOVE_CELL = "MOVED_CELL"
-    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
