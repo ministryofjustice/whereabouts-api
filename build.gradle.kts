@@ -8,6 +8,9 @@ plugins {
   kotlin("plugin.jpa") version "2.4.21"
 }
 
+// CVE-2026-76183 - hmpps gradle plugin pins 11.0.25. Remove this once it pins 11.0.26 or later
+extra["tomcat.version"] = "11.0.26"
+
 configurations {
   implementation { exclude(module = "tomcat-jdbc") }
   testImplementation { exclude(group = "org.junit.vintage") }
