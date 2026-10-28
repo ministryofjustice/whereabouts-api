@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
+import org.springdoc.core.customizers.OpenApiCustomizer
 import org.springframework.boot.info.BuildProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -43,7 +44,7 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
       Info()
         .title("HMPPS Whereabouts API")
         .version(version)
-        .description("API for prisoner whereabouts")
+        .description("$RETIREMENT_NOTICE\n\nAPI for prisoner whereabouts")
         .contact(
           Contact()
             .name("HMPPS Digital Studio")
@@ -51,4 +52,19 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
         ),
     )
     .addSecurityItem(SecurityRequirement().addList("bearer-jwt", listOf("read", "write")))
+
+  @Bean
+  fun retirementNotices(): OpenApiCustomizer = OpenApiCustomizer { openApi ->
+    openApi.paths.values.forEach { path ->
+      path.readOperations().forEach { operation ->
+        operation.deprecated = true
+        operation.description = listOfNotNull(RETIREMENT_NOTICE, operation.description).joinToString("\n\n")
+      }
+    }
+  }
+
+  private companion object {
+    const val RETIREMENT_NOTICE = "Whereabouts-API will shortly be retired. Functionality has been replaced by DPS Activities & Appointments. " +
+      "Seek advice from the TA on slack channel #activities-and-appointments-dev"
+  }
 }

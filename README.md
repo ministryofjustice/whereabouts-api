@@ -1,5 +1,9 @@
 # whereabouts-api
 
+> **Deprecated:** Whereabouts-API will shortly be retired. Functionality has been replaced by DPS Activities & Appointments. Seek advice from the TA on slack channel #activities-and-appointments-dev
+
+Do not adopt this API for new integrations. All operations in the OpenAPI specification are marked as deprecated, and the retirement notice appears in the API overview and each operation's description in Swagger UI in every environment. Existing endpoint behaviour is unchanged.
+
 [![CircleCI](https://circleci.com/gh/ministryofjustice/whereabouts-api/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/whereabouts-api)
 
 A Spring Boot app to manage the location (whereabouts) of prisoners for the Digital Prison Services.  Backend services for https://github.com/ministryofjustice/prisonstaffhub/.
