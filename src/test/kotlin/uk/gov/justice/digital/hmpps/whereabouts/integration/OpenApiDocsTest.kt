@@ -65,6 +65,25 @@ class OpenApiDocsTest(
     assertThat(result.messages).isEmpty()
   }
 
+  @Test
+  fun `the open api documentation warns that all endpoints are deprecated`() {
+    val retirementNotice = "Whereabouts-API will shortly be retired. Functionality has been replaced by DPS Activities & Appointments. " +
+      "Seek advice from the TA on slack channel #activities-and-appointments-dev"
+    val result = OpenAPIV3Parser().readLocation("http://localhost:$port/v3/api-docs", null, null)
+
+    assertThat(result.messages).isEmpty()
+    val openApi = result.openAPI
+    assertThat(openApi.info.description).isEqualTo("$retirementNotice\n\nAPI for prisoner whereabouts")
+    val operations = openApi.paths.values.flatMap { it.readOperations() }
+    assertThat(operations).isNotEmpty.allSatisfy { operation ->
+      assertThat(operation.deprecated).isTrue()
+      assertThat(operation.description).startsWith(retirementNotice)
+    }
+    assertThat(openApi.paths["/absence-reasons"]!!.get.description).isEqualTo(retirementNotice)
+    assertThat(openApi.paths["/attendances/changes"]!!.get.description)
+      .isEqualTo("$retirementNotice\n\nReturn all changes relating to an attendance")
+  }
+
   @ParameterizedTest
   @Disabled("TODO Enable this test once you have added security schema to OpenApiConfiguration.OpenAPi().components(). Add the security scheme / roles to @CsvSource")
   @CsvSource(value = ["security-scheme-name, ROLE_"])
