@@ -67,7 +67,7 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.68.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.48") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.49") {
     exclude(group = "io.swagger.core.v3")
   }
 }
