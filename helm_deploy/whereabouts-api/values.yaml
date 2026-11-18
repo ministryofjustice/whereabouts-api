@@ -30,7 +30,7 @@ generic-service:
       memory: 512Mi
 
   env:
-    JAVA_OPTS: "-Xmx512m"
+    JAVA_OPTS: "-Xmx512m -XX:-UseBASE64Intrinsics"
     SPRING_PROFILES_ACTIVE: "postgres,logstash"
     SERVER_PORT: "8080"
     APPLICATIONINSIGHTS_CONNECTION_STRING: "InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"
